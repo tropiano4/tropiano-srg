@@ -13,6 +13,8 @@
 #  32     Epelbaum et al N3LO (550/600 MeV cutoff)
 #  90     Reinert-Krebs-Epelbaum LO (400 MeV cutoff)
 # 119     Wendt LO non-local potential at 4 fm^-1 cutoff
+# 120     Wendt LO non-local potential at 9 fm^-1 cutoff
+# 121     Wendt LO non-local potential at 20 fm^-1 cutoff
 #
 # Also saves SRG evolved potentials in the same directory.
 

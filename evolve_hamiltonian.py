@@ -7,7 +7,7 @@
 import time
 import numpy as np
 # Scripts made by A.T.
-import load_save_potentials as L
+from Potentials.vsrg_macos import load_save_potentials as L
 import srg_wegner
 import srg_kinetic_energy
 import srg_block_diagonal
