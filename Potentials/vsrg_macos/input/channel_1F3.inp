@@ -1,0 +1,5 @@
+! 1F3 Vsrg/Vlowk channel parameters 
+3    ! l --- orbital angular momentum [integer]
+0    ! s --- spin [integer]
+3    ! jt --- total j [integer]
+0    ! itz --- specify np or pp or nn [integer]

@@ -1,0 +1,156 @@
+Instructions for using the "generate_vsrg_vlowk" code
+  Last revised:  08-May-2017  --- with newEM potentials
+
+This version of the code was modified slightly so that it compiled with
+ gfortran.  It has been tested to some degree, but there may be bugs
+ introduced.  Issues:
+   * Substitutes for the compile options used by ifort have been instituted.
+      It is not certain that something was missed.
+   * In n3low.f, character and integer variables were mixed.  The characters
+      have been declared explicitly, but some may be mixed.
+   * In allvnnmodels.f, functions  
+  
+This code will calculate low-momentum potentials starting from the most
+ common conventional and chiral EFT "high-precision" potentials.
+   * The choices for the initial potential include AV18, CD-Bonn,
+      Nijmegen I and II, the N3LO potentials from Entem and Machleidt
+      (400, 500, and 600 MeV), and the NLO, N2LO, and N3LO potentials 
+      from Epelbaum et al.
+  ** Just added the new (April, 2017) Entem-Machleidt potentials    
+
+!     kvnn=1 Paris
+!         =2 Bonn
+!         =3 reid93
+!         =4 nij1
+!         =5 nij2
+!         =6 v18
+!         =7 cdbonn
+!         =8 idaho(NNLO) 
+!         =9 chiral(N3LO epelbaum) [default LS 550 MeV, SFR 600 MeV cutoffs]
+!         10 idaho(N3LO) 500 MeV cutoff 
+!         11 large cutoff LO+promoted cts
+!         12 idaho(N3LO) 600 MeV cutoff
+!         13 idaho(N3LO) SHARP cutoff  
+! 
+!  More kvnn numbers to accommodate new local chiral EFT from Epelbaum et al.
+!         15 ichiral.f90 potential 
+!    kvnn = 40-44  ostat=0; cutnum=1-5
+!    kvnn = 45-49  ostat=1; cutnum=1-5
+!    kvnn = 50-54  ostat=2; cutnum=1-5
+!    kvnn = 55-59  ostat=3; cutnum=1-5
+!    kvnn = 60-64  ostat=4; cutnum=1-5
+!  where
+!     ostat = 0,1,2,3,4 --> LO, NLO, N2LO, N3LO, N4LO
+!     cutnum = 1,2,3,4,5 --> 0.8, 0.9, 1.0, 1.1, 1.2 fm cutoff
+
+!    kvnn = 20-24  ostat=0; cutnum=1-5
+!    kvnn = 25-29  ostat=1; cutnum=1-5
+!    kvnn = 30-34  ostat=2; cutnum=1-5
+!**  1) NLO (OSTAT=0):                                                    **
+!**      CUTNUM         LS cut-off       SFR cut-off                      **
+!**        1             400 MeV           500 MeV                        **
+!**        2             550 MeV           500 MeV                        **
+!**        3             550 MeV           600 MeV                        **
+!**        4             400 MeV           700 MeV                        **
+!**        5             550 MeV           700 MeV                        **
+!**  2) NNLO (OSTAT=1):                                                   **
+!**      CUTNUM         LS cut-off       SFR cut-off                      **
+!**        1             450 MeV           500 MeV                        **
+!**        2             600 MeV           500 MeV                        **
+!**        3             550 MeV           600 MeV                        **
+!**        4             450 MeV           700 MeV                        **
+!**        5             600 MeV           700 MeV                        **
+!**  3) NNNLO (OSTAT=2):                                                  **
+!**      CUTNUM         LS cut-off       SFR cut-off                      **
+!**        1             450 MeV           500 MeV                        **
+!**        2             600 MeV           600 MeV                        **
+!**        3             550 MeV           600 MeV                        **
+!**        4             450 MeV           700 MeV                        **
+!**        5             600 MeV           700 MeV                        **
+!
+   
+!  More kvnn numbers to accommodate new non-local chiral EFT from Entem and Machleidt
+!    kvnn = 70-74  lo, nlo, n2lo, n3lo, n4lo for 450 MeV cutoff
+!    kvnn = 75-79  lo, nlo, n2lo, n3lo, n4lo for 500 MeV cutoff
+!    kvnn = 80-84  lo, nlo, n2lo, n3lo, n4lo for 550 MeV cutoff
+
+
+   * The low-momentum potential can be a Similarity Renormalization
+      Group (SRG) potential or a Vlowk potential (with either sharp
+      or smooth regulator of relative momentum).  
+   * The "run_generate_vsrg_vlowk_newEM.pl" Perl script is used to create the
+      relevant input files.  The output is in the form of potentials
+      on a Gaussian quadrature momentum-space mesh (for a given partial
+      wave channel) with a separate file containing the nodes and
+      weights for the mesh.  The SRG potentials are output on the
+      same full mesh as the initial potential (with "ntot" points)
+      while the vlowk potentials are output on a truncated mesh
+      (with the first "nmod" of the "ntot" points in the initial mesh). 
+      
+To set up and run generate_vsrg_vlowk_newEM:
+ 1. Unpack the tarball into a working directory with
+      tar xfvz generate_vsrg_vlowk_newEM.tarz
+ 2. Edit the makefile (called "make_generate_vsrg_vlowk_newEM") to set your Fortran
+    compiler (the variable COMPILER) and the type of processor (the variable
+    ARCH). You will probably need to change the LDFLAGS variable so that it has
+    the correct path(s) and possibly the FFLAGS and/or the F90FLAGS variable if
+    you need to include special paths for include files. Compile
+    and link the code:
+ 3. 
+      make -f make_generate_vsrg_vlowk_newEM
+ 4. Edit the "run_generate_vsrg_vlowk_newEM.pl" script to specify the initial
+     potential(s), the type of low-momentum potential, the resolution
+     parameters (lambda or Lambda), and the partial waves.  All of the
+     necessary input files will be generated by this script and
+     saved in the $input_dir subdirectory.
+ 5. Run the code:
+       ./run_generate_vsrg_vlowk_newEM.pl
+     or, to run it in the background and save output in a log file:
+       ./run_generate_vsrg_vlowk_newEM.pl > generate_vsrg_vlowk_EM.log &
+   
+ 6. Several work files (with names like fort.67) will be generated.
+     The actual output files will be moved to the $output_dir
+     subdirectory.  
+   
+      
+Packing list (these files are included in the generate_vsrg_vlowk.tarz tarball):
+ make_generate_vsrg
+./src/nrtype.f90
+./src/f2kcli_ifort.f90
+./src/chiraln3lo.f90
+./src/rk_suite.f
+./src/ode_shampine_and_gordon.f
+./src/interpolation.f
+./src/lo450.f
+./src/lo500.f
+./src/lo550.f
+./src/minterpolation.f
+./src/n2lo450.f
+./src/n2lo500.f
+./src/n2lo550.f
+./src/n3lo.f
+./src/n3lo450new.f
+./src/n3lo500new.f
+./src/n3lo550new.f
+./src/n3lo600.f
+./src/n3low.f
+./src/n4lo450.f
+./src/n4lo500.f
+./src/n4lo550.f
+./src/allvnnmodels_r8.f
+./src/vlowk_sharp_cutoff.f90
+./src/vlowk_smooth_cutoff.f90
+./src/v_srg.f90
+./src/hermitization.f90
+./src/vlowkperipherals.f90
+./src/vlowkmodule.f90
+./src/phaseshift.f
+./src/input_file.f90
+./src/generate_vsrg.f90
+run_generate_vsrg.pl
+./modules/
+./srg/
+./srg/
+README_generate_vsrg_vlowk_newEM
+                          
+########################## end README file ###########################

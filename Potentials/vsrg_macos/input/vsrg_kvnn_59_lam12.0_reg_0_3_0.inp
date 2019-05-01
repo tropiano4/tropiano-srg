@@ -1,0 +1,17 @@
+! Vlowk potential parameters 
+59     ! kvnn (see MODULE inputoutput for table)
+12.0   ! Lambda
+0     ! smooth (1 if smooth, 0 if sharp)
+0.250000000000  ! fac ==> actual mesh cutoff is fac*Lambda (fac=1.0 for smooth)
+0     ! ireg (1=sharp, 2=exp, 3=Woods-Saxon, 4=tanh, 5=power law)
+0     ! nsmooth ==> integer smoothness parameter (exponent)
+0.00  ! rsmooth ==> real smoothness parameter (for non-exponential)
+3     ! imeth ==> method (1=Lee-Suzuki, 2=3-step procedure)
+0     ! iherm ==> Hermitization (1=G-S, 2=Okubo, 3=Cholesky, 4=kato) 
+ 
+! Mesh parameters 
+120   ! ntot   ==> momentum mesh size for P+Q = full = bare space
+54    ! nmod  ==> momentum mesh size for low-k = P space
+15.0  ! kmax ==> maximum momentum for bare potential
+
+! End of input file 

@@ -1,0 +1,283 @@
+#!/usr/bin/perl 
+# NOTE: The above path is machine dependent!!!
+
+#------------------------------------------------------------------------
+#  File: run_generate_vsrg_vlowk_smschiral_all.pl
+#
+#  Authors:  R.J. Furnstahl  
+#               furnstahl.1@osu.edu
+#
+#  Revision history: 
+#   12-Dec-2006 --- original version, based on csh script run_generate_vsrg
+#   20-Dec-2006 --- added kmid capability
+#   02-Feb-2007 --- calling new generate_vsrg_vlowk code
+#   13-Aug-2016 --- generated all files up to Jmax
+#   02-Apr-2018 --- generating SMS (semi-local momentum space) s-waves
+#   
+
+# This script runs the executable generate_vsrg_vlowk.x one or more times,
+#  creating the appropriate input files (which must be created ahead of
+#  time) and renaming the standard output files. 
+
+# Notes:
+#  * Everything on a line after a "#" is a comment.
+#  * Make it executable with (do this if you get a "permission denied" error):
+#       chmod +x run_generate_vsrg_vlowk.pl
+#  * If you want to run in the background with output in the file vsrg.log:
+#       run_generate_vsrg_vlowk.pl > vsrg_vlowk.log &s
+#    (You can, of course, use any name for the log file.)
+
+#------------------------ begin setup ------------------------------------
+
+# From here until "end setup" you specify parameters of the calculation
+
+# The "regulator" is specified by the parameters ireg, imeth, iherm, and
+#  if relevant, smoothness parameters.  The value of reg (below) then serves 
+#  to distinguish various input and output files.
+$smooth = 0; # (1 if smooth regulator, 0 if sharp or SRG)
+$fac = 2.0;  # actual mesh cutoff is fac*lambda (fac=1.0 for sharp or SRG)
+$ireg = 0;   # (0=SRG, 1=sharp, 2=exp, 3=Woods-Saxon, 4=tanh, 5=power law)
+$imeth = 3;  # method (1=Lee-Suzuki, 2=3-step procedure, 3=SRG)
+$iherm = 0;  # Hermitization (0=SRG, 1=G-S, 2=Okubo, 3=Cholesky, 4=kato)
+$nsmooth = 0;     # integer smoothness parameter [exponent] (0 for SRG)
+$rsmooth = 0.00;  # real smoothness parameter [for non-exponential] (0.0 for SRG)
+
+# Set the momentum mesh parameters
+$nmod = 54;  # momentum points for low-k = P space (up to lambda for SRG) 
+#$ntot = 120; # momentum points for P+Q = full = bare space
+$ntot = 240;
+#$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
+$kmax = 30.0;
+#$kmax = 35.0; # kmax ==> maximum momentum for bare potential
+#$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
+$kmid = 4.0;
+#$kmid = 8.0;
+
+# The potentials are labeled by the value of kvnn (see allvnnmodels.f)
+#  Some standard values:
+#    kvnn   description                                 
+#      6     Argonne v18                                
+#     10     Entem/Machleidt N3LO (500 MeV cutoff)      
+#     12     Entem/Machleidt N3LO (600 MeV cutoff)
+#     13     Entem/Machleidt N3LOW (400 MeV cutoff)
+#     32     Epelbaum et al N3LO (550/600 MeV cutoff)
+#
+#    kvnn = 40-44  ostat=0; cutnum=1-5
+#    kvnn = 45-49  ostat=1; cutnum=1-5
+#    kvnn = 50-54  ostat=2; cutnum=1-5
+#    kvnn = 55-59  ostat=3; cutnum=1-5
+#    kvnn = 60-64  ostat=4; cutnum=1-5
+#  where
+#     ostat = 0,1,2,3,4 --> LO, NLO, N2LO, N3LO, N4LO
+#     cutnum = 1,2,3,4,5 --> 0.8, 0.9, 1.0, 1.1, 1.2 fm cutoff
+
+#  More kvnn numbers to accommodate 2017 semi-local chiral EFT from Reinert-Krebs-Epelbaum (RKE)
+#          16 smschiral_RS.f90 potential 
+#   
+#    kvnn = 90-93    ostat=0; cutnum=1-4
+#    kvnn = 95-98    ostat=1; cutnum=1-4
+#    kvnn = 100-103  ostat=2; cutnum=1-4
+#    kvnn = 105-108  ostat=3; cutnum=1-4
+#    kvnn = 110-113  ostat=4; cutnum=1-4
+#    kvnn = 115-118  ostat=5; cutnum=1-4
+#  where
+#     ostat = 0,1,2,3,4,5 --> LO, NLO, N2LO, N3LO, N4LO, N4LO+
+#     cutnum = 1,2,3,4--> 400, 450, 500, 550 MeV cutoff
+
+#@kvnns = (90,91,92,93,95,96,97,98,100,101,102,103,105,106,107,108,110,111,112,113,115,116,117,118);
+#@kvnns = (90); # RKE semi-local potential
+#@kvnns = (110);
+#@kvnns = (20); # Modified by AT: Epelbaum (2005) at LO
+@kvnns = (06); # Modified by AT: Argonne v18
+#@kvnns = (10); # Modified by AT: Entem-Machleidt
+
+# The following list is all of the semi-local EKM potentials
+#@kvnns = (40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64);
+
+# Just do the R=0.9, N4LO potential (kvnn=61)
+#@kvnns = (61);
+#@kvnns = (44,49,54,59,64);
+# @kvnns = (41,46,51,56,61);
+
+# Here lambda can mean the \Lambda cutoff for V_lowk or \lambda for V_srg 
+#@lambdas = (15.0,12.0,10.0,9.0,8.0,7.0,6.0,5.5,5.0,4.5,4.0,3.5,3.0,2.5,2.0,1.5);
+#@lambdas = (7.0,2.4,2.2,2.0,1.8,1.6);
+
+#@lambdas = (20.);
+@lambdas = (12.);   # following the sample code by Evgeny 30-Nov-2017
+
+# Set the partial waves to be calculated
+$J_max = 13;  # highest J value
+%pw_hash = (
+             0 => "S",
+             1 => "P",
+             2 => "D",
+             3 => "F",
+             4 => "G",
+             5 => "H",
+             6 => "I",
+             7 => "K",
+             8 => "L",
+             9 => "M",
+            10 => "N",
+            11 => "O",
+            12 => "Q"
+           );
+
+# The following could be generated automatically!
+@pws = ("1S0","3P0","3S1",
+        "3P1","1P1","3P2",
+        "3D2","1D2","3D3",
+        "3F3","1F3","3F4",
+        "3G4","1G4","3G5",
+        "3H5","1H5","3H6",
+        "3I6","1I6","3I7",
+        "3K7","1K7","3K8",
+        "3L8","1L8","3L9",
+        "3M9","1M9","3M10",
+        "3N10","1N10","3N11",
+        "3O11","1O11","3O12",
+        "3Q12","1Q12","3Q13"
+        );
+@pws = ("1S0","3S1");
+#@pws = ("3P0");
+#@pws = ("3N12","1M10","1O12");
+
+#-------------------------- end setup -------------------------------------
+
+use File::Copy::Vigilant;
+use File::Path qw(make_path);
+
+if ($ireg eq 0) {
+  $reg = sprintf("_reg_%1d_%1d_%1d",$ireg,$imeth,$iherm);
+} elsif ($ireg eq 2) {
+  $reg = sprintf("_reg_%1d_%1d_%1d_%1d",$ireg,$imeth,$iherm);
+} else {
+  $reg = sprintf("_reg_%1d_%1d_%1d",$ireg,$imeth,$iherm);
+} 
+
+foreach $kvnn (@kvnns) {
+
+  foreach $lambda (@lambdas) {
+    #$kmid = $lambda  # This is the old default
+    $fac = $kmid/$lambda;
+    print " lambda = $lambda, fac = $fac\n";
+
+    # set the input directory relative to the current one (or absolute path) 
+    # set the output directory relative to the current one (or absolute path) 
+    $location = "";
+    $kmax_print = sprintf("%1.0f",$kmax);
+    $kmid_print = sprintf("%1.0f",$kmid);
+    $output_dir_string = sprintf("vsrg_RKE_kvnn_%02d_lam%02.1f_kmax%s_kmid%s", $kvnn, $lambda, $kmax_print, $kmid_print);
+    $output_dir = $output_dir_string;
+    if (!-d $output_dir ) {
+      make_path $output_dir or die "Failed to create directory: $output_dir";
+    }
+    $input_dir = "input";
+
+    foreach $pw (@pws) {
+
+      # Common string with kvnn and lambda and regulator
+      $file_string = sprintf("_kvnn_%02d_lam%02.1f%s", $kvnn, $lambda, $reg);
+
+      # The input file name has kvnn, lambda, and the regulator specification
+      $input_filename = $input_dir . "/vsrg" . $file_string . ".inp";
+      print "  input filename: $input_filename\n";
+      # Create the input file from the specifications above
+      open(INFILE,"> $input_filename");
+      print INFILE "! Vlowk potential parameters \n";
+      print INFILE "$kvnn     ! kvnn (see MODULE inputoutput for table)\n";
+      $lambda_print = sprintf("%2.1f",$lambda);
+      print INFILE "$lambda_print   ! Lambda\n";
+      print INFILE "$smooth     ! smooth (1 if smooth, 0 if sharp)\n"; 
+      $fac_print = sprintf("%14.12f",$fac);
+      print INFILE "$fac_print  ! fac ==> actual mesh cutoff is fac*Lambda (fac=1.0 for smooth)\n";
+      print INFILE "$ireg     ! ireg (1=sharp, 2=exp, 3=Woods-Saxon, 4=tanh, 5=power law)\n";
+      print INFILE "$nsmooth     ! nsmooth ==> integer smoothness parameter (exponent)\n";
+      $rsmooth_print = sprintf("%4.2f",$rsmooth);
+      print INFILE "$rsmooth_print  ! rsmooth ==> real smoothness parameter (for non-exponential)\n";
+      print INFILE "$imeth     ! imeth ==> method (1=Lee-Suzuki, 2=3-step procedure)\n";
+      print INFILE "$iherm     ! iherm ==> Hermitization (1=G-S, 2=Okubo, 3=Cholesky, 4=kato) \n";
+      print INFILE " \n! Mesh parameters \n";
+      print INFILE "$ntot   ! ntot   ==> momentum mesh size for P+Q = full = bare space\n";
+      print INFILE "$nmod    ! nmod  ==> momentum mesh size for low-k = P space\n";
+      $kmax_print = sprintf("%4.1f",$kmax);
+      print INFILE "$kmax_print  ! kmax ==> maximum momentum for bare potential\n";
+      print INFILE "\n! End of input file \n";
+      close INFILE;
+
+      # The channel file is labeled by the partial wave
+      $channel_filename = $input_dir . "/channel_" . $pw . ".inp";
+      print "channel filename: $channel_filename\n";
+      # Create the channel file from the partial wave specification
+      $pw =~ /^(\d)(\D)(\d+)$/;
+      if ($2 eq "S") {$orbital = 0}
+        elsif ($2 eq "P") {$orbital = 1;}
+      	elsif ($2 eq "D") {$orbital = 2;}
+      	elsif ($2 eq "F") {$orbital = 3;}
+      	elsif ($2 eq "G") {$orbital = 4;}
+      	elsif ($2 eq "H") {$orbital = 5;}
+        elsif ($2 eq "I") {$orbital = 6;}
+        elsif ($2 eq "K") {$orbital = 7;}
+        elsif ($2 eq "L") {$orbital = 8;}
+        elsif ($2 eq "M") {$orbital = 9;}
+        elsif ($2 eq "N") {$orbital = 10;}
+        elsif ($2 eq "O") {$orbital = 11;}
+        elsif ($2 eq "Q") {$orbital = 12;}
+      	else {die "illegal partial wave!";};
+      $spin = ($1 - 1)/2;
+      $jt = $3;
+      $itz = 0;  # for now, only np
+      open(CHFILE,"> $channel_filename");
+      print CHFILE "! $pw Vsrg/Vlowk channel parameters \n";
+      print CHFILE "$orbital    ! l --- orbital angular momentum [integer]\n";
+      print CHFILE "$spin    ! s --- spin [integer]\n";
+      print CHFILE "$jt    ! jt --- total j [integer]\n";
+      print CHFILE "$itz    ! itz --- specify np or pp or nn [integer]\n";
+      close CHFILE;
+
+      # Run the code, passing the two input filenames
+      `./generate_vsrg_vlowk_2017FKE.x $input_filename $channel_filename`;
+      
+      # There are three relevant output files: The mesh and weight file
+      #  (generate_vsrg_vlowk_mesh.dat), the initial potential
+      #  (generate_vsrg_vlowk_bare.out), and the evolved potential
+      #  (generate_vsrg_vlowk.out).  They are renamed here.
+
+      $mesh_file = $output_dir . "/vsrg_" . $pw . $file_string . "_mesh.out";
+      print "mesh file = $mesh_file \n";
+      move_vigilant("generate_vsrg_vlowk_mesh.dat", $mesh_file) 
+         || print "*** cannot rename mesh file ***\n";
+
+      $vnn_output_file = $output_dir . "/vnn_" . $pw . $file_string . ".out";
+      print "vnn output file = $vnn_output_file \n";
+      move_vigilant("generate_vsrg_vlowk_bare.out", $vnn_output_file)
+         || print "*** cannot rename vnn output file *** \n";
+
+      sleep(2);
+      # $output_file = $output_dir . "/vsrg_" . $pw . $file_string . ".out";
+      # print "output file = $output_file \n";
+      # rename("generate_vsrg_vlowk.out", $output_file)
+      #    || die "cannot rename vsrg_vlowk output file";
+
+      # $weinberg_file = $output_dir . "/weinberg_" . $pw . $file_string . ".out";
+      # print "Weinberg eigenvalue file = $weinberg_file \n";
+      # rename("generate_vsrg_vlowk_weinberg.out", $weinberg_file)
+      #    || die "cannot rename vsrg_vlowk weinberg file";
+
+      # $weinberg2_file = $output_dir . "/weinberg2_" . $pw . $file_string . ".out";
+      # print "Weinberg2 eigenvalue file = $weinberg2_file \n";
+      # rename("generate_vsrg_vlowk_weinberg2.out", $weinberg2_file)
+      #    || die "cannot rename vsrg_vlowk weinberg2 file";
+
+      if ($pw eq "3S1")
+      {
+        $deuteron_file = $output_dir . "/deuteron_" . $pw . $file_string . ".out";
+        print "Deuteron energy file = $deuteron_file \n";
+        rename("fort.11", $deuteron_file)
+           || die "cannot rename vsrg_vlowk deuteron file";
+      }     
+
+    }  # end pw loop
+  }    # end lambda loop
+}      # end kvnn loop

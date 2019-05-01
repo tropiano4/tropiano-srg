@@ -1,0 +1,5 @@
+! 1J7 Vsrg/Vlowk channel parameters 
+7    ! l --- orbital angular momentum [integer]
+0    ! s --- spin [integer]
+7    ! jt --- total j [integer]
+0    ! itz --- specify np or pp or nn [integer]

@@ -1,0 +1,5 @@
+! 3L8 Vsrg/Vlowk channel parameters 
+8    ! l --- orbital angular momentum [integer]
+1    ! s --- spin [integer]
+8    ! jt --- total j [integer]
+0    ! itz --- specify np or pp or nn [integer]
