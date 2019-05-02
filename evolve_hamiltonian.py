@@ -42,6 +42,9 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
     T0_matrix = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
     k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
+    # h-bar^2 / M [MeV fm^2] for conversion of MeV to fm^-2
+    hbar_sq_over_M = 41.47
+    
     # Initialize SRG class
     if generator == 'Wegner':
         
@@ -79,9 +82,9 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
         # Save evolved potential for each lambda value
         for lamb in lambda_array:
 
-            Hs_matrix = d[lamb]
-            # Subtract off kinetic energy
-            Vs_matrix = Hs_matrix - T0_matrix
+            Hs_matrix = d[lamb] # Units are fm^-2 here
+            # Subtract off kinetic energy (need to convert from MeV to fm^-2)
+            Vs_matrix = Hs_matrix - T0_matrix/hbar_sq_over_M
             # Save evolved potential
             lp.save_potential(k_array, k_weights, Vs_matrix, kvnn, channel, kmax, 
                               kmid, ntot, method, generator, lamb, lambda_bd)
@@ -128,4 +131,4 @@ if __name__ == '__main__':
     
     # Run evolution without saving
     #d = main(kvnn, channel, kmax, kmid, ntot, method, generator, \
-    #         lambda_array, lambda_bd, save=False)
+             #lambda_array, lambda_bd, save=False)
