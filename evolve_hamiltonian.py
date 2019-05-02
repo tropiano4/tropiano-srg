@@ -1,13 +1,15 @@
 # Created 05/01/19 by A.T. (tropiano.4@osu.edu)
 
 # Run SRG or Magnus. This script runs an SRG or Magnus evolution for a given
-# Hamiltonian in units MeV.
+# Hamiltonian in units MeV. SRG and Magnus codes return a dictionary of the
+# evolved Hamiltonian (in units fm^-2) at each point in lambda (which serves
+# as the key).
 
 
 import time
 import numpy as np
 # Scripts made by A.T.
-from Potentials.vsrg_macos import load_save_potentials as L
+from Potentials.vsrg_macos import load_save_potentials as lp
 import srg_wegner
 import srg_kinetic_energy
 import srg_block_diagonal
@@ -18,7 +20,7 @@ import srg_block_diagonal
 def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
          lambda_bd=0.00, save=True):
     '''This function evolves a specified Hamiltonian to several values of
-    lambda [fm^-1] and has the option to save evolved potentials.'''
+    lambda [fm^-1] and has the option to save the evolved potentials.'''
     
     # Arguments
     
@@ -29,14 +31,16 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
     # ntot (integer): Number of momentum points in mesh
     # method (string): The evolution method ('srg' or 'magnus')
     # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lambda_array (NumPy array): Array of lambda values to be evolved to
+    # lambda_array (NumPy array): Array of lambda evolution values 
     # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
     # fm^-1)
     # save (Boolean): Option to save evolved potentials. If true, writes the
-    # data formatted as initial potentials.
+    # evolved potential formatted similar to the initial potentials.
     
-    # Load Hamiltonian
-    H0_matrix = L.load_H(kvnn, channel, kmax, kmid, ntot)
+    # Load Hamiltonian, kinetic energy and weights
+    H0_matrix = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+    T0_matrix = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
+    k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # Initialize SRG class
     if generator == 'Wegner':
@@ -45,23 +49,21 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
       
     elif generator == 'T':
 
-        T0_matrix = L.load_T(kvnn, channel, kmax, kmid, ntot)     
         srg = srg_kinetic_energy.SRG(H0_matrix, T0_matrix)
         
     elif generator == 'Block-diag':
         
-        k_array = L.load_mesh(kvnn, channel, kmax, kmid, ntot)[0]
-        cc = L.coupled_channel(channel)
+        cc = lp.coupled_channel(channel)
         srg = srg_block_diagonal.SRG(H0_matrix, lambda_bd, k_array, cc)
         
-    # Time the evolution and return dictionary d
+    # Time the evolution and return dictionary d of evolved Hamiltonians
     t0 = time.time() # Start time
     d = srg.evolve_hamiltonian(lambda_array)
     t1 = time.time() # End time
     
     mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
     print('_'*80)
-    print('H(s) done evolving to lambda = %.1f fm^-1 after %f minutes'%( \
+    print('H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'%( \
           lambda_array[-1], mins))
     print('_'*80)
     print('Specifications:\n')
@@ -74,8 +76,15 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
     # Writes evolved potentials to files if save = True
     if save:
         
-        # Use a function from load_save_potentials here
-        a = 1
+        # Save evolved potential for each lambda value
+        for lamb in lambda_array:
+
+            Hs_matrix = d[lamb]
+            # Subtract off kinetic energy
+            Vs_matrix = Hs_matrix - T0_matrix
+            # Save evolved potential
+            lp.save_potential(k_array, k_weights, Vs_matrix, kvnn, channel, kmax, 
+                              kmid, ntot, method, generator, lamb, lambda_bd)
         
     # Otherwise, return the dictionary d
     else:
@@ -85,11 +94,17 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
 
 if __name__ == '__main__':
     
-    # Example: Evolve EM N3LO
     
     # Specify potential
-    kvnn = 10
+    
+    #kvnn = 6 # AV18
+    #kvnn = 10 # EM N3LO
+    kvnn = 119 # Wendt at Lambda = 4 fm^-1
+    #kvnn = 120 # Wendt at Lambda = 9 fm^-1
+    #kvnn = 121 # Wendt at Lambda = 20 fm^-1
+    
     channel = '3S1'
+    
     kmax = 30.0
     kmid = 4.0
     ntot = 120
@@ -102,16 +117,15 @@ if __name__ == '__main__':
     generator = 'Wegner'
     #generator = 'T'
     #generator = 'Block-diag'
-    lambda_bd = 2.00
+    lambda_bd = 2.00 # This won't affect the band-diagonal generators
     
-    #lambda_array = np.array([10.0,2.8,2.0,1.2])
+    lambda_array = np.array([10.0,2.8,2.0,1.2])
     #lambda_array = np.array([10.0,2.8])
-    lambda_array = np.array([10.0])
+    #lambda_array = np.array([10.0])
 
     # Run evolution with saving
-    #main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
-    #     lambda_bd)
+    main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, lambda_bd)
     
     # Run evolution without saving
-    d = main(kvnn, channel, kmax, kmid, ntot, method, generator, \
-             lambda_array, lambda_bd, save=False)
+    #d = main(kvnn, channel, kmax, kmid, ntot, method, generator, \
+    #         lambda_array, lambda_bd, save=False)

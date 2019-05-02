@@ -1,4 +1,5 @@
 # Created 03/22/19 by A.T. (tropiano.4@osu.edu)
+# Updated 05/02/19 by A.T. to save and load SRG/Magnus evolved potentials
 
 # Loads potentials from Potentials/vsrg_macos directory.
 # Potentials are organized by a kvnn number and the details of their momentum
@@ -18,11 +19,12 @@
 #
 # Also saves SRG evolved potentials in the same directory.
 
-from os import getcwd,chdir
+
+from os import getcwd, chdir
 import numpy as np
 
 
-def load_mesh(kvnn, channel, kmax, kmid, ntot):
+def load_momentum(kvnn, channel, kmax, kmid, ntot):
     '''Load momentum and weights for given potential.'''
     
     # Arguments
@@ -73,7 +75,7 @@ def load_mesh(kvnn, channel, kmax, kmid, ntot):
     return k_array, k_weights
     
 
-def load_V(kvnn, channel, kmax, kmid, ntot, method='initial', \
+def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
            generator='Wegner', lamb=1.2, lambda_bd=0.00):
     '''Loads an NN potential in units fm.'''
     
@@ -84,7 +86,7 @@ def load_V(kvnn, channel, kmax, kmid, ntot, method='initial', \
     # kmax (float): Maximum value in the momentum mesh
     # kmid (float): Mid-point value in the momentum mesh
     # ntot (integer): Number of momentum points in mesh
-    # method (string): The evolution method ('srg' or 'magnus') or 'initial'
+    # method (string): The evolution method 'srg' or 'magnus' - 'initial'
     # if unevolved
     # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
     # lamb (float): Evolution parameter lambda in units fm^-1
@@ -140,7 +142,7 @@ def load_V(kvnn, channel, kmax, kmid, ntot, method='initial', \
     return V
 
 
-def load_T(kvnn, channel, kmax, kmid, ntot):
+def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
     '''Loads relative kinetic energy in units MeV.'''
     
     # Arguments
@@ -155,7 +157,7 @@ def load_T(kvnn, channel, kmax, kmid, ntot):
     hbar_sq_over_M = 41.47
     
     # Load momentum array
-    k_array = load_mesh(kvnn, channel, kmax, kmid, ntot)[0]
+    k_array = load_momentum(kvnn, channel, kmax, kmid, ntot)[0]
     # Matrix of (h-bar*k)^2 / M along diagonal (n x n)
     T = np.diag(k_array**2)*hbar_sq_over_M
     
@@ -171,7 +173,7 @@ def load_T(kvnn, channel, kmax, kmid, ntot):
     return T
     
 
-def load_H(kvnn, channel, kmax, kmid, ntot):
+def load_hamiltonian(kvnn, channel, kmax, kmid, ntot):
     '''Loads Hamiltonian for given potential in units MeV.'''
     
     # Arguments
@@ -183,13 +185,13 @@ def load_H(kvnn, channel, kmax, kmid, ntot):
     # ntot (integer): Number of momentum points in mesh
     
     # Load relative kinetic energy in units MeV
-    T = load_T(kvnn, channel, kmax, kmid, ntot)
+    T = load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)
     
     # Load potential in units fm
-    V = load_V(kvnn, channel, kmax, kmid, ntot)
+    V = load_potential(kvnn, channel, kmax, kmid, ntot)
     
     # Load momentum and weights
-    k_array, k_weights = load_mesh(kvnn, channel, kmax, kmid, ntot)
+    k_array, k_weights = load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # Convert to units MeV
     V = convert2MeV(k_array, k_weights, V, coupled_channel(channel))
@@ -198,7 +200,7 @@ def load_H(kvnn, channel, kmax, kmid, ntot):
     return T+V
 
 
-def save_V(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, method, \
+def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, method, \
            generator, lamb, lambda_bd=0.00):
     '''Saves an SRG or Magnus evolved potential in units fm.'''
     
@@ -352,5 +354,5 @@ def convert2MeV(k_array, k_weights, V, coupled_channel=False):
 
 if __name__ == '__main__':
     
-    # Example for loading momentum mesh and weights below
-    V = load_V(6,'3S1',30.0,4.0,120)
+    # Example for loading an initial potential below
+    V = load_potential(6,'3S1',30.0,4.0,120)
