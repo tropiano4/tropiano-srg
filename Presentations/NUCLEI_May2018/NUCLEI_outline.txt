@@ -1,0 +1,84 @@
+05/23/18
+  * Registered title: "Decoupling of bound states with the Magnus expansion and the IM-SRG".
+
+  * What is covered: The Magnus expansion implementation on NN potentials at high EFT cutoffs. The SRG evolution of these potentials 
+has shown sensitivity to choice of generator (relative kinetic energy or Wegner). Here we compare the Magnus implementation to the 
+typical SRG approach for these potentials and show that the Magnus expansion converges to the SRG result. With the Wegner SRG generator, 
+the Magnus expansion can be used to soften NN potentials without shifting deeply bound states in the low-energy scale, and the SRG flow 
+equations can be solved with a crude ODE solver without loss of accuracy in the eigenvalues of the evolved operator.
+
+  * Build off of APS talk including more on the RKE semi-local potentials and outlook on the Magnus expansion with the IM-SRG.
+
+  * Figures:
+    Decoupling of hamiltonian in Fock-space (from Nathan's seminar)
+    Wendt contour (Lambda = 4 fm^-1)
+    Wendt contour (Lambda = 9 fm^-1)
+    Diagonal/off-diagonal potential matrix elements for several truncations in Magnus (both Wegner and T_rel)
+    Contours of potential matrix elements for k = 2, 4 and SRG (non-local; both Wegner and T_rel)
+    Contours of potential matrix elements for k = 2, 4 and SRG (semi-local)
+    Phase shifts of Magnus, SRG, non-evolved?
+
+  * Outline:
+
+    1. Title slide
+      * Essentially the same as APS talk
+
+    2. IM-SRG
+      * What is the problem (motivate need for IM-SRG)?
+      * How does the IM-SRG work?
+      * Save flow eqn, generator, etc. for SRG slide
+
+    3. The Magnus expansion: Formalism
+      * U(s), flow equation for Omega(s), details...
+
+    4. The Magnus expansion: Motivation
+      * Can solve for any operator
+	E.g. electromagnetic moments, transition matrices
+      * Can use first-order Euler method with no loss in accuracy in observables
+
+    5. The Magnus expansion: Test case
+      * Intruder states, do SRG for test case (Magnus holds in SRG too)
+
+    6. SRG in free-space
+      * In free-space:
+          Soften operator by decoupling low- and high-momenta (include figure illustrating this)
+      * Formalism
+          Evolved Hamiltonian, flow equation, generator eta
+      * Important take-away: at low cutoffs (~500 MeV), choice of generator does not matter
+      * Nothing like intruder states at 4 fm^-1
+
+    7. Test case: NN potentials with large EFT cutoffs
+      * Background: what has been shown with the SRG
+	  Wendt contour (Lambda = 9 fm^-1), differences in Wegner and T_rel generators
+          More detail on previous SRG results
+      * Why is this an interesting test problem for the Magnus expansion?
+      * "From EFT perspective deeply bound states are outside range of EFT"
+      * "In practice, do they corrupt low momentum physics?"
+      * Transition to weird Wegner T_rel behavior in SRG
+      * Reference new paper
+
+    8. Results: Convergence of Magnus to SRG
+      * Use non-local potential
+      * Diagonals and off-diagonals figure(s)
+      * Contours for Wegner
+      * Contours for T_rel
+      * Important take-away: the evolution of the spurious bound state matches SRG behavior REGARDLESS of truncation
+
+    9. Results: Accuracy of observables
+      * Repeat U(s) equation (U is unitary)
+      * Relative error in deuteron binding energy
+      * Include root mean squared error of all eigenvalues?
+      * Phase shifts?
+
+    10. Results: Comparison of non- v. semi-local potential
+      * Explain distinction of this potential v. the non-local one
+      * How does the semi-local potential evolve under the Magnus compared to the SRG?
+      * How does the semi-local potential evolve compared to the non-local potential?
+      * Same generator sensitivity at low/high cutoffs? UNANSWERED ATM
+
+    11. Summary and outlook
+      * Summarize free-space results
+      * Outlook
+          The Magnus expansion with the IM-SRG
+          Where in k does the spurious bound state start appearing?
+	  How to compare Lambda_EFT for non- and semi-local?

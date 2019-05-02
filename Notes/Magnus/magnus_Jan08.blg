@@ -1,0 +1,67 @@
+This is BibTeX, Version 0.99d (TeX Live 2017)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: magnus_Jan08.aux
+The style file: apsrev4-1.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: magnus_Jan08Notes.bib
+Database file #2: tropiano_srg.bib
+control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
+control{apsrev41Control}, control.key{N/A}, control.author{08}, control.editor{1}, control.title{}, control.pages{0}, control.year{1}, control.eprint{N/A}, 
+Warning--jnrlst (dependency: not reversed) set 1
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+Control: key (0) 
+Control: author (8) initials jnrlst
+Control: editor formatted (1) identically to author
+Control: production of article title (-1) disabled
+Control: page (0) single
+Control: year (1) truncated
+Control: production of eprint (0) enabled
+You've used 13 entries,
+            5847 wiz_defined-function locations,
+            1716 strings with 17315 characters,
+and the built_in function-call counts, 12469 in all, are:
+= -- 764
+> -- 309
+< -- 104
++ -- 99
+- -- 89
+* -- 2013
+:= -- 1180
+add.period$ -- 11
+call.type$ -- 13
+change.case$ -- 44
+chr.to.int$ -- 21
+cite$ -- 13
+duplicate$ -- 1195
+empty$ -- 870
+format.name$ -- 171
+if$ -- 2407
+int.to.chr$ -- 1
+int.to.str$ -- 20
+missing$ -- 162
+newline$ -- 95
+num.names$ -- 33
+pop$ -- 480
+preamble$ -- 1
+purify$ -- 55
+quote$ -- 0
+skip$ -- 436
+stack$ -- 0
+substring$ -- 314
+swap$ -- 1154
+text.length$ -- 35
+text.prefix$ -- 0
+top$ -- 10
+type$ -- 168
+warning$ -- 1
+while$ -- 42
+width$ -- 0
+write$ -- 159
+(There was 1 warning)

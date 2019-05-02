@@ -1,0 +1,10 @@
+\contentsline {title}{Exploring the Magnus expansion and the in-medium similarity renormalization group}{1}{section*.2}
+\contentsline {abstract}{Abstract}{1}{section*.1}
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{2}{section*.3}
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Introduction}{3}{section*.4}
+\contentsline {section}{\numberline {II}Formalism}{4}{section*.5}
+\contentsline {section}{\numberline {III}Results}{7}{section*.6}
+\contentsline {section}{\numberline {IV}Conclusion}{16}{section*.21}
+\contentsline {section}{\numberline {}References}{16}{section*.22}

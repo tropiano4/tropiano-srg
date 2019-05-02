@@ -1,0 +1,16 @@
+\contentsline {title}{Decoupling of bound states with the Magnus expansion and the in-medium similarity renormalization group}{1}{section*.2}
+\contentsline {abstract}{Abstract}{1}{section*.1}
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{2}{section*.3}
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Introduction}{3}{section*.4}
+\contentsline {section}{\numberline {II}The Magnus expansion}{5}{section*.5}
+\contentsline {section}{\numberline {III}SRG evolution at high $\Lambda $}{6}{section*.6}
+\contentsline {section}{\numberline {IV}The Magnus expansion at high $\Lambda $}{10}{section*.13}
+\contentsline {subsection}{\numberline {A}Evolved potentials}{10}{section*.14}
+\contentsline {subsection}{\numberline {B}Accuracy of observables}{16}{section*.23}
+\contentsline {subsection}{\numberline {C}RKE semi-local potentials}{18}{section*.27}
+\contentsline {section}{\numberline {V}Work in progress}{24}{section*.35}
+\contentsline {subsection}{\numberline {A}Convergence of the Magnus expansion}{26}{section*.39}
+\contentsline {subsection}{\numberline {B}Reducing the matrix size with decoupling}{28}{section*.42}
+\contentsline {section}{\numberline {}References}{35}{section*.54}

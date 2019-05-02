@@ -1,0 +1,13 @@
+BACKGROUND: The coupling of high- and low-momentum modes in nuclear Hamiltonians complicates ab initio nuclear structure calculations. Approximate methods have been developed to extend the validity of ab initio methods beyond light nuclei. One of these methods, the in-medium similarity renormalization group (IM-SRG), softens nucleon-nucleon interactions by applying a continuous unitary transformation to the Hamiltonian to decouple low- and high-momentum scales. With the implementation of the Magnus expansion, a variant of the IM-SRG, one may solve for the unitary transformation directly and apply it to any operator.
+
+PURPOSE: We seek to understand any differences between evolving nuclear Hamiltonians with the typical IM-SRG approach and with the implementation of the Magnus expansion.
+
+METHODS: With the IM-SRG and Magnus variant, we evolve a leading-order nucleon-nucleon potential in momentum space which features a spurious, deep bound state at higher chiral effective field theory cutoffs. We consider the Wegner and Wilson SRG generators to check whether the behavior of the deeply-bound state shows the same features as in a past study where the Wilson generator shifted the deeply bound state into the low-momentum scale and the Wegner generator kept the deeply bound state safely outside the low-momentum block.
+
+RESULTS:
+The placement of deeply-bound state matches typical SRG approach regardless of the extent of the SRG flow or the truncation on the Magnus expansion. However, truncating the Magnus expansion to too few terms in the series gives a different decoupling scheme than the typical SRG approach. The successive terms in the Magnus expansion decrease to small values, and thus, the SRG results are reproduced with the Magnus expansion truncated further along the series. The error in solving the SRG flow equations with the Magnus expansion with an Euler method ODE solver does not affect the eigenvalues of the Hamiltonian as the Magnus expansion forces the unitarity of the transformation. 
+
+CONCLUSIONS:
+The Magnus implementation converges to the typical SRG approach. With the Wegner SRG generator, the Magnus expansion can be used to soften nuclear potentials without shifting deeply bound states in the low-energy scale, and the SRG flow equations can be solved with a crude ODE solver without loss of accuracy in the eigenvalues of the evolved operator.
+
+ 

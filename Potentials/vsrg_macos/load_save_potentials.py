@@ -115,11 +115,11 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
     
         if generator == 'Block-diag':
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f'%(channel, \
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel, \
                         kvnn_string, method, generator, lambda_bd, lamb)
         else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f'%(channel, 
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out'%(channel, 
                         kvnn_string, method, generator, lamb)
     
     chdir(potential_directory)
@@ -346,7 +346,7 @@ def convert2MeV(k_array, k_weights, V, coupled_channel=False):
     row,col = np.meshgrid(gp*np.sqrt(gw),gp*np.sqrt(gw))
     
     # Multiply the potential by 2/pi*row*col gives fm^-2 conversion
-    V *= 2/np.pi*row*col
+    V = V*2/np.pi*row*col
     
     # Multiply by h-bar^2 / M [MeV fm^2] to obtain MeV units
     return V*hbar_sq_over_M

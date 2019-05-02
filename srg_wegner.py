@@ -34,6 +34,7 @@ class SRG(object):
         
         return A @ B - B @ A
 
+    # TEST THE OLD VECTOR2MATRIX FUNCTIONS HERE
     
     def vector2matrix(self, B):
         '''Takes the vector of a upper triangle matrix and returns the full 
