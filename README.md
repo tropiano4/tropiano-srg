@@ -16,6 +16,6 @@ Description of each folder:
 
 Description of major codes:
 
-evolve_hamiltonian.py - ...
+* evolve_hamiltonian.py - ...
 
-SRG codes or sub-folder?
+* SRG codes or sub-folder?
