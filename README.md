@@ -1,6 +1,5 @@
 # LENT
 
-This repository is for research done during my (Anthony Tropiano) PhD at OSU.
 
 Description of each folder:
 
