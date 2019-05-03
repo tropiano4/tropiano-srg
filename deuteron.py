@@ -1,9 +1,180 @@
 # Created 05/03/19 by A.T. (tropiano.4@osu.edu)
 
-# Deuteron code: Calculates observables for deuteron given an NN potential (can
-# be SRG evolved). The class contains functions that obtain the deuteron wave
-# function in either momentum- or coordinate-space, functions that calculate 
-# observable quantities, and functions that return operators in momentum-space.
+# Deuteron code: Calculates observables for deuteron given an NN Hamiltonian 
+# (can be SRG evolved). The class contains functions that obtain the deuteron 
+# wave function in momentum-space, functions that calculate observable 
+# quantities, and functions that return operators in momentum-space.
 
 
 import numpy as np
+import numpy.linalg as la
+from scipy.special import spherical_jn
+from scipy.interpolate import CubicSpline
+
+
+class Deuteron(object):
+    
+    
+    def __init__(self, H_matrix, k_array, k_weights, r_array=np.empty(0), dr=0.0):
+        '''Saves the initial Hamiltonian in units MeV, dimension of the matrix,
+        the momentum array, and momentum weights. Option to enter in a 
+        coordinates array and step-size dr for coordinate-space wave functions
+        or operators.''' 
+        
+        # Arguments
+        
+        # H_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
+        # k_array (1-D NumPy array): Momentum array
+        # k_weights (1-D NumPy array): Momentum weights
+        # r_array (1-D NumPy array): Coordinates array (default is empty array)
+        # dr (float): Step-size for spacing between radial coordinates (default
+        # is zero)
+        
+        # Save Hamiltonian for usage in other functions
+        self.H_matrix = H_matrix
+        # Save dimension of Hamiltonian
+        self.N = len(H_matrix)
+        
+        # Save momentum and weights
+        self.k_array = k_array
+        self.k_weights = k_weights
+        # Dimension of k_array
+        self.m = len(k_array)
+        
+        # Save coordinates and weight if given
+        if dr: # This is false if dr = 0
+            self.r_array = r_array
+            self.dr = dr
+            # Dimension of r_array
+            self.n = len(r_array)
+    
+    
+    def wave_func(self, U=np.empty(0)):
+        '''Diagonalizes the Hamiltonian and returns the deuteron wave function 
+        as u and w corresponding to the 3S1 and 3D1 channels. The wave function
+        is unitless, that is, the momenta and weights are factored in such that
+        \sum_i |psi(k_i)|^2 = 1.'''
+        
+        # Arguments
+        
+        # U (2-D NumPy array): Option to apply an SRG or Magnus unitary
+        # transformation to the wave function
+        
+        # Load Hamiltonian
+        H_matrix = self.H_matrix 
+
+        # Diagonalize Hamiltonian
+        eigenvalues,eigenvectors = la.eig(H_matrix)
+    
+        # Find the deuteron wave function
+        bool_array = (eigenvalues<0.0)*(eigenvalues>-3.0)
+        # This is the integer index where eigenvalue[index] = eps_d
+        deuteron_index = list(bool_array).index(True) 
+        # Full wave function (unitless)
+        psi = eigenvectors[:,deuteron_index] 
+
+        # Evolve wave function by applying unitary transformation U
+        if U.any():
+            psi = U @ psi
+        
+        u = psi[:120] # 3S1 part 
+        w = psi[120:] # 3D1 part
+        
+        # Check normalization in momentum-space
+        #normalization = np.sum((u**2+w**2))
+        #print('Normalization = %.4f (k-space)'%normalization)
+            
+        return u, w
+    
+    
+    def momentum_distribution(self, u, w):
+        '''Returns an array of the deuteron momentum distribution given the
+        deuteron wave function in components u and w.'''
+        
+        # Arguments
+        
+        # u (1-D NumPy array): 3S1 part of the deuteron wave function (unitless)
+        # w (1-D NumPy array): 3D1 part of the deuteron wave function (unitless)
+        
+        # The momentum distribution is given by u^2 + w^2
+        psi_squared = u**2+w**2 # Unitless
+        
+        # Load momentum and weights
+        k_array = self.k_array
+        k_weights = self.k_weights
+        
+        # Divide out momenta and weights
+        psi_squared_units = psi_squared / (k_array**2 * k_weights) # Units fm^3
+        
+        return psi_squared_units
+    
+    
+    def momentum_proj_operator(self, q, U=np.empty(0)):
+        '''Return the a_q^dagger a_q operator in momentum-space. Unevolved this 
+        matrix should be zero everywhere except where k, k' = q. Note, we 
+        return this operator with momenta and weights factored in (the operator 
+        is unitless). For presentation, one should divide out the momenta and
+        weights by dividing by k_i * k_j * Sqrt( w_i * w_j ).'''
+        
+        # Arguments
+        
+        # q (float): Momentum value in fm^-1
+        # U (2-D NumPy array): Option to apply an SRG or Magnus unitary
+        # transformation to the operator
+        
+        # Load momentum
+        k_array = self.k_array
+        
+        # Dimension of k_array
+        m = self.m
+        # Matrix of zeros (m x m)
+        o = np.zeros((m,m))
+        
+        # q needs to be a value in the momentum array
+        if q in k_array:
+        
+            # False at every point where q != k_array[i]
+            proj_operator = q == k_array
+            # Convert to array of 1's and 0's
+            proj_operator = proj_operator.astype(int)
+            # Transform to matrix
+            proj_operator = np.diag(proj_operator)
+            # Return coupled channel operator
+            proj_operator = np.vstack((np.hstack((proj_operator,o)),\
+                                       np.hstack((o,proj_operator))))
+            
+            # Evolve operator by applying unitary transformation U
+            if U.any():
+                proj_operator = U @ proj_operator @ U.T
+
+            return proj_operator
+        
+        # q is not in the momentum mesh
+        else:
+            print('You need to specify a q value in k_array')
+            return np.zeros((2*m,2*m))
+    
+    
+    def fourier_transformation_matrix(self, channel):
+        '''Fourier transformation: returns the <r|k;channel> matrix for given
+        partial wave channel. If len(r_array) = n and len(k_array) = m, then 
+        this function returns an n x m matrix.'''
+        
+        # Arguments
+        
+        # channel (string): The partial wave channel ('1S0', '3S1', etc.)
+        
+        # Grids of k (col), and r (row) values   
+        k_columns, r_rows = np.meshgrid(self.k_array, self.r_array)
+        
+        # L = 0 (0th spherical Bessel function)
+        if channel == '3S1':
+            M = np.sqrt(2/np.pi) * r_rows * spherical_jn(0, k_columns*r_rows)
+            
+        # L = 2 (2nd spherical Bessel function)
+        elif channel == '3D1':
+            M = np.sqrt(2/np.pi) * r_rows * spherical_jn(2, k_columns*r_rows)
+
+        return M    
+    
+    

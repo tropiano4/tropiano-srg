@@ -18,10 +18,10 @@ class SRG(object):
         
         # Arguments
         
-        # H0_matrix (NumPy array): Hamiltonian matrix in units MeV
+        # H0_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
         # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 
         # 2.00 fm^-1)
-        # k_array (NumPy array): Momentum array
+        # k_array (1-D NumPy array): Momentum array
         # coupled_channel (Boolean): Value corresponding to whether the 
         # potential is coupled channel or not
         
@@ -116,11 +116,9 @@ class SRG(object):
         
         # Arguments
         
-        # Hs_vector (NumPy array): Solution vector (which is a function of s)
+        # Hs_vector (1-D NumPy array): Solution vector (which is a function of 
+        # s)
         # s (float): SRG flow parameter
-        
-        # Dimension of matrix
-        N = self.N
         
         # Matrix of the solution vector
         Hs_matrix = self.vector2matrix(Hs_vector)
@@ -146,7 +144,7 @@ class SRG(object):
     
         # Arguments
         
-        # lambda_array (NumPy array): Array of lambda values to be evolved to
+        # lambda_array (1-D NumPy array): Array of lambda evolution values
 
         # Set-up ODE
         

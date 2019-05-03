@@ -16,7 +16,7 @@ class SRG(object):
         
         # Arguments
         
-        # H0_matrix (NumPy array): Hamiltonian matrix in units MeV
+        # H0_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
         
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
@@ -90,7 +90,8 @@ class SRG(object):
         
         # Arguments
         
-        # Hs_vector (NumPy array): Solution vector (which is a function of s)
+        # Hs_vector (1-D NumPy array): Solution vector (which is a function of 
+        # s)
         # s (float): SRG flow parameter
         
         # Matrix of the solution vector
@@ -117,7 +118,7 @@ class SRG(object):
     
         # Arguments
         
-        # lambda_array (NumPy array): Array of lambda values to be evolved to
+        # lambda_array (1-D NumPy array): Array of lambda evolution values
 
         # Set-up ODE
         

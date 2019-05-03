@@ -10,9 +10,9 @@ import time
 import numpy as np
 # Scripts made by A.T.
 from Potentials.vsrg_macos import load_save_potentials as lp
-import srg_wegner
-import srg_kinetic_energy
-import srg_block_diagonal
+from SRG_codes import srg_wegner
+from SRG_codes import srg_kinetic_energy
+from SRG_codes import srg_block_diagonal
 #import magnus_wegner
 #import magnus_kinetic_energy
 
@@ -31,7 +31,7 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
     # ntot (integer): Number of momentum points in mesh
     # method (string): The evolution method ('srg' or 'magnus')
     # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lambda_array (NumPy array): Array of lambda evolution values 
+    # lambda_array (1-D NumPy array): Array of lambda evolution values 
     # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
     # fm^-1)
     # save (Boolean): Option to save evolved potentials. If true, writes the
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     # Specify potential
     
     #kvnn = 6 # AV18
-    #kvnn = 10 # EM N3LO
-    kvnn = 119 # Wendt at Lambda = 4 fm^-1
+    kvnn = 10 # EM N3LO
+    #kvnn = 119 # Wendt at Lambda = 4 fm^-1
     #kvnn = 120 # Wendt at Lambda = 9 fm^-1
     #kvnn = 121 # Wendt at Lambda = 20 fm^-1
     
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     method = 'srg'
     #method = 'magnus'
     
-    #generator = 'Wegner'
-    generator = 'T'
+    generator = 'Wegner'
+    #generator = 'T'
     #generator = 'Block-diag'
     lambda_bd = 2.00 # This won't affect the band-diagonal generators
     #lambda_bd = 3.00

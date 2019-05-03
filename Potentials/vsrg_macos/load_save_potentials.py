@@ -76,7 +76,7 @@ def load_momentum(kvnn, channel, kmax, kmid, ntot):
     
 
 def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
-           generator='Wegner', lamb=1.2, lambda_bd=0.00):
+                   generator='Wegner', lamb=1.2, lambda_bd=0.00):
     '''Loads an NN potential in units fm.'''
     
     # Arguments
@@ -173,7 +173,8 @@ def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
     return T
     
 
-def load_hamiltonian(kvnn, channel, kmax, kmid, ntot):
+def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', \
+                     generator='Wegner', lamb=1.2, lambda_bd=0.00):
     '''Loads Hamiltonian for given potential in units MeV.'''
     
     # Arguments
@@ -183,12 +184,19 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot):
     # kmax (float): Maximum value in the momentum mesh
     # kmid (float): Mid-point value in the momentum mesh
     # ntot (integer): Number of momentum points in mesh
+    # method (string): The evolution method 'srg' or 'magnus' - 'initial'
+    # if unevolved
+    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
+    # lamb (float): Evolution parameter lambda in units fm^-1
+    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
+    # fm^-1)
     
     # Load relative kinetic energy in units MeV
     T = load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)
     
     # Load potential in units fm
-    V = load_potential(kvnn, channel, kmax, kmid, ntot)
+    V = load_potential(kvnn, channel, kmax, kmid, ntot, method, generator, \
+                       lamb, lambda_bd)
     
     # Load momentum and weights
     k_array, k_weights = load_momentum(kvnn, channel, kmax, kmid, ntot)
@@ -204,9 +212,9 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
            generator, lamb, lambda_bd=0.00):
     '''Saves an SRG or Magnus evolved potential in units fm.'''
     
-    # k_array (NumPy array): Momentum array
-    # k_weights (NumPy array): Momentum weights
-    # V (NumPy array): Potential matrix in units fm^-2
+    # k_array (1-D NumPy array): Momentum array
+    # k_weights (1-D NumPy array): Momentum weights
+    # V (2-D NumPy array): Potential matrix in units fm^-2
     # kvnn (integer): This number specifies the potential
     # channel (string): The partial wave channel ('1S0', '3S1', etc.)
     # kmax (float): Maximum value in the momentum mesh
@@ -325,9 +333,9 @@ def convert2MeV(k_array, k_weights, V, coupled_channel=False):
     
     # Arguments
     
-    # k_array (NumPy array): Momentum array
-    # k_weights (NumPy array): Momentum weights
-    # V (NumPy array): Potential matrix in units fm
+    # k_array (1-D NumPy array): Momentum array
+    # k_weights (1-D NumPy array): Momentum weights
+    # V (2-D NumPy array): Potential matrix in units fm
     # coupled_channel (Boolean): Value corresponding to whether the potential
     # is coupled channel or not
     
