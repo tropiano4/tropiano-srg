@@ -37,30 +37,55 @@ class SRG(object):
         return A @ B - B @ A
     
     
+    def matrix2vector(self, A):
+        '''Takes the upper triangle of the matrix A (including the diagonal) 
+        and reshapes it into a vector B of dimension N*(N+1)/2.'''
+    
+        # Dimension of matrix
+        N = self.N
+        # Dimension of vectorized matrix
+        n = int(N*(N+1)/2)
+        
+        # Initialize vectorized matrix
+        B = np.zeros(n)
+    
+        a = 0
+        b = N
+    
+        for i in range(N):
+        
+            B[a:b] = A[i][i:]
+            a = b
+            b += N-i-1
+
+        return B
+
+ 
     def vector2matrix(self, B):
         '''Takes the vector of a upper triangle matrix and returns the full 
-        matrix - i.e. the reverse of using np.triu_indices(). Use only for
-        hermitian matrices.'''
-        
-        # Arguments
-        
-        # B (NumPy array): Vectorized top right piece of a square matrix
+        matrix. Use only for hermitian matrices.'''
         
         # Dimension of matrix (given by solving N*(N+1)/2 = n)
         N = self.N
     
-        # Indices of the upper right triangle of A
-        i,j = np.triu_indices(N)
-    
         # Initialize matrix
         A = np.zeros((N,N))
     
-        # Set upper right triangle
-        A[i,j] = B
-        # Using hermiticity reflect for the lower triangle
-        A[j,i] = B
-    
-        return A
+        # Build upper half of A with diagonal
+
+        a = 0
+        b = N
+
+        for i in range(N):
+
+            A[i,i:] = B[a:b]
+            a = b
+            b += N-i-1
+
+        # Reflect upper half to lower half to build full matrix
+        # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A 
+        # excluding the diagonal
+        return A+(np.transpose(A)-np.diag(np.diag(A)))
     
     
     def derivs(self, Hs_vector, s):
@@ -70,9 +95,6 @@ class SRG(object):
         
         # Hs_vector (NumPy array): Solution vector (which is a function of s)
         # s (float): SRG flow parameter
-        
-        # Dimension of matrix
-        N = self.N
         
         # Matrix of the solution vector
         Hs_matrix = self.vector2matrix(Hs_vector)
@@ -86,10 +108,10 @@ class SRG(object):
         # RHS of flow equation in matrix form
         dH_matrix = self.commutator(eta, Hs_matrix)
         
-        # Returns vector form of RHS of flow equation using NumPy's 
-        # triu_indices function (which returns the indices of the upper 
-        # triangle)
-        return dH_matrix[np.triu_indices(N)]
+        # Returns vector form of RHS of flow equation
+        dH_vector = self.matrix2vector(dH_matrix)
+        
+        return dH_vector
 
 
     def evolve_hamiltonian(self, lambda_array):
@@ -102,10 +124,8 @@ class SRG(object):
 
         # Set-up ODE
         
-        # Dimension of matrix
-        N = self.N
         # Reshape initial hamiltonian to a vector
-        H0_vector = self.H0_matrix[np.triu_indices(N)]
+        H0_vector = self.matrix2vector(self.H0_matrix)
         
         # Evaluate H(s) at the following values of lambda (or s)
         s_array = np.zeros(len(lambda_array)+1)

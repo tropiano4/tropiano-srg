@@ -1,7 +1,7 @@
 # Created 05/01/19 by A.T. (tropiano.4@osu.edu)
 
-# SRG code: Evolves Hamiltonian to band-diagonal, decoupled form with parameter 
-# s using the Wegner generator.
+# SRG code: Evolves Hamiltonian to block-diagonal, decoupled form with 
+# parameter s.
 
 
 import numpy as np
@@ -11,13 +11,19 @@ from scipy.integrate import odeint
 class SRG(object):
     
     
-    def __init__(self, H0_matrix):
-        '''Saves the initial Hamiltonian in units fm^-2 and dimension of the 
-        matrix.'''
+    def __init__(self, H0_matrix, lambda_bd, k_array, coupled_channel):
+        '''Saves the initial Hamiltonian in units fm^-2 and dimension of the
+        matrix. Also creates and saves the projection matrices for the block-
+        diagonal generator.'''
         
         # Arguments
         
         # H0_matrix (NumPy array): Hamiltonian matrix in units MeV
+        # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 
+        # 2.00 fm^-1)
+        # k_array (NumPy array): Momentum array
+        # coupled_channel (Boolean): Value corresponding to whether the 
+        # potential is coupled channel or not
         
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
@@ -26,6 +32,25 @@ class SRG(object):
         self.H0_matrix = H0_matrix / hbar_sq_over_M
         # Save dimension of matrix
         self.N = len(H0_matrix)
+        
+        # Array of True and False
+        bool_array = k_array < lambda_bd
+        # Length of momentum array
+        n = len(k_array)
+        
+        # Build projection operators
+        # Identity matrix for k < lambda_bd
+        p = np.diag(np.ones(n)*bool_array)
+        # Opposite of p: Identity matrix for k > decouple
+        q = np.identity(n)-p
+        # Construct full matrices for coupled channel vnn if necessary
+        if coupled_channel:
+            o = np.zeros((n,n))
+            self.P = np.vstack((np.hstack((p,o)),np.hstack((o,p))))
+            self.Q = np.vstack((np.hstack((q,o)),np.hstack((o,q))))
+        else:
+            self.P = p
+            self.Q = q
 
     
     def commutator(self, A, B):
@@ -33,83 +58,57 @@ class SRG(object):
         NumPy arrays.'''
         
         return A @ B - B @ A
-
-
+    
+    
     def matrix2vector(self, A):
-        '''Takes the top right of the matrix A (including the diagonal) and 
-        reshapes it into a vector B of dimension N*(N+1)/2.'''
+        '''Takes the upper triangle of the matrix A (including the diagonal) 
+        and reshapes it into a vector B of dimension N*(N+1)/2.'''
     
         # Dimension of matrix
-        N = len(A)
+        N = self.N
         # Dimension of vectorized matrix
         n = int(N*(N+1)/2)
+        
         # Initialize vectorized matrix
         B = np.zeros(n)
     
-        first = 0
-        last = N
+        a = 0
+        b = N
     
         for i in range(N):
         
-            B[first:last] = A[i][i:]
-            first = last
-            last += N-i-1
+            B[a:b] = A[i][i:]
+            a = b
+            b += N-i-1
 
         return B
 
-  
+ 
     def vector2matrix(self, B):
-        '''Takes the vector of a top right matrix and returns the full matrix. (USE
-        ONLY FOR HERMITIAN MATRICES.)'''
+        '''Takes the vector of a upper triangle matrix and returns the full 
+        matrix. Use only for hermitian matrices.'''
         
-        # Dimension of the vectorized matrix
-        n = len(B)
         # Dimension of matrix (given by solving N*(N+1)/2 = n)
-        N = int( (-1 + np.sqrt(1+8*n) ) / 2 )
+        N = self.N
+    
         # Initialize matrix
         A = np.zeros((N,N))
-        
+    
         # Build upper half of A with diagonal
 
-        first = 0
-        last = N
+        a = 0
+        b = N
 
         for i in range(N):
 
-            A[i,i:] = B[first:last]
-            first = last
-            last += N-i-1
+            A[i,i:] = B[a:b]
+            a = b
+            b += N-i-1
 
         # Reflect upper half to lower half to build full matrix
-        # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A excluding 
-        # the diagonal
+        # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A 
+        # excluding the diagonal
         return A+(np.transpose(A)-np.diag(np.diag(A)))
-    
-    
-    #def vector2matrix(self, B):
-        #'''Takes the vector of a upper triangle matrix and returns the full 
-        #matrix - i.e. the reverse of using np.triu_indices(). Use only for
-        #hermitian matrices.'''
-        
-        # Arguments
-        
-        # B (NumPy array): Vectorized top right piece of a square matrix
-        
-        # Dimension of matrix (given by solving N*(N+1)/2 = n)
-        #N = self.N
-    
-        # Indices of the upper right triangle of A
-        #i,j = np.triu_indices(N)
-    
-        # Initialize matrix
-        #A = np.zeros((N,N))
-    
-        # Set upper right triangle
-        #A[i,j] = B
-        # Using hermiticity reflect for the lower triangle
-        #A[j,i] = B
-    
-        #return A
     
     
     def derivs(self, Hs_vector, s):
@@ -121,13 +120,13 @@ class SRG(object):
         # s (float): SRG flow parameter
         
         # Dimension of matrix
-        #N = self.N
+        N = self.N
         
         # Matrix of the solution vector
         Hs_matrix = self.vector2matrix(Hs_vector)
 
-        # Wegner SRG generator, eta = [G,H] where G = H_D(s) 
-        G = np.diag( np.diag(Hs_matrix) )
+        # Block-diagonal SRG generator, eta = [G,H] where G = H_BD(s)
+        G = self.P @ Hs_matrix @ self.P + self.Q @ Hs_matrix @ self.Q
         
         # SRG generator [G, H(s)]
         eta = self.commutator(G, Hs_matrix)
@@ -135,11 +134,10 @@ class SRG(object):
         # RHS of flow equation in matrix form
         dH_matrix = self.commutator(eta, Hs_matrix)
         
-        # Returns vector form of RHS of flow equation using NumPy's 
-        # triu_indices function (which returns the indices of the upper 
-        # triangle)
-        #return dH_matrix[np.triu_indices(N)]
-        return self.matrix2vector(dH_matrix)
+        # Returns vector form of RHS of flow equation
+        dH_vector = self.matrix2vector(dH_matrix)
+        
+        return dH_vector
 
 
     def evolve_hamiltonian(self, lambda_array):
@@ -152,10 +150,7 @@ class SRG(object):
 
         # Set-up ODE
         
-        # Dimension of matrix
-        #N = self.N
         # Reshape initial hamiltonian to a vector
-        #H0_vector = self.H0_matrix[np.triu_indices(N)]
         H0_vector = self.matrix2vector(self.H0_matrix)
         
         # Evaluate H(s) at the following values of lambda (or s)

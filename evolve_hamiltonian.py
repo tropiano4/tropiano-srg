@@ -117,10 +117,11 @@ if __name__ == '__main__':
     method = 'srg'
     #method = 'magnus'
     
-    generator = 'Wegner'
-    #generator = 'T'
+    #generator = 'Wegner'
+    generator = 'T'
     #generator = 'Block-diag'
     lambda_bd = 2.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 3.00
     
     lambda_array = np.array([10.0,2.8,2.0,1.2])
     #lambda_array = np.array([10.0,2.8])
