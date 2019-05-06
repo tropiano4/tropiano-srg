@@ -108,8 +108,10 @@ if __name__ == '__main__':
     
     channel = '3S1'
     
-    kmax = 30.0
-    kmid = 4.0
+    #kmax = 30.0
+    kmax = 8.0
+    #kmid = 4.0
+    kmid = 2.0
     ntot = 120
     
     # Specify evolution
