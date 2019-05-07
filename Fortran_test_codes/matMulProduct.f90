@@ -1,4 +1,5 @@
 program matMulProduct
+use magnus_wegner
 
     integer, dimension(3,3) :: a, b, c
     integer :: i, j
