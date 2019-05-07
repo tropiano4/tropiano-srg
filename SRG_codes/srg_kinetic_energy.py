@@ -25,7 +25,7 @@ class SRG(object):
         
         # Save matrices in units fm^-2
         self.H0_matrix = H0_matrix / hbar_sq_over_M
-        self.T0_matrix = T0_matrix/ hbar_sq_over_M
+        self.T0_matrix = T0_matrix / hbar_sq_over_M
         # Save dimension of matrix
         self.N = len(H0_matrix)
 
@@ -138,7 +138,7 @@ class SRG(object):
                      mxstep=5000000)
 
         # Return a dictionary of H(s) at the values of s (i.e., d[1.2] returns 
-        # H(lambda=1.2)) which is a matrix
+        # H(lambda=1.2) which is a matrix)
         d = {}
         i = 1
         for lamb in lambda_array:

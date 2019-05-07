@@ -161,7 +161,7 @@ class SRG(object):
                      mxstep=5000000)
 
         # Return a dictionary of H(s) at the values of s (i.e., d[1.2] returns 
-        # H(lambda=1.2)) which is a matrix
+        # H(lambda=1.2) which is a matrix)
         d = {}
         i = 1
         for lamb in lambda_array:

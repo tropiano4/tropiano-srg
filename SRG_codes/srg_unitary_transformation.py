@@ -1,7 +1,7 @@
 # Created 05/03/19 by A.T. (tropiano.4@osu.edu)
 
 # SRG unitary transformation function: this function returns an SRG unitary
-# transformation given an initial and SRG evolved Hamiltonian in units MeV
+# transformation given an initial and SRG evolved Hamiltonian in units MeV.
 
 
 import numpy as np

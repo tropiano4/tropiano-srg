@@ -1,5 +1,6 @@
 # Created 03/22/19 by A.T. (tropiano.4@osu.edu)
-# Updated 05/02/19 by A.T. to save and load SRG/Magnus evolved potentials
+# Updated 05/07/19 by A.T. to save and load Magnus evolved potentials and omega
+# matrices
 
 # Loads potentials from Potentials/vsrg_macos directory.
 # Potentials are organized by a kvnn number and the details of their momentum
@@ -17,7 +18,7 @@
 # 120     Wendt LO non-local potential at 9 fm^-1 cutoff
 # 121     Wendt LO non-local potential at 20 fm^-1 cutoff
 #
-# Also saves SRG evolved potentials in the same directory.
+# Also saves SRG or Magnus evolved potentials in the same directory.
 
 
 from os import getcwd, chdir
@@ -75,8 +76,8 @@ def load_momentum(kvnn, channel, kmax, kmid, ntot):
     return k_array, k_weights
     
 
-def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
-                   generator='Wegner', lamb=1.2, lambda_bd=0.00):
+def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', generator='Wegner', \
+                   lamb=1.2, lambda_bd=0.00, k_magnus=6, ds=1e-5):
     '''Loads an NN potential in units fm.'''
     
     # Arguments
@@ -92,6 +93,9 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
     # lamb (float): Evolution parameter lambda in units fm^-1
     # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
     # fm^-1)
+    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
+    # only)
+    # ds (float): Step-size in the flow parameter s (for Magnus only)
     
     # Get current working directory
     cwd = getcwd()
@@ -106,12 +110,12 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
     potential_directory = 'Potentials/vsrg_macos/'+ \
     'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(kvnn_string, kmax, kmid, ntot)
     
-    # Name of potential file
+    # Name of potential file (split on cases of initial, SRG or Magnus evolved)
     if method == 'initial':
         
         vnn_file = 'vnn_%s_kvnn_%s_lam12.0_reg_0_3_0.out'%(channel, kvnn_string)
         
-    else: 
+    elif method == 'srg': 
     
         if generator == 'Block-diag':
             
@@ -121,6 +125,19 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', \
             
             vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out'%(channel, 
                         kvnn_string, method, generator, lamb)
+            
+    elif method == 'magnus': 
+        
+        if generator == 'Block-diag':
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
+                        channel, kvnn_string, method, generator, lambda_bd, \
+                        lamb, k_magnus, ds)
+        else: 
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
+                        channel, kvnn_string, method, generator, lamb, \
+                        k_magnus, ds)
     
     chdir(potential_directory)
         
@@ -173,8 +190,8 @@ def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
     return T
     
 
-def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', \
-                     generator='Wegner', lamb=1.2, lambda_bd=0.00):
+def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', generator='Wegner', \
+                     lamb=1.2, lambda_bd=0.00, k_magnus=6, ds=1e-5):
     '''Loads Hamiltonian for given potential in units MeV.'''
     
     # Arguments
@@ -190,13 +207,16 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', \
     # lamb (float): Evolution parameter lambda in units fm^-1
     # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
     # fm^-1)
+    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
+    # only)
+    # ds (float): Step-size in the flow parameter s (for Magnus only)
     
     # Load relative kinetic energy in units MeV
     T = load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)
     
     # Load potential in units fm
     V = load_potential(kvnn, channel, kmax, kmid, ntot, method, generator, \
-                       lamb, lambda_bd)
+                       lamb, lambda_bd, k_magnus, ds)
     
     # Load momentum and weights
     k_array, k_weights = load_momentum(kvnn, channel, kmax, kmid, ntot)
@@ -208,8 +228,70 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', \
     return T+V
 
 
+def load_omega(kvnn, channel, kmax, kmid, ntot, generator='Wegner', lamb=1.2, 
+               lambda_bd=0.00, k_magnus=6, ds=1e-5):
+    '''Loads a Magnus evolved Omega matrix.'''
+    
+    # Arguments
+    
+    # kvnn (integer): This number specifies the potential
+    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
+    # kmax (float): Maximum value in the momentum mesh
+    # kmid (float): Mid-point value in the momentum mesh
+    # ntot (integer): Number of momentum points in mesh
+    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
+    # lamb (float): Evolution parameter lambda in units fm^-1
+    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
+    # fm^-1)
+    # k_magnus (integer): Number of terms to include in Magnus sum
+    # ds (float): Step-size in the flow parameter s
+    
+    # Get current working directory
+    cwd = getcwd()
+    
+    # Go to directory of specified potential
+    # Convert kvnn to string
+    if kvnn < 10:
+        kvnn_string = '0'+str(kvnn)
+    else:
+        kvnn_string = str(kvnn)
+    
+    potential_directory = 'Potentials/vsrg_macos/'+ \
+    'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(kvnn_string, kmax, kmid, ntot)
+    
+    # Name of omega file
+    if generator == 'Block-diag':
+            
+        vnn_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
+                    channel, kvnn_string, generator, lambda_bd, lamb, k_magnus, ds)
+        
+    else: 
+            
+        vnn_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
+                    channel, kvnn_string, generator, lamb, k_magnus, ds)
+    
+    chdir(potential_directory)
+        
+    # Load output file
+    data = np.loadtxt(vnn_file)
+
+    chdir(cwd)
+    
+    # Coupled channel potential
+    if coupled_channel(channel):
+        o11 = np.reshape(data[:,2], (ntot,ntot))
+        o12 = np.reshape(data[:,3], (ntot,ntot))
+        o21 = np.reshape(data[:,4], (ntot,ntot))
+        o22 = np.reshape(data[:,5], (ntot,ntot))
+        O = np.vstack( ( np.hstack((o11,o12)), np.hstack((o21,o22)) ) )
+    else:
+        O = np.reshape(data[:,2], (ntot, ntot))
+
+    return O
+
+
 def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, method, \
-           generator, lamb, lambda_bd=0.00):
+                   generator, lamb, lambda_bd=0.00, k_magnus=6, ds=1e-5):
     '''Saves an SRG or Magnus evolved potential in units fm.'''
     
     # k_array (1-D NumPy array): Momentum array
@@ -225,6 +307,9 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
     # lamb (float): Evolution parameter lambda in units fm^-1
     # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
     # fm^-1)
+    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
+    # only)
+    # ds (float): Step-size in the flow parameter s (for Magnus only)
 
     # Get current working directory
     cwd = getcwd()
@@ -242,14 +327,31 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
     chdir(potential_directory)
     
     # Name potential file and save
-    if generator == 'Block-diag':
-        vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f'%(channel, \
-                    kvnn_string, method, generator, lambda_bd, lamb)
-    else: 
-        vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f'%(channel, kvnn_string, \
-                    method, generator, lamb)
+    if method == 'srg': 
     
-    f = open(vnn_file+'.out','w')
+        if generator == 'Block-diag':
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel, \
+                        kvnn_string, method, generator, lambda_bd, lamb)
+        else: 
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out'%(channel, 
+                        kvnn_string, method, generator, lamb)
+            
+    elif method == 'magnus': 
+        
+        if generator == 'Block-diag':
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
+                        channel, kvnn_string, method, generator, lambda_bd, \
+                        lamb, k_magnus, ds)
+        else: 
+            
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
+                        channel, kvnn_string, method, generator, lamb, \
+                        k_magnus, ds)
+    
+    f = open(vnn_file,'w')
     
     # Length of momentum array
     n = len(k_array)
@@ -302,6 +404,103 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
                 v = V[i,j]*factor
                 
                 line = '{:^15.6f}{:^15.6f}{:^23e}'.format(k, kp, v)
+                
+                f.write(line+'\n')
+                
+    f.close()
+
+    chdir(cwd)
+    
+    
+def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
+               lambda_bd=0.00, k_magnus=6, ds=1e-5):
+    '''Saves a Magnus evolved Omega matrix.'''
+    
+    # k_array (1-D NumPy array): Momentum array
+    # O (2-D NumPy array): Omega matrix
+    # kvnn (integer): This number specifies the potential
+    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
+    # kmax (float): Maximum value in the momentum mesh
+    # kmid (float): Mid-point value in the momentum mesh
+    # ntot (integer): Number of momentum points in mesh
+    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
+    # lamb (float): Evolution parameter lambda in units fm^-1
+    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
+    # fm^-1)
+    # k_magnus (integer): Number of terms to include in Magnus sum
+    # ds (float): Step-size in the flow parameter s
+
+    # Get current working directory
+    cwd = getcwd()
+    
+    # Go to directory of specified potential
+    # Convert kvnn to string
+    if kvnn < 10:
+        kvnn_string = '0'+str(kvnn)
+    else:
+        kvnn_string = str(kvnn)
+        
+    potential_directory = 'Potentials/vsrg_macos/'+ \
+    'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(kvnn_string, kmax, kmid, ntot)
+    
+    chdir(potential_directory)
+    
+    # Name omega file and save
+    if generator == 'Block-diag':
+            
+        omega_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
+                    channel, kvnn_string, generator, lambda_bd, lamb, \
+                    k_magnus, ds)
+    else: 
+            
+        omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%(channel, \
+                    kvnn_string, generator, lamb, k_magnus, ds)
+    
+    f = open(omega_file,'w')
+    
+    # Length of momentum array
+    n = len(k_array)
+    
+    if coupled_channel(channel):
+        
+        header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k', \
+                  'kp', 'O11', 'O12', 'O21', 'O22')
+        f.write('#'+header+'\n')
+        
+        for i in range(n):
+            
+            k = k_array[i]
+            
+            for j in range(n):
+                
+                kp = k_array[j]
+                
+                o11 = O[i,j]
+                o12 = O[i,j+n]
+                o21 = O[i+n,j]
+                o22 = O[i+n,j+n]
+                
+                line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format( \
+                        k, kp, o11, o12, o21, o22)
+                
+                f.write(line+'\n')
+                
+    else:
+        
+        header = '{:^15s}{:^15s}{:^23s}'.format('k', 'kp', 'O')
+        f.write('#'+header+'\n')
+        
+        for i in range(n):
+            
+            k = k_array[i]
+            
+            for j in range(n):
+                
+                kp = k_array[j]
+                
+                o = O[i,j]
+                
+                line = '{:^15.6f}{:^15.6f}{:^23e}'.format(k, kp, o)
                 
                 f.write(line+'\n')
                 
