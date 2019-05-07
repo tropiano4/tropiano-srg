@@ -5,6 +5,10 @@
 # wave function in momentum-space, functions that calculate observable 
 # quantities, and functions that return operators in momentum-space.
 
+# Note to self: should probably generalize operator code to another script
+# independent of this. This code should use functions from the operator script
+# like r^2.
+
 
 import numpy as np
 import numpy.linalg as la
@@ -53,7 +57,8 @@ class Deuteron(object):
         '''Diagonalizes the Hamiltonian and returns the deuteron wave function 
         as u and w corresponding to the 3S1 and 3D1 channels. The wave function
         is unitless, that is, the momenta and weights are factored in such that
-        \sum_i |psi(k_i)|^2 = 1.'''
+        \sum_i { u(k_i)^2 + w(k_i)^2 } = 1. For an evolved wave function, enter
+        in a unitary transformation U.'''
         
         # Arguments
         
@@ -110,10 +115,11 @@ class Deuteron(object):
     
     
     def momentum_proj_operator(self, q, U=np.empty(0)):
-        '''Return the a_q^dagger a_q operator in momentum-space. Unevolved this 
-        matrix should be zero everywhere except where k, k' = q. Note, we 
+        '''Returns the a_q^dagger a_q projection operator in momentum-space.
+        For an evolved operator, enter in a unitary transformation U. Unevolved 
+        this matrix should be zero everywhere except where k, k' = q. Note, we 
         return this operator with momenta and weights factored in (the operator 
-        is unitless). For presentation, one should divide out the momenta and
+        is unitless). For presentation, one should divide out the momenta and 
         weights by dividing by k_i * k_j * Sqrt( w_i * w_j ).'''
         
         # Arguments
@@ -155,10 +161,10 @@ class Deuteron(object):
             return np.zeros((2*m,2*m))
     
     
-    def fourier_transformation_matrix(self, channel):
-        '''Fourier transformation: returns the <r|k;channel> matrix for given
-        partial wave channel. If len(r_array) = n and len(k_array) = m, then 
-        this function returns an n x m matrix.'''
+    def bessel_transformation(self, channel):
+        '''Returns the <r|k;channel> matrix for given partial wave channel. If 
+        len(r_array) = n and len(k_array) = m, then this function returns an 
+        n x m matrix. Note, one must specify an r_array and step-size dr.'''
         
         # Arguments
         
@@ -178,3 +184,50 @@ class Deuteron(object):
         return M    
     
     
+    def r2_operator(self, U=np.empty(0)):
+        '''Returns the r^2 operator in momentum-space. For an evolved operator,
+        enter in a unitary transformation U. If len(k_array) = m, 
+        then this function returns an m x m matrix.'''
+        
+        return None
+    
+    
+    def r2_integrand(self, u, w, r2_operator):
+        '''Returns the integrand of <r^2> given the wave function in components
+        u(k) and w(k), and the r^2 operator in momentum-space. If len(k_array)
+        = m, then this function returns an m x m matrix.'''
+        
+        return None
+    
+    
+    def rms_radius_from_rspace(self, u, w, r2_operator):
+        '''Returns the RMS half-radius of deuteron by evaluating 
+        0.5 * Sqrt( <psi|r^2|psi> ) in momentum-space where the r^2 operator is
+        Bessel transformed to from coordinate- to momentum-space. Experimental
+        value is ~2.14 fm.'''
+        
+        return None
+    
+    
+    def rms_radius_from_kspace(self, U=np.empty(0)):
+        '''Same as the above function but calculates the r^2 operator in 
+        momentum-space explicitly, that is, r^2 depends on derivates d/dk. One
+        can check any violation of unitarity by entering in a unitary 
+        transformation U.'''
+        
+        return None
+    
+    
+    def quadrupole_moment_from_rspace(self):
+        '''Description.'''
+        
+        return None
+    
+    
+    def quadrupole_moment_from_kspace(self, U=np.empty(0)):
+        '''Same as above function but calculates the Q operator in momentum-
+        space explicitly, that is, Q depends on derivatives d/dk. One can check
+        any violation of unitarity by entering in a unitary transformation 
+        U.'''
+        
+        return None
