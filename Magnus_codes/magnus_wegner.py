@@ -129,8 +129,9 @@ class Magnus(object):
         # Arguments
         
         # O0_matrix (2-D NumPy array): Initial Omega matrix
-        # ds (float): Step-size in the flow parameter s
+        # s_init (float): Initial value of s
         # s_max (float): Maximum value of s
+        # ds (float): Step-size in the flow parameter s
         
         # Initialize Omega matrix
         Os_matrix = O0_matrix

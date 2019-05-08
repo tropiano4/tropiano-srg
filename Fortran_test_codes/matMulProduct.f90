@@ -1,5 +1,4 @@
 program matMulProduct
-use magnus_wegner
 
     integer, dimension(3,3) :: a, b, c
     integer :: i, j
@@ -33,6 +32,7 @@ use magnus_wegner
     end do
 
     c = matmul(a, b)
+	c = c*5
     print *, 'Matrix Multiplication: Result Matrix'
 
     do i = 1, 3
