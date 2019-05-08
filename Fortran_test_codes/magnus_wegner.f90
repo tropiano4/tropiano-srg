@@ -1,10 +1,10 @@
 module magnus_wegner_functions
 implicit none
 
-    !real(DP), dimension(6,6), private :: h0_matrix
+    integer, dimension(2,2), private :: h0_matrix
     !real(DP), private :: delta = 1.0
     !real(DP), private :: g = 0.5
-    integer, private :: n = 3
+    integer, private :: n
     ! More stuff goes here
 
     ! Use test Hamiltonian from Hergert_2016iju
@@ -15,16 +15,37 @@ implicit none
     !h0_matrix(5) = (/ -0.5*g, 0.0, -0.5*g, -0.5*g, 8.0*delta-g, -0.5*g /)
     !h0_matrix(6) = (/ 0.0, -0.5*g, -0.5*g, -0.5*g, -0.5*g, 10.0*delta-g /)
 
-    ! Dimension of Hamiltonian
-    !n = size(h0_matrix(1))
-
     public :: commutator
+    public :: diag
 
 contains
 
+    subroutine initialize_hamiltonian()
+
+        integer :: i, j
+
+        ! Do 2 x 2 test Hamiltonian
+
+        !h0_matrix(1) = (/ 1, 1 /)
+        !h0_matrix(2) = (/ 1, -1 /)
+
+        do i = 1, n
+            do j = 1, n
+                if (i == n .and. j == n) then
+                    h0_matrix(i, j) = -1
+                else
+                    h0_matrix(i, j) = 1
+                end if
+            end do
+        end do
+
+        ! Dimension of Hamiltonian
+        n = int( sqrt( real( size(h0_matrix) ) ) )
+
+    end subroutine initialize_hamiltonian
+
     function commutator(matrix_1, matrix_2)result(matrix_3)
 
-        !real(DP), dimension(n,n), private :: matrix_1, matrix_2, matrix_3
         integer, dimension(n,n), intent(in) :: matrix_1, matrix_2
         integer, dimension(n,n) :: matrix_3
 
@@ -32,33 +53,42 @@ contains
 
     end function commutator
 
+    function diag(matrix_1)result(matrix_2)
+
+        integer :: i, j
+        integer, dimension(n,n), intent(in) :: matrix_1
+        integer, dimension(n,n) :: matrix_2
+
+        do i = 1, n
+            do j = 1, n
+                if (i == j) then
+                    matrix_2(i, j) = matrix_1(i, j)
+                else
+                    matrix_2(i, j) = 0
+                end if
+            end do
+        end do
+
+    end function diag
+
+
 end module magnus_wegner_functions
 
 program magnus_wegner
 use magnus_wegner_functions
 implicit none
 
-    integer, dimension(3,3) :: a, b, c
-    integer :: i, j
+    integer, dimension(n,n) :: hd_matrix
+    integer, dimension(n,n) :: eta
 
-    do i = 1, 3
-        do j = 1, 3
-            a(i, j) = i+j
-        end do
-    end do
+    hd_matrix = diag(h0_matrix)
+    eta = commutator(hd_matrix, h0_matrix)
 
-    do i = 1, 3
-        do j = 1, 3
-            b(i, j) = i*j
-        end do
-    end do
+    print *, 'Eta: Result Matrix'
 
-    c = commutator(a, b)
-    print *, 'Commutator of A and B: Result Matrix'
-
-    do i = 1, 3
-        do j = 1, 3
-            print *, c(i, j)
+    do i = 1, n
+        do j = 1, n
+            print *, eta(i, j)
         end do
     end do
 
