@@ -1,9 +1,8 @@
 module magnus_wegner
 implicit none
 
-
 	! Dimension of the Hamiltonian
-	integer, parameter :: n = 6
+	integer, parameter, public :: n = 6
 	! Parameters for test pairing Hamiltonian
 	double precision, parameter :: delta = 0.1, g = 0.05
 	! Number of terms to include in the Magnus sum
@@ -14,8 +13,6 @@ implicit none
 	double precision, dimension(k_magnus) :: factorial_array, bernoulli_array, magnus_factors
 	! Step-size in solving omega differential equation
 	double precision, parameter :: ds = 1.0e-5
-
-	! put public functions or subroutines here
 
 
 contains
@@ -28,7 +25,6 @@ contains
 		integer :: i, j, k
 
 		! Use 6 x 6 Hamiltonian as test case from Hergert_2016iju
-		print *, 'Initial hamiltonian'
 		do i = 1, n
 			do j = 1, n
 				if (i == j) then
@@ -44,7 +40,6 @@ contains
 						hamiltonian_0(i, j) = -0.5*g
 					end if
 				end if
-				print *, hamiltonian_0(i, j)
 			end do
 		end do
 
@@ -242,22 +237,24 @@ implicit none
 	! Declare variables
 	integer :: i, j
 	! Lambda evolution value in units fm^-1
-	double precision :: lamb = 3.0
+	double precision :: lambda = 3.0
 	! Declare evolved Hamiltonian matrix
 	double precision, dimension(n, n) :: hamiltonian_s
 
 	! Initialize Hamiltonian and constants
 	call initialize()
 
-	hamiltonian_s = evolve_hamiltonian(lamb)
+	hamiltonian_s = evolve_hamiltonian(lambda)
 
-	print *, 'H(s): Result Matrix'
+	open(1, file='evolved_hamiltonian.dat', status='new')
 
 	do i = 1, n
 		do j = 1, n
-			print *, hamiltonian_s(i, j)
+			write(1,*) hamiltonian_s(i, j)
 		end do
 	end do
+
+	close(1)
 
 
 end program test_magnus
