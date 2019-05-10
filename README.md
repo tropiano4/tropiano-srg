@@ -5,8 +5,6 @@ Description of each folder:
 
 * Figures contains figures organized chronologically by sub-folders "Month_Year". This folder still needs work for better organization. Can add README to each sub-folder to explain each of the figures if the title of the figure is not sufficient.
 
-* Fortran_test_codes contains Fortran codes used to test SRG or Magnus algorithms.
-
 * Magnus_codes contains codes for Magnus evolving a Hamiltonian via the Wegner or relative kinetic energy generator.
 
 * Notes contains pdf notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
