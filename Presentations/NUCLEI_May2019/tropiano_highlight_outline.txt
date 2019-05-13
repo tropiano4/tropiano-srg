@@ -1,0 +1,40 @@
+NUCLEI collaboration meeting 2019, Santa Fe, NM
+
+
+Title of abstract: Exploring the Magnus expansion and the similarity renormalization group
+
+
+* Ideas for highlight slide. Focus on something relevant to the Magnus expansion and operator evolution.
+
+
+1. Using the Magnus expansion to SRG evolve operators
+
+	- Figure: r^2 integrand (can do log-scale to show difference in initial and evolved)
+	or momentum projection operator evolving in \lambda.
+
+	- Objectives: Study SRG evolution of operators utilizing the Magnus expansion.
+
+	- Impact: Difficult to do SRG operator evolution in IMSRG. Magnus implementation 
+	provides an avenue for operator evolution by drastically reducing the memory required 	for the numerical calculation. We can calculate observables with consistently evolved 	wave functions and operators using the Magnus.
+
+
+2. Exploring the Magnus expansion and the similarity renormalization group
+
+	- Figure: V(k,k) and V(k,0) evolving in \lambda for SRG and several truncations in 	Magnus sum.
+
+	-Objectives: Test Magnus expansion on 'difficult' potential with spurious bound 
+	state(s). Analogous to IMSRG evolving system with intruder state(s).
+
+	-Impact: Choice in SRG generator is important. Can decouple spurious bound state 
+	outside low-energy part. Magnus implementation matches the SRG approach independent 
+	of generator implying that we can understand the intruder state problem in IMSRG 	computations using the Magnus expansion.
+
+
+3. SRG operator evolution
+
+	- Basically the same as 1 but more focus on operator evolution and no mention of the 	Magnus expansion.
+
+
+* Accomplishments: Put work in progress.
+
+	
