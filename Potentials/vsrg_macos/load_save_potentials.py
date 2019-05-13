@@ -228,8 +228,8 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', generato
     return T+V
 
 
-def load_omega(kvnn, channel, kmax, kmid, ntot, generator='Wegner', lamb=1.2, 
-               lambda_bd=0.00, k_magnus=6, ds=1e-5):
+def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, lambda_bd=0.00, \
+               k_magnus=6, ds=1e-5):
     '''Loads a Magnus evolved Omega matrix.'''
     
     # Arguments

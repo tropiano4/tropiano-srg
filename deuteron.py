@@ -130,6 +130,7 @@ class Deuteron(object):
         
         # Load momentum
         k_array = self.k_array
+        k_weights = self.k_weights
         
         # Dimension of k_array
         m = self.m
@@ -139,12 +140,13 @@ class Deuteron(object):
         # q needs to be a value in the momentum array
         if q in k_array:
         
-            # False at every point where q != k_array[i]
-            proj_operator = q == k_array
-            # Convert to array of 1's and 0's
-            proj_operator = proj_operator.astype(int)
-            # Transform to matrix
-            proj_operator = np.diag(proj_operator)
+            # Find index of q in k_array
+            q_index = list(k_array).index(q)
+            # Weight for q value
+            q_weight = k_weights[q_index]
+            # Build projection operator 
+            proj_operator = np.zeros((m,m))
+            proj_operator[q_index,q_index] = 1 / ( q**2 * q_weight )
             # Return coupled channel operator
             proj_operator = np.vstack((np.hstack((proj_operator,o)),\
                                        np.hstack((o,proj_operator))))
