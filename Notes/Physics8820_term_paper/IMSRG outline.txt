@@ -1,0 +1,32 @@
+IMSRG Outline
+
+
+Introduction
+  - How far should I back up?
+      * Progress in ab initio nuclear theory (nuclear hockey stick)
+  - Importance of separation of energy scales in nuclear physics
+  - Example of SRG for NN potential
+  - Extension to nuclear many-body problem
+  - Target ground state and low-lying excitations for A-body nucleus
+
+Formalism
+  - Flow equation and SRG generator
+  - Normal ordering and Wick's theorem
+  - Normal-ordered Hamiltonian
+  - IMSRG flow equations (M-scheme)
+
+Applications
+  - Nuclear many-body problem
+      * Observables
+  - The Magnus expansion
+  - Multi-reference IMSRG
+  - Effective Hamiltonians
+
+Conclusion
+
+
+Figures to include
+  * Schematic representation of bare and dressed Hamiltonian in Fock-space
+  * Convergence of nuclear ground state energies
+  * Charge radii of nuclei
+  * Magnus figure from T.D. Morris paper or 10.13 in Hergert_2016iju
