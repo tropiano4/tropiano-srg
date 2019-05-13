@@ -9,7 +9,7 @@ module magnus_wegner
 	! Declare factorial and Bernoulli number arrays
 	double precision, dimension(k_magnus) :: factorial_array, bernoulli_array, magnus_factors
 	! Step-size in solving omega differential equation
-	double precision, parameter :: ds = 1.0e-5
+	double precision, parameter :: ds = 1.0e-6
 
 
 contains
