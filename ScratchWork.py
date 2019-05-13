@@ -1,5 +1,7 @@
 # Scratch Work
 
+# Test codes in progress in this script.
+
 
 import numpy as np
 import numpy.linalg as la
