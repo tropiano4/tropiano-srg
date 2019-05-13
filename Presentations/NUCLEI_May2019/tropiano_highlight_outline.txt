@@ -9,8 +9,7 @@ Title of abstract: Exploring the Magnus expansion and the similarity renormaliza
 
 1. Using the Magnus expansion to SRG evolve operators
 
-	- Figure: r^2 integrand (can do log-scale to show difference in initial and evolved)
-	or momentum projection operator evolving in \lambda.
+	- Figure: Momentum projection operator, r^2 operator evolving in \lambda or r^2 	integrand (can do log-scale to show difference in initial and evolved).
 
 	- Objectives: Study SRG evolution of operators utilizing the Magnus expansion.
 
