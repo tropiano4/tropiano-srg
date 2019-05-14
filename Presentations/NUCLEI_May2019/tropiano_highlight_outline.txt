@@ -7,7 +7,7 @@ Title of abstract: Exploring the Magnus expansion and the similarity renormaliza
 * Ideas for highlight slide. Focus on something relevant to the Magnus expansion and operator evolution.
 
 
-1. Using the Magnus expansion to SRG evolve operators
+1. Using the Magnus expansion to SRG evolve operators 
 
 	- Figure: Momentum projection operator, r^2 operator evolving in \lambda or r^2 	integrand (can do log-scale to show difference in initial and evolved).
 

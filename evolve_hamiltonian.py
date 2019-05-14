@@ -15,7 +15,7 @@ from SRG_codes import srg_wegner
 from SRG_codes import srg_kinetic_energy
 from SRG_codes import srg_block_diagonal
 from Magnus_codes import magnus_wegner
-#from Magnus_codes import magnus_kinetic_energy
+from Magnus_codes import magnus_kinetic_energy
 
 
 def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
@@ -72,10 +72,9 @@ def main(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
             
             evolve = magnus_wegner.Magnus(H0_matrix, k_magnus, ds)
             
-        #elif generator == 'T':
+        elif generator == 'T':
             
-            #evolve = magnus_kinetic_energy.Magnus(H0_matrix, T0_matrix, \
-                                                  #k_magnus, ds)
+            evolve = magnus_kinetic_energy.Magnus(H0_matrix, T0_matrix, k_magnus, ds)
         
     # Time the evolution and return dictionary d of evolved Hamiltonians
     t0 = time.time() # Start time
@@ -140,8 +139,8 @@ if __name__ == '__main__':
     # Specify potential
     
     #kvnn = 6 # AV18
-    #kvnn = 10 # EM N3LO
-    kvnn = 119 # Wendt at Lambda = 4 fm^-1
+    kvnn = 10 # EM N3LO
+    #kvnn = 119 # Wendt at Lambda = 4 fm^-1
     #kvnn = 120 # Wendt at Lambda = 9 fm^-1
     #kvnn = 121 # Wendt at Lambda = 20 fm^-1
     
@@ -158,7 +157,8 @@ if __name__ == '__main__':
     #method = 'srg'
     method = 'magnus'
     k_magnus = 6 # This won't affect SRG computations
-    ds = 1e-5 # This won't affect SRG computations
+    #ds = 1e-5 # This won't affect SRG computations
+    ds = 1e-6
     
     generator = 'Wegner'
     #generator = 'T'
