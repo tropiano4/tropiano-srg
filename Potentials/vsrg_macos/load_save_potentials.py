@@ -262,18 +262,18 @@ def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, lambda_bd=0.00,
     # Name of omega file
     if generator == 'Block-diag':
             
-        vnn_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
+        omega_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
                     channel, kvnn_string, generator, lambda_bd, lamb, k_magnus, ds)
         
     else: 
             
-        vnn_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
+        omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
                     channel, kvnn_string, generator, lamb, k_magnus, ds)
     
     chdir(potential_directory)
         
     # Load output file
-    data = np.loadtxt(vnn_file)
+    data = np.loadtxt(omega_file)
 
     chdir(cwd)
     

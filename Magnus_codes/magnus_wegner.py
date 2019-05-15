@@ -122,14 +122,13 @@ class Magnus(object):
         return dO_matrix
     
     
-    def euler_method(self, O0_matrix, s_init, s_max, ds):
+    def euler_method(self, O0_matrix, s_max, ds):
         '''Use first-order Euler method with fixed step-size ds to solve Magnus
         Omega equation.'''
         
         # Arguments
         
         # O0_matrix (2-D NumPy array): Initial Omega matrix
-        # s_init (float): Initial value of s
         # s_max (float): Maximum value of s
         # ds (float): Step-size in the flow parameter s
         
@@ -137,7 +136,7 @@ class Magnus(object):
         Os_matrix = O0_matrix
         
         # Step through s values until fully evolved
-        s = s_init
+        s = 0.0
         
         while s <= s_max:
             
@@ -151,22 +150,25 @@ class Magnus(object):
         return Os_matrix
         
         
-    def evolve_hamiltonian(self, lambda_array):
-        '''Returns evolved Hamiltonian Hs_matrix at several values of lambda 
-        for given lambda array. Also returns the evolved Omega Os_matrix.'''
+    def evolve_hamiltonian(self, lamb):
+        '''Returns evolved Hamiltonian Hs_matrix at a given value of lambda.
+        Also returns the evolved Omega Os_matrix.'''
         
         # Arguments
         
-        # lambda_array (1-D NumPy array): Array of lambda evolution values
+        # lamb (float): Evolution parameter lambda in units fm^-1
         
         # Set-up ODE
         
         # Load step-size in s
-        ds = self.ds
+        # Need a smaller step-size for large values of lambda
+        if lamb >= 10.0 and self.ds > 1e-6:
+            ds = 1e-6
+        else:
+            ds = self.ds
         
-        # Evaluate H(s) at the following values of lambda (or s)
-        s_array = np.zeros(len(lambda_array)+1)
-        s_array[1:] = 1.0/lambda_array**4.0 # This array includes s = 0
+        # Evaluate H(s) at the following value of lambda
+        s_max = 1.0/lamb**4.0
     
         # Return a dictionary of H(s) and Omega(s) at the values of s (i.e., 
         # d['hamiltonian'][1.2] returns H(lambda=1.2)) which is a matrix
@@ -183,21 +185,9 @@ class Magnus(object):
         # Load initial Hamiltonian
         H0_matrix = self.H0_matrix
         
-        # Loop over s values
-        for i in range(len(lambda_array)):
+        # Evolve to lambda
+        Os_matrix = self.euler_method(O0_matrix, s_max, ds)
+        Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
             
-            s_init = s_array[i]
-            s_max = s_array[i+1]
-            lamb = lambda_array[i]
-            
-            Os_matrix = self.euler_method(O0_matrix, s_init, s_max, ds)
-            Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
-            
-            # Save matrices to dictionary
-            d['omega'][lamb] = Os_matrix
-            d['hamiltonian'][lamb] = Hs_matrix
-    
-            # Reset initial value of Omega
-            O0_matrix = Os_matrix
-        
-        return d
+        # Return matrices
+        return Hs_matrix, Os_matrix
