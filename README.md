@@ -3,7 +3,7 @@
 
 Description of each folder:
 
-* Figures contains figures organized chronologically by sub-folders "Month_Year". This folder still needs work for better organization. Can add README to each sub-folder to explain each of the figures if the title of the figure is not sufficient.
+* Figures contains figures organized chronologically by sub-folders "Month_Year" and a Python script that has useful plotting oriented functions "figures_functions.py".
 
 * Magnus_codes contains codes for Magnus evolving a Hamiltonian via the Wegner or relative kinetic energy generator.
 
