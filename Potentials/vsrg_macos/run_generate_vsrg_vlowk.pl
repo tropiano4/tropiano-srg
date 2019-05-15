@@ -2,7 +2,7 @@
 # NOTE: The above path is machine dependent!!!
 
 #------------------------------------------------------------------------
-#  File: run_generate_vsrg_vlowk_smschiral_all.pl
+#  File: run_generate_vsrg_vlowk.pl
 #
 #  Authors:  R.J. Furnstahl  
 #               furnstahl.1@osu.edu
@@ -19,8 +19,8 @@
 #   
 
 # This script runs the executable generate_vsrg_vlowk.x one or more times,
-#  creating the appropriate input files (which must be created ahead of
-#  time) and renaming the standard output files. 
+# creating the appropriate input files (which must be created ahead of
+# time) and renaming the standard output files.
 
 # Notes:
 #  * Everything on a line after a "#" is a comment.
