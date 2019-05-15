@@ -1,5 +1,6 @@
 # LENT
 
+From https://airbrake.io/blog/python/python-best-practices: a README should "describe your project, define its purpose, and outline the basic functionality".
 
 Description of each folder:
 
