@@ -173,15 +173,15 @@ class Deuteron(object):
         # channel (string): The partial wave channel ('1S0', '3S1', etc.)
         
         # Grids of k (col), and r (row) values   
-        k_columns, r_rows = np.meshgrid(self.k_array, self.r_array)
+        k_cols, r_rows = np.meshgrid(self.k_array, self.r_array)
         
         # L = 0 (0th spherical Bessel function)
         if channel == '3S1':
-            M = np.sqrt(2/np.pi) * r_rows * spherical_jn(0, k_columns*r_rows)
+            M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(0, k_cols*r_rows)
             
         # L = 2 (2nd spherical Bessel function)
         elif channel == '3D1':
-            M = np.sqrt(2/np.pi) * r_rows * spherical_jn(2, k_columns*r_rows)
+            M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(2, k_cols*r_rows)
 
         return M    
     
@@ -191,7 +191,39 @@ class Deuteron(object):
         enter in a unitary transformation U. If len(k_array) = m, 
         then this function returns an m x m matrix.'''
         
-        return None
+        # Arguments:
+        
+        # U (2-D NumPy array): Option to apply an SRG or Magnus unitary
+        # transformation to the operator
+        
+        # Load r_array
+        r_array = self.r_array
+        
+        # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
+        r2_coordinate_space = np.diag(r_array**2)
+        
+        # Matrix of zeros (m x m)
+        m = self.m
+        o = np.zeros((m,m))
+        
+        # Transform to momentum-space and build coupled channel matrix
+        s_trans = self.bessel_transformation('3S1') # n x m matrices
+        d_trans = self.bessel_transformation('3D1')
+        # Each variable here corresponds to a sub-block of the coupled channel matrix
+        ss = s_trans.T @ r2_coordinate_space @ s_trans
+        dd = d_trans.T @ r2_coordinate_space @ d_trans
+        
+        # Full coupled channel matrix
+        r2_momentum_space = np.vstack((np.hstack((ss,o)),np.hstack((o,dd))))
+    
+        # Evolve operator by applying unitary transformation U
+        if U.any():
+            r2_momentum_space = U @ r2_momentum_space @ U.T
+        
+        # Factor of dr for one integration over dr (the other dr' integration
+        # is killed by delta function) ???
+        #return r2_momentum_space*self.dr
+        return r2_momentum_space
     
     
     def r2_integrand(self, u, w, r2_operator):
@@ -199,7 +231,23 @@ class Deuteron(object):
         u(k) and w(k), and the r^2 operator in momentum-space. If len(k_array)
         = m, then this function returns an m x m matrix.'''
         
-        return None
+        # Arguments
+        
+        # u (1-D NumPy array): 3S1 part of the deuteron wave function (unitless)
+        # w (1-D NumPy array): 3D1 part of the deuteron wave function (unitless)
+        # r2_operator (2-D NumPy array): r^2 operator in momentum-space
+        
+        # Build full wave function 
+        psi = np.concatenate((u,w))
+        
+        psi_row, psi_col = np.meshgrid(psi, psi)
+        # The i,j-th component of the integrand is given by
+        # psi(k_i)*r2_operator(k_i,k_j)*psi(k_j)
+        # Here we return the entire matrix using np.meshgrid instead of two for
+        # loops - this is not matrix multiplication!
+        r2_integrand = psi_row * r2_operator * psi_col
+        
+        return r2_integrand
     
     
     def rms_radius_from_rspace(self, u, w, r2_operator):
