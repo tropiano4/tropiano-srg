@@ -166,12 +166,14 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array,
             # Need a smaller step-size for large values of lambda
             if lamb >= 10.0 and ds > 1e-6:
                 step_size = 1e-6
+            else:
+                step_size = ds
 
             Hs_matrix = d['hamiltonian'][lamb] # Units are fm^-2 here
             # Subtract off kinetic energy (need to convert from MeV to fm^-2)
             Vs_matrix = Hs_matrix - T0_matrix/hbar_sq_over_M
             # Save evolved potential
-            lp.save_potential(k_array, k_weights, Vs_matrix, kvnn, channel, 
+            lp.save_potential(k_array, k_weights, Vs_matrix, kvnn, channel, \
                               kmax, kmid, ntot, 'magnus', generator, lamb, \
                               k_magnus=k_magnus, ds=step_size)
                 
@@ -192,7 +194,11 @@ if __name__ == '__main__':
     
     #kvnn = 6 # AV18
     #kvnn = 10 # EM N3LO
-    kvnn = 107 # RKE N3LO at Lambda = 500 MeV
+    #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
+    #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
+    #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
+    #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
+    kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 119 # Wendt at Lambda = 4 fm^-1
     #kvnn = 120 # Wendt at Lambda = 9 fm^-1
     #kvnn = 121 # Wendt at Lambda = 20 fm^-1
@@ -220,8 +226,9 @@ if __name__ == '__main__':
     #lambda_bd = 3.00
     
     #lambda_array = np.array([10.0,2.8,2.0,1.2])
+    lambda_array = np.array([10.0,2.8,2.0,1.5])
     #lambda_array = np.array([10.0,2.8])
-    lambda_array = np.array([10.0])
+    #lambda_array = np.array([10.0])
 
     if method == 'srg':
         
@@ -237,8 +244,8 @@ if __name__ == '__main__':
         
         # Run evolution with saving
         run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
-                   k_magnus=6, ds=1e-5, save=True)
+                   k_magnus=k_magnus, ds=ds, save=True)
     
         # Run evolution without saving
         #d = run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, \
-                       #lambda_array, k_magnus=6, ds=1e-5, save=False)
+                       #lambda_array, k_magnus=k_magnus, ds=ds, save=False)
