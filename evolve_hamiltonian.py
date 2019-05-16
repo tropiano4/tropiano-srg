@@ -66,16 +66,16 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
     t1 = time.time() # End time
     
     mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
-    print('_'*80)
+    print('_'*85)
     print('H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'%( \
           lambda_array[-1], mins))
-    print('_'*80)
-    print('Specifications:\n')
+    print('_'*85)
+    print('\nSpecifications:\n')
     print('kvnn = %d, channel = %s'%(kvnn, channel))
     print('kmax = %.1f, kmid = %.1f, ntot = %d'%(kmax, kmid, ntot))
-    print('method = srg, generator = %s'%(generator))
+    print('method = srg, generator = %s'%generator)
     if generator == 'Block-diag':
-        print('block-diagonal lambda = %.1f'%lambda_bd)
+        print('block-diagonal lambda = %.2f fm^-1'%lambda_bd)
     
     # Writes evolved potentials to files if save = True
     if save:
@@ -147,14 +147,14 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array,
     t1 = time.time() # End time
     
     mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
-    print('_'*80)
+    print('_'*85)
     print('H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'%( \
           lambda_array[-1], mins))
-    print('_'*80)
-    print('Specifications:\n')
+    print('_'*85)
+    print('\nSpecifications:\n')
     print('kvnn = %d, channel = %s'%(kvnn, channel))
     print('kmax = %.1f, kmid = %.1f, ntot = %d'%(kmax, kmid, ntot))
-    print('method = magnus, generator = %s'%(generator))
+    print('method = magnus, generator = %s'%generator)
     print('k_magnus = %d, ds = %.1e'%(k_magnus, ds))
     
     # Writes evolved potentials to files if save = True
@@ -193,10 +193,10 @@ if __name__ == '__main__':
     # Specify potential
     
     #kvnn = 6 # AV18
-    kvnn = 10 # EM N3LO
+    #kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
-    #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
+    kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 119 # Wendt at Lambda = 4 fm^-1
@@ -205,23 +205,24 @@ if __name__ == '__main__':
     
     channel = '3S1'
     
-    kmax = 30.0
-    #kmax = 8.0
-    kmid = 4.0
-    #kmid = 2.0
+    #kmax = 30.0
+    kmax = 8.0
+    #kmid = 4.0
+    kmid = 2.0
     ntot = 120
+    
     
     # Specify evolution
     
-    #method = 'srg'
-    method = 'magnus'
+    method = 'srg'
+    #method = 'magnus'
     k_magnus = 6 # This won't affect SRG computations
     ds = 1e-5 # This won't affect SRG computations
     #ds = 1e-6
     
-    generator = 'Wegner'
+    #generator = 'Wegner'
     #generator = 'T'
-    #generator = 'Block-diag'
+    generator = 'Block-diag'
     lambda_bd = 2.00 # This won't affect the band-diagonal generators
     #lambda_bd = 3.00
     
@@ -229,6 +230,9 @@ if __name__ == '__main__':
     lambda_array = np.array([10.0,2.8,2.0,1.5])
     #lambda_array = np.array([10.0,2.8])
     #lambda_array = np.array([10.0])
+    
+    
+    # Evolve Hamiltonian
 
     if method == 'srg':
         
