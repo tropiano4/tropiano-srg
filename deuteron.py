@@ -222,8 +222,8 @@ class Deuteron(object):
         
         # Factor of dr for one integration over dr (the other dr' integration
         # is killed by delta function) ???
-        #return r2_momentum_space*self.dr
-        return r2_momentum_space
+        return r2_momentum_space*self.dr
+        #return r2_momentum_space
     
     
     def r2_integrand(self, u, w, r2_operator):
