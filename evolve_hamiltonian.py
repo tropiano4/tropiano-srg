@@ -181,10 +181,9 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array,
             lp.save_omega(k_array, Os_matrix, kvnn, channel, kmax, kmid, ntot, \
                           generator, lamb, k_magnus=k_magnus, ds=step_size)
                 
-    # Otherwise, return the dictionary d
-    else:
-        
-        return d
+    # Otherwise, just return the dictionary d
+
+    return d
     
 
 if __name__ == '__main__':
@@ -193,22 +192,22 @@ if __name__ == '__main__':
     # Specify potential
     
     #kvnn = 6 # AV18
-    kvnn = 10 # EM N3LO
+    #kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
-    #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
+    kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 119 # Wendt at Lambda = 4 fm^-1
     #kvnn = 120 # Wendt at Lambda = 9 fm^-1
     #kvnn = 121 # Wendt at Lambda = 20 fm^-1
     
     channel = '3S1'
     
-    kmax = 30.0
-    #kmax = 8.0
-    kmid = 4.0
-    #kmid = 2.0
+    #kmax = 30.0
+    kmax = 8.0
+    #kmid = 4.0
+    kmid = 2.0
     ntot = 120
     
     
@@ -223,33 +222,30 @@ if __name__ == '__main__':
     #generator = 'Wegner'
     #generator = 'T'
     generator = 'Block-diag'
-    lambda_bd = 2.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 2.00 # This won't affect the band-diagonal generators
     #lambda_bd = 3.00
+    #lambda_bd = 1.00
+    lambda_bd = 4.00
     
     #lambda_array = np.array([10.0,2.8,2.0,1.2])
     lambda_array = np.array([10.0,2.8,2.0,1.5])
     #lambda_array = np.array([10.0,2.8])
     #lambda_array = np.array([10.0])
     
+    # Save the evolved Hamiltonian?
+    save = True
+    #save = False
+    
     
     # Evolve Hamiltonian
 
     if method == 'srg':
         
-        # Run evolution with saving
-        run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
-                lambda_bd, save=True)
+        d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, 
+                    lambda_bd=lambda_bd, save=save)
     
-        # Run evolution without saving
-        #d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
-                    #lambda_bd, save=False)
         
     elif method == 'magnus':
         
-        # Run evolution with saving
-        run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
-                   k_magnus=k_magnus, ds=ds, save=True)
-    
-        # Run evolution without saving
-        #d = run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, \
-                       #lambda_array, k_magnus=k_magnus, ds=ds, save=False)
+        d = run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, 
+                       lambda_array, k_magnus=k_magnus, ds=ds, save=save)
