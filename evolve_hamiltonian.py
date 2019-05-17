@@ -193,10 +193,10 @@ if __name__ == '__main__':
     # Specify potential
     
     #kvnn = 6 # AV18
-    #kvnn = 10 # EM N3LO
+    kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
-    kvnn = 107 # RKE N3LO at Lambda = 500 MeV
+    #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 119 # Wendt at Lambda = 4 fm^-1
@@ -205,10 +205,10 @@ if __name__ == '__main__':
     
     channel = '3S1'
     
-    #kmax = 30.0
-    kmax = 8.0
-    #kmid = 4.0
-    kmid = 2.0
+    kmax = 30.0
+    #kmax = 8.0
+    kmid = 4.0
+    #kmid = 2.0
     ntot = 120
     
     
