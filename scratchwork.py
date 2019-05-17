@@ -1,189 +1,112 @@
 # Scratch Work
 
 # Test codes in progress in this script.
-# Last thing tested: Numba-improved Magnus code (also try split-thing next)
+# Last thing tested: Scattering state momentum distribution for 3S1 potential
 
 
-from math import factorial
+from os import chdir, getcwd
+from matplotlib.offsetbox import AnchoredText
+import matplotlib.pyplot as plt
 import numpy as np
-from sympy import bernoulli
+import numpy.linalg as la
+# Python scripts made by A.T.
+from Potentials.vsrg_macos import load_save_potentials as lp
 
-    
-    def __init__(self, H0_matrix, k_magnus, ds):
-        '''Saves the initial Hamiltonian in units fm^-2 and dimension of the 
-        matrix. Also saves the number of terms to be summed in the Magnus
-        Omega(s) derivative sum.'''
-        
-        # Arguments
-        
-        # H0_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
-        # k_magnus (integer): Number of terms to include in Magnus sum
-        # ds (float): Step-size in the flow parameter s
-        
-        # h-bar^2 / M [MeV fm^2]
-        hbar_sq_over_M = 41.47
-        
-        # Save matrices in units fm^-2
-        self.H0_matrix = H0_matrix / hbar_sq_over_M
-        # Save dimension of matrix
-        self.N = len(H0_matrix)
-        
-        # Save truncation in Magnus sum
-        self.k_magnus = k_magnus
-        
-        # Save step-size in s
-        self.ds = ds
-        
-        # Initialize factorial and Bernoulli number arrays for summations up to
-        # 30 terms
-        self.factorial_array = np.zeros(31)
-        self.magnus_factors = np.zeros(31)
-        for i in range(31):
-            self.factorial_array[i] = factorial(i)
-            self.magnus_factors[i] = bernoulli(i)/factorial(i)
-        
-        
-    def commutator(self, A, B):
-        '''Returns commutator of A and B, [A,B] where A and B are square matrix
-        NumPy arrays.'''
-        
-        return A @ B - B @ A
-    
 
-    def bch_formula(self, M0_matrix, Os_matrix, k_truncate):
-        '''Returns an evolved operator given an initial operator M and evolved
-        Omega.'''
+def wave_func(H_matrix, U=np.empty(0)):
+    '''Diagonalizes the Hamiltonian and returns the deuteron wave function as u 
+    and w corresponding to the 3S1 and 3D1 channels. The wave function is 
+    unitless, that is, the momenta and weights are factored in such that
+    \sum_i { u(k_i)^2 + w(k_i)^2 } = 1. For an evolved wave function, enter
+    in a unitary transformation U.'''
         
-        # Arguments
+    # Arguments
         
-        # M0_matrix (2-D NumPy array): Initial operator (which is an N x N matrix)
-        # Os_matrix (2-D NumPy array): Evolved Omega matrix
-        # k_truncate (integer): Number of terms to include in the sum
-        
-        # k = 0 ad_Omega^k(H) term
-        ad = M0_matrix
-        
-        # Load factorials
-        factorial_array = self.factorial_array
-        
-        # Zeroth term
-        Ms_matrix = ad/factorial_array[0]
-        
-        # Sum from k = 0 to k = k_truncate
-        for k in range(1, k_truncate):
-            
-            ad = self.commutator(Os_matrix, ad)
-            Ms_matrix += ad/factorial_array[k]
-            
-        return Ms_matrix
-    
-    
-    def derivs(self, Os_matrix):
-        '''Returns the RHS of the Magnus Omega equation where Os_matrix is
-        the solution matrix.'''
-        
-        # Arguments
-        
-        # Os_matrix (2-D NumPy array): Evolved Omega matrix
-        # H0_matrix (2-D NumPy array): Initial Hamiltonian
-        
-        # Load initial Hamiltonian
-        H0_matrix = self.H0_matrix
-        
-        # Obtain evolved Hamiltonian with BCH formula summing through 25 terms
-        Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
-        #Hs_matrix = expm(Os_matrix) @ H0_matrix @ expm(-Os_matrix)
-        
-        # Wegner SRG generator, eta = [G,H] where G = H_D
-        G = np.diag( np.diag(Hs_matrix) )
-        
-        # SRG generator [G, H(s)]
-        eta = self.commutator(G, Hs_matrix)  
-        
-        # Load Magnus factors in sum
-        magnus_factors = self.magnus_factors
-        
-        # Initial nested commutator ad(eta)
-        # k = 0 ad_Omega^k(eta)
-        ad = eta
-    
-        dO_matrix = ad*magnus_factors[0] 
-    
-        # Sum through 0 to k_magnus
-        for k in range(1,self.k_magnus+1):
-        
-            ad = self.commutator(Os_matrix, ad)
-            dO_matrix += ad*magnus_factors[k]
-    
-        return dO_matrix
-    
-    
-    def euler_method(self, O0_matrix, s_max, ds):
-        '''Use first-order Euler method with fixed step-size ds to solve Magnus
-        Omega equation.'''
-        
-        # Arguments
-        
-        # O0_matrix (2-D NumPy array): Initial Omega matrix
-        # s_max (float): Maximum value of s
-        # ds (float): Step-size in the flow parameter s
-        
-        # Initialize Omega matrix
-        Os_matrix = O0_matrix
-        
-        # Step through s values until fully evolved
-        s = 0.0
-        
-        while s <= s_max:
-            
-            Os_matrix += self.derivs(Os_matrix)*ds
-            s += ds
-            
-        # To ensure Omega stops at s = s_max step size is fixed to go from 
-        # last value of s < s_max to s_max where final_ds = s_max - (s-ds)
-        Os_matrix += self.derivs(Os_matrix)*(s_max-s+ds)
+    # U (2-D NumPy array): Option to apply an SRG or Magnus unitary
+    # transformation to the wave function
 
-        return Os_matrix
-        
-        
-    def evolve_hamiltonian(self, lamb):
-        '''Returns evolved Hamiltonian Hs_matrix at a given value of lambda.
-        Also returns the evolved Omega Os_matrix.'''
-        
-        # Arguments
-        
-        # lamb (float): Evolution parameter lambda in units fm^-1
-        
-        # Set-up ODE
-        
-        # Load step-size in s
-        # Need a smaller step-size for large values of lambda
-        if lamb >= 10.0 and self.ds > 1e-6:
-            ds = 1e-6
-        else:
-            ds = self.ds
-        
-        # Evaluate H(s) at the following value of lambda
-        s_max = 1.0/lamb**4.0
+    # Diagonalize Hamiltonian
+    eigenvalues,eigenvectors = la.eig(H_matrix)
+    print(np.sort(eigenvalues))
     
-        # Return a dictionary of H(s) and Omega(s) at the values of s (i.e., 
-        # d['hamiltonian'][1.2] returns H(lambda=1.2)) which is a matrix
+    # Decide which eigenvalue to select here by printing...
+    #bool_array = (eigenvalues<0.0)*(eigenvalues>-3.0)
+    # This is the integer index where eigenvalue[index] = eps_d
+    #index = list(bool_array).index(True) 
+    # Full wave function (unitless)
+    #psi = eigenvectors[:,index] 
+
+    # Evolve wave function by applying unitary transformation U
+    #if U.any():
+        #psi = U @ psi
         
-        # Initialize dictionary
-        d = {}
-        # Key for Hamiltonian at a specified lambda value
-        d['hamiltonian'] = {} 
-        # Key for Omega at a specified lambda value
-        d['omega'] = {} 
+    #u = psi[:120] # 3S1 part 
+    #w = psi[120:] # 3D1 part
         
-        # Initialize Omega matrix
-        O0_matrix = np.zeros((self.N,self.N))
-        # Load initial Hamiltonian
-        H0_matrix = self.H0_matrix
-        
-        # Evolve to lambda
-        Os_matrix = self.euler_method(O0_matrix, s_max, ds)
-        Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
+    # Check normalization in momentum-space
+    #normalization = np.sum((u**2+w**2))
+    #print('Normalization = %.4f (k-space)'%normalization)
             
-        # Return matrices
-        return Hs_matrix, Os_matrix
+    #return u, w
+    
+    
+def main(method, generator, lamb, lambda_bd=0.00):
+    
+    # Load initial and evolved Hamiltonian
+    H0_matrix = lp.load_hamiltonian(112, '3S1', 8.0, 2.0, 120)
+    Hs_matrix = lp.load_hamiltonian(112, '3S1', 8.0, 2.0, 120, method, 
+                                    generator, lamb, lambda_bd)
+    
+    # Compute initial and evolved wave functions in S and D wave components: u and w
+    u_0, w_0 = wave_func(H0_matrix)
+    #u_s, w_s = wave_func(Hs_matrix)
+    # Initial and evolved momentum distribution (divide by momenta and weights for mesh-independent result)
+    #phi_squared_0 = ( u_0**2 + w_0**2 ) / ( gp**2 * gw )
+    #phi_squared_s = ( u_s**2 + w_s**2 ) / ( gp**2 * gw )
+
+    # Limits of x and y axes
+    #xlim = [0.0,4.0]
+    #ylim = [1e-5,1e3]
+    
+    # Generator label
+    #if generator == 'Block-diag':
+        #generator_label = r'$G=H_{BD}$'+'\n'+r'$\Lambda=%.2f \/ fm^{-1}$'%lambda_bd
+    #elif generator == 'T':
+        #generator_label = r'$G=T_{rel}$'
+    #elif generator == 'Wegner':
+        #generator_label = r'$G=H_{D}$'
+    
+    # Fontsize for labels
+    #legend_label_size = 16
+    #x_label_size = 18
+    #y_label_size = 20
+    #generator_label_size = 20
+    
+    # Plot psi^2 [fm^3] as a function of k [fm^-1]
+    #plt.close('all')
+    
+    #f, ax = plt.subplots()
+    
+    #ax.semilogy(gp, phi_squared_s, 'r-', linewidth=1.5, label=r'$\lambda=%.1f \/ \/ fm^{-1}$'%lamb)
+    #ax.semilogy(gp, phi_squared_0, 'k:', label=r'$\lambda=\infty \/ \/ fm^{-1}$')
+    #ax.set_xlim(xlim)
+    #ax.set_ylim(ylim)
+    #ax.legend(loc=1, frameon=False, fontsize=legend_label_size)
+    #ax.set_xlabel(r'$k \/ [fm^{-1}]$', fontsize=x_label_size)
+    #ax.set_ylabel(r'$\phi^2 \/ \/ [fm^3]$', fontsize=y_label_size)
+    #anchored_text = AnchoredText(generator_label, prop=dict(size=generator_label_size), loc=3, frameon=False)
+    #ax.add_artist(anchored_text)
+    
+    # Name of jpeg file
+    #if generator == 'Block-diag':
+        #name = 'deuteron_momentum_distribution_kvnn%s_%s_%s%.2f_lamb%.1f'%(kvnn, method, generator, lambda_bd, lamb)
+    #else:
+        #name = 'deuteron_momentum_distribution_kvnn%s_%s_%s_lamb%.1f'%(kvnn, method, generator, lamb)
+        
+    # Save figure
+    #folder = ff.current_date() # Gets current month and year
+    #chdir('Figures/%s'%folder)
+    #f.savefig(name+'.jpg', bbox_inches='tight')
+    #chdir(cwd)
+    
+    
