@@ -17,6 +17,8 @@
 # 119     Wendt LO non-local potential at 4 fm^-1 cutoff
 # 120     Wendt LO non-local potential at 9 fm^-1 cutoff
 # 121     Wendt LO non-local potential at 20 fm^-1 cutoff
+# 222     N2LO local potential at R_0 = 1.0 fm cutoff
+# 224     N2LO local potential at R_0 = 1.2 fm cutoff
 #
 # Also saves SRG or Magnus evolved potentials in the same directory.
 
