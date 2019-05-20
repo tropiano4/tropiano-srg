@@ -125,7 +125,7 @@ def main(index, kvnn, kmax, kmid, method, generator, lamb, lambda_bd=0.00):
     # Save figure
     folder = ff.current_date() # Gets current month and year
     chdir('Figures/%s'%folder)
-    f.savefig(name+'.jpg', bbox_inches='tight')
+    f.savefig(name+'.pdf', bbox_inches='tight')
     chdir(cwd)    
     
 
