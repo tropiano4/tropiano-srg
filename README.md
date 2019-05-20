@@ -28,4 +28,6 @@ Description of major codes:
 
 * "evolve_hamiltonian.py" - This code SRG or Magnus evolves a specified Hamiltonian using scripts from the SRG_codes or Magnus_codes folder.
 
+* "phase_shifts.py" - Calculates phase shifts given an NN potential. Needs to be updated.
+
 * "scratchwork.py" - Script used for testing purposes.
