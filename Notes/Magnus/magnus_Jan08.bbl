@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{11}%
+\begin{thebibliography}{10}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -81,31 +81,6 @@
   {477} (\bibinfo {year} {2017})},\ \Eprint {http://arxiv.org/abs/1612.08315}
   {arXiv:1612.08315 [nucl-th]} \BibitemShut {NoStop}%
 %%CITATION = ARXIV:1612.08315;%%
-\bibitem [{\citenamefont {Morris}\ \emph {et~al.}(2015)\citenamefont {Morris},
-  \citenamefont {Parzuchowski},\ and\ \citenamefont {Bogner}}]{Morris:2015yna}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.~D.}\ \bibnamefont
-  {Morris}}, \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
-  {Parzuchowski}}, \ and\ \bibinfo {author} {\bibfnamefont {S.~K.}\
-  \bibnamefont {Bogner}},\ }\href {\doibase 10.1103/PhysRevC.92.034331}
-  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo
-  {volume} {92}},\ \bibinfo {pages} {034331} (\bibinfo {year} {2015})},\
-  \Eprint {http://arxiv.org/abs/1507.06725} {arXiv:1507.06725 [nucl-th]}
-  \BibitemShut {NoStop}%
-%%CITATION = ARXIV:1507.06725;%%
-\bibitem [{\citenamefont {Dainton}\ \emph {et~al.}(2014)\citenamefont
-  {Dainton}, \citenamefont {Furnstahl},\ and\ \citenamefont
-  {Perry}}]{Dainton:2013axa}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
-  {Dainton}}, \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
-  {Furnstahl}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
-  {Perry}},\ }\href {\doibase 10.1103/PhysRevC.89.014001} {\bibfield  {journal}
-  {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {89}},\
-  \bibinfo {pages} {014001} (\bibinfo {year} {2014})},\ \Eprint
-  {http://arxiv.org/abs/1310.6690} {arXiv:1310.6690 [nucl-th]} \BibitemShut
-  {NoStop}%
-%%CITATION = ARXIV:1310.6690;%%
 \bibitem [{\citenamefont {Nogga}\ \emph {et~al.}(2005)\citenamefont {Nogga},
   \citenamefont {Timmermans},\ and\ \citenamefont {van Kolck}}]{Nogga:2005hy}%
   \BibitemOpen
@@ -141,6 +116,19 @@
   {http://arxiv.org/abs/1101.2690} {arXiv:1101.2690 [nucl-th]} \BibitemShut
   {NoStop}%
 %%CITATION = ARXIV:1101.2690;%%
+\bibitem [{\citenamefont {Dainton}\ \emph {et~al.}(2014)\citenamefont
+  {Dainton}, \citenamefont {Furnstahl},\ and\ \citenamefont
+  {Perry}}]{Dainton:2013axa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Dainton}}, \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Furnstahl}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Perry}},\ }\href {\doibase 10.1103/PhysRevC.89.014001} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {89}},\
+  \bibinfo {pages} {014001} (\bibinfo {year} {2014})},\ \Eprint
+  {http://arxiv.org/abs/1310.6690} {arXiv:1310.6690 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1310.6690;%%
 \bibitem [{\citenamefont {Tews}\ \emph {et~al.}(2018)\citenamefont {Tews},
   \citenamefont {Huth},\ and\ \citenamefont {Schwenk}}]{Tews:2018sbi}%
   \BibitemOpen
