@@ -8,8 +8,8 @@
 # value of lambda.
 
 
-import time
 import numpy as np
+import time
 # Scripts made by A.T.
 from Potentials.vsrg_macos import load_save_potentials as lp
 from SRG_codes import srg_wegner
@@ -158,6 +158,7 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array,
     print('k_magnus = %d, ds = %.1e'%(k_magnus, ds))
     
     # Writes evolved potentials to files if save = True
+    # Otherwise, just return the dictionary d
     if save:
                 
         # Save evolved potential and Omega for each lambda value
@@ -180,8 +181,6 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array,
             Os_matrix = d['omega'][lamb]
             lp.save_omega(k_array, Os_matrix, kvnn, channel, kmax, kmid, ntot, \
                           generator, lamb, k_magnus=k_magnus, ds=step_size)
-                
-    # Otherwise, just return the dictionary d
 
     return d
     
