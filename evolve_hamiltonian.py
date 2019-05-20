@@ -224,15 +224,16 @@ if __name__ == '__main__':
     generator = 'Wegner'
     #generator = 'T'
     #generator = 'Block-diag'
-    #lambda_bd = 1.00
-    lambda_bd = 2.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 1.00 # This won't affect the band-diagonal generators
+    lambda_bd = 2.00 
     #lambda_bd = 3.00
     #lambda_bd = 4.00
     
     #lambda_array = np.array([10.0,2.8,2.0,1.2])
-    lambda_array = np.array([10.0,2.8,2.0,1.5])
+    #lambda_array = np.array([10.0,2.8,2.0,1.5])
     #lambda_array = np.array([10.0,2.8])
     #lambda_array = np.array([10.0])
+    #lambda_array = np.array([1.2])
     
     # Save the evolved Hamiltonian?
     save = True
@@ -245,7 +246,6 @@ if __name__ == '__main__':
         
         d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, 
                     lambda_bd=lambda_bd, save=save)
-    
         
     elif method == 'magnus':
         
