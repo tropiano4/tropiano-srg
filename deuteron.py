@@ -163,7 +163,7 @@ class Deuteron(object):
             return np.zeros((2*m,2*m))
     
     
-    def bessel_transformation(self, channel):
+    def hankel_transformation(self, channel):
         '''Returns the <r|k;channel> matrix for given partial wave channel. If 
         len(r_array) = n and len(k_array) = m, then this function returns an 
         n x m matrix. Note, one must specify an r_array and step-size dr.'''
@@ -207,8 +207,8 @@ class Deuteron(object):
         o = np.zeros((m,m))
         
         # Transform to momentum-space and build coupled channel matrix
-        s_trans = self.bessel_transformation('3S1') # n x m matrices
-        d_trans = self.bessel_transformation('3D1')
+        s_trans = self.hankel_transformation('3S1') # n x m matrices
+        d_trans = self.hankel_transformation('3D1')
         # Each variable here corresponds to a sub-block of the coupled channel matrix
         ss = s_trans.T @ r2_coordinate_space @ s_trans
         dd = d_trans.T @ r2_coordinate_space @ d_trans
@@ -253,8 +253,8 @@ class Deuteron(object):
     def rms_radius_from_rspace(self, u, w, r2_operator):
         '''Returns the RMS half-radius of deuteron by evaluating 
         0.5 * Sqrt( <psi|r^2|psi> ) in momentum-space where the r^2 operator is
-        Bessel transformed to from coordinate- to momentum-space. Experimental
-        value is ~2.14 fm.'''
+        transformed from coordinate- to momentum-space. Experimental value is 
+        ~2.14 fm.'''
         
         return None
     

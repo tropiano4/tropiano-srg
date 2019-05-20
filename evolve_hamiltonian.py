@@ -197,15 +197,18 @@ if __name__ == '__main__':
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
-    kvnn = 112 # RKE N4LO at Lambda = 500 MeV
+    #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 119 # Wendt at Lambda = 4 fm^-1
     #kvnn = 120 # Wendt at Lambda = 9 fm^-1
     #kvnn = 121 # Wendt at Lambda = 20 fm^-1
+    #kvnn = 222  # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
+    kvnn = 224  # Gezerlis et al 2LO local potential at R_0 = 1.2 fm cutoff
     
     channel = '3S1'
     
     #kmax = 30.0
-    kmax = 8.0
+    #kmax = 8.0
+    kmax = 10.0
     #kmid = 4.0
     kmid = 2.0
     ntot = 120
@@ -219,13 +222,13 @@ if __name__ == '__main__':
     ds = 1e-5 # This won't affect SRG computations
     #ds = 1e-6
     
-    #generator = 'Wegner'
+    generator = 'Wegner'
     #generator = 'T'
-    generator = 'Block-diag'
-    #lambda_bd = 2.00 # This won't affect the band-diagonal generators
-    #lambda_bd = 3.00
+    #generator = 'Block-diag'
     #lambda_bd = 1.00
-    lambda_bd = 4.00
+    lambda_bd = 2.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 3.00
+    #lambda_bd = 4.00
     
     #lambda_array = np.array([10.0,2.8,2.0,1.2])
     lambda_array = np.array([10.0,2.8,2.0,1.5])

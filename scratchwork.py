@@ -11,6 +11,7 @@ import numpy as np
 import numpy.linalg as la
 # Python scripts made by A.T.
 from Potentials.vsrg_macos import load_save_potentials as lp
+from evolve_hamiltonian import run_srg
 
 
 def wave_func(H_matrix, U=np.empty(0)):
@@ -109,4 +110,8 @@ def main(method, generator, lamb, lambda_bd=0.00):
     #f.savefig(name+'.jpg', bbox_inches='tight')
     #chdir(cwd)
     
+lambda_array = np.array([10.0,2.8,2.0,1.5])
+d1 = run_srg(224, '3S1', 10.0, 2.0, 120, 'Wegner', lambda_array, save=True)
+d2 = run_srg(222, '3S1', 10.0, 2.0, 120, 'Block-diag', lambda_array, 
+             lambda_bd=2.00, save=True)
     
