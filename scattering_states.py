@@ -1,6 +1,7 @@
 # Created 05/23/19 by A.T. (tropiano.4@osu.edu)
 
-# Looking at scattering state momentum distribution for 3S1 potential
+# Looking at scattering state momentum distribution for 3S1 potential. This
+# needs to be generalized along with deuteron.py at some point.
 
 
 from os import chdir, getcwd
