@@ -5,7 +5,7 @@
 
 
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import odeint, ode
 
 
 class SRG(object):
@@ -85,7 +85,8 @@ class SRG(object):
         return A+(np.transpose(A)-np.diag(np.diag(A)))
     
     
-    def derivs(self, Hs_vector, s):
+    #def derivs(self, Hs_vector, s):
+    def derivs(self, s, Hs_vector):
         '''Returns RHS of SRG flow equation using the Wegner generator.'''
         
         # Arguments
@@ -144,3 +145,39 @@ class SRG(object):
             i += 1
         
         return d
+    
+    
+    def evolve_hamiltonian_ode(self, lambda_array):
+        '''Returns evolved Hamiltonian Hs_matrix at several values of lambda 
+        for given lambda array.'''
+    
+        # Arguments
+        
+        # lambda_array (1-D NumPy array): Array of lambda evolution values
+    
+        # Reshape initial hamiltonian to a vector
+        H0_vector = self.matrix2vector(self.H0_matrix)
+        
+        # Evaluate H(s) at the following values of lambda (or s)
+        s_array = 1.0/lambda_array**4.0
+        
+        # Set-up ODE
+        r = ode(self.derivs).set_integrator('vode', method='bdf')
+        r.set_initial_value(H0_vector, 0.0)
+        # Step-size
+        ds = 1e-5
+        
+        # Return a dictionary of H(s) at the values of s (i.e., d[1.2] returns 
+        # H(lambda=1.2) which is a matrix)
+        d = {}
+        i = 1
+        for s in s_array:
+            
+            while r.successful() and r.t < s:
+            
+                r.integrate(r.t+ds)
+            
+            d[lambda_array[i]] = self.vector2matrix(r.y)
+            i += 1
+        
+        return d        

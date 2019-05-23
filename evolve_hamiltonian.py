@@ -57,12 +57,14 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
         
     elif generator == 'Block-diag':
         
-        cc = lp.coupled_channel(channel)
+        # Whether Hamiltonian is coupled channel or not (cc = True or False)
+        cc = lp.coupled_channel(channel) 
         evolve = srg_block_diagonal.SRG(H0_matrix, lambda_bd, k_array, cc)
         
     # Time the evolution and return dictionary d of evolved Hamiltonians
     t0 = time.time() # Start time
-    d = evolve.evolve_hamiltonian(lambda_array)
+    #d = evolve.evolve_hamiltonian(lambda_array)
+    d = evolve.evolve_hamiltonian_ode(lambda_array) # TESTING
     t1 = time.time() # End time
     
     mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
@@ -197,19 +199,19 @@ if __name__ == '__main__':
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
-    #kvnn = 900 # Wendt at Lambda = 4 fm^-1
+    kvnn = 900 # Wendt at Lambda = 4 fm^-1
     #kvnn = 901 # Wendt at Lambda = 9 fm^-1
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
     #kvnn = 222  # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
-    kvnn = 224  # Gezerlis et al 2LO local potential at R_0 = 1.2 fm cutoff
+    #kvnn = 224  # Gezerlis et al 2LO local potential at R_0 = 1.2 fm cutoff
     
     channel = '3S1'
     
-    #kmax = 30.0
-    #kmax = 8.0
-    kmax = 10.0
-    #kmid = 4.0
-    kmid = 2.0
+    kmax = 30.0
+    kmax = 8.0
+    #kmax = 10.0
+    kmid = 4.0
+    #kmid = 2.0
     ntot = 120
     
     
@@ -236,8 +238,8 @@ if __name__ == '__main__':
     #lambda_array = np.array([1.2])
     
     # Save the evolved Hamiltonian?
-    save = True
-    #save = False
+    #save = True
+    save = False
     
     
     # Evolve Hamiltonian
