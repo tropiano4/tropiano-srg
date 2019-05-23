@@ -11,9 +11,9 @@ from scipy.interpolate import RectBivariateSpline,interp2d
 # Things to do: phase shifts should take coupled_channel Boolean variable as an
 # input. Use RectBivariateSpline as default (you can find interp2d method in
 # old codes if necessary). Good to have option to return one delta value. Keep
-# that format.
+# that format. Make formatting equivalent to SRG, deuteron formatting.
 
-class phase_shifts(object):
+class Phase_shifts(object):
     
     def __init__(self,vnn,gp,gw,conv='Stapp',spline=True):
         '''Define constants, interpolate vnn (vnn should be input in units fm)'''
