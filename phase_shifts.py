@@ -1,11 +1,17 @@
-# 07/11/18
-# Calculates the phase shift as a function of energy from Magnus/SRG evolved
-# potential (coupled-channel).
-# Updated 09/25/18 to manually correct +/- shifts of pi in phase shifts
+# Created 07/11/18 by A.T. (tropiano.4@osu.edu)
+# Calculates NN phase shifts as a function of energy for the given potential.
+# Updated 09/25/18 by A.T. to manually correct +/- shifts of pi in phase shifts.
+
 
 import numpy as np
 import numpy.linalg as LA
 from scipy.interpolate import RectBivariateSpline,interp2d
+
+
+# Things to do: phase shifts should take coupled_channel Boolean variable as an
+# input. Use RectBivariateSpline as default (you can find interp2d method in
+# old codes if necessary). Good to have option to return one delta value. Keep
+# that format.
 
 class phase_shifts(object):
     
