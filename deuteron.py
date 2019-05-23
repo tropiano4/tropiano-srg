@@ -16,6 +16,12 @@ from scipy.special import spherical_jn
 from scipy.interpolate import CubicSpline
 
 
+# Generalize this to any NN state (give energy of state and select closest
+# value)? Make epsilon = -2.22 MeV default. Or split this into returning the
+# deuteron wave function and observables using NN operators from operator.py.
+# Rename this observables.py?
+
+
 class Deuteron(object):
     
     
