@@ -14,11 +14,11 @@
 #  13     Entem/Machleidt N3LOW (400 MeV cutoff)
 #  32     Epelbaum et al N3LO (550/600 MeV cutoff)
 #  90     Reinert-Krebs-Epelbaum LO (400 MeV cutoff)
-# 119     Wendt LO non-local potential at 4 fm^-1 cutoff
-# 120     Wendt LO non-local potential at 9 fm^-1 cutoff
-# 121     Wendt LO non-local potential at 20 fm^-1 cutoff
 # 222     Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
 # 224     Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
+# 900     Wendt LO non-local potential at 4 fm^-1 cutoff
+# 901     Wendt LO non-local potential at 9 fm^-1 cutoff
+# 902     Wendt LO non-local potential at 20 fm^-1 cutoff
 #
 # Also saves SRG or Magnus evolved potentials in the same directory.
 
@@ -565,3 +565,5 @@ if __name__ == '__main__':
     
     # Example for loading an initial potential below
     V = load_potential(6,'3S1',30.0,4.0,120)
+    
+    # Rewrite Wendt potentials down here
