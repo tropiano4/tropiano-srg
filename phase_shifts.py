@@ -13,38 +13,43 @@ from scipy.interpolate import RectBivariateSpline,interp2d
 # old codes if necessary). Good to have option to return one delta value. Keep
 # that format. Make formatting equivalent to SRG, deuteron formatting.
 
+
 class Phase_shifts(object):
     
-    def __init__(self,vnn,gp,gw,conv='Stapp',spline=True):
-        '''Define constants, interpolate vnn (vnn should be input in units fm)'''
+    
+    def __init__(self, V_matrix, k_array, k_weights, coupled_channel=False, 
+                 convention='Stapp'):
+        '''Define constants and interpolate potential.'''
+        
+        # Arguments
+        
+        # V (2-D NumPy array): Potential matrix in units fm^-2
+        # k_array (1-D NumPy array): Momentum array
+        # k_weights (1-D NumPy array): Momentum weights
+        # coupled_channel (Boolean): Value corresponding to whether the 
+        # potential is coupled channel or not
+        # convention (string): Convention for calculating phase shifts ('Stapp' 
+        # or 'Blatt')
         
         # Save convention
-        self.conv = conv
+        self.convention = convention
         
         # Maximum momentum in fm^-1
-        self.kmax = max(gp)
+        self.kmax = max(k_array)
 
-        # Units are fm^-1
-        self.gp = gp # Momenta array
-        self.gw = gw # Gaussian weights
-        # Dimension
-        N = len(gp)
+        # Save momentum and weights (units are fm^-1)
+        self.k_array = k_array # Momenta array
+        self.k_weights = k_weights # Momentum weights
+        # Dimension of momentum
+        N = len(k_array)
         self.dim = N
         
-        if spline:
-            # Interpolate each sub-block with RectBivariateSpline
-            self.V11_func = RectBivariateSpline(gp,gp,vnn[:N,:N])
-            self.V12_func = RectBivariateSpline(gp,gp,vnn[:N,N:2*N])
-            self.V21_func = RectBivariateSpline(gp,gp,vnn[N:2*N,:N])
-            self.V22_func = RectBivariateSpline(gp,gp,vnn[N:2*N,N:2*N])
-        else:
-            # Interpolate each sub-block with interp2d
-            self.V11_func = interp2d(gp,gp,vnn[:N,:N])
-            self.V12_func = interp2d(gp,gp,vnn[:N,N:2*N])
-            self.V21_func = interp2d(gp,gp,vnn[N:2*N,:N])
-            self.V22_func = interp2d(gp,gp,vnn[N:2*N,N:2*N])
-            
-        self.spline = spline
+        # Interpolate each sub-block with RectBivariateSpline
+        self.V11_func = RectBivariateSpline(gp,gp,vnn[:N,:N])
+        self.V12_func = RectBivariateSpline(gp,gp,vnn[:N,N:2*N])
+        self.V21_func = RectBivariateSpline(gp,gp,vnn[N:2*N,:N])
+        self.V22_func = RectBivariateSpline(gp,gp,vnn[N:2*N,N:2*N])
+
         
     def delta(self,e):
         '''Returns phase shift as a function of lab energy, e [MeV]'''
