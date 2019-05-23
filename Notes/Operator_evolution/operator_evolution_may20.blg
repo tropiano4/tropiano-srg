@@ -1,6 +1,6 @@
 This is BibTeX, Version 0.99d (TeX Live 2017)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
-The top-level auxiliary file: magnus_Jan08.aux
+The top-level auxiliary file: operator_evolution_may20.aux
 The style file: apsrev4-1.bst
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
@@ -9,7 +9,7 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-Database file #1: magnus_Jan08Notes.bib
+Database file #1: operator_evolution_may20Notes.bib
 Database file #2: ../tropiano_bib.bib
 control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
 control{apsrev41Control}, control.key{N/A}, control.author{08}, control.editor{1}, control.title{}, control.pages{0}, control.year{1}, control.eprint{N/A}, 
@@ -23,45 +23,45 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
-You've used 12 entries,
+You've used 2 entries,
             5847 wiz_defined-function locations,
-            1706 strings with 17093 characters,
-and the built_in function-call counts, 11409 in all, are:
-= -- 693
-> -- 283
-< -- 98
-+ -- 91
-- -- 83
-* -- 1839
-:= -- 1078
-add.period$ -- 10
-call.type$ -- 12
-change.case$ -- 40
-chr.to.int$ -- 20
-cite$ -- 12
-duplicate$ -- 1098
-empty$ -- 791
-format.name$ -- 156
-if$ -- 2196
+            1602 strings with 14723 characters,
+and the built_in function-call counts, 955 in all, are:
+= -- 12
+> -- 13
+< -- 33
++ -- 7
+- -- 19
+* -- 131
+:= -- 68
+add.period$ -- 0
+call.type$ -- 2
+change.case$ -- 0
+chr.to.int$ -- 10
+cite$ -- 2
+duplicate$ -- 130
+empty$ -- 15
+format.name$ -- 0
+if$ -- 120
 int.to.chr$ -- 1
-int.to.str$ -- 19
-missing$ -- 150
-newline$ -- 91
-num.names$ -- 30
-pop$ -- 443
+int.to.str$ -- 9
+missing$ -- 28
+newline$ -- 52
+num.names$ -- 0
+pop$ -- 68
 preamble$ -- 1
-purify$ -- 50
+purify$ -- 0
 quote$ -- 0
-skip$ -- 398
+skip$ -- 32
 stack$ -- 0
-substring$ -- 282
-swap$ -- 1059
-text.length$ -- 32
+substring$ -- 10
+swap$ -- 108
+text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 154
+type$ -- 12
 warning$ -- 1
-while$ -- 39
+while$ -- 9
 width$ -- 0
-write$ -- 149
+write$ -- 52
 (There was 1 warning)
