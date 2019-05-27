@@ -45,6 +45,9 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
     
     # h-bar^2 / M [MeV fm^2] for conversion of MeV to fm^-2
     hbar_sq_over_M = 41.47
+    
+    # Initial value of lambda
+    lambda_initial = 12.0
 
     # Initialize SRG class
     if generator == 'Wegner':
@@ -63,8 +66,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
         
     # Time the evolution and return dictionary d of evolved Hamiltonians
     t0 = time.time() # Start time
-    #d = evolve.evolve_hamiltonian(lambda_array)
-    d = evolve.evolve_hamiltonian_ode(lambda_array) # TESTING
+    d = evolve.evolve_hamiltonian(lambda_initial, lambda_array)
     t1 = time.time() # End time
     
     mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
@@ -199,16 +201,16 @@ if __name__ == '__main__':
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
-    kvnn = 900 # Wendt at Lambda = 4 fm^-1
-    #kvnn = 901 # Wendt at Lambda = 9 fm^-1
+    #kvnn = 900 # Wendt at Lambda = 4 fm^-1
+    kvnn = 901 # Wendt at Lambda = 9 fm^-1
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
     #kvnn = 222  # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
-    #kvnn = 224  # Gezerlis et al 2LO local potential at R_0 = 1.2 fm cutoff
+    #kvnn = 224  # Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
     
     channel = '3S1'
     
     kmax = 30.0
-    kmax = 8.0
+    #kmax = 8.0
     #kmax = 10.0
     kmid = 4.0
     #kmid = 2.0
@@ -223,23 +225,23 @@ if __name__ == '__main__':
     ds = 1e-5 # This won't affect SRG computations
     #ds = 1e-6
     
-    generator = 'Wegner'
-    #generator = 'T'
+    #generator = 'Wegner'
+    generator = 'T'
     #generator = 'Block-diag'
     #lambda_bd = 1.00 # This won't affect the band-diagonal generators
     lambda_bd = 2.00 
     #lambda_bd = 3.00
     #lambda_bd = 4.00
     
-    #lambda_array = np.array([10.0,2.8,2.0,1.2])
-    lambda_array = np.array([10.0,2.8,2.0,1.5])
+    lambda_array = np.array([10.0,2.8,2.0,1.2])
+    #lambda_array = np.array([10.0,2.8,2.0,1.5])
     #lambda_array = np.array([10.0,2.8])
-    #lambda_array = np.array([10.0])
+    #lambda_array = np.array([2.8])
     #lambda_array = np.array([1.2])
     
     # Save the evolved Hamiltonian?
-    #save = True
-    save = False
+    save = True
+    #save = False
     
     
     # Evolve Hamiltonian

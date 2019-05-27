@@ -1,7 +1,12 @@
-# Created 03/22/19 by A.T. (tropiano.4@osu.edu)
-# Updated 05/07/19 by A.T. to save and load Magnus evolved potentials and omega
-# matrices
-
+#------------------------------------------------------------------------------
+# File: load_save_potentials.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     March 22, 2019
+# 
+# Revision history:
+#   May 7, 2019 --- Save and load Magnus evolved potentials and omega matrices.
+# 
 # Loads potentials from Potentials/vsrg_macos directory.
 # Potentials are organized by a kvnn number and the details of their momentum
 # mesh (kmax, kmid, and ntot). Below are several examples of kvnn numbers:
@@ -21,6 +26,8 @@
 # 902     Wendt LO non-local potential at 20 fm^-1 cutoff
 #
 # Also saves SRG or Magnus evolved potentials in the same directory.
+#
+#------------------------------------------------------------------------------
 
 
 from os import getcwd, chdir
@@ -28,15 +35,30 @@ import numpy as np
 
 
 def load_momentum(kvnn, channel, kmax, kmid, ntot):
-    '''Load momentum and weights for given potential.'''
-    
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
+    """
+    Load momentum and weights for given potential
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+        
+    Returns
+    -------
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights : 1-D ndarray
+        Momentum weights.
+        
+    """
     
     # Get current working directory
     cwd = getcwd()
@@ -59,7 +81,8 @@ def load_momentum(kvnn, channel, kmax, kmid, ntot):
     k_weights = np.zeros(ntot)
     
     # Open mesh file and load
-    mesh_file = 'vsrg_%s_kvnn_%s_lam12.0_reg_0_3_0_mesh.out'%(channel, kvnn_string)
+    mesh_file = 'vsrg_%s_kvnn_%s_lam12.0_reg_0_3_0_mesh.out'%(channel,
+                                                              kvnn_string)
     f = open(mesh_file, 'r')
     
     i = 0
@@ -78,26 +101,43 @@ def load_momentum(kvnn, channel, kmax, kmid, ntot):
     return k_array, k_weights
     
 
-def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', generator='Wegner', \
-                   lamb=1.2, lambda_bd=0.00, k_magnus=6, ds=1e-5):
-    '''Loads an NN potential in units fm.'''
+def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', 
+                   generator='Wegner', lamb=1.5, lambda_bd=0.00, k_magnus=6, 
+                   ds=1e-5):
+    """
+    Loads an NN potential in units fm.
     
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # method (string): The evolution method 'srg' or 'magnus' - 'initial'
-    # if unevolved
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lamb (float): Evolution parameter lambda in units fm^-1
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
-    # only)
-    # ds (float): Step-size in the flow parameter s (for Magnus only)
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+    method : str, optional
+        The evolution method 'srg' or 'magnus'. Choose 'initial' if unevolved.
+    generator : str, optional
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float, optional
+        Evolution parameter lambda in units fm^-1.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+    k_magnus : int, optional
+        Number of terms to include in Magnus sum (for Magnus only).
+    ds : float, optional
+        Step-size in the flow parameter s (for Magnus only).
+        
+    Returns
+    -------
+    V : 2-D ndarray
+        NN potential matrix in units fm.
+        
+    """
     
     # Get current working directory
     cwd = getcwd()
@@ -115,30 +155,31 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', generator=
     # Name of potential file (split on cases of initial, SRG or Magnus evolved)
     if method == 'initial':
         
-        vnn_file = 'vnn_%s_kvnn_%s_lam12.0_reg_0_3_0.out'%(channel, kvnn_string)
+        vnn_file = 'vnn_%s_kvnn_%s_lam12.0_reg_0_3_0.out'%(channel, 
+                                                           kvnn_string)
         
     elif method == 'srg': 
     
         if generator == 'Block-diag':
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel, \
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel,
                         kvnn_string, method, generator, lambda_bd, lamb)
         else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out'%(channel, 
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out'%(channel,
                         kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
         
         if generator == 'Block-diag':
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
-                        channel, kvnn_string, method, generator, lambda_bd, \
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%(
+                        channel, kvnn_string, method, generator, lambda_bd,
                         lamb, k_magnus, ds)
         else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
-                        channel, kvnn_string, method, generator, lamb, \
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out'%(
+                        channel, kvnn_string, method, generator, lamb,
                         k_magnus, ds)
     
     chdir(potential_directory)
@@ -162,15 +203,28 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial', generator=
 
 
 def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
-    '''Loads relative kinetic energy in units MeV.'''
-    
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
+    """
+    Loads relative kinetic energy in units MeV.
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+        
+    Returns
+    -------
+    T : 2-D ndarray
+        Relative kinetic energy matrix in units MeV.
+        
+    """
     
     # h-bar^2 / M [MeV fm^2]
     hbar_sq_over_M = 41.47
@@ -192,26 +246,43 @@ def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
     return T
     
 
-def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', generator='Wegner', \
-                     lamb=1.2, lambda_bd=0.00, k_magnus=6, ds=1e-5):
-    '''Loads Hamiltonian for given potential in units MeV.'''
+def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', 
+                     generator='Wegner', lamb=1.2, lambda_bd=0.00, k_magnus=6, 
+                     ds=1e-5):
+    """
+    Loads Hamiltonian for given potential in units MeV.
     
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # method (string): The evolution method 'srg' or 'magnus' - 'initial'
-    # if unevolved
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lamb (float): Evolution parameter lambda in units fm^-1
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
-    # only)
-    # ds (float): Step-size in the flow parameter s (for Magnus only)
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+    method : str, optional
+        The evolution method 'srg' or 'magnus'. Choose 'initial' if unevolved.
+    generator : str, optional
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float, optional
+        Evolution parameter lambda in units fm^-1.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+    k_magnus : int, optional
+        Number of terms to include in Magnus sum (for Magnus only).
+    ds : float, optional
+        Step-size in the flow parameter s (for Magnus only).
+        
+    Returns
+    -------
+    H : 2-D ndarray
+        Hamiltonian matrix in units MeV.
+        
+    """
     
     # Load relative kinetic energy in units MeV
     T = load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)
@@ -227,26 +298,45 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial', generato
     V = convert2MeV(k_array, k_weights, V, coupled_channel(channel))
     
     # Add T and V for Hamiltonian
-    return T+V
+    H = T+V
+    
+    return H
 
 
-def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, lambda_bd=0.00, \
-               k_magnus=6, ds=1e-5):
-    '''Loads a Magnus evolved Omega matrix.'''
+def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, 
+               lambda_bd=0.00, k_magnus=6, ds=1e-5):
+    """
+    Loads a Magnus evolved omega matrix.
     
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lamb (float): Evolution parameter lambda in units fm^-1
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # k_magnus (integer): Number of terms to include in Magnus sum
-    # ds (float): Step-size in the flow parameter s
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float
+        Evolution parameter lambda in units fm^-1.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+    k_magnus : int, optional
+        Number of terms to include in Magnus sum.
+    ds : float, optional
+        Step-size in the flow parameter s.
+        
+    Returns
+    -------
+    O : 2-D ndarray
+        Magnus evolved omega matrix.
+        
+    """
     
     # Get current working directory
     cwd = getcwd()
@@ -292,26 +382,44 @@ def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, lambda_bd=0.00,
     return O
 
 
-def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, method, \
-                   generator, lamb, lambda_bd=0.00, k_magnus=6, ds=1e-5):
-    '''Saves an SRG or Magnus evolved potential in units fm.'''
+def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, 
+                   method, generator, lamb, lambda_bd=0.00, k_magnus=6, 
+                   ds=1e-5):
+    """
+    Saves an SRG or Magnus evolved potential in units fm.
     
-    # k_array (1-D NumPy array): Momentum array
-    # k_weights (1-D NumPy array): Momentum weights
-    # V (2-D NumPy array): Potential matrix in units fm^-2
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # method (string): The evolution method ('srg' or 'magnus')
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lamb (float): Evolution parameter lambda in units fm^-1
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # k_magnus (integer): Number of terms to include in Magnus sum (for Magnus
-    # only)
-    # ds (float): Step-size in the flow parameter s (for Magnus only)
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights : 1-D ndarray
+        Momentum weights.
+    V : 2-D ndarray
+        Potential matrix in units fm^-2.
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+    method : str
+        The evolution method 'srg' or 'magnus'.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float
+        Evolution parameter lambda in units fm^-1.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+    k_magnus : int, optional
+        Number of terms to include in Magnus sum (for Magnus only).
+    ds : float, optional
+        Step-size in the flow parameter s (for Magnus only).
+        
+    """
 
     # Get current working directory
     cwd = getcwd()
@@ -358,9 +466,11 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
     # Length of momentum array
     n = len(k_array)
     
+    # Coupled-channel potentials are written differently - write each sub-
+    # block as a column
     if coupled_channel(channel):
         
-        header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k', \
+        header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k',
                   'kp', 'V11', 'V12', 'V21', 'V22')
         f.write('#'+header+'\n')
         
@@ -381,7 +491,7 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
                 v21 = V[i+n,j]*factor
                 v22 = V[i+n,j+n]*factor
                 
-                line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format( \
+                line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format(
                         k, kp, v11, v12, v21, v22)
                 
                 f.write(line+'\n')
@@ -414,23 +524,40 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot, metho
     chdir(cwd)
     
     
-def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
+def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb,
                lambda_bd=0.00, k_magnus=6, ds=1e-5):
-    '''Saves a Magnus evolved Omega matrix.'''
+    ''''''
+    """
+    Saves a Magnus evolved omega matrix.
     
-    # k_array (1-D NumPy array): Momentum array
-    # O (2-D NumPy array): Omega matrix
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lamb (float): Evolution parameter lambda in units fm^-1
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # k_magnus (integer): Number of terms to include in Magnus sum
-    # ds (float): Step-size in the flow parameter s
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array.
+    O : 2-D ndarray
+        Magnus evolved omega matrix.
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+    kmax : float
+        Maximum value in the momentum mesh.
+    kmid : float
+        Mid-point value in the momentum mesh.
+    ntot : int
+        Number of momentum points in mesh.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float
+        Evolution parameter lambda in units fm^-1.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+    k_magnus : int, optional
+        Number of terms to include in Magnus sum (for Magnus only).
+    ds : float, optional
+        Step-size in the flow parameter s (for Magnus only).
+        
+    """
 
     # Get current working directory
     cwd = getcwd()
@@ -443,20 +570,21 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
         kvnn_string = str(kvnn)
         
     potential_directory = 'Potentials/vsrg_macos/'+ \
-    'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(kvnn_string, kmax, kmid, ntot)
+                          'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(
+                           kvnn_string, kmax, kmid, ntot)
     
     chdir(potential_directory)
     
     # Name omega file and save
     if generator == 'Block-diag':
             
-        omega_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
-                    channel, kvnn_string, generator, lambda_bd, lamb, \
-                    k_magnus, ds)
+        omega_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%(
+                      channel, kvnn_string, generator, lambda_bd, lamb,
+                      k_magnus, ds)
     else: 
             
-        omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%(channel, \
-                    kvnn_string, generator, lamb, k_magnus, ds)
+        omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%(channel,
+                      kvnn_string, generator, lamb, k_magnus, ds)
     
     f = open(omega_file,'w')
     
@@ -465,8 +593,8 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
     
     if coupled_channel(channel):
         
-        header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k', \
-                  'kp', 'O11', 'O12', 'O21', 'O22')
+        header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k', 'kp', 
+                  'O11', 'O12', 'O21', 'O22')
         f.write('#'+header+'\n')
         
         for i in range(n):
@@ -482,7 +610,7 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
                 o21 = O[i+n,j]
                 o22 = O[i+n,j+n]
                 
-                line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format( \
+                line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format(
                         k, kp, o11, o12, o21, o22)
                 
                 f.write(line+'\n')
@@ -512,33 +640,53 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb, \
 
 
 def coupled_channel(channel):
-    '''Returns the truth value on whether the given channel is a coupled
-    channel.'''
+    """
+    Truth value on whether the given channel is a coupled channel.
     
-    # Arguments
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
     
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
+    Returns
+    -------
+    boolean_value : bool
+        True if the channel is coupled channel and false otherwise.
+        
+    """
     
     # List of coupled channels
-    coupled_channels = ['3S1','3P2','3D3','3F4','3G5','3H6','3I7','3K8','3L9',\
+    coupled_channels = ['3S1','3P2','3D3','3F4','3G5','3H6','3I7','3K8','3L9',
                         '3M10','3N11','3O12','3Q13']
 
     # This is true or false
     boolean_value = channel in coupled_channels
+    
     return boolean_value
 
 
-def convert2MeV(k_array, k_weights, V, coupled_channel=False):
-    '''Converts a potential from units fm to MeV with momentum array and 
-    weights.'''
+def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
+    """
+    Converts a potential from units fm to MeV with momentum array and 
+    weights.
     
-    # Arguments
-    
-    # k_array (1-D NumPy array): Momentum array
-    # k_weights (1-D NumPy array): Momentum weights
-    # V (2-D NumPy array): Potential matrix in units fm
-    # coupled_channel (Boolean): Value corresponding to whether the potential
-    # is coupled channel or not
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights : 1-D ndarray
+        Momentum weights.
+    V_fm : 2-D ndarray
+        Potential matrix in units fm.
+    coupled_channel : bool, optional
+        True if the channel is coupled channel and false otherwise.
+
+    Returns
+    -------
+    V_MeV : 2-D ndarray
+        Potential matrix in units MeV.
+
+    """
     
     # h-bar^2 / M [MeV fm^2]
     hbar_sq_over_M = 41.47
@@ -552,18 +700,16 @@ def convert2MeV(k_array, k_weights, V, coupled_channel=False):
         gw = k_weights
     
     # Build grids of momentum and weights factor
-    row,col = np.meshgrid(gp*np.sqrt(gw),gp*np.sqrt(gw))
+    row, col = np.meshgrid(gp*np.sqrt(gw), gp*np.sqrt(gw))
     
-    # Multiply the potential by 2/pi*row*col gives fm^-2 conversion
-    V = V*2/np.pi*row*col
+    # Multiply the potential by 2/pi*row*col gives fm^-2 conversion and 
+    # multiplying by hbar_sq_over_M gives the MeV conversion
+    V_MeV = V * 2/np.pi * row * col * hbar_sq_over_M
     
-    # Multiply by h-bar^2 / M [MeV fm^2] to obtain MeV units
-    return V*hbar_sq_over_M
+    return V_MeV
 
 
 if __name__ == '__main__':
     
     # Example for loading an initial potential below
-    V = load_potential(6,'3S1',30.0,4.0,120)
-    
-    # Rewrite Wendt potentials down here
+    V = load_potential(6, '3S1', 30.0, 4.0, 120)

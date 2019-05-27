@@ -1,45 +1,88 @@
-# Created 05/01/19 by A.T. (tropiano.4@osu.edu)
-
-# SRG code: Evolves Hamiltonian to band-diagonal, decoupled form with parameter 
-# s using the relative kinetic energy generator.
+#------------------------------------------------------------------------------
+# File: srg_kinetic_energy.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     May 1, 2019
+# 
+# Revision history:
+#   May 27, 2019 --- Solve flow equation with respect to parameter lambda and 
+#                    use SciPy's ode function.
+# 
+# Evolves Hamiltonian to band-diagonal, decoupled form with parameter lambda 
+# [fm^-1] using the relative kinetic energy generator.
+#
+#------------------------------------------------------------------------------
 
 
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import ode
   
 
 class SRG(object):
     
     
-    def __init__(self, H0_matrix, T0_matrix):
-        '''Saves the initial Hamiltonian and relative kinetic energy in units
-        fm^-2 and dimension of the matrices.'''
+    def __init__(self, H_initial, T_rel):
+        """
+        Saves the initial Hamiltonian and relative kinetic energy in units
+        fm^-2 and the dimension of the matrices.
         
-        # Arguments
+        Parameters
+        ----------
+        H_initial : 2-D ndarray
+            Initial Hamiltonian matrix in units MeV.
+        T : 2-D ndarray
+            Relative kinetic energy matrix in units MeV.
         
-        # H0_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
-        # T0_matrix (2-D NumPy array): Relative kinetic energy matrix in units MeV
+        """
         
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
         
         # Save matrices in units fm^-2
-        self.H0_matrix = H0_matrix / hbar_sq_over_M
-        self.T0_matrix = T0_matrix / hbar_sq_over_M
+        self.H_initial = H_initial / hbar_sq_over_M
+        self.T_rel = T_rel / hbar_sq_over_M
+        
         # Save dimension of matrix
-        self.N = len(H0_matrix)
+        self.N = len(H_initial)
 
     
     def commutator(self, A, B):
-        '''Returns commutator of A and B, [A,B] where A and B are square matrix
-        NumPy arrays.'''
+        """
+        Commutator of A and B, [A,B] where A and B are square matrices.
+        
+        Parameters
+        ----------
+        A : 2-D ndarray
+            First input square matrix.
+        B : 2-D ndarray
+            Second input square matrix.
+            
+        Returns
+        -------
+        out : 2-D ndarray
+            Commutator of the two input matrices.
+            
+        """
         
         return A @ B - B @ A
     
     
     def matrix2vector(self, A):
-        '''Takes the upper triangle of the matrix A (including the diagonal) 
-        and reshapes it into a vector B of dimension N*(N+1)/2.'''
+        """
+        Takes the upper triangle of the matrix A (including the diagonal) 
+        and reshapes it into a vector B of dimension N*(N+1)/2.
+        
+        Parameters
+        ----------
+        A : 2-D ndarray
+            Input matrix.
+            
+        Returns
+        -------
+        B : 1-D ndarray
+            Output vector.
+            
+        """
     
         # Dimension of matrix
         N = self.N
@@ -62,8 +105,21 @@ class SRG(object):
 
  
     def vector2matrix(self, B):
-        '''Takes the vector of a upper triangle matrix and returns the full 
-        matrix. Use only for hermitian matrices.'''
+        """
+        Takes the vector of a upper triangle matrix and returns the full 
+        matrix. Use only for hermitian matrices.
+        
+        Parameters
+        ----------
+        B : 1-D ndarray
+            Input vector.
+        
+        Returns
+        -------
+        A : 2-D ndarray
+            Output matrix.
+            
+        """
         
         # Dimension of matrix (given by solving N*(N+1)/2 = n)
         N = self.N
@@ -88,62 +144,113 @@ class SRG(object):
         return A+(np.transpose(A)-np.diag(np.diag(A)))
     
     
-    def derivs(self, Hs_vector, s):
-        '''Returns RHS of SRG flow equation using the Wegner generator.'''
+    def derivative(self, lamb, V_evolved, T_rel):
+        """
+        Right-hand side of the SRG flow equation using the relative kinetic
+        energy generator.
         
-        # Arguments
+        Parameters
+        ----------
+        lamb : float
+            Evolution parameter lambda in units fm^-1.
+        V_evolved : 2-D ndarray
+            Evolving potential which is a vector and function of lambda. Units
+            are fm^-2.
+        T_rel : 2-D ndarray
+            Relative kinetic energy matrix in units fm^-2.
         
-        # Hs_vector (1-D NumPy array): Solution vector (which is a function of 
-        # s)
-        # s (float): SRG flow parameter
+        Returns
+        -------
+        dV_vector : 1-D ndarray
+            Derivative with respect to lambda of the evolving potential which 
+            is a vector. Units are fm^-2.
+
+        """
         
-        # Matrix of the solution vector
-        Hs_matrix = self.vector2matrix(Hs_vector)
+        # Matrix form of the evolving potential
+        V_matrix = self.vector2matrix(V_evolved)
 
         # Relative kinetic energy SRG generator, eta = [G,H] where G = T_rel 
-        G = self.T0_matrix
-        
-        # SRG generator [G, H(s)]
-        eta = self.commutator(G, Hs_matrix)
+        eta = self.commutator(T_rel, V_matrix)
             
         # RHS of flow equation in matrix form
-        dH_matrix = self.commutator(eta, Hs_matrix)
+        dV_matrix = -4.0/(lamb**5) * self.commutator(eta, V_matrix+T_rel)
         
         # Returns vector form of RHS of flow equation
-        dH_vector = self.matrix2vector(dH_matrix)
+        dV_vector = self.matrix2vector(dV_matrix)
         
-        return dH_vector
+        return dV_vector
 
 
-    def evolve_hamiltonian(self, lambda_array):
-        '''Returns evolved Hamiltonian Hs_matrix at several values of lambda 
-        for given lambda array.'''
-    
-        # Arguments
+    def evolve_hamiltonian(self, lambda_initial, lambda_array):
+        """
+        Evolved Hamiltonian H_matrix at each value of lambda in lambda_array.
         
-        # lambda_array (1-D NumPy array): Array of lambda evolution values
+        Parameters
+        ----------
+        lambda_initial : float
+            Initial value of lambda in units fm^-1. (Most potentials in
+            Potentials/vsrg_macos are generated at lambda = 12 fm^-1 but check
+            run_generate_vsrg_vlowk.pl to be sure.)
+        lambda_array : 1-D ndarray
+            Lambda evolution values in units fm^-1.
+            
+        Returns
+        -------
+        d : dictionary
+            Dictionary storing each evolved Hamiltonian with keys (floats)
+            corresponding to each lambda value (e.g. d[1.5] returns the evolved
+            Hamiltonian at lambda = 1.5 fm^-1).
+            
+        """
 
         # Set-up ODE
         
-        # Reshape initial hamiltonian to a vector
-        H0_vector = self.matrix2vector(self.H0_matrix)
-        
-        # Evaluate H(s) at the following values of lambda (or s)
-        s_array = np.zeros(len(lambda_array)+1)
-        s_array[1:] = 1.0/lambda_array**4.0 # This array includes s = 0
+        # Load kinetic energy matrix
+        T_rel = self.T_rel
+        # Initial potential as a vector
+        V_initial = self.matrix2vector(self.H_initial - T_rel)
 
-        # Solve the flow equations
-        # sol returns a vectorized H(s) at several values of s
-        sol = odeint(self.derivs, H0_vector, s_array, atol=1e-06, rtol=1e-06, \
-                     mxstep=5000000)
-
-        # Return a dictionary of H(s) at the values of s (i.e., d[1.2] returns 
-        # H(lambda=1.2) which is a matrix)
+        # Use SciPy's ode function to solve flow equation
+        solver = ode(self.derivative)
+        # Following the example in Hergert:2016iju
+        solver.set_integrator('vode', method='bdf', order=5, nsteps=100000, 
+                              atol=1e-10, rtol=1e-10)
+        # Set kinetic energy to be used as SRG generator
+        solver.set_f_params(T_rel)
+        # Set initial value of potential at lambda = lambda_initial
+        solver.set_initial_value(V_initial, lambda_initial)
+    
+        # Initialize dictionary
         d = {}
-        i = 1
+    
+        # Loop over lambda values in lambda_array
         for lamb in lambda_array:
             
-            d[lamb] = self.vector2matrix(sol[i])
-            i += 1
-        
+            # Solve ode up to lamb and store in dictionary
+            while solver.successful() and solver.t > lamb:
+            
+                # Select step-size depending on extent of evolution
+                if solver.t >= 6.0:
+                    dlamb = 1.0
+                elif solver.t < 6.0 and solver.t >= 2.5:
+                    dlamb = 0.5
+                elif solver.t < 2.5 and solver.t >= lamb:
+                    dlamb = 0.1
+                
+                # This if statement prevents the solver from over-shooting the
+                # extent of evolution and takes a step in lambda equal to the
+                # exact amount necessary to reach the specified lambda value
+                if solver.t - dlamb < lamb:
+                
+                    dlamb = solver.t - lamb
+                
+                # Integrate to next step in lambda
+                V_evolved = solver.integrate(solver.t - dlamb)
+                
+            # TESTING
+            print('lambda = %.1f'%solver.t)
+            # Store evolved Hamiltonian matrix in dictionary
+            d[lamb] = T_rel + self.vector2matrix(V_evolved)
+                
         return d
