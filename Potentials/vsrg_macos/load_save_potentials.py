@@ -6,9 +6,6 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     March 22, 2019
 # 
-# Revision history:
-#   May 7, 2019 --- Save and load Magnus evolved potentials and omega matrices.
-# 
 # Loads potentials from Potentials/vsrg_macos directory.
 # Potentials are organized by a kvnn number and the details of their momentum
 # mesh (kmax, kmid, and ntot). Below are several examples of kvnn numbers:
@@ -28,6 +25,9 @@
 # 902     Wendt LO non-local potential at 20 fm^-1 cutoff
 #
 # Also saves SRG or Magnus evolved potentials in the same directory.
+#
+# Revision history:
+#   May 7, 2019 --- Save and load Magnus evolved potentials and omega matrices.
 #
 #------------------------------------------------------------------------------
 
