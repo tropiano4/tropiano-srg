@@ -19,17 +19,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 from Potentials.vsrg_macos import load_save_potentials as lp
-  
-kvnn = 10
+
+kvnn = 6
+#kvnn = 10
+#kvnn = 105
+#kvnn = 222
 #kvnn = 900
+
 channel = '3S1'
+
 kmax = 30.0
+#kmax = 10.0
+#kmax = 8.0
+
 kmid = 4.0
+#kmid = 2.0
+
 ntot = 120
 
 #gen = 'Wegner'
-#gen = 'T'
-gen = 'Block-diag'
+gen = 'T'
+#gen = 'Block-diag'
 lambda_bd = 2.00
 #lambda_bd = 3.00
 

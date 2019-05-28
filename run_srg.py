@@ -161,8 +161,8 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    generator = 'Wegner'
-    #generator = 'T'
+    #generator = 'Wegner'
+    generator = 'T'
     #generator = 'Block-diag'
     
     #lambda_bd = 1.00 # This won't affect the band-diagonal generators
