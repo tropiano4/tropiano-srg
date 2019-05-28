@@ -195,7 +195,7 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial',
         v12 = np.reshape(data[:,3], (ntot,ntot))
         v21 = np.reshape(data[:,4], (ntot,ntot))
         v22 = np.reshape(data[:,5], (ntot,ntot))
-        V = np.vstack( ( np.hstack((v11, v12)), np.hstack((v21, v22)) ) )
+        V = np.vstack( ( np.hstack( (v11, v12) ), np.hstack( (v21, v22) ) ) )
     else:
         V = np.reshape(data[:,2], (ntot, ntot))
 
@@ -241,7 +241,7 @@ def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
         n = len(k_array)
         # Matrix of zeros (n x n)
         o = np.zeros((n, n))
-        T = np.vstack( ( np.hstack((T, o)), np.hstack((o, T)) ) )
+        T = np.vstack( ( np.hstack( (T, o) ), np.hstack( (o, T) ) ) )
         
     return T
     
@@ -375,7 +375,7 @@ def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb,
         o12 = np.reshape(data[:,3], (ntot,ntot))
         o21 = np.reshape(data[:,4], (ntot,ntot))
         o22 = np.reshape(data[:,5], (ntot,ntot))
-        O = np.vstack( ( np.hstack((o11, o12)), np.hstack((o21, o22)) ) )
+        O = np.vstack( ( np.hstack( (o11, o12) ), np.hstack( (o21, o22) ) ) )
     else:
         O = np.reshape(data[:,2], (ntot, ntot))
 
