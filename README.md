@@ -1,6 +1,6 @@
 # LENT
 
-This repository contains codes and files relevant to SRG work done by A.T. THIS NEEDS TO BE UPDATED AS OF 5/28/19.
+This repository contains codes and files relevant to SRG work done by A.T.
 
 
 Description of each folder:
@@ -13,7 +13,7 @@ Description of each folder:
 
 * Papers contains all relevant papers and a .bib file for LaTeX citing purposes.
 
-* Potentials/vsrg_macos contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial/evolved potentials, momentum and weights arrays, and a Python script for loading and saving called "load_save_potentials.py". 
+* Potentials/vsrg_macos contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving called "load_save_potentials.py". 
 
 * Presentations contains all the files used for presentations for conferences or meetings.
 
@@ -26,8 +26,10 @@ Description of major codes:
 
 * "deuteron.py" - Calculates deuteron observables. Work in progress.
 
-* "evolve_hamiltonian.py" - This code SRG or Magnus evolves a specified Hamiltonian using scripts from the SRG_codes or Magnus_codes folder.
+* "run_magnus.py" - This code Magnus evolves a specified Hamiltonian using scripts from the Magnus_codes folder. Work in progress.
 
-* "phase_shifts.py" - Calculates phase shifts given an NN potential. Needs to be updated.
+* "run_srg.py" - This code SRG evolves a specified Hamiltonian using scripts from the SRG_codes folder.
+
+* "phase_shifts.py" - Calculates phase shifts given an NN potential. Work in progress.
 
 * "scratchwork.py" - Script used for testing purposes.
