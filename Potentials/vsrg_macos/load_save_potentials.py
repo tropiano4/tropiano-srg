@@ -704,12 +704,6 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     
     # Multiply the potential by 2/pi*row*col gives fm^-2 conversion and 
     # multiplying by hbar_sq_over_M gives the MeV conversion
-    V_MeV = V * 2/np.pi * row * col * hbar_sq_over_M
+    V_MeV = V_fm * 2/np.pi * row * col * hbar_sq_over_M
     
     return V_MeV
-
-
-if __name__ == '__main__':
-    
-    # Example for loading an initial potential below
-    V = load_potential(6, '3S1', 30.0, 4.0, 120)
