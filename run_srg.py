@@ -128,6 +128,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     return d
 
 
+# Make run_srg.py executable
 if __name__ == '__main__':
     
     
