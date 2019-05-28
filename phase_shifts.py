@@ -1,172 +1,242 @@
-# Created 07/11/18 by A.T. (tropiano.4@osu.edu)
-# Calculates NN phase shifts as a function of energy for the given potential.
-# Updated 09/25/18 by A.T. to manually correct +/- shifts of pi in phase shifts.
+#!/usr/bin/env python3
+
+#------------------------------------------------------------------------------
+# File: phase_shifts.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     July 11, 2018 
+# 
+# Calculates NN phase shifts as a function of lab energy for a given potential.
+# For details on the calculation, see Phase_Shift_Notes.pdf and 
+# PHY989_Project1.pdf in the Notes folder.
+#
+# Revision history:
+#   September 25, 2018 --- Updated to manually correct +/- shifts of pi in
+#                          phase shifts.
+#   May 28, 2019       --- Replaced rid of SciPy's interp2d with 
+#                          RectBivariateSpline for interpolation.
+#
+# Notes:
+#   * This code needs to be generalized to non-coupled potentials.
+#   * Difficult to understand what causes shifts in pi. At the moment, manually
+#     correcting these shifts is a sloppy fix. Is there a more elegant 
+#     solution?
+#
+#------------------------------------------------------------------------------
 
 
 import numpy as np
-import numpy.linalg as LA
-from scipy.interpolate import RectBivariateSpline,interp2d
-
-
-# Things to do: phase shifts should take coupled_channel Boolean variable as an
-# input. Use RectBivariateSpline as default (you can find interp2d method in
-# old codes if necessary). Good to have option to return one delta value. Keep
-# that format. Make formatting equivalent to SRG, deuteron formatting.
+import numpy.linalg as la
+from scipy.interpolate import RectBivariateSpline
 
 
 class Phase_shifts(object):
     
     
-    def __init__(self, V_matrix, k_array, k_weights, coupled_channel=False, 
-                 convention='Stapp'):
-        '''Define constants and interpolate potential.'''
+    def __init__(self, V_matrix, k_array, k_weights, convention='Stapp'):
+        """
+        Define constants and interpolate potential.
         
-        # Arguments
+        Parameters
+        ----------
+        V : 2-D ndarray
+            Potential matrix in units fm.
+        k_array : 1-D ndarray
+            Momentum array.
+        k_weights : 1-D ndarray
+            Momentum weights.
+        coupled_channel : bool, optional
+            True if the channel is coupled channel and false otherwise.
+        convention : str, optional
+            Phase shift calculation convention - 'Stapp' or 'Blatt'.
+
+        """
+
+        # Save momentum and weights (units are fm^-1)
+        self.k_array = k_array
+        self.k_weights = k_weights
         
-        # V (2-D NumPy array): Potential matrix in units fm^-2
-        # k_array (1-D NumPy array): Momentum array
-        # k_weights (1-D NumPy array): Momentum weights
-        # coupled_channel (Boolean): Value corresponding to whether the 
-        # potential is coupled channel or not
-        # convention (string): Convention for calculating phase shifts ('Stapp' 
-        # or 'Blatt')
+        # Maximum momentum value in fm^-1
+        self.kmax = max(k_array)
+        
+        # Save length of momentum
+        N = len(k_array)
+        self.N = N
+        
+        # Interpolate potential with RectBivariateSpline
+        # Interpolate each sub-block seperately for coupled-channel potential
+        self.V11_func = RectBivariateSpline(k_array, k_array, V_matrix[:N, :N])
+        self.V12_func = RectBivariateSpline(k_array, k_array, 
+                                            V_matrix[:N, N:2*N])
+        self.V21_func = RectBivariateSpline(k_array, k_array, 
+                                            V_matrix[N:2*N, :N])
+        self.V22_func = RectBivariateSpline(k_array, k_array,
+                                            V_matrix[N:2*N, N:2*N])
         
         # Save convention
         self.convention = convention
-        
-        # Maximum momentum in fm^-1
-        self.kmax = max(k_array)
-
-        # Save momentum and weights (units are fm^-1)
-        self.k_array = k_array # Momenta array
-        self.k_weights = k_weights # Momentum weights
-        # Dimension of momentum
-        N = len(k_array)
-        self.dim = N
-        
-        # Interpolate each sub-block with RectBivariateSpline
-        self.V11_func = RectBivariateSpline(gp,gp,vnn[:N,:N])
-        self.V12_func = RectBivariateSpline(gp,gp,vnn[:N,N:2*N])
-        self.V21_func = RectBivariateSpline(gp,gp,vnn[N:2*N,:N])
-        self.V22_func = RectBivariateSpline(gp,gp,vnn[N:2*N,N:2*N])
 
         
-    def delta(self,e):
-        '''Returns phase shift as a function of lab energy, e [MeV]'''
+    def delta(self, e):
+        """
+        Phase shift as a function of lab energy, e [MeV].
         
-        N = self.dim # Length of each sub-block
+        Parameters
+        ----------
+        e : float
+            Lab energy in units MeV.
+            
+        Returns
+        -------
+        phase_shifts : 1-D ndarray
+            delta_a, delta_b, and eps phase shifts in degrees if Blatt 
+            convention. delta_bar_a, delta_bar_b, and eps_bar phase shifts in
+            degrees if Stapp convention.
+            
+        """
         
-        k0 = np.sqrt(e/2.0/41.47) # fm^-1
-        kmax = self.kmax # fm^-1
+        # Length of momentum array
+        N = self.N
+        
+        # Momentum corresponding to center of mass energy E_lab / 2 where
+        # the factor of 41.47 converts from MeV to fm^-1
+        k0 = np.sqrt( e / 2.0 / 41.47 )
+        
+        # Load maximum k value
+        kmax = self.kmax
         
         # Build u_j vector
-        k_vec = self.gp # fm^-1
-        w_vec = self.gw # fm^-1
+        
+        # Load momentum and weights
+        k_vec = self.k_array
+        w_vec = self.k_weights
+        
         # First N elements of u_vec
-        u_vec = 2.0/np.pi * ( w_vec*k_vec**2 ) / (k_vec**2-k0**2)
+        u_vec = 2.0/np.pi * ( w_vec * k_vec**2 ) / ( k_vec**2 - k0**2 )
         # N+1 element of u_vec
-        u_last = -2.0/np.pi*k0**2*( np.sum(w_vec/(k_vec**2-k0**2)) + \
-        np.log((kmax+k0)/(kmax-k0))/(2.0*k0) )
-        u_vec = np.append(u_vec,u_last) # Length is N+1, units fm^-1
+        u_last = -2.0/np.pi * k0**2 *( np.sum( w_vec / ( k_vec**2-k0**2 ) ) + \
+                 np.log( ( kmax + k0 ) / ( kmax - k0 ) ) / ( 2.0*k0 ) )
+        # Append N+1 element to u_vec
+        u_vec = np.append(u_vec, u_last) # Length is now N+1
         
-        k_full = np.append(self.gp,k0)
+        # Append k0 to k_array
+        k_full = np.append(self.k_array, k0)
         
-        if self.spline: # RectBivariateSpline
-            col_mesh,row_mesh = np.meshgrid(k_full,k_full)
-            #col_mesh2,row_mesh2 = np.meshgrid(k_vec,k_vec)
+        # Create meshes for interpolation
+        col, row = np.meshgrid(k_full, k_full)
         
-            # Append k0 to sub-blocks
-            v11 = self.V11_func.ev(row_mesh,col_mesh) # Spline
-            v12 = self.V12_func.ev(row_mesh,col_mesh)
-            v21 = self.V21_func.ev(row_mesh,col_mesh)
-            v22 = self.V22_func.ev(row_mesh,col_mesh)
+        # Append k0 points by using the interpolated potential
+        v11 = self.V11_func.ev(row, col)
+        v12 = self.V12_func.ev(row, col)
+        v21 = self.V21_func.ev(row, col)
+        v22 = self.V22_func.ev(row, col)
             
-        else: # interp2d
+        # Build coupled channel potential with k0 points included
+        V_matrix = np.vstack( ( np.hstack( (v11, v12) ), 
+                                np.hstack( (v21, v22) ) ) )
         
-            v11 = np.zeros([N+1,N+1])
-            v12 = np.zeros([N+1,N+1])
-            v21 = np.zeros([N+1,N+1])
-            v22 = np.zeros([N+1,N+1])
-            
-            for i in range(N+1):
-                for j in range(N+1):
-                    
-                    v11[i,j] = self.V11_func(k_full[i],k_full[j])
-                    v12[i,j] = self.V12_func(k_full[i],k_full[j])
-                    v21[i,j] = self.V21_func(k_full[i],k_full[j])
-                    v22[i,j] = self.V22_func(k_full[i],k_full[j])
-            
-        V_matrix = np.vstack((np.hstack((v11,v12)),np.hstack((v21,v22))))
         # Build A matrix, N+1 x N+1, unitless
-        A_matrix = np.identity(2*(N+1)) + np.tile(u_vec,(2*(N+1),2))*V_matrix
+        A_matrix = np.identity( 2*(N+1) ) + np.tile( u_vec, (2*(N+1), 2) ) * \
+                   V_matrix
 
         # Calculate R matrices and define extremes of R_matrix
-        R_matrix = LA.solve(A_matrix,V_matrix) # Units fm
+        R_matrix = la.solve(A_matrix, V_matrix) # Units fm
 
-        R11 = R_matrix[N,N]
-        R12 = R_matrix[N,2*N+1]
+        R11 = R_matrix[N ,N]
+        R12 = R_matrix[N, 2*N+1]
         # R21 = R12
-        R22 = R_matrix[2*N+1,2*N+1]
+        R22 = R_matrix[2*N+1, 2*N+1]
 
         # Coupled-channel variables
-        
-        eps = 0.5*np.arctan(2.0*R12/(R11-R22))
-        R_eps = (R11-R22)/np.cos(2.0*eps)
-        delta_a = -np.arctan(0.5*k0*(R11+R22+R_eps))
-        delta_b = -np.arctan(0.5*k0*(R11+R22-R_eps))
+        eps = 0.5 * np.arctan( 2.0 * R12 / ( R11 - R22 ) )
+        R_eps = ( R11 - R22 ) / np.cos( 2.0*eps )
+        delta_a = -np.arctan( 0.5 * k0 * ( R11 + R22 + R_eps ) )
+        delta_b = -np.arctan( 0.5 * k0 * ( R11 + R22 - R_eps ) )
             
         # Restrict values on phases
-        while delta_a-delta_b <= 0:
+        while delta_a - delta_b <= 0:
             delta_a += np.pi
-        while delta_a-delta_b > np.pi/2.0:
+        while delta_a - delta_b > np.pi/2.0:
             delta_b += np.pi
         
-        if self.conv == 'Blatt':
-            if delta_b > 0.0: # Manually fix +/- shifts in pi
+        # Blatt convention
+        if self.convention == 'Blatt':
+            
+            # Manually fix +/- shifts in pi
+            if delta_b > 0.0: 
                 delta_b -= np.pi
+                
             # Return phase shifts in degrees
-            return np.array([delta_a,delta_b,eps])*180.0/np.pi
-            
-        else: # Stapp
+            phase_shifts = np.array( (delta_a, delta_b, eps) )
         
-            # Return eps_bar, delta_bar_a, delta_bar_b
-            eps_bar = 0.5*np.arcsin(np.sin(2.0*eps)*np.sin(delta_a-delta_b))
-            delta_bar_a = 0.5*(delta_a+delta_b+\
-            np.arcsin(np.tan(2.0*eps_bar)/np.tan(2.0*eps)))
-            delta_bar_b = 0.5*(delta_a+delta_b-\
-            np.arcsin(np.tan(2.0*eps_bar)/np.tan(2.0*eps)))
+        # Stapp convention
+        else:
+        
+            eps_bar = 0.5 * np.arcsin( np.sin( 2.0*eps ) * \
+                      np.sin( delta_a - delta_b ) )
+            delta_bar_a = 0.5 * ( delta_a + delta_b + np.arcsin(
+                          np.tan( 2.0*eps_bar ) / np.tan( 2.0*eps ) ) )
+            delta_bar_b = 0.5 * ( delta_a + delta_b - np.arcsin(
+                          np.tan( 2.0*eps_bar ) / np.tan( 2.0*eps ) ) )
             
-            if delta_b > 0.0: # Manually fix +/- shifts in pi
+            # Manually fix +/- shifts in pi
+            if delta_b > 0.0: 
                 delta_bar_b -= np.pi
                 eps_bar *= -1.0
                 
-            while delta_bar_a < -100.0*np.pi/180.0:
+            while delta_bar_a < -100.0 * np.pi / 180.0:
             #while delta_bar_a < 0.0:
                 delta_bar_a += np.pi
             if e > 120.0:
-                ang = 80.0*np.pi/180.0
+                ang = 80.0 * np.pi / 180.0
             else:
                 ang = np.pi
             while delta_bar_a > ang:
                 delta_bar_a -= np.pi
                 
-            # Return phase shifts in degrees
-            return np.array([delta_bar_a,delta_bar_b,eps_bar])*180.0/np.pi
+            phase_shifts = np.array( (delta_bar_a, delta_bar_b, eps_bar) )
             
-    def delta_array(self,e_array):
-        '''Calculates array of delta_bar_a phase shifts for given energies (in MeV)'''
+        # Return phase shifts in degrees
+        return phase_shifts * 180.0/np.pi
+            
     
-        deltas = np.zeros(len(e_array))
-        i = 0
-        for ie in e_array:
+    def delta_a_array(self,e_array):
+        """
+        Calculates an array of delta_a phase shifts for a given array of lab
+        energies.
         
-            deltas[i] = self.delta(ie)[0]
+        Parameters
+        ----------
+        e_array : 1-D ndarray
+            Array of lab energies in MeV.
+            
+        Returns
+        -------
+        deltas : 1-D ndarray
+            Array of delta_a(E_lab) in degrees.
+            
+        """
+        
+        # Length of lab energies array
+        n = len(e_array)
+    
+        # Initialize deltas array
+        deltas = np.zeros(n)
+        
+        # Loop over each lab energy
+        for i in range(n):
+            
+            e_lab = e_array[i]
+        
+            # Calculate delta_a
+            deltas[i] = self.delta(e_lab)[0]
+            
             # Manually correct shifts in +/- pi
             if i > 0:
-                if deltas[i] < (deltas[i-1]-100.0):
+                
+                if deltas[i] < ( deltas[i-1] - 100.0 ):
                     deltas[i] += 180.0
-                if deltas[i] > (deltas[i-1]+100.0):
+                if deltas[i] > ( deltas[i-1] + 100.0 ):
                     deltas[i] -= 180.0
-            i += 1
 
         return deltas  
