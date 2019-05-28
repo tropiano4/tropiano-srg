@@ -5,14 +5,14 @@
 #
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 1, 2019
-# 
+#                    
+# Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter 
+# lambda [fm^-1] using the relative kinetic energy generator.
+#
 # Revision history:
 #   May 27, 2019 --- Solve flow equation with respect to parameter lambda 
 #                    instead of s and use SciPy's ode function instead of
 #                    odeint. This speeds up the process.
-#                    
-# Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter 
-# lambda [fm^-1] using the relative kinetic energy generator.
 #
 #------------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ class SRG(object):
         # Following the example in Hergert:2016iju with modifications to nsteps
         # and error tolerances
         solver.set_integrator('vode', method='bdf', order=5, nsteps=100000, 
-                              atol=1e-10, rtol=1e-10)
+                              atol=1e-6, rtol=1e-6)
         # Set initial value of Hamiltonian at lambda = lambda_initial
         solver.set_initial_value(H_initial, lambda_initial)
     

@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 from Potentials.vsrg_macos import load_save_potentials as lp
   
-
-kvnn = 900
+kvnn = 10
+#kvnn = 900
 channel = '3S1'
 kmax = 30.0
 kmid = 4.0
@@ -55,13 +55,13 @@ for lamb in lambda_list:
     d[lamb] = V
 
 # Potential label
-p_lbl = r'$\Lambda=9 \/ \/ fm^{-1}$'           
+p_lbl = 'kvnn = %d'%kvnn           
             
 # Generator label
 if gen == 'Wegner':
-    G_lbl = r'$G=T_{rel}$'
-elif gen == 'T':
     G_lbl = r'$G=H_{D}$'
+elif gen == 'T':
+    G_lbl = r'$G=T_{rel}$'
 elif gen == 'Block-diag':
     G_lbl = r'$G=H_{BD}$' + '\n' + r'$\Lambda_{BD} = %.2f \/ fm^{-1}$' \
             % lambda_bd

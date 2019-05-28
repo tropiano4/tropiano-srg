@@ -6,12 +6,12 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 1, 2019
 # 
+# Evolves Hamiltonian to block-diagonal, decoupled form with flow parameter 
+# lambda [fm^-1] using the block-diagonal generator.
+#
 # Revision history:
 #   May 28, 2019 --- Solve flow equation with respect to parameter lambda and 
 #                    use SciPy's ode function.
-# 
-# Evolves Hamiltonian to block-diagonal, decoupled form with flow parameter 
-# lambda [fm^-1] using the block-diagonal generator.
 #
 #------------------------------------------------------------------------------
 
@@ -97,6 +97,43 @@ class SRG(object):
         return A @ B - B @ A
     
     
+    def matrix2vector(self, A):
+        """
+        Takes the upper triangle of the matrix A (including the diagonal) 
+        and reshapes it into a vector B of length N*(N+1)/2.
+        
+        Parameters
+        ----------
+        A : 2-D ndarray
+            Input matrix.
+            
+        Returns
+        -------
+        B : 1-D ndarray
+            Output vector.
+            
+        """
+    
+        # Length of matrix
+        N = self.N
+        # Length of vectorized matrix
+        n = int(N*(N+1)/2)
+        
+        # Initialize vectorized matrix
+        B = np.zeros(n)
+    
+        a = 0
+        b = N
+    
+        for i in range(N):
+        
+            B[a:b] = A[i][i:]
+            a = b
+            b += N-i-1
+
+        return B
+    
+    
     def vector2matrix(self, B):
         """
         Takes the vector of a upper triangle matrix and returns the full 
@@ -137,7 +174,7 @@ class SRG(object):
         return A + ( np.transpose(A) - np.diag( np.diag(A) ) )
     
     
-    def derivs(self, lamb, H_evolved):
+    def derivative(self, lamb, H_evolved):
         """
         Right-hand side of the SRG flow equation using the block-diagonal 
         generator.
@@ -206,7 +243,7 @@ class SRG(object):
         # Following the example in Hergert:2016iju with modifications to nsteps
         # and error tolerances
         solver.set_integrator('vode', method='bdf', order=5, nsteps=100000, 
-                              atol=1e-10, rtol=1e-10)
+                              atol=1e-6, rtol=1e-6)
         # Set initial value of Hamiltonian at lambda = lambda_initial
         solver.set_initial_value(H_initial, lambda_initial)
     
