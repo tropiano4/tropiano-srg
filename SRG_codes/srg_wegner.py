@@ -8,8 +8,8 @@
 #   May 27, 2019 --- Solve flow equation with respect to parameter lambda and 
 #                    use SciPy's ode function.
 # 
-# Evolves Hamiltonian to band-diagonal, decoupled form with parameter lambda 
-# [fm^-1] using the Wegner generator.
+# Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter 
+# lambda [fm^-1] using the Wegner generator.
 #
 #------------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ class SRG(object):
     
     def __init__(self, H_initial):
         """
-        Saves the initial Hamiltonian in units fm^-2 and the dimension of the 
+        Saves the initial Hamiltonian in units fm^-2 and the length of the 
         matrix.
         
         Parameters
@@ -36,10 +36,10 @@ class SRG(object):
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
         
-        # Save matrices in units fm^-2
+        # Save matrices in scattering units [fm^-2]
         self.H_initial = H_initial / hbar_sq_over_M
         
-        # Save dimension of matrix
+        # Save length of matrix
         self.N = len(H_initial)
 
     
@@ -67,7 +67,7 @@ class SRG(object):
     def matrix2vector(self, A):
         """
         Takes the upper triangle of the matrix A (including the diagonal) 
-        and reshapes it into a vector B of dimension N*(N+1)/2.
+        and reshapes it into a vector B of length N*(N+1)/2.
         
         Parameters
         ----------
@@ -81,9 +81,9 @@ class SRG(object):
             
         """
     
-        # Dimension of matrix
+        # Length of matrix
         N = self.N
-        # Dimension of vectorized matrix
+        # Length of vectorized matrix
         n = int(N*(N+1)/2)
         
         # Initialize vectorized matrix
@@ -104,7 +104,7 @@ class SRG(object):
     def vector2matrix(self, B):
         """
         Takes the vector of a upper triangle matrix and returns the full 
-        matrix. Use only for hermitian matrices.
+        matrix. Use only for symmetric matrices.
         
         Parameters
         ----------
@@ -118,11 +118,11 @@ class SRG(object):
             
         """
         
-        # Dimension of matrix (given by solving N*(N+1)/2 = n)
+        # Length of matrix (given by solving N*(N+1)/2 = n)
         N = self.N
     
         # Initialize matrix
-        A = np.zeros((N,N))
+        A = np.zeros((N, N))
     
         # Build upper half of A with diagonal
 
@@ -131,14 +131,14 @@ class SRG(object):
 
         for i in range(N):
 
-            A[i,i:] = B[a:b]
+            A[i, i:] = B[a:b]
             a = b
             b += N-i-1
 
         # Reflect upper half to lower half to build full matrix
         # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A 
         # excluding the diagonal
-        return A+(np.transpose(A)-np.diag(np.diag(A)))
+        return A + ( np.transpose(A) - np.diag( np.diag(A) ) )
     
     
     def derivative(self, lamb, H_evolved):
@@ -169,7 +169,7 @@ class SRG(object):
         eta = self.commutator( np.diag( np.diag(H_matrix) ), H_matrix)
             
         # RHS of flow equation in matrix form
-        dH_matrix = -4.0/(lamb**5) * self.commutator(eta, H_matrix)
+        dH_matrix = -4.0 / lamb**5 * self.commutator(eta, H_matrix)
         
         # Returns vector form of RHS of flow equation
         dH_vector = self.matrix2vector(dH_matrix)
@@ -192,7 +192,7 @@ class SRG(object):
             
         Returns
         -------
-        d : dictionary
+        d : dict
             Dictionary storing each evolved Hamiltonian with keys (floats)
             corresponding to each lambda value (e.g. d[1.5] returns the evolved
             Hamiltonian at lambda = 1.5 fm^-1).
@@ -206,7 +206,8 @@ class SRG(object):
 
         # Use SciPy's ode function to solve flow equation
         solver = ode(self.derivative)
-        # Following the example in Hergert:2016iju
+        # Following the example in Hergert:2016iju with modifications to nsteps
+        # and error tolerances
         solver.set_integrator('vode', method='bdf', order=5, nsteps=100000, 
                               atol=1e-10, rtol=1e-10)
         # Set initial value of Hamiltonian at lambda = lambda_initial
@@ -229,9 +230,9 @@ class SRG(object):
                 elif solver.t < 2.5 and solver.t >= lamb:
                     dlamb = 0.1
                 
-                # This if statement prevents the solver from over-shooting the
-                # extent of evolution and takes a step in lambda equal to the
-                # exact amount necessary to reach the specified lambda value
+                # This if statement prevents the solver from over-shooting 
+                # lambda and takes a step in lambda equal to the exact amount 
+                # necessary to reach the specified lambda value
                 if solver.t - dlamb < lamb:
                 
                     dlamb = solver.t - lamb
