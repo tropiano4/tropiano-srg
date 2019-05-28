@@ -32,4 +32,4 @@ Description of major codes:
 
 * "phase_shifts.py" - Calculates phase shifts given an NN potential. Work in progress.
 
-* "scratchwork.py" - Script used for testing purposes.
+* "test.py" - Script used for testing purposes.

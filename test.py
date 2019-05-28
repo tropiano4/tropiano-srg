@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #------------------------------------------------------------------------------
-# File: scratchwork.py
+# File: test.py
 #
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 1, 2019
@@ -21,15 +21,15 @@ from matplotlib.offsetbox import AnchoredText
 from Potentials.vsrg_macos import load_save_potentials as lp
   
 
-kvnn = 10
+kvnn = 900
 channel = '3S1'
 kmax = 30.0
 kmid = 4.0
 ntot = 120
 
-gen = 'Wegner'
+#gen = 'Wegner'
 #gen = 'T'
-#gen = 'Block-diag'
+gen = 'Block-diag'
 lambda_bd = 2.00
 #lambda_bd = 3.00
 
