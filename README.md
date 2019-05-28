@@ -1,6 +1,6 @@
 # LENT
 
-This repository contains codes and files relevant to SRG work done by A.T.
+This repository contains codes and files relevant to SRG work done by A.T. THIS NEEDS TO BE UPDATED AS OF 5/28/19.
 
 
 Description of each folder:
