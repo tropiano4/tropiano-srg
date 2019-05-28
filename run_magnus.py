@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+
+#------------------------------------------------------------------------------
+# File: srg_block_diagonal.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     May 1, 2019
+# 
+# Revision history:
+#   May 28, 2019 --- Solve flow equation with respect to parameter lambda and 
+#                    use SciPy's ode function.
+# 
+# Evolves Hamiltonian to block-diagonal, decoupled form with flow parameter 
+# lambda [fm^-1] using the block-diagonal generator.
+#
+#------------------------------------------------------------------------------
+
 # Created 05/01/19 by A.T. (tropiano.4@osu.edu)
 # Updated 05/07/19 by A.T. to run Magnus implementation
 
@@ -19,87 +36,6 @@ from Magnus_codes import magnus_wegner
 from Magnus_codes import magnus_kinetic_energy
 
 
-def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, \
-            lambda_bd=0.00, save=True):
-    '''This function SRG evolves a specified Hamiltonian to several values of
-    lambda [fm^-1] and has the option to save the evolved potentials.'''
-    
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    # channel (string): The partial wave channel ('1S0', '3S1', etc.)
-    # kmax (float): Maximum value in the momentum mesh
-    # kmid (float): Mid-point value in the momentum mesh
-    # ntot (integer): Number of momentum points in mesh
-    # generator (string): SRG generator ('Wegner', 'T', 'Block-diag')
-    # lambda_array (1-D NumPy array): Array of lambda evolution values 
-    # lambda_bd (float): Lambda value for block-diagonal decoupling (e.g. 2.00 
-    # fm^-1)
-    # save (Boolean): Option to save evolved potentials. If true, writes the
-    # evolved potential formatted similar to the initial potentials.
-    
-    # Load Hamiltonian, kinetic energy and weights
-    H0_matrix = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-    T0_matrix = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
-    k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
-    
-    # h-bar^2 / M [MeV fm^2] for conversion of MeV to fm^-2
-    hbar_sq_over_M = 41.47
-    
-    # Initial value of lambda
-    lambda_initial = 12.0
-
-    # Initialize SRG class
-    if generator == 'Wegner':
-        
-        evolve = srg_wegner.SRG(H0_matrix)
-      
-    elif generator == 'T':
-
-        evolve = srg_kinetic_energy.SRG(H0_matrix, T0_matrix)
-        
-    elif generator == 'Block-diag':
-        
-        # Whether Hamiltonian is coupled channel or not (cc = True or False)
-        cc = lp.coupled_channel(channel) 
-        evolve = srg_block_diagonal.SRG(H0_matrix, lambda_bd, k_array, cc)
-        
-    # Time the evolution and return dictionary d of evolved Hamiltonians
-    t0 = time.time() # Start time
-    d = evolve.evolve_hamiltonian(lambda_initial, lambda_array)
-    t1 = time.time() # End time
-    
-    mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
-    print('_'*85)
-    print('H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'%( \
-          lambda_array[-1], mins))
-    print('_'*85)
-    print('\nSpecifications:\n')
-    print('kvnn = %d, channel = %s'%(kvnn, channel))
-    print('kmax = %.1f, kmid = %.1f, ntot = %d'%(kmax, kmid, ntot))
-    print('method = srg, generator = %s'%generator)
-    if generator == 'Block-diag':
-        print('block-diagonal lambda = %.2f fm^-1'%lambda_bd)
-    
-    # Writes evolved potentials to files if save = True
-    if save:
-
-        # Save evolved potential for each lambda value
-        for lamb in lambda_array:
-
-            Hs_matrix = d[lamb] # Units are fm^-2 here
-            # Subtract off kinetic energy (need to convert from MeV to fm^-2)
-            Vs_matrix = Hs_matrix - T0_matrix/hbar_sq_over_M
-            # Save evolved potential
-            lp.save_potential(k_array, k_weights, Vs_matrix, kvnn, channel, kmax, \
-                              kmid, ntot, 'srg', generator, lamb, lambda_bd)
-                
-    # Otherwise, return the dictionary d
-    else:
-        
-        return d
-    
-    
 def run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, lambda_array, \
                k_magnus=6, ds=1e-5, save=True):
     '''This function evolves a specified Hamiltonian to several values of
@@ -255,3 +191,5 @@ if __name__ == '__main__':
         
         d = run_magnus(kvnn, channel, kmax, kmid, ntot, method, generator, 
                        lambda_array, k_magnus=k_magnus, ds=ds, save=save)
+
+
