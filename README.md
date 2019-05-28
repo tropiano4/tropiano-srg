@@ -22,7 +22,7 @@ Description of each folder:
 
 Description of major codes:
 
-* Jupyter notebooks titled with an extension "_figures_v#.ipynb" are used to generate figures which go to the Figures folder.
+* Jupyter notebooks titled with an extension "_figures.ipynb" are used to generate figures which go to the Figures folder.
 
 * "deuteron.py" - Calculates deuteron observables. Work in progress.
 
