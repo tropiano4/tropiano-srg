@@ -11,4 +11,4 @@ from scipy.special import spherical_jn
 class Operator(object):
     
     def __init__(self):
-        
+        '''.'''
