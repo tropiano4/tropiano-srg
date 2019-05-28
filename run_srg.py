@@ -11,8 +11,9 @@
 # point in lambda (which serves as the key).
 #
 # Revision history:
-#   May 28, 2019 --- Updated along with various updates to SRG codes. Split
-#                    evolve_hamiltonian.py into run_srg.py and run_magnus.py.
+#   May 28, 2019 --- Updated along with various updates to SRG codes. Split 
+#                    original script evolve_hamiltonian.py into run_srg.py and 
+#                    run_magnus.py.
 #
 #------------------------------------------------------------------------------
 
@@ -134,8 +135,8 @@ if __name__ == '__main__':
     
     # Specify potential
     
-    #kvnn = 6 # AV18
-    kvnn = 10 # EM N3LO
+    kvnn = 6 # AV18
+    #kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
@@ -160,13 +161,13 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    #generator = 'Wegner'
+    generator = 'Wegner'
     #generator = 'T'
-    generator = 'Block-diag'
+    #generator = 'Block-diag'
     
     #lambda_bd = 1.00 # This won't affect the band-diagonal generators
-    #lambda_bd = 2.00 
-    lambda_bd = 3.00
+    lambda_bd = 2.00 
+    #lambda_bd = 3.00
     #lambda_bd = 4.00
     
     #lambda_array = np.array( (10.0, 2.8, 2.0, 1.2) )
