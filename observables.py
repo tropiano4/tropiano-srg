@@ -1,13 +1,25 @@
-# Created 05/03/19 by A.T. (tropiano.4@osu.edu)
+#!/usr/bin/env python3
 
-# Deuteron code: Calculates observables for deuteron given an NN Hamiltonian 
-# (can be SRG evolved). The class contains functions that obtain the deuteron 
-# wave function in momentum-space, functions that calculate observable 
-# quantities, and functions that return operators in momentum-space.
-
-# Note to self: should probably generalize operator code to another script
-# independent of this. This code should use functions from the operator script
-# like r^2.
+#------------------------------------------------------------------------------
+# File: observables.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     May 3, 2019
+# 
+# Contains several functions for calculation of NN observables given a
+# Hamiltonian. These functions can be used to look at wave functions or to 
+# calculate observable quantities with functions from operators.py
+#
+# Revision history:
+#   May 29, 2019 --- This file was renamed from deuteron.py to observables.py.
+#                    The idea was to generalize this code to observables for
+#                    any state given an NN potential.
+#
+# Notes:
+#   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
+#     code still needs to be further generalized.
+#
+#------------------------------------------------------------------------------
 
 
 import numpy as np
@@ -16,11 +28,125 @@ from scipy.special import spherical_jn
 from scipy.interpolate import CubicSpline
 
 
-# Generalize this to any NN state (give energy of state and select closest
-# value)? Make epsilon = -2.22 MeV default. Or split this into returning the
-# deuteron wave function and observables using NN operators from operator.py.
-# Rename this observables.py?
+def find_eps_index(eps, e_array):
+    """
+    Finds the index of the energy value nearest to eps in the given 
+    energy array. For instance, say eps = -2.22 MeV and energies does not 
+    contain -2.22 exactly. Then this function would return an index 
+    corresponding to the energy value nearest to -2.22 in e_array (e.g. 
+    e_array[eps_index] = -2.25 MeV).
+    
+    Parameters
+    ----------
+    eps : float
+        Energy value in units MeV.
+    e_array : 1-D ndarray
+        Energies array.
+        
+    Returns
+    -------
+    eps_index : int
+        Index of eps (or nearest e) in e_array.
+        
+    """
+    
+    e_difference_array = abs(e_array - eps)
+    e_difference_min = min(e_difference_array)
+    eps_index = list(e_difference_array).index(e_difference_min)
+    
+    return eps_index
 
+
+def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
+    """
+    Diagonalizes the Hamiltonian and returns the wave function of the state
+    nearest energy = eps. The wave function is unitless, that is, the momenta 
+    and weights are factored in such that \sum_i { psi(k_i)^2 } = 1. For an 
+    evolved wave function, enter in a unitary transformation U.
+    
+    Parameters
+    ----------
+    H_matrix : 2-D ndarray
+        Hamiltonian matrix in units MeV.
+    eps : float, optional
+        Energy of the desired state in MeV. Default is the deuteron state.
+    U : 2-D ndarray, optional
+        Unitary transformation matrix. If no unitary transformation is 
+        provided, the function will skip the line where it evolves the wave
+        function.
+    
+    Returns
+    -------
+    psi : 1-D ndarray
+        Wave function for the specified state (unitless).
+    """
+    
+    # Diagonalize Hamiltonian
+    eigenvalues, eigenvectors = la.eig(H_matrix)
+    
+    # Index of the wave function
+    eps_index = find_eps_index(eps, eigenvalues)
+    
+    # Full wave function (unitless)
+    psi = eigenvectors[:, eps_index] 
+
+    # Evolve wave function by applying unitary transformation U
+    if U.any():
+        psi = U @ psi
+        
+    # Check normalization in momentum-space
+    #normalization = np.sum( psi**2 )
+    #print('Normalization = %.4f (k-space)'%normalization)
+            
+    return psi
+
+
+# r^2 integrand should be a function in srg_operator_evolution.ipynb
+    
+
+def rms_radius_from_rspace(psi, r2_operator):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    
+    """
+    
+    return None
+
+
+def rms_radius_from_kspace(psi):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    
+    """
+    
+    return None
+
+
+def quadrupole_moment_from_kspace(psi):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    
+    """
+    
+    return None
 
 class Deuteron(object):
     

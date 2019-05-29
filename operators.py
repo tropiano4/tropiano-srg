@@ -40,7 +40,7 @@ def find_q_index(q, k_array):
     Returns
     -------
     q_index : int
-        Index of the q (or nearest k) in k_array.
+        Index of q (or nearest k) in k_array.
         
     """
     
