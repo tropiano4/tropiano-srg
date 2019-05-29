@@ -114,3 +114,38 @@ def kvnn_label_conversion(kvnn):
         label = r'$\Lambda = 20 \/ fm^{-1}$'
 
     return label
+
+
+def replace_periods_with_commas(file_name):
+    """
+    Replaces all periods in a file name with commas. This is necessary for
+    adding figures to LaTeX files which doesn't like periods unless they
+    specify a file type. For this reason, do not include the file type 
+    extension in the file name (i.e. .jpg, .pdf, etc.)
+    
+    Parameters
+    ----------
+    file_name : str
+        Original name of the file including periods.
+    
+    Returns
+    -------
+    new_file_name : str
+        New file name replacing periods with commas.
+        
+    """
+    
+    # Initialize new file name
+    new_file_name = ''
+    
+    # Loop over each character in the original file name and append to the new
+    # file name replacing periods with commas
+    for letter in file_name:
+        
+        if letter == '.':
+            
+            letter = ','
+            
+        new_file_name += letter
+        
+    return new_file_name
