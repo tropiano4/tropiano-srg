@@ -11,6 +11,8 @@ Description of each folder:
 
 * Notes contains pdf notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
 
+* Old_codes stores all out-dated codes. See the README stored in this folder for documentation.
+
 * Papers contains all relevant papers and a .bib file for LaTeX citing purposes.
 
 * Potentials/vsrg_macos contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving called "load_save_potentials.py". 
