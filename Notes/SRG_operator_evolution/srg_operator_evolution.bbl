@@ -1,0 +1,95 @@
+%merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+%Control: key (0)
+%Control: author (8) initials jnrlst
+%Control: editor formatted (1) identically to author
+%Control: production of article title (-1) disabled
+%Control: page (0) single
+%Control: year (1) truncated
+%Control: production of eprint (0) enabled
+\begin{thebibliography}{3}%
+\makeatletter
+\providecommand \@ifxundefined [1]{%
+ \@ifx{#1\undefined}
+}%
+\providecommand \@ifnum [1]{%
+ \ifnum #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \@ifx [1]{%
+ \ifx #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \natexlab [1]{#1}%
+\providecommand \enquote  [1]{``#1''}%
+\providecommand \bibnamefont  [1]{#1}%
+\providecommand \bibfnamefont [1]{#1}%
+\providecommand \citenamefont [1]{#1}%
+\providecommand \href@noop [0]{\@secondoftwo}%
+\providecommand \href [0]{\begingroup \@sanitize@url \@href}%
+\providecommand \@href[1]{\@@startlink{#1}\@@href}%
+\providecommand \@@href[1]{\endgroup#1\@@endlink}%
+\providecommand \@sanitize@url [0]{\catcode `\\12\catcode `\$12\catcode
+  `\&12\catcode `\#12\catcode `\^12\catcode `\_12\catcode `\%12\relax}%
+\providecommand \@@startlink[1]{}%
+\providecommand \@@endlink[0]{}%
+\providecommand \url  [0]{\begingroup\@sanitize@url \@url }%
+\providecommand \@url [1]{\endgroup\@href {#1}{\urlprefix }}%
+\providecommand \urlprefix  [0]{URL }%
+\providecommand \Eprint [0]{\href }%
+\providecommand \doibase [0]{http://dx.doi.org/}%
+\providecommand \selectlanguage [0]{\@gobble}%
+\providecommand \bibinfo  [0]{\@secondoftwo}%
+\providecommand \bibfield  [0]{\@secondoftwo}%
+\providecommand \translation [1]{[#1]}%
+\providecommand \BibitemOpen [0]{}%
+\providecommand \bibitemStop [0]{}%
+\providecommand \bibitemNoStop [0]{.\EOS\space}%
+\providecommand \EOS [0]{\spacefactor3000\relax}%
+\providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
+\let\auto@bib@innerbib\@empty
+%</preamble>
+\bibitem [{\citenamefont {Entem}\ and\ \citenamefont
+  {Machleidt}(2003)}]{Entem:2003ft}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~R.}\ \bibnamefont
+  {Entem}}\ and\ \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Machleidt}},\ }\href {\doibase 10.1103/PhysRevC.68.041001} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume}
+  {68}},\ \bibinfo {pages} {041001} (\bibinfo {year} {2003})},\ \Eprint
+  {http://arxiv.org/abs/nucl-th/0304018} {arXiv:nucl-th/0304018 [nucl-th]}
+  \BibitemShut {NoStop}%
+%%CITATION = NUCL-TH/0304018;%%
+\bibitem [{\citenamefont {Reinert}\ \emph {et~al.}(2018)\citenamefont
+  {Reinert}, \citenamefont {Krebs},\ and\ \citenamefont
+  {Epelbaum}}]{Reinert:2017usi}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
+  {Reinert}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Krebs}}, \
+  and\ \bibinfo {author} {\bibfnamefont {E.}~\bibnamefont {Epelbaum}},\ }\href
+  {\doibase 10.1140/epja/i2018-12516-4} {\bibfield  {journal} {\bibinfo
+  {journal} {Eur. Phys. J. A}\ }\textbf {\bibinfo {volume} {54}},\ \bibinfo
+  {pages} {86} (\bibinfo {year} {2018})},\ \Eprint
+  {http://arxiv.org/abs/1711.08821} {arXiv:1711.08821 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1711.08821;%%
+\bibitem [{\citenamefont {Gezerlis}\ \emph {et~al.}(2014)\citenamefont
+  {Gezerlis}, \citenamefont {Tews}, \citenamefont {Epelbaum}, \citenamefont
+  {Freunek}, \citenamefont {Gandolfi}, \citenamefont {Hebeler}, \citenamefont
+  {Nogga},\ and\ \citenamefont {Schwenk}}]{Gezerlis:2014zia}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Gezerlis}}, \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tews}},
+  \bibinfo {author} {\bibfnamefont {E.}~\bibnamefont {Epelbaum}}, \bibinfo
+  {author} {\bibfnamefont {M.}~\bibnamefont {Freunek}}, \bibinfo {author}
+  {\bibfnamefont {S.}~\bibnamefont {Gandolfi}}, \bibinfo {author}
+  {\bibfnamefont {K.}~\bibnamefont {Hebeler}}, \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Nogga}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Schwenk}},\ }\href {\doibase 10.1103/PhysRevC.90.054323}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo
+  {volume} {90}},\ \bibinfo {pages} {054323} (\bibinfo {year} {2014})},\
+  \Eprint {http://arxiv.org/abs/1406.0454} {arXiv:1406.0454 [nucl-th]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1406.0454;%%
+\end{thebibliography}%

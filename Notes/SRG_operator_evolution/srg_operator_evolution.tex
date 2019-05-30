@@ -8,9 +8,7 @@
 % Notes on SRG operator evolution project.
 %
 % Revision history:
-% 	May 30, 2019 - Many changes listed below:
-%		1) Renamed srg_operator_evolution.tex from operator_evolution_May20.tex.
-%		2)
+% 	May 30, 2019 - Renamed srg_operator_evolution.tex from operator_evolution_May20.tex.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -34,6 +32,7 @@
 \graphicspath{{Figures/}} % Setting the graphics path
 \usepackage{physics} % For bra-ket notation
 \usepackage{siunitx}
+\usepackage[caption=false]{subfig} % For sub-figures
 
 \newcommand{\eps}{\varepsilon}
 
@@ -48,15 +47,16 @@
 \author{A.~J.~Tropiano$^{1}$, S.~K.~Bogner$^{2}$, R.~J.~Furnstahl$^{1}$}
 
 \affiliation{
-$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
-$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
-    \mbox{Michigan State University, East Lansing, MI 48824, USA}}
+		$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
+		$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
+		\mbox{Michigan State University, East Lansing, MI 48824, USA}
+}
 
 \date{\today}
 
 \begin{abstract}
 
-Abstract goes here.
+Brief description of project.
 
 \end{abstract}
 
@@ -71,30 +71,202 @@ Abstract goes here.
 \label{sec:intro}
 
 
-Introduction goes here.
+Results on SRG-evolved operators from several NN potentials:
+\\
+-- How operators evolve from band- and block-diagonal SRG transformations.
+\\
+-- Operator evolution for different potentials (regulators, chiral order, etc.)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Formalism}
-\label{sec:formalism}
+\section{Building SRG unitary transformations}
+\label{sec:srg_unitary_transformations}
 
 
-Is this section necessary for now?
+Brief description of how to make $U(s)$.
+\\
+
+Diagonalize initial and evolved Hamiltonians which we will call $H(0)$ and $H(s)$, respectively. This gives $\psi_{\alpha}(0)$ and $\psi_{\alpha}(s)$ for each eigenvalue indexed by $\alpha$. Then the SRG unitary transformation can be computed by taking a sum over outer products of the evolved and initial wave functions:
+
+\begin{eqnarray}
+	\label{eq:unitary_transformation}
+	U(s) = \sum_{\alpha=1}^{N} \ket{\psi_{\alpha}(s)} \bra{\psi_{\alpha}(0)},
+\end{eqnarray}
+
+where N is the dimension of the Hamiltonian matrix. Here the weights are factored into the wave functions, thus $U(s)$ is unitless.
+\\
+
+To evolve operators, we simply apply $U(s)$:
+
+\begin{eqnarray}
+	\label{eq:evolved_operator}
+	O(s) = U(s) O(0) U^{\dagger}(s),
+\end{eqnarray}
+
+where $O(0)$ is the bare operator.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results}
-\label{sec:results}
+\section{Operator evolution}
+\label{sec:operator_evolution}
 
 
-Organize this according to the figures: what story do the figures tell?
+Organize this according to the figures: what story do the figures tell? Format should be description of the calculation, followed by the figure, followed by takeaways.
+\\
 
+Add the following figures: momentum projection operator figures with accompanying momentum distributions for SRG transformations from N$^3$LO non-local potential \cite{Entem:2003ft}, N$^3$LO or N$^4$LO semi-local potentials \cite{Reinert:2017usi}, and N$^2$LO local potentials \cite{Gezerlis:2014zia}.
+\\
+
+% Entem-Machleidt N3LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn10_3S1_Wegner}%
+	}
 	
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion}
-\label{sec:conclusion}
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag2,00}%
+	}
+
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn10}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q0,30_kvnn10_3S1_Wegner}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q0,30_kvnn10}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{deuteron_momentum_distribution_kvnn10_Wegner_lamb1,5}%
+	}
+	\quad
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{deuteron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5}%
+	}
+	\quad
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{deuteron_momentum_distribution_kvnn10_Block-diag3,00_lamb1,5}%
+	}
+	\caption{Caption.}
+	\label{deuteron_momentum_distribution_kvnn10}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{continuum_state_momentum_distribution_eps200,0_kvnn10_Wegner_lamb1,5}%
+	}
+	\quad
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2,00_lamb1,5}%
+	}
+	\quad
+	\subfloat[]{%
+	\includegraphics[clip,width=0.3\columnwidth]{continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag3,00_lamb1,5}%
+	}
+	\caption{Caption.}
+	\label{continuum_state_momentum_distribution_eps200,0_kvnn10}
+\end{figure}
 
 
-Summarize. Example of citation \cite{More:2015tpa}.
+% RKE N3LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn106_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn106_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn106}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn107_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn107_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn107}
+\end{figure}
+
+
+% RKE N4LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn111_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn111_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn111}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn112_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn112_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn112}
+\end{figure}
+
+
+% Gez. et al. N2LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn222_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag2,00}%
+	}
+
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn222}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn224_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{momentum_projection_contours_q3,00_kvnn224_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{momentum_projection_contours_q3,00_kvnn224}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
