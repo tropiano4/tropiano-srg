@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  20 MAY 2019 17:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  30 MAY 2019 10:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**magnus_Jan08.tex
-(./magnus_Jan08.tex
+**magnus.tex
+(./magnus.tex
 LaTeX2e <2017-04-15>
 Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/revtex/revtex4-1.cls
@@ -1578,33 +1578,33 @@ Package: translator 2010/06/12 ver 1.10
 (/usr/local/texlive/2017/texmf-dist/tex/latex/beamer/translator/translator-lang
 uage-mappings.tex)))
 Class revtex4-1 Info: Unrecognized array package. Please update this document c
-lass! (Proceeding with fingers crossed.) on input line 28.
+lass! (Proceeding with fingers crossed.) on input line 40.
 
 
 Class revtex4-1 Warning: Repair the float package.
 
-Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 28.
+Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 40.
 
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 28.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 28.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 28.
-(./magnus_Jan08.aux)
-\openout1 = `magnus_Jan08.aux'.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 40.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 40.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 40.
+(./magnus.aux)
+\openout1 = `magnus.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
@@ -1642,7 +1642,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box70
-Package hyperref Info: Link coloring OFF on input line 28.
+Package hyperref Info: Link coloring OFF on input line 40.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -1652,13 +1652,13 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count188
 )
-LaTeX Info: Redefining \ref on input line 28.
-LaTeX Info: Redefining \pageref on input line 28.
-LaTeX Info: Redefining \nameref on input line 28.
+LaTeX Info: Redefining \ref on input line 40.
+LaTeX Info: Redefining \pageref on input line 40.
+LaTeX Info: Redefining \nameref on input line 40.
 
-(./magnus_Jan08.out) (./magnus_Jan08.out)
+(./magnus.out) (./magnus.out)
 \@outlinefile=\write4
-\openout4 = `magnus_Jan08.out'.
+\openout4 = `magnus.out'.
 
 
 *************************************************
@@ -1674,57 +1674,57 @@ Dictionary: translator-basic-dictionary, Language: English
 (/usr/local/texlive/2017/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg
 File: siunitx-abbreviations.cfg 2017/05/19 v2.7g siunitx: Abbreviated units
 )
-Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 28.
-\openout3 = `magnus_Jan08Notes.bib'.
+Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 40.
+\openout3 = `magnusNotes.bib'.
 
 \c__siunitx_mathsf_int=\count189
-LaTeX Font Info:    Try loading font information for U+msa on input line 28.
+LaTeX Font Info:    Try loading font information for U+msa on input line 40.
  (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 28.
+LaTeX Font Info:    Try loading font information for U+msb on input line 40.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 \c__siunitx_mathtt_int=\count190
 
-Overfull \hbox (9.18227pt too wide) in paragraph at lines 63--63
+Overfull \hbox (9.18227pt too wide) in paragraph at lines 75--75
  []$[] 
  []
 
 [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 73--83
+Underfull \hbox (badness 10000) in paragraph at lines 85--95
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 85--93
+Underfull \hbox (badness 10000) in paragraph at lines 97--105
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 95--107
+Underfull \hbox (badness 10000) in paragraph at lines 107--119
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 109--129
+Underfull \hbox (badness 10000) in paragraph at lines 121--141
 
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 131--147
+Underfull \hbox (badness 10000) in paragraph at lines 143--159
 
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 200--218
+Underfull \hbox (badness 10000) in paragraph at lines 212--230
 
  []
 
 [4] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 298--318
+Underfull \hbox (badness 10000) in paragraph at lines 310--330
 
  []
 
@@ -1734,7 +1734,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 298--318
 File: Figures/magnus_contours_Wendt_Lamb9_Wegner.jpg Graphic file (type jpg)
  <use Figures/magnus_contours_Wendt_Lamb9_Wegner.jpg>
 Package pdftex.def Info: Figures/magnus_contours_Wendt_Lamb9_Wegner.jpg used on
- input line 330.
+ input line 342.
 (pdftex.def)             Requested size: 284.52756pt x 227.27208pt.
 
 <Figures/magnus_contours_Wendt_Lamb9_T.jpg, id=113, 818.05624pt x 653.44125pt>
@@ -1742,7 +1742,7 @@ File: Figures/magnus_contours_Wendt_Lamb9_T.jpg Graphic file (type jpg)
 
 <use Figures/magnus_contours_Wendt_Lamb9_T.jpg>
 Package pdftex.def Info: Figures/magnus_contours_Wendt_Lamb9_T.jpg used on inpu
-t line 339.
+t line 351.
 (pdftex.def)             Requested size: 284.52756pt x 227.27208pt.
 
 <Figures/evolved_diags_Wendt_Lamb9_Wegner.pdf, id=115, 965.24837pt x 495.30232p
@@ -1750,7 +1750,7 @@ t>
 File: Figures/evolved_diags_Wendt_Lamb9_Wegner.pdf Graphic file (type pdf)
  <use Figures/evolved_diags_Wendt_Lamb9_Wegner.pdf>
 Package pdftex.def Info: Figures/evolved_diags_Wendt_Lamb9_Wegner.pdf used on i
-nput line 359.
+nput line 371.
 (pdftex.def)             Requested size: 398.33858pt x 204.40541pt.
 
 <Figures/evolved_diags_Wendt_Lamb9_T.pdf, id=116, 965.24837pt x 495.30232pt>
@@ -1758,16 +1758,16 @@ File: Figures/evolved_diags_Wendt_Lamb9_T.pdf Graphic file (type pdf)
 
 <use Figures/evolved_diags_Wendt_Lamb9_T.pdf>
 Package pdftex.def Info: Figures/evolved_diags_Wendt_Lamb9_T.pdf used on input 
-line 381.
+line 393.
 (pdftex.def)             Requested size: 398.33858pt x 204.40541pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 320--403
+Underfull \hbox (badness 10000) in paragraph at lines 332--415
 
  []
 
 [7] [8 <./Figures/magnus_contours_Wendt_Lamb9_Wegner.jpg> <./Figures/magnus_con
 tours_Wendt_Lamb9_T.jpg>] [9 <./Figures/evolved_diags_Wendt_Lamb9_Wegner.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 405--454
+Underfull \hbox (badness 10000) in paragraph at lines 417--466
 
  []
 
@@ -1777,16 +1777,16 @@ File: Figures/momentum_dist_Wendt_Lamb9.pdf Graphic file (type pdf)
 
 <use Figures/momentum_dist_Wendt_Lamb9.pdf>
 Package pdftex.def Info: Figures/momentum_dist_Wendt_Lamb9.pdf used on input li
-ne 461.
+ne 473.
 (pdftex.def)             Requested size: 284.52756pt x 146.13379pt.
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 471.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 483.
 
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 471.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 483.
  [12 <./Figures/momentum_dist_Wendt_Lamb9.pdf>]
 <Figures/momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9.jpg, id=390, 
 991.705pt x 438.63875pt>
@@ -1795,7 +1795,7 @@ hic file (type jpg)
 
 <use Figures/momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/momentum_proj_operator_contours_q0,31_magnus_W
-endt_Lamb9.jpg used on input line 492.
+endt_Lamb9.jpg used on input line 504.
 (pdftex.def)             Requested size: 398.33858pt x 176.18861pt.
 
 <Figures/momentum_proj_difference_q0,31_magnus_Wendt_Lamb9.jpg, id=391, 760.842
@@ -1805,7 +1805,7 @@ e (type jpg)
 
 <use Figures/momentum_proj_difference_q0,31_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/momentum_proj_difference_q0,31_magnus_Wendt_La
-mb9.jpg used on input line 501.
+mb9.jpg used on input line 513.
 (pdftex.def)             Requested size: 284.52756pt x 125.75201pt.
 
 <Figures/momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9.jpg, id=392, 
@@ -1815,7 +1815,7 @@ hic file (type jpg)
 
 <use Figures/momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/momentum_proj_operator_contours_q3,04_magnus_W
-endt_Lamb9.jpg used on input line 510.
+endt_Lamb9.jpg used on input line 522.
 (pdftex.def)             Requested size: 398.33858pt x 176.18861pt.
 
 <Figures/momentum_proj_difference_q3,04_magnus_Wendt_Lamb9.jpg, id=393, 760.842
@@ -1825,7 +1825,7 @@ e (type jpg)
 
 <use Figures/momentum_proj_difference_q3,04_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/momentum_proj_difference_q3,04_magnus_Wendt_La
-mb9.jpg used on input line 519.
+mb9.jpg used on input line 531.
 (pdftex.def)             Requested size: 284.52756pt x 125.75201pt.
  [13 <./Figures/momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9.jpg> <
 ./Figures/momentum_proj_difference_q0,31_magnus_Wendt_Lamb9.jpg>]
@@ -1835,7 +1835,7 @@ File: Figures/r2_operator_contours_magnus_Wendt_Lamb9.jpg Graphic file (type jp
 g)
  <use Figures/r2_operator_contours_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/r2_operator_contours_magnus_Wendt_Lamb9.jpg us
-ed on input line 528.
+ed on input line 540.
 (pdftex.def)             Requested size: 398.33858pt x 164.84386pt.
 
 <Figures/r2_difference_magnus_Wendt_Lamb4.jpg, id=402, 788.9475pt x 329.23pt>
@@ -1843,7 +1843,7 @@ File: Figures/r2_difference_magnus_Wendt_Lamb4.jpg Graphic file (type jpg)
 
 <use Figures/r2_difference_magnus_Wendt_Lamb4.jpg>
 Package pdftex.def Info: Figures/r2_difference_magnus_Wendt_Lamb4.jpg used on i
-nput line 537.
+nput line 549.
 (pdftex.def)             Requested size: 284.52756pt x 118.73369pt.
  [14 <./Figures/momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9.jpg> <
 ./Figures/momentum_proj_difference_q3,04_magnus_Wendt_Lamb9.jpg>]
@@ -1852,7 +1852,7 @@ File: Figures/r2_difference_magnus_Wendt_Lamb9.jpg Graphic file (type jpg)
 
 <use Figures/r2_difference_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/r2_difference_magnus_Wendt_Lamb9.jpg used on i
-nput line 546.
+nput line 558.
 (pdftex.def)             Requested size: 284.52756pt x 116.9503pt.
 
 <Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg, id=410, 1059.96pt x 438.
@@ -1861,28 +1861,28 @@ File: Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg Graphic file (type j
 pg)
  <use Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg>
 Package pdftex.def Info: Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg u
-sed on input line 555.
+sed on input line 567.
 (pdftex.def)             Requested size: 398.33858pt x 164.84386pt.
  [15 <./Figures/r2_operator_contours_magnus_Wendt_Lamb9.jpg> <./Figures/r2_diff
 erence_magnus_Wendt_Lamb4.jpg> <./Figures/r2_difference_magnus_Wendt_Lamb9.jpg>
 ]
-(./magnus_Jan08.bbl [16 <./Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg
->]) [17]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 581.
- (./magnus_Jan08.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 581.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 581.
-Package rerunfilecheck Info: File `magnus_Jan08.out' has not changed.
+(./magnus.bbl [16 <./Figures/r2_integrand_contours_magnus_Wendt_Lamb9.jpg>])
+[17]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 593.
+ (./magnus.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 593.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 593.
+Package rerunfilecheck Info: File `magnus.out' has not changed.
 (rerunfilecheck)             Checksum: 41F7C02E2E48FACE08A2FBB5E2F796D0;451.
  ) 
 Here is how much of TeX's memory you used:
  19679 strings out of 492995
- 362352 string characters out of 6132704
- 423137 words of memory out of 5000000
+ 362256 string characters out of 6132704
+ 423131 words of memory out of 5000000
  22986 multiletter control sequences out of 15000+600000
  18389 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,19n,53p,10408b,902s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,19n,53p,10402b,902s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -1897,7 +1897,7 @@ xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
 ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texliv
 e/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on magnus_Jan08.pdf (17 pages, 1181597 bytes).
+Output written on magnus.pdf (17 pages, 1181596 bytes).
 PDF statistics:
  511 PDF objects out of 1000 (max. 8388607)
  261 compressed objects within 3 object streams
