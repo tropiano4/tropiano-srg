@@ -64,6 +64,8 @@ Brief description of project.
 
 \maketitle
 
+\tableofcontents
+
 \newpage
 
 
@@ -80,7 +82,12 @@ Results on SRG-evolved operators from several NN potentials:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Building SRG unitary transformations}
+\section{Mathematical/computational details}
+\label{sec:math_comp_details}
+
+
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Building SRG unitary transformations}
 \label{sec:srg_unitary_transformations}
 
 
@@ -107,18 +114,28 @@ To evolve operators, we simply apply $U(s)$:
 where $O(0)$ is the bare operator.
 
 
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Momentum projection operator: $a^{\dagger}_q a_q$}
+\label{sec:momentum_proj_operator}
+
+
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Momentum distribution function: $\phi^2$}
+\label{sec:momentum_dist_funcs}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Operator evolution}
-\label{sec:operator_evolution}
+\section{Results}
+\label{sec:results}
 
 
 Organize this according to the figures: what story do the figures tell? Format should be description of the calculation, followed by the figure, followed by takeaways.
-\\
 
-Add the following figures: momentum projection operator figures with accompanying momentum distributions for SRG transformations from N$^3$LO non-local potential \cite{Entem:2003ft}, N$^3$LO or N$^4$LO semi-local potentials \cite{Reinert:2017usi}, and N$^2$LO local potentials \cite{Gezerlis:2014zia}.
-\\
 
-% Entem-Machleidt N3LO results
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Entem-Machleidt N$^3$LO non-local potential}
+\label{sec:nonlocal_results}
+
 
 \begin{figure}[H]
 	\centering
@@ -177,6 +194,11 @@ Add the following figures: momentum projection operator figures with accompanyin
 	\caption{Momentum probability densities of the continuum state at $\epsilon \approx 200$ MeV SRG-evolving the wave function to $\lambda=1.5$ fm$^{-1}$ from the Entem-Machleidt N$^3$LO non-local potential with the Wegner generator (a) and block-diagonal generators decoupling at $\Lambda=2$ and $3$ fm$^{-1}$ (b and c). The black dotted line corresponds to the initial momentum probability density.}
 	\label{continuum_state_momentum_distribution_eps200,0_kvnn10}
 \end{figure}
+
+
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{RKE N$^3$LO and N$^4$LO semi-local potentials}
+\label{sec:semilocal_results}
 
 
 % RKE N3LO results
@@ -253,7 +275,11 @@ Add the following figures: momentum projection operator figures with accompanyin
 	\label{continuum_state_momentum_distribution_eps200,0_kvnn111}
 \end{figure}
 
-% Gez. et al. N2LO results
+
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Gezerlis N$^2$LO local potentials}
+\label{sec:local_results}
+
 
 \begin{figure}[H]
 	\centering

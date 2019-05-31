@@ -1,0 +1,15 @@
+\contentsline {title}{SRG operator evolution}{1}{section*.2}
+\contentsline {abstract}{Abstract}{1}{section*.1}
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{2}{section*.3}
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Introduction}{3}{section*.4}
+\contentsline {section}{\numberline {II}Mathematical/computational details}{3}{section*.5}
+\contentsline {subsection}{\numberline {A}Building SRG unitary transformations}{3}{section*.6}
+\contentsline {subsection}{\numberline {B}Momentum projection operator: $a^{\dagger }_q a_q$}{4}{section*.7}
+\contentsline {subsection}{\numberline {C}Momentum distribution function: $\phi ^2$}{4}{section*.8}
+\contentsline {section}{\numberline {III}Results}{4}{section*.9}
+\contentsline {subsection}{\numberline {A}Entem-Machleidt N$^3$LO non-local potential}{5}{section*.10}
+\contentsline {subsection}{\numberline {B}RKE N$^3$LO and N$^4$LO semi-local potentials}{7}{section*.15}
+\contentsline {subsection}{\numberline {C}Gezerlis N$^2$LO local potentials}{11}{section*.21}
+\contentsline {section}{\numberline {}References}{12}{section*.24}
