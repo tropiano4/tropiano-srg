@@ -1,6 +1,14 @@
-# Created 05/03/19 by A.T. (tropiano.4@osu.edu)
+#!/usr/bin/env python3
 
+#------------------------------------------------------------------------------
+# File: figures_functions.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     May 3, 2019
+# 
 # Functions useful for generating figures.
+#
+#------------------------------------------------------------------------------
 
 
 import datetime
@@ -9,9 +17,16 @@ from scipy.interpolate import interp2d
 
 
 def current_date():
-    '''This function returns the current month and year as string formatted as 
-    "Month_Year". This is used to save figures in the correct folder: 
-    /Figures/Month_Year.'''
+    """
+    This function is used to save figures in the correct folder: 
+    /Figures/Month_Year.
+    
+    Returns
+    -------
+    output : str
+        Current month and year as 'Month_Year'.
+    
+    """
     
     now = datetime.datetime.now()
 
@@ -51,15 +66,29 @@ def current_date():
 
 
 def interpolate_matrix(x_array, M, x_max, ntot=500):
-    '''Interpolate matrix over given array for contour plots. Returns 
-    interpolated matrix with new x array with ntot points up to x_max.'''
+    """
+    Interpolate matrix over given array for contour plots. Also adds more
+    points to given x_array.
     
-    # Arguments
-    
-    # x_array (1-D NumPy array): An array of x points (e.g. momentum array)
-    # M (2-D NumPy array): A matrix dependent on points x (e.g. Hamiltonian)
-    # x_max (float): Maximum value of x for extent of interpolation
-    # ntot (integer): Number of points for interpolation
+    Parameters
+    ----------
+    x_array : 1-D ndarray
+        Array of x points where the matrix M = M(x, x).
+    M : 2-D ndarray
+        Matrix to be interpolated.
+    x_max : float
+        Maximum value of x. This functions interpolates M up to this value.
+    ntot : int, optional
+        Desired length of the interpolated matrix and new x array.
+        
+    Returns
+    -------
+    x_array_new : 1-D ndarray
+        Array of ntot x points.
+    M_new : 2-D ndarray
+        Interpolated matrix.
+        
+    """
     
     # This is a tricky way to select all the x points in the given array that 
     # are within the specified range of 0 to x_max
@@ -68,11 +97,11 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
     bool_list = x_array <= x_max 
     
     # The number of points in the given momentum array less than k_max
-    n = len( list( filter(None,bool_list) ) )
+    n = len( list( filter(None, bool_list) ) )
     
     # Resize x_array and M to size that you want to plot
     x_array = x_array[:n]
-    M = M[:n,:n]
+    M = M[:n, :n]
     
     # Use interp2d to interpolate the truncated matrix
     M_func = interp2d(x_array, x_array, M)
@@ -92,13 +121,22 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
 
 
 def kvnn_label_conversion(kvnn):
-    '''Converts a kvnn number to a label for plotting purposes (e.g. kvnn = 6
-    gives 'AV18').'''
+    """
+    Converts a kvnn number to a label for plotting purposes (e.g. kvnn = 6 
+    gives 'AV18').
     
-    # Arguments
-    
-    # kvnn (integer): This number specifies the potential
-    
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+        
+    Returns
+    -------
+    label : str
+        Label for the potential.
+        
+    """
+
     # Argonne v18
     if kvnn == 6:
         label = 'AV18'
@@ -106,11 +144,11 @@ def kvnn_label_conversion(kvnn):
     elif kvnn == 10:
         label = 'N3LO'
     # Wendt LO non-local potential
-    elif kvnn == 119: # Cutoff 4 fm^-1
+    elif kvnn == 900: # Cutoff 4 fm^-1
         label = r'$\Lambda = 4 \/ fm^{-1}$'
-    elif kvnn == 120: # Cutoff 9 fm^-1
+    elif kvnn == 901: # Cutoff 9 fm^-1
         label = r'$\Lambda = 9 \/ fm^{-1}$'
-    elif kvnn == 121: # Cutoff 20 fm^-1
+    elif kvnn == 902: # Cutoff 20 fm^-1
         label = r'$\Lambda = 20 \/ fm^{-1}$'
 
     return label
