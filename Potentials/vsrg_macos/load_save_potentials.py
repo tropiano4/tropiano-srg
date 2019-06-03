@@ -130,7 +130,8 @@ def load_potential(kvnn, channel, kmax, kmid, ntot, method='initial',
     lambda_bd : float, optional
         Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
     k_magnus : int, optional
-        Number of terms to include in Magnus sum (for Magnus only).
+        Number of terms to include in Magnus sum (that is,
+        dOmega / ds ~ \sum_0^k_magnus ... for Magnus only).
     ds : float, optional
         Step-size in the flow parameter s (for Magnus only).
         
@@ -275,7 +276,8 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial',
     lambda_bd : float, optional
         Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
     k_magnus : int, optional
-        Number of terms to include in Magnus sum (for Magnus only).
+        Number of terms to include in Magnus sum (that is,
+        dOmega / ds ~ \sum_0^k_magnus ... for Magnus only).
     ds : float, optional
         Step-size in the flow parameter s (for Magnus only).
         
@@ -305,8 +307,8 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial',
     return H
 
 
-def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, 
-               lambda_bd=0.00, k_magnus=6, ds=1e-5):
+def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb, k_magnus=6,
+               ds=1e-5):
     """
     Loads a Magnus evolved omega matrix.
     
@@ -326,10 +328,9 @@ def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb,
         SRG generator 'Wegner', 'T', or 'Block-diag'.
     lamb : float
         Evolution parameter lambda in units fm^-1.
-    lambda_bd : float, optional
-        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
     k_magnus : int, optional
-        Number of terms to include in Magnus sum.
+        Number of terms to include in Magnus sum (that is,
+        dOmega / ds ~ \sum_0^k_magnus ... )
     ds : float, optional
         Step-size in the flow parameter s.
         
@@ -354,15 +355,8 @@ def load_omega(kvnn, channel, kmax, kmid, ntot, generator, lamb,
     'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(kvnn_string, kmax, kmid, ntot)
     
     # Name of omega file
-    if generator == 'Block-diag':
-            
-        omega_file = 'omega_%s_kvnn_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
-                    channel, kvnn_string, generator, lambda_bd, lamb, k_magnus, ds)
-        
-    else: 
-            
-        omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
-                    channel, kvnn_string, generator, lamb, k_magnus, ds)
+    omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out' % \
+                  (channel, kvnn_string, generator, lamb, k_magnus, ds)
     
     chdir(potential_directory)
         
@@ -417,7 +411,8 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot,
     lambda_bd : float, optional
         Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
     k_magnus : int, optional
-        Number of terms to include in Magnus sum (for Magnus only).
+        Number of terms to include in Magnus sum (that is,
+        dOmega / ds ~ \sum_0^k_magnus ... for Magnus only).
     ds : float, optional
         Step-size in the flow parameter s (for Magnus only).
         
@@ -443,7 +438,7 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot,
     
         if generator == 'Block-diag':
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel, \
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out'%(channel,
                         kvnn_string, method, generator, lambda_bd, lamb)
         else: 
             
@@ -451,17 +446,10 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot,
                         kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
-        
-        if generator == 'Block-diag':
-            
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f_k%d_ds%.1e.out'%( \
-                        channel, kvnn_string, method, generator, lambda_bd, \
-                        lamb, k_magnus, ds)
-        else: 
-            
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out'%( \
-                        channel, kvnn_string, method, generator, lamb, \
-                        k_magnus, ds)
+
+        vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out' % \
+                    (channel, kvnn_string, method, generator, lamb, k_magnus,
+                     ds)
     
     f = open(vnn_file,'w')
     
@@ -528,7 +516,6 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax, kmid, ntot,
     
 def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb,
                k_magnus, ds=1e-5):
-    ''''''
     """
     Saves a Magnus evolved omega matrix.
     
@@ -554,7 +541,9 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb,
         Evolution parameter lambda in units fm^-1.
     k_magnus : int
         Number of terms to include in Magnus sum (that is,
-        dOmega / dlambda ~ \sum_0^k_magnus ... )
+        dOmega / ds ~ \sum_0^k_magnus ... )
+    ds : float, optional
+        Step-size in the flow parameter s (for Magnus only).
         
     """
 
@@ -569,8 +558,8 @@ def save_omega(k_array, O, kvnn, channel, kmax, kmid, ntot, generator, lamb,
         kvnn_string = str(kvnn)
         
     potential_directory = 'Potentials/vsrg_macos/'+ \
-                          'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d'%(
-                           kvnn_string, kmax, kmid, ntot)
+                          'vsrg_kvnn_%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
+                           (kvnn_string, kmax, kmid, ntot)
     
     chdir(potential_directory)
     
