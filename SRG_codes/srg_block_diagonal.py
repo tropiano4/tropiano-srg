@@ -183,7 +183,7 @@ class SRG(object):
         ----------
         lamb : float
             Evolution parameter lambda in units fm^-1.
-        H_evolved : 2-D ndarray
+        H_evolved : 1-D ndarray
             Evolving Hamiltonian which is a vector and function of lambda. 
             Units are fm^-2.
         
@@ -213,7 +213,7 @@ class SRG(object):
 
     def evolve_hamiltonian(self, lambda_initial, lambda_array):
         """
-        Evolved Hamiltonian H_matrix at each value of lambda in lambda_array.
+        Evolved Hamiltonian at each value of lambda in lambda_array.
         
         Parameters
         ----------
@@ -253,7 +253,7 @@ class SRG(object):
         # Loop over lambda values in lambda_array
         for lamb in lambda_array:
             
-            # Solve ode up to lamb and store in dictionary
+            # Solve ODE up to lamb and store in dictionary
             while solver.successful() and solver.t > lamb:
             
                 # Select step-size depending on extent of evolution
