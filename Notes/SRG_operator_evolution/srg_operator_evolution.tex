@@ -8,8 +8,9 @@
 % Notes on SRG operator evolution project.
 %
 % Revision history:
-% 	May 31, 2019 - Renamed to srg_operator_evolution.tex from operator_evolution_May20.tex. Added a description of computing SRG unitary
-%                              transformations. Added momentum projection operator contours and momentum distribution plots.                            
+% 	05/31/19 --- Renamed magnus.tex from magnus_Jan08.tex. - Renamed to srg_operator_evolution.tex from operator_evolution_May20.tex.
+%			   Added a description of computing SRG unitary transformations. Added momentum projection operator contours and momentum %                         distribution plots.
+%	06/03/19 --- Added brief descriptions of how to numerically compute momentum projection operators and distributions.                           
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -119,9 +120,29 @@ where $O(0)$ is the bare operator.
 \label{sec:momentum_proj_operator}
 
 
+Applying $a^{\dagger}_q a_q$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1$, ... , $N$. Then $a^{\dagger}_q a_q$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k$. Therefore, we include a factor of $1 / (k^2 dk) \implies 1 / (k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
+
+\begin{eqnarray}
+	\label{eq:momentum_projection_operator}
+	a^{\dagger}_q a_q (k_i, k_j) = \frac{\delta_{k_i q} \delta_{k_j q}}{k_i k_j \sqrt{w_i w_j}},
+\end{eqnarray}
+
+which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For mesh-independent figures, we must divide by an additional factor of $k_i k_j \sqrt{w_i w_j}$.
+
+
 %------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 \subsection{Momentum distribution function: $\phi^2$}
 \label{sec:momentum_dist_funcs}
+
+
+We diagonalize the Hamiltonian for eigenvectors $\phi_{\alpha}$. In the $^{3}S_1$-$^{3}D_1$ coupled channel, the S-component is given by $\phi_{\alpha}[:N]$ and the D-component by $\phi_{\alpha}[N:]$ where $N$ is the length of the momentum mesh. Then the momentum distribution is given by,
+
+\begin{eqnarray}
+	\label{eq:momentum_distribution}
+	|\phi(k)|^2 = |\phi_{\alpha}[:N]|^2 + |\phi_{\alpha}[N:]|^2.
+\end{eqnarray}
+
+This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,12 +150,15 @@ where $O(0)$ is the bare operator.
 \label{sec:results}
 
 
-Organize this according to the figures: what story do the figures tell? Format should be description of the calculation, followed by the figure, followed by takeaways.
+Organize this according to the figures. Format should be description of the calculation (previous section), followed by the figure, followed by takeaways.
 
 
 %------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 \subsection{Entem-Machleidt N$^3$LO non-local potential}
 \label{sec:nonlocal_results}
+
+
+\textcolor{red}{Add takeaways for these figures.}
 
 
 \begin{figure}[H]
@@ -199,6 +223,9 @@ Organize this according to the figures: what story do the figures tell? Format s
 %------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 \subsection{RKE N$^3$LO and N$^4$LO semi-local potentials}
 \label{sec:semilocal_results}
+
+
+\textcolor{red}{Add takeaways for these figures.}
 
 
 % RKE N3LO results
@@ -279,6 +306,9 @@ Organize this according to the figures: what story do the figures tell? Format s
 %------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 \subsection{Gezerlis N$^2$LO local potentials}
 \label{sec:local_results}
+
+
+\textcolor{red}{Add takeaways for these figures.}
 
 
 \begin{figure}[H]
