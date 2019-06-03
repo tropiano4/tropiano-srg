@@ -75,7 +75,7 @@ Brief description of project.
 \label{sec:intro}
 
 
-Results on SRG-evolved operators from several NN potentials:
+Results on SRG-evolved operators from several NN potentials.
 \\
 -- How operators evolve from band- and block-diagonal SRG transformations.
 \\
@@ -91,9 +91,6 @@ Results on SRG-evolved operators from several NN potentials:
 \subsection{Building SRG unitary transformations}
 \label{sec:srg_unitary_transformations}
 
-
-Brief description of how to make $U(s)$.
-\\
 
 Diagonalize initial and evolved Hamiltonians which we will call $H(0)$ and $H(s)$, respectively. This gives $\psi_{\alpha}(0)$ and $\psi_{\alpha}(s)$ for each eigenvalue indexed by $\alpha$. Then the SRG unitary transformation can be computed by taking a sum over outer products of the evolved and initial wave functions:
 
@@ -131,18 +128,18 @@ which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For 
 
 
 %------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-\subsection{Momentum distribution function: $\phi^2$}
+\subsection{Momentum distribution function: $\phi^2(k)$}
 \label{sec:momentum_dist_funcs}
 
 
-We diagonalize the Hamiltonian for eigenvectors $\phi_{\alpha}$. In the $^{3}S_1$-$^{3}D_1$ coupled channel, the S-component is given by $\phi_{\alpha}[:N]$ and the D-component by $\phi_{\alpha}[N:]$ where $N$ is the length of the momentum mesh. Then the momentum distribution is given by,
+We diagonalize the Hamiltonian for eigenvectors $\psi_{\alpha}$. In the $^{3}S_1$-$^{3}D_1$ coupled channel, the S-component is given by $\psi_{\alpha}[:N]$ and the D-component by $\psi_{\alpha}[N:]$ where $N$ is the length of the momentum mesh. Then the momentum distribution of the state $\alpha$ is given by,
 
 \begin{eqnarray}
 	\label{eq:momentum_distribution}
-	|\phi(k)|^2 = |\phi_{\alpha}[:N]|^2 + |\phi_{\alpha}[N:]|^2.
+	|\phi_{\alpha}(k)|^2 = |\psi_{\alpha}[:N]|^2 + |\psi_{\alpha}[N:]|^2.
 \end{eqnarray}
 
-This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
+This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case, $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,8 +155,25 @@ Organize this according to the figures. Format should be description of the calc
 \label{sec:nonlocal_results}
 
 
-\textcolor{red}{Add takeaways for these figures.}
+Non-local potential from \cite{Entem:2003ft}.
 
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn10_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn10_3S1_Block-diag2,00}%
+	}
+
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn10_3S1_Block-diag3,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn10_3S1}
+\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -177,6 +191,11 @@ Organize this according to the figures. Format should be description of the calc
 	\caption{Matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ SRG-evolving in $\lambda$ right to left under transformations from the Entem-Machleidt N$^3$LO non-local potential with the Wegner generator (a) and block-diagonal generators decoupling at $\Lambda=2$ and $3$ fm$^{-1}$ (b and c). Here $q=3$ fm$^{-1}$.}
 	\label{momentum_projection_contours_q3,00_kvnn10}
 \end{figure}
+
+-- The top row of Fig.~\ref{momentum_projection_contours_q3,00_kvnn10} should match the top row in Fig. 4 of \cite{Anderson:2010aq}.
+-- Smeared delta function comment.
+-- Compared block-diagonal to Wegner.
+-- Another note about block-diagonal.
 
 \begin{figure}[H]
 	\centering
@@ -225,10 +244,36 @@ Organize this according to the figures. Format should be description of the calc
 \label{sec:semilocal_results}
 
 
-\textcolor{red}{Add takeaways for these figures.}
+\textcolor{red}{Add takeaways for these figures.} Semi-local potentials from \cite{Reinert:2017usi}.
 
 
 % RKE N3LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn106_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn106_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn106_3S1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn107_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn107_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn111_3S1}
+\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -258,6 +303,32 @@ Organize this according to the figures. Format should be description of the calc
 
 
 % RKE N4LO results
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn111_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn111_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn111_3S1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn112_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn112_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn112_3S1}
+\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -308,8 +379,38 @@ Organize this according to the figures. Format should be description of the calc
 \label{sec:local_results}
 
 
-\textcolor{red}{Add takeaways for these figures.}
+\textcolor{red}{Add takeaways for these figures.} Local potentials from \cite{Gezerlis:2014zia}.
 
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn222_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn222_3S1_Block-diag2,00}%
+	}
+
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn222_3S1_Block-diag3,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn222_3S1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn224_3S1_Wegner}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{potential_contours_kvnn224_3S1_Block-diag2,00}%
+	}
+	\caption{Caption.}
+	\label{potential_contours_kvnn224_3S1}
+\end{figure}
 
 \begin{figure}[H]
 	\centering

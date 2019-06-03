@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{3}%
+\begin{thebibliography}{4}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -61,6 +61,20 @@
   {http://arxiv.org/abs/nucl-th/0304018} {arXiv:nucl-th/0304018 [nucl-th]}
   \BibitemShut {NoStop}%
 %%CITATION = NUCL-TH/0304018;%%
+\bibitem [{\citenamefont {Anderson}\ \emph {et~al.}(2010)\citenamefont
+  {Anderson}, \citenamefont {Bogner}, \citenamefont {Furnstahl},\ and\
+  \citenamefont {Perry}}]{Anderson:2010aq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.~R.}\ \bibnamefont
+  {Anderson}}, \bibinfo {author} {\bibfnamefont {S.~K.}\ \bibnamefont
+  {Bogner}}, \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Furnstahl}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Perry}},\ }\href {\doibase 10.1103/PhysRevC.82.054001} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {82}},\
+  \bibinfo {pages} {054001} (\bibinfo {year} {2010})},\ \Eprint
+  {http://arxiv.org/abs/1008.1569} {arXiv:1008.1569 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1008.1569;%%
 \bibitem [{\citenamefont {Reinert}\ \emph {et~al.}(2018)\citenamefont
   {Reinert}, \citenamefont {Krebs},\ and\ \citenamefont
   {Epelbaum}}]{Reinert:2017usi}%
