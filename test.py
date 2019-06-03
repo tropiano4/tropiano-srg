@@ -9,8 +9,8 @@
 # The purpose of this script is to test out codes.
 #
 # Last thing tested:
-#   Using plots to verify correct SRG evolution of various potentials with
-#   updates to SRG code.
+#   Using plots to verify correct Magnus evolution of various potentials with
+#   updates to Magnus code.
 #
 #------------------------------------------------------------------------------
 
@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 from Potentials.vsrg_macos import load_save_potentials as lp
 
-kvnn = 6
+#kvnn = 6
 #kvnn = 10
 #kvnn = 105
 #kvnn = 222
-#kvnn = 900
+kvnn = 900
 
 channel = '3S1'
 
@@ -37,11 +37,10 @@ kmid = 4.0
 
 ntot = 120
 
-#gen = 'Wegner'
-gen = 'T'
-#gen = 'Block-diag'
-lambda_bd = 2.00
-#lambda_bd = 3.00
+gen = 'Wegner'
+#gen = 'T'
+
+k_magnus = 6
 
 k_array = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)[0]
     
@@ -57,8 +56,9 @@ d = {}
 for lamb in lambda_list:
 
     # Load potential
-    V_full = lp.load_potential(kvnn, channel, kmax, kmid, ntot, method='srg', 
-                               generator=gen, lamb=lamb, lambda_bd=lambda_bd)
+    V_full = lp.load_potential(kvnn, channel, kmax, kmid, ntot, 
+                               method='magnus', generator=gen, lamb=lamb, 
+                               k_magnus=k_magnus)
     # Resize to S-S block
     V = V_full[:120, :120]
     
@@ -72,9 +72,6 @@ if gen == 'Wegner':
     G_lbl = r'$G=H_{D}$'
 elif gen == 'T':
     G_lbl = r'$G=T_{rel}$'
-elif gen == 'Block-diag':
-    G_lbl = r'$G=H_{BD}$' + '\n' + r'$\Lambda_{BD} = %.2f \/ fm^{-1}$' \
-            % lambda_bd
     
 # Limits of color bar in fm
 mx = 1.0
