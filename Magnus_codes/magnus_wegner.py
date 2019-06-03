@@ -1,41 +1,62 @@
-# Created 05/06/19 by A.T. (tropiano.4@osu.edu)
+#!/usr/bin/env python3
 
-# Magnus code: Evolves Hamiltonian to band-diagonal, decoupled form with 
-# parameter s using the Wegner generator.
+#------------------------------------------------------------------------------
+# File: magnus_wegner.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     June 3, 2019
+# 
+# Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter s 
+# using the Wegner generator and the Magnus implementation.
+#
+# Notes:
+#   * Tried to do lambda differential equation similar to SRG codes but kept
+#     getting infinity errors in computing omega matrix. Thus, we use the flow
+#     parameter s, which has worked before.
+#
+#------------------------------------------------------------------------------
 
 
 from math import factorial
 import numpy as np
-#from scipy.linalg import expm # Option to use this instead of BCH formula
 from sympy import bernoulli
 
 
 class Magnus(object):
     
     
-    def __init__(self, H0_matrix, k_magnus, ds):
-        '''Saves the initial Hamiltonian in units fm^-2 and dimension of the 
-        matrix. Also saves the number of terms to be summed in the Magnus
-        Omega(s) derivative sum.'''
+    def __init__(self, H_initial, k_magnus, ds=1e-5):
+        """
+        Saves the initial Hamiltonian in units fm^-2 and the length of the 
+        matrix. Also saves the number of terms in the Magnus omega derivative
+        equation, k_magnus, and the Euler method step-size ds. Initializes
+        arrays for factorials and Bernoulli numbers.
         
-        # Arguments
+        Parameters
+        ----------
+        H_initial : 2-D ndarray
+            Initial Hamiltonian matrix in units MeV.
+        k_magnus : int
+            Number of terms to include in Magnus sum (that is,
+            dOmega / ds ~ \sum_0^k_magnus ... )
+        ds : float, optional
+            Step-size in the flow parameter s.
         
-        # H0_matrix (2-D NumPy array): Hamiltonian matrix in units MeV
-        # k_magnus (integer): Number of terms to include in Magnus sum
-        # ds (float): Step-size in the flow parameter s
+        """
         
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
         
-        # Save matrices in units fm^-2
-        self.H0_matrix = H0_matrix / hbar_sq_over_M
-        # Save dimension of matrix
-        self.N = len(H0_matrix)
+        # Save matrices in scattering units [fm^-2]
+        self.H_initial = H_initial / hbar_sq_over_M
         
-        # Save truncation in Magnus sum
+        # Save length of matrix
+        self.N = len(H_initial)
+        
+        # Save k_magnus
         self.k_magnus = k_magnus
         
-        # Save step-size in s
+        # Save step-size ds
         self.ds = ds
         
         # Initialize factorial and Bernoulli number arrays for summations up to
@@ -44,150 +65,197 @@ class Magnus(object):
         self.magnus_factors = np.zeros(31)
         for i in range(31):
             self.factorial_array[i] = factorial(i)
-            self.magnus_factors[i] = bernoulli(i)/factorial(i)
-        
-        
+            self.magnus_factors[i] = bernoulli(i) / factorial(i)
+
+    
     def commutator(self, A, B):
-        '''Returns commutator of A and B, [A,B] where A and B are square matrix
-        NumPy arrays.'''
+        """
+        Commutator of A and B, [A,B] where A and B are square matrices.
+        
+        Parameters
+        ----------
+        A : 2-D ndarray
+            First input square matrix.
+        B : 2-D ndarray
+            Second input square matrix.
+            
+        Returns
+        -------
+        out : 2-D ndarray
+            Commutator of the two input matrices.
+            
+        """
         
         return A @ B - B @ A
     
+    
+    def bch_formula(self, M_initial, O_evolved, k_truncate):
+        """
+        Evolved operator given an initial operator M and evolved Magnus omega
+        matrix.
 
-    def bch_formula(self, M0_matrix, Os_matrix, k_truncate):
-        '''Returns an evolved operator given an initial operator M and evolved
-        Omega.'''
+        Parameters
+        ----------
+        M_initial : 2-D ndarray
+            Initial operator which is a matrix.
+        O_evolved : 2-D ndarray
+            Evolved omega matrix.
+        k_truncate : int
+            Truncation in BCH sum (this function includes the term k_truncate).
         
-        # Arguments
+        Returns
+        -------
+        M_evolved : 2-D ndarray
+            Magnus evolved operator as a matrix.
+            
+        """
         
-        # M0_matrix (2-D NumPy array): Initial operator (which is an N x N matrix)
-        # Os_matrix (2-D NumPy array): Evolved Omega matrix
-        # k_truncate (integer): Number of terms to include in the sum
-        
-        # k = 0 ad_Omega^k(H) term
-        ad = M0_matrix
+        # Initial nested commutator ad_Omega^0(M)
+        ad = M_initial
         
         # Load factorials
         factorial_array = self.factorial_array
         
-        # Zeroth term
-        Ms_matrix = ad/factorial_array[0]
+        # k = 0 term
+        M_evolved = ad / factorial_array[0]
         
-        # Sum from k = 0 to k = k_truncate
-        for k in range(1, k_truncate):
+        # Sum from k = 1 to k = k_truncate
+        for k in range(1, k_truncate + 1):
             
-            ad = self.commutator(Os_matrix, ad)
-            Ms_matrix += ad/factorial_array[k]
+            ad = self.commutator(O_evolved, ad)
+            M_evolved += ad / factorial_array[k]
             
-        return Ms_matrix
+        return M_evolved
+
     
-    
-    def derivs(self, Os_matrix):
-        '''Returns the RHS of the Magnus Omega equation where Os_matrix is
-        the solution matrix.'''
+    def derivative(self, O_evolved):
+        """
+        Right-hand side of the Magnus derivative omega equation using the 
+        Wegner generator.
         
-        # Arguments
+        Parameters
+        ----------
+        O_evolved : 2-D ndarray
+            Evolving omega matrix which is a function of s.
         
-        # Os_matrix (2-D NumPy array): Evolved Omega matrix
-        # H0_matrix (2-D NumPy array): Initial Hamiltonian
+        Returns
+        -------
+        dO_matrix : 2-D ndarray
+            Derivative with respect to s of the evolving omega matrix. 
+
+        """
         
-        # Load initial Hamiltonian
-        H0_matrix = self.H0_matrix
-        
-        # Obtain evolved Hamiltonian with BCH formula summing through 25 terms
-        Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
-        #Hs_matrix = expm(Os_matrix) @ H0_matrix @ expm(-Os_matrix)
-        
-        # Wegner SRG generator, eta = [G,H] where G = H_D
-        G = np.diag( np.diag(Hs_matrix) )
-        
-        # SRG generator [G, H(s)]
-        eta = self.commutator(G, Hs_matrix)  
+        # Compute the evolving Hamiltonian with the BCH formula
+        H_evolved = self.bch_formula(self.H_initial, O_evolved, 25)
+
+        # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
+        # evolving Hamiltonian)
+        eta = self.commutator( np.diag( np.diag(H_evolved) ), H_evolved)
         
         # Load Magnus factors in sum
         magnus_factors = self.magnus_factors
         
-        # Initial nested commutator ad(eta)
-        # k = 0 ad_Omega^k(eta)
+        # Initial nested commutator ad_Omega^0(eta)
         ad = eta
-    
-        dO_matrix = ad*magnus_factors[0] 
-    
-        # Sum through 0 to k_magnus
-        for k in range(1,self.k_magnus+1):
         
-            ad = self.commutator(Os_matrix, ad)
-            dO_matrix += ad*magnus_factors[k]
+        # k = 0 term
+        dO_matrix = magnus_factors[0] * ad
+        
+        # Sum from k = 1 to k = k_magnus
+        for k in range(1, self.k_magnus + 1):
+            
+            ad = self.commutator(O_evolved, ad)
+            dO_matrix += magnus_factors[k] * ad
     
         return dO_matrix
-    
-    
-    def euler_method(self, O0_matrix, s_max, ds):
-        '''Use first-order Euler method with fixed step-size ds to solve Magnus
-        Omega equation.'''
-        
-        # Arguments
-        
-        # O0_matrix (2-D NumPy array): Initial Omega matrix
-        # s_max (float): Maximum value of s
-        # ds (float): Step-size in the flow parameter s
-        
-        # Initialize Omega matrix
-        Os_matrix = O0_matrix
-        
-        # Step through s values until fully evolved
-        s = 0.0
-        
-        while s <= s_max:
-            
-            Os_matrix += self.derivs(Os_matrix)*ds
-            s += ds
-            
-        # To ensure Omega stops at s = s_max step size is fixed to go from 
-        # last value of s < s_max to s_max where final_ds = s_max - (s-ds)
-        Os_matrix += self.derivs(Os_matrix)*(s_max-s+ds)
 
-        return Os_matrix
+
+    def evolve_hamiltonian(self, lambda_array):
+        """
+        Magnus evolved Hamiltonian and omega matrix at each value of lambda in
+        lambda_array using the first-order Euler method.
         
-        
-    def evolve_hamiltonian(self, lamb):
-        '''Returns evolved Hamiltonian Hs_matrix at a given value of lambda.
-        Also returns the evolved Omega Os_matrix.'''
-        
-        # Arguments
-        
-        # lamb (float): Evolution parameter lambda in units fm^-1
-        
+        Parameters
+        ----------
+        lambda_array : 1-D ndarray
+            Lambda evolution values in units fm^-1.
+            
+        Returns
+        -------
+        d : dict
+            Dictionary storing each evolved Hamiltonian and omega matrix with
+            keys (floats) corresponding to each lambda value (e.g. 
+            d['hamiltonian'][1.5] and d['omega'][1.5] returns the evolved 
+            Hamiltonian and omega matrix at lambda = 1.5 fm^-1, respectively).
+            
+        """
+
+        # Load initial Hamiltonian and length
+        H_initial = self.H_initial
+        N = self.N
+
         # Set-up ODE
         
-        # Load step-size in s
-        # Need a smaller step-size for large values of lambda
-        if lamb >= 10.0 and self.ds > 1e-6:
-            ds = 1e-6
-        else:
-            ds = self.ds
-        
-        # Evaluate H(s) at the following value of lambda
-        s_max = 1.0/lamb**4.0
+        # Initial Magnus omega matrix
+        O_initial = np.zeros( (N, N) )
     
-        # Return a dictionary of H(s) and Omega(s) at the values of s (i.e., 
-        # d['hamiltonian'][1.2] returns H(lambda=1.2)) which is a matrix
-        
         # Initialize dictionary
         d = {}
-        # Key for Hamiltonian at a specified lambda value
-        d['hamiltonian'] = {} 
-        # Key for Omega at a specified lambda value
-        d['omega'] = {} 
+        # Key for evolved Hamiltonians
+        d['hamiltonian'] = {}
+        # Key for evolved omega matrices
+        d['omega'] = {}
         
-        # Initialize Omega matrix
-        O0_matrix = np.zeros((self.N,self.N))
-        # Load initial Hamiltonian
-        H0_matrix = self.H0_matrix
-        
-        # Evolve to lambda
-        Os_matrix = self.euler_method(O0_matrix, s_max, ds)
-        Hs_matrix = self.bch_formula(H0_matrix, Os_matrix, 25)
+        # Initial s value, step-size, and omega matrix
+        s = 0.0
+        ds = self.ds
+        O_evolved = O_initial
+    
+        # Loop over lambda values in lambda_array
+        for lamb in lambda_array:
             
-        # Return matrices
-        return Hs_matrix, Os_matrix
+            # Convert lamb to s value
+            s_val = 1.0 / lamb**4.0
+            
+            # Solve ODE up to s_val using the Euler method and store in 
+            # dictionary
+            while s <= s_val:
+
+                # Next step in lambda using the Euler method
+                O_evolved += self.derivative(O_evolved) * ds
+                
+                # Check for NaN's and infinities
+                # If true, stop evolving
+                if np.isnan(O_evolved).any() or np.isinf(O_evolved).any():
+                    
+                    print('_'*85)
+                    error = 'Infinities or NaNs encountered in omega matrix.'
+                    print(error)
+                    print('s = %.5e' % s)
+                    suggestion = 'Try running magnus_split.py instead.'
+                    print(suggestion)
+                    
+                    return d
+                
+                # Step to next s value
+                s += ds
+                
+            # To ensure omega stops at s = s_val step-size is fixed to go from 
+            # last value of s < s_max to s_max where ds_exact = s_max - (s-ds)
+            ds_exact = s_val - s + ds
+            O_evolved += self.derivative(O_evolved) * ds_exact
+                
+            # Store evolved omega matrix in dictionary
+            d['omega'][lamb] = O_evolved
+                
+            # Evaluate the evolved Hamiltonian matrix using the BCH formula
+            H_evolved = self.bch_formula(H_initial, O_evolved, 25)
+            
+            # Store evolved Hamiltonian matrix in dictionary
+            d['hamiltonian'][lamb] = H_evolved
+            
+            # Reset initial s value to last s_val and continue the lambda for
+            # loop
+            s = s_val
+                
+        return d
