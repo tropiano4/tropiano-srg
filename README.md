@@ -7,7 +7,7 @@ Description of each folder:
 
 * Figures contains research/results figures organized chronologically by sub-folders "Month_Year" and a Python script "figures_functions.py" that has useful plotting oriented functions.
 
-* Magnus_codes contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator.
+* Magnus_codes contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See "magnus_split.py" for details.
 
 * Notes contains .pdf notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
 
@@ -32,7 +32,7 @@ Description of major codes:
 
 * "operators.py" - Creates momentum-space operators for NN observables.
 
-* "run_magnus.py" - Magnus-evolves a specified Hamiltonian using scripts from the Magnus_codes folder. Work in progress.
+* "run_magnus.py" - Magnus-evolves a specified Hamiltonian using scripts from the Magnus_codes folder.
 
 * "run_srg.py" - SRG-evolves a specified Hamiltonian using scripts from the SRG_codes folder.
 
