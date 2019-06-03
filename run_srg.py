@@ -142,11 +142,11 @@ if __name__ == '__main__':
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
+    #kvnn = 222  # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
+    #kvnn = 224  # Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
     #kvnn = 900 # Wendt at Lambda = 4 fm^-1
     #kvnn = 901 # Wendt at Lambda = 9 fm^-1
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
-    #kvnn = 222  # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
-    #kvnn = 224  # Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
     
     channel = '3S1'
     
