@@ -11,5 +11,5 @@
 \contentsline {section}{\numberline {III}Results}{4}{section*.9}
 \contentsline {subsection}{\numberline {A}Entem-Machleidt N$^3$LO non-local potential}{4}{section*.10}
 \contentsline {subsection}{\numberline {B}RKE N$^3$LO and N$^4$LO semi-local potentials}{8}{section*.16}
-\contentsline {subsection}{\numberline {C}Gezerlis N$^2$LO local potentials}{13}{section*.26}
-\contentsline {section}{\numberline {}References}{16}{section*.31}
+\contentsline {subsection}{\numberline {C}Gezerlis N$^2$LO local potentials}{16}{section*.26}
+\contentsline {section}{\numberline {}References}{19}{section*.31}
