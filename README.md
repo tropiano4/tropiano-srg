@@ -5,7 +5,7 @@ This repository contains codes and files relevant to SRG work done by A.T.
 
 Description of each folder:
 
-* Figures contains research/results figures organized chronologically by sub-folders "Month_Year" and a Python script "figures_functions.py" that has useful plotting oriented functions.
+* Figures contains research/results figures and a Python script "figures_functions.py" that has useful plotting oriented functions.
 
 * Magnus_codes contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See "magnus_split.py" for details.
 

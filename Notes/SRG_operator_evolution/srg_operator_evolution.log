@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  3 JUN 2019 16:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  4 JUN 2019 10:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1777,139 +1777,156 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 156.
 
 
-<Figures/potential_contours_kvnn10_3S1_Wegner.pdf, id=94, 1052.38164pt x 260.89
-25pt>
-File: Figures/potential_contours_kvnn10_3S1_Wegner.pdf Graphic file (type pdf)
- <use Figures/potential_contours_kvnn10_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn10_3S1_Wegner.pdf used 
-on input line 167.
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Wegner.pdf,
+ id=94, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Wegner
+.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Wegner.
+pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn10_3S1_Wegner.pdf used on input line 167.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn10_3S1_Block-diag2,00.pdf, id=96, 1052.38164pt 
-x 260.8925pt>
-File: Figures/potential_contours_kvnn10_3S1_Block-diag2,00.pdf Graphic file (ty
-pe pdf)
- <use Figures/potential_contours_kvnn10_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn10_3S1_Block-diag2,00.p
-df used on input line 171.
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-diag2
+,00.pdf, id=96, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-
+diag2,00.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-d
+iag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn10_3S1_Block-diag2,00.pdf used on input line 171.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn10_3S1_Block-diag3,00.pdf, id=98, 1052.38164pt 
-x 260.8925pt>
-File: Figures/potential_contours_kvnn10_3S1_Block-diag3,00.pdf Graphic file (ty
-pe pdf)
- <use Figures/potential_contours_kvnn10_3S1_Block-diag3,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn10_3S1_Block-diag3,00.p
-df used on input line 175.
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-diag3
+,00.pdf, id=98, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-
+diag3,00.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-d
+iag3,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn10_3S1_Block-diag3,00.pdf used on input line 175.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
+ [4]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+_3S1_Wegner.pdf, id=108, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn10_3S1_Wegner.pdf Graphic file (type pdf)
 
-[4]
-<Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Wegner.pdf, id=108, 1035
-.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Wegner.pdf Graphic 
-file (type pdf)
-
-<use Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_
-Wegner.pdf used on input line 184.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn10_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn10_3S1_Wegner.pdf used on input line 184.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf, id=1
-10, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf 
-Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+_3S1_Block-diag2,00.pdf, id=110, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn10_3S1_Block-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_
-Block-diag2,00.pdf used on input line 188.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn10_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf used on input line 188.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf, id=1
-12, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf 
-Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+_3S1_Block-diag3,00.pdf, id=112, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn10_3S1_Block-diag3,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn10_3S1_
-Block-diag3,00.pdf used on input line 192.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn10_3S1_Block-diag3,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf used on input line 192.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
+ [5 <../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Wegner.
+pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3S1_Block-
+diag2,00.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn10_3
+S1_Block-diag3,00.pdf>]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q0,30_kvnn10
+_3S1_Wegner.pdf, id=252, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q0,30_k
+vnn10_3S1_Wegner.pdf Graphic file (type pdf)
 
-[5 <./Figures/potential_contours_kvnn10_3S1_Wegner.pdf> <./Figures/potential_co
-ntours_kvnn10_3S1_Block-diag2,00.pdf> <./Figures/potential_contours_kvnn10_3S1_
-Block-diag3,00.pdf>]
-<Figures/momentum_projection_contours_q0,30_kvnn10_3S1_Wegner.pdf, id=252, 1035
-.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q0,30_kvnn10_3S1_Wegner.pdf Graphic 
-file (type pdf)
-
-<use Figures/momentum_projection_contours_q0,30_kvnn10_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q0,30_kvnn10_3S1_
-Wegner.pdf used on input line 204.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q0,30_kv
+nn10_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q0,30_kvnn10_3S1_Wegner.pdf used on input line 204.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
- [6 <./Figures/momentum_projection_contours_q3,00_kvnn10_3S1_Wegner.pdf> <./Fig
-ures/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf> <./Figur
-es/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf>]
-<Figures/deuteron_momentum_distribution_kvnn10_Wegner_lamb1,5.pdf, id=390, 418.
-71747pt x 278.01146pt>
-File: Figures/deuteron_momentum_distribution_kvnn10_Wegner_lamb1,5.pdf Graphic 
-file (type pdf)
+ [6 <../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn10_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/momentum_projection_
+contours_q3,00_kvnn10_3S1_Block-diag2,00.pdf> <../../Figures/SRG_operator_evolu
+tion/momentum_projection_contours_q3,00_kvnn10_3S1_Block-diag3,00.pdf>]
+<../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10_Weg
+ner_lamb1,5.pdf, id=390, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn1
+0_Wegner_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/deuteron_momentum_distribution_kvnn10_Wegner_lamb1,5.pdf>
-Package pdftex.def Info: Figures/deuteron_momentum_distribution_kvnn10_Wegner_l
-amb1,5.pdf used on input line 213.
+<use ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10
+_Wegner_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/deuteron_momentum
+_distribution_kvnn10_Wegner_lamb1,5.pdf used on input line 213.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/deuteron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf, id=3
-92, 418.71747pt x 278.01146pt>
-File: Figures/deuteron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf 
-Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10_Blo
+ck-diag2,00_lamb1,5.pdf, id=392, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn1
+0_Block-diag2,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/deuteron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/deuteron_momentum_distribution_kvnn10_Block-di
-ag2,00_lamb1,5.pdf used on input line 217.
+<use ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10
+_Block-diag2,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/deuteron_momentum
+_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf used on input line 217.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/deuteron_momentum_distribution_kvnn10_Block-diag3,00_lamb1,5.pdf, id=3
-94, 418.71747pt x 278.01146pt>
-File: Figures/deuteron_momentum_distribution_kvnn10_Block-diag3,00_lamb1,5.pdf 
-Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10_Blo
+ck-diag3,00_lamb1,5.pdf, id=394, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn1
+0_Block-diag3,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/deuteron_momentum_distribution_kvnn10_Block-diag3,00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/deuteron_momentum_distribution_kvnn10_Block-di
-ag3,00_lamb1,5.pdf used on input line 221.
+<use ../../Figures/SRG_operator_evolution/deuteron_momentum_distribution_kvnn10
+_Block-diag3,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/deuteron_momentum
+_distribution_kvnn10_Block-diag3,00_lamb1,5.pdf used on input line 221.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Wegner_lamb1,5.p
-df, id=396, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Wegner_lamb
-1,5.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn10_Wegner_lamb1,5.pdf, id=396, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn10_Wegner_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Wegner_lamb1
-,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn10_Wegner_lamb1,5.pdf used on input line 230.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn10_Wegner_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn10_Wegner_lamb1,5.pdf used on input line 230.
+
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2,00_l
-amb1,5.pdf, id=398, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2
-,00_lamb1,5.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn10_Block-diag2,00_lamb1,5.pdf, id=398, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn10_Block-diag2,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2,
-00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn10_Block-diag2,00_lamb1,5.pdf used on input line 234.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn10_Block-diag2,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn10_Block-diag2,00_lamb1,5.pdf used on input l
+ine 234.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag3,00_l
-amb1,5.pdf, id=400, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag3
-,00_lamb1,5.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn10_Block-diag3,00_lamb1,5.pdf, id=400, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn10_Block-diag3,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag3,
-00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn10_Block-diag3,00_lamb1,5.pdf used on input line 238.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn10_Block-diag3,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn10_Block-diag3,00_lamb1,5.pdf used on input l
+ine 238.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
 
@@ -1937,210 +1954,239 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 245.
 
 
-<Figures/potential_contours_kvnn106_3S1_Wegner.pdf, id=403, 1052.38164pt x 260.
-8925pt>
-File: Figures/potential_contours_kvnn106_3S1_Wegner.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Wegner.pdf
+, id=403, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Wegne
+r.pdf Graphic file (type pdf)
 
- <use Figures/potential_contours_kvnn106_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn106_3S1_Wegner.pdf used
- on input line 258.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn106_3S1_Wegner.pdf used on input line 258.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn106_3S1_Block-diag2,00.pdf, id=405, 1052.38164p
-t x 260.8925pt>
-File: Figures/potential_contours_kvnn106_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Block-diag
+2,00.pdf, id=405, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn106_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn106_3S1_Block-diag2,00.
-pdf used on input line 262.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn106_3S1_Block-diag2,00.pdf used on input line 262.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
- [7 <./Figures/momentum_projection_contours_q0,30_kvnn10_3S1_Wegner.pdf> <./Fig
-ures/deuteron_momentum_distribution_kvnn10_Wegner_lamb1,5.pdf> <./Figures/deute
-ron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf> <./Figures/deutero
-n_momentum_distribution_kvnn10_Block-diag3,00_lamb1,5.pdf> <./Figures/continuum
-_state_momentum_distribution_eps200,0_kvnn10_Wegner_lamb1,5.pdf> <./Figures/con
-tinuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2,00_lamb1,5.pdf> 
-<./Figures/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag3,00
-_lamb1,5.pdf>]
-<Figures/potential_contours_kvnn107_3S1_Wegner.pdf, id=667, 1052.38164pt x 260.
-8925pt>
-File: Figures/potential_contours_kvnn107_3S1_Wegner.pdf Graphic file (type pdf)
+ [7 <../../Figures/SRG_operator_evolution/momentum_projection_contours_q0,30_kv
+nn10_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/deuteron_momentum_di
+stribution_kvnn10_Wegner_lamb1,5.pdf> <../../Figures/SRG_operator_evolution/deu
+teron_momentum_distribution_kvnn10_Block-diag2,00_lamb1,5.pdf> <../../Figures/S
+RG_operator_evolution/deuteron_momentum_distribution_kvnn10_Block-diag3,00_lamb
+1,5.pdf> <../../Figures/SRG_operator_evolution/continuum_state_momentum_distrib
+ution_eps200,0_kvnn10_Wegner_lamb1,5.pdf> <../../Figures/SRG_operator_evolution
+/continuum_state_momentum_distribution_eps200,0_kvnn10_Block-diag2,00_lamb1,5.p
+df> <../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn10_Block-diag3,00_lamb1,5.pdf>]
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Wegner.pdf
+, id=667, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Wegne
+r.pdf Graphic file (type pdf)
 
- <use Figures/potential_contours_kvnn107_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn107_3S1_Wegner.pdf used
- on input line 271.
-(pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
-
-<Figures/potential_contours_kvnn107_3S1_Block-diag2,00.pdf, id=669, 1052.38164p
-t x 260.8925pt>
-File: Figures/potential_contours_kvnn107_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
-
-<use Figures/potential_contours_kvnn107_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn107_3S1_Block-diag2,00.
-pdf used on input line 275.
-(pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
- [8 <./Figures/potential_contours_kvnn106_3S1_Wegner.pdf> <./Figures/potential_
-contours_kvnn106_3S1_Block-diag2,00.pdf>]
-<Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Wegner.pdf, id=764, 103
-5.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Wegner.pdf Graphic
- file (type pdf)
-
-<use Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn106_3S1
-_Wegner.pdf used on input line 284.
-(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-
-<Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Block-diag2,00.pdf, id=
-766, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
-
-<use Figures/momentum_projection_contours_q3,00_kvnn106_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn106_3S1
-_Block-diag2,00.pdf used on input line 288.
-(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-
-<Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Wegner.pdf, id=768, 103
-5.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Wegner.pdf Graphic
- file (type pdf)
-
-<use Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn107_3S1
-_Wegner.pdf used on input line 297.
-(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-
-<Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf, id=
-770, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
-
-<use Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn107_3S1
-_Block-diag2,00.pdf used on input line 301.
-(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-[9 <./Figures/potential_contours_kvnn107_3S1_Wegner.pdf> <./Figures/potential_c
-ontours_kvnn107_3S1_Block-diag2,00.pdf> <./Figures/momentum_projection_contours
-_q3,00_kvnn106_3S1_Wegner.pdf> <./Figures/momentum_projection_contours_q3,00_kv
-nn106_3S1_Block-diag2,00.pdf>]
-<Figures/potential_contours_kvnn111_3S1_Wegner.pdf, id=950, 1052.38164pt x 260.
-8925pt>
-File: Figures/potential_contours_kvnn111_3S1_Wegner.pdf Graphic file (type pdf)
-
- <use Figures/potential_contours_kvnn111_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn111_3S1_Wegner.pdf used
- on input line 313.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn107_3S1_Wegner.pdf used on input line 271.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn111_3S1_Block-diag2,00.pdf, id=952, 1052.38164p
-t x 260.8925pt>
-File: Figures/potential_contours_kvnn111_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Block-diag
+2,00.pdf, id=669, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn111_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn111_3S1_Block-diag2,00.
-pdf used on input line 317.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn107_3S1_Block-diag2,00.pdf used on input line 275.
+(pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
+ [8 <../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Wegner
+.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn106_3S1_Bloc
+k-diag2,00.pdf>]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+6_3S1_Wegner.pdf, id=764, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn106_3S1_Wegner.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn106_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn106_3S1_Wegner.pdf used on input line 284.
+(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
+
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+6_3S1_Block-diag2,00.pdf, id=766, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn106_3S1_Block-diag2,00.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn106_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn106_3S1_Block-diag2,00.pdf used on input line 288.
+(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
+
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+7_3S1_Wegner.pdf, id=768, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn107_3S1_Wegner.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn107_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn107_3S1_Wegner.pdf used on input line 297.
+(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
+
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn10
+7_3S1_Block-diag2,00.pdf, id=770, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn107_3S1_Block-diag2,00.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn107_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf used on input line 301.
+(pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
+ [9 <../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Wegner
+.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn107_3S1_Bloc
+k-diag2,00.pdf> <../../Figures/SRG_operator_evolution/momentum_projection_conto
+urs_q3,00_kvnn106_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/momentu
+m_projection_contours_q3,00_kvnn106_3S1_Block-diag2,00.pdf>]
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Wegner.pdf
+, id=950, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Wegne
+r.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn111_3S1_Wegner.pdf used on input line 313.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn112_3S1_Wegner.pdf, id=954, 1052.38164pt x 260.
-8925pt>
-File: Figures/potential_contours_kvnn112_3S1_Wegner.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Block-diag
+2,00.pdf, id=952, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
 
- <use Figures/potential_contours_kvnn112_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn112_3S1_Wegner.pdf used
- on input line 326.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn111_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn111_3S1_Block-diag2,00.pdf used on input line 317.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn112_3S1_Block-diag2,00.pdf, id=956, 1052.38164p
-t x 260.8925pt>
-File: Figures/potential_contours_kvnn112_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Wegner.pdf
+, id=954, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Wegne
+r.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn112_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn112_3S1_Block-diag2,00.
-pdf used on input line 330.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn112_3S1_Wegner.pdf used on input line 326.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
- [10 <./Figures/momentum_projection_contours_q3,00_kvnn107_3S1_Wegner.pdf> <./F
-igures/momentum_projection_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf> <./Fi
-gures/potential_contours_kvnn111_3S1_Wegner.pdf> <./Figures/potential_contours_
-kvnn111_3S1_Block-diag2,00.pdf>]
-<Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Wegner.pdf, id=1137, 10
-35.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Wegner.pdf Graphic
- file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn111_3S1
-_Wegner.pdf used on input line 339.
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Block-diag
+2,00.pdf, id=956, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn112_3S1_Block-diag2,00.pdf used on input line 330.
+(pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
+ [10 <../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn107_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/momentum_projectio
+n_contours_q3,00_kvnn107_3S1_Block-diag2,00.pdf> <../../Figures/SRG_operator_ev
+olution/potential_contours_kvnn111_3S1_Wegner.pdf> <../../Figures/SRG_operator_
+evolution/potential_contours_kvnn111_3S1_Block-diag2,00.pdf>]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn11
+1_3S1_Wegner.pdf, id=1137, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn111_3S1_Wegner.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn111_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn111_3S1_Wegner.pdf used on input line 339.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Block-diag2,00.pdf, id=
-1139, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn11
+1_3S1_Block-diag2,00.pdf, id=1139, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn111_3S1_Block-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn111_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn111_3S1
-_Block-diag2,00.pdf used on input line 343.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn111_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn111_3S1_Block-diag2,00.pdf used on input line 343.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Wegner.pdf, id=1141, 10
-35.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Wegner.pdf Graphic
- file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn11
+2_3S1_Wegner.pdf, id=1141, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn112_3S1_Wegner.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn112_3S1
-_Wegner.pdf used on input line 352.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn112_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn112_3S1_Wegner.pdf used on input line 352.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf, id=
-1143, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn11
+2_3S1_Block-diag2,00.pdf, id=1143, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn112_3S1_Block-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn112_3S1
-_Block-diag2,00.pdf used on input line 356.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn112_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf used on input line 356.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-[11 <./Figures/potential_contours_kvnn112_3S1_Wegner.pdf> <./Figures/potential_
-contours_kvnn112_3S1_Block-diag2,00.pdf> <./Figures/momentum_projection_contour
-s_q3,00_kvnn111_3S1_Wegner.pdf> <./Figures/momentum_projection_contours_q3,00_k
-vnn111_3S1_Block-diag2,00.pdf>]
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Wegner_lamb1,5.
-pdf, id=1324, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Wegner_lam
-b1,5.pdf Graphic file (type pdf)
+ [11 <../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Wegne
+r.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn112_3S1_Blo
+ck-diag2,00.pdf> <../../Figures/SRG_operator_evolution/momentum_projection_cont
+ours_q3,00_kvnn111_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/moment
+um_projection_contours_q3,00_kvnn111_3S1_Block-diag2,00.pdf>]
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn111_Wegner_lamb1,5.pdf, id=1324, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn111_Wegner_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Wegner_lamb
-1,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn111_Wegner_lamb1,5.pdf used on input line 365.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn111_Wegner_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn111_Wegner_lamb1,5.pdf used on input line 365
+.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag2,00_
-lamb1,5.pdf, id=1326, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag
-2,00_lamb1,5.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn111_Block-diag2,00_lamb1,5.pdf, id=1326, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn111_Block-diag2,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag2
-,00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn111_Block-diag2,00_lamb1,5.pdf used on input line 369.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn111_Block-diag2,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn111_Block-diag2,00_lamb1,5.pdf used on input 
+line 369.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
-<Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag3,00_
-lamb1,5.pdf, id=1328, 418.71747pt x 278.01146pt>
-File: Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag
-3,00_lamb1,5.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution_eps
+200,0_kvnn111_Block-diag3,00_lamb1,5.pdf, id=1328, 418.71747pt x 278.01146pt>
+File: ../../Figures/SRG_operator_evolution/continuum_state_momentum_distributio
+n_eps200,0_kvnn111_Block-diag3,00_lamb1,5.pdf Graphic file (type pdf)
 
-<use Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag3
-,00_lamb1,5.pdf>
-Package pdftex.def Info: Figures/continuum_state_momentum_distribution_eps200,0
-_kvnn111_Block-diag3,00_lamb1,5.pdf used on input line 373.
+<use ../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn111_Block-diag3,00_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/continuum_state_m
+omentum_distribution_eps200,0_kvnn111_Block-diag3,00_lamb1,5.pdf used on input 
+line 373.
 (pdftex.def)             Requested size: 140.40143pt x 93.2203pt.
 
 
@@ -2156,117 +2202,134 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 380.
 
 
-<Figures/potential_contours_kvnn222_3S1_Wegner.pdf, id=1331, 1052.38164pt x 260
-.8925pt>
-File: Figures/potential_contours_kvnn222_3S1_Wegner.pdf Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Wegner.pdf
+, id=1331, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Wegne
+r.pdf Graphic file (type pdf)
 
- <use Figures/potential_contours_kvnn222_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn222_3S1_Wegner.pdf used
- on input line 391.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn222_3S1_Wegner.pdf used on input line 391.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn222_3S1_Block-diag2,00.pdf, id=1333, 1052.38164
-pt x 260.8925pt>
-File: Figures/potential_contours_kvnn222_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block-diag
+2,00.pdf, id=1333, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn222_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn222_3S1_Block-diag2,00.
-pdf used on input line 395.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn222_3S1_Block-diag2,00.pdf used on input line 395.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn222_3S1_Block-diag3,00.pdf, id=1335, 1052.38164
-pt x 260.8925pt>
-File: Figures/potential_contours_kvnn222_3S1_Block-diag3,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block-diag
+3,00.pdf, id=1335, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block
+-diag3,00.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn222_3S1_Block-diag3,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn222_3S1_Block-diag3,00.
-pdf used on input line 399.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Block-
+diag3,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn222_3S1_Block-diag3,00.pdf used on input line 399.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
- [12 <./Figures/momentum_projection_contours_q3,00_kvnn112_3S1_Wegner.pdf> <./F
-igures/momentum_projection_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf> <./Fi
-gures/continuum_state_momentum_distribution_eps200,0_kvnn111_Wegner_lamb1,5.pdf
-> <./Figures/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag2
-,00_lamb1,5.pdf> <./Figures/continuum_state_momentum_distribution_eps200,0_kvnn
-111_Block-diag3,00_lamb1,5.pdf>]
-<Figures/potential_contours_kvnn224_3S1_Wegner.pdf, id=1536, 1052.38164pt x 260
-.8925pt>
-File: Figures/potential_contours_kvnn224_3S1_Wegner.pdf Graphic file (type pdf)
+ [12 <../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn112_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/momentum_projectio
+n_contours_q3,00_kvnn112_3S1_Block-diag2,00.pdf> <../../Figures/SRG_operator_ev
+olution/continuum_state_momentum_distribution_eps200,0_kvnn111_Wegner_lamb1,5.p
+df> <../../Figures/SRG_operator_evolution/continuum_state_momentum_distribution
+_eps200,0_kvnn111_Block-diag2,00_lamb1,5.pdf> <../../Figures/SRG_operator_evolu
+tion/continuum_state_momentum_distribution_eps200,0_kvnn111_Block-diag3,00_lamb
+1,5.pdf>]
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Wegner.pdf
+, id=1536, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Wegne
+r.pdf Graphic file (type pdf)
 
- <use Figures/potential_contours_kvnn224_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn224_3S1_Wegner.pdf used
- on input line 408.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Wegner
+.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn224_3S1_Wegner.pdf used on input line 408.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
 
-<Figures/potential_contours_kvnn224_3S1_Block-diag2,00.pdf, id=1538, 1052.38164
-pt x 260.8925pt>
-File: Figures/potential_contours_kvnn224_3S1_Block-diag2,00.pdf Graphic file (t
-ype pdf)
+<../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Block-diag
+2,00.pdf, id=1538, 1052.38164pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Block
+-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/potential_contours_kvnn224_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/potential_contours_kvnn224_3S1_Block-diag2,00.
-pdf used on input line 412.
+<use ../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Block-
+diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/potential_contour
+s_kvnn224_3S1_Block-diag2,00.pdf used on input line 412.
 (pdftex.def)             Requested size: 421.19714pt x 104.41486pt.
- [13 <./Figures/potential_contours_kvnn222_3S1_Wegner.pdf> <./Figures/potential
-_contours_kvnn222_3S1_Block-diag2,00.pdf> <./Figures/potential_contours_kvnn222
-_3S1_Block-diag3,00.pdf>]
-<Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Wegner.pdf, id=1677, 10
-35.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Wegner.pdf Graphic
- file (type pdf)
+ [13 <../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Wegne
+r.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn222_3S1_Blo
+ck-diag2,00.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn2
+22_3S1_Block-diag3,00.pdf>]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn22
+2_3S1_Wegner.pdf, id=1677, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn222_3S1_Wegner.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn222_3S1
-_Wegner.pdf used on input line 421.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn222_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn222_3S1_Wegner.pdf used on input line 421.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf, id=
-1679, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn22
+2_3S1_Block-diag2,00.pdf, id=1679, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn222_3S1_Block-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn222_3S1
-_Block-diag2,00.pdf used on input line 425.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn222_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf used on input line 425.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf, id=
-1681, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf
- Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn22
+2_3S1_Block-diag3,00.pdf, id=1681, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn222_3S1_Block-diag3,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn222_3S1
-_Block-diag3,00.pdf used on input line 429.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn222_3S1_Block-diag3,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf used on input line 429.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-[14 <./Figures/potential_contours_kvnn224_3S1_Wegner.pdf> <./Figures/potential_
-contours_kvnn224_3S1_Block-diag2,00.pdf>]
-<Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Wegner.pdf, id=1774, 10
-35.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Wegner.pdf Graphic
- file (type pdf)
+ [14 <../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Wegne
+r.pdf> <../../Figures/SRG_operator_evolution/potential_contours_kvnn224_3S1_Blo
+ck-diag2,00.pdf>]
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn22
+4_3S1_Wegner.pdf, id=1774, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn224_3S1_Wegner.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Wegner.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn224_3S1
-_Wegner.pdf used on input line 438.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn224_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn224_3S1_Wegner.pdf used on input line 438.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
 
-<Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Block-diag2,00.pdf, id=
-1776, 1035.72566pt x 260.8925pt>
-File: Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Block-diag2,00.pdf
- Graphic file (type pdf)
+<../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kvnn22
+4_3S1_Block-diag2,00.pdf, id=1776, 1035.72566pt x 260.8925pt>
+File: ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn224_3S1_Block-diag2,00.pdf Graphic file (type pdf)
 
-<use Figures/momentum_projection_contours_q3,00_kvnn224_3S1_Block-diag2,00.pdf>
-Package pdftex.def Info: Figures/momentum_projection_contours_q3,00_kvnn224_3S1
-_Block-diag2,00.pdf used on input line 442.
+<use ../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_kv
+nn224_3S1_Block-diag2,00.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operator_evolution/momentum_projecti
+on_contours_q3,00_kvnn224_3S1_Block-diag2,00.pdf used on input line 442.
 (pdftex.def)             Requested size: 421.19714pt x 106.09479pt.
-[15 <./Figures/momentum_projection_contours_q3,00_kvnn222_3S1_Wegner.pdf> <./Fi
-gures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf> <./Fig
-ures/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf>]
-(./srg_operator_evolution.bbl) [16 <./Figures/momentum_projection_contours_q3,0
-0_kvnn224_3S1_Wegner.pdf> <./Figures/momentum_projection_contours_q3,00_kvnn224
-_3S1_Block-diag2,00.pdf>]
+ [15 <../../Figures/SRG_operator_evolution/momentum_projection_contours_q3,00_k
+vnn222_3S1_Wegner.pdf> <../../Figures/SRG_operator_evolution/momentum_projectio
+n_contours_q3,00_kvnn222_3S1_Block-diag2,00.pdf> <../../Figures/SRG_operator_ev
+olution/momentum_projection_contours_q3,00_kvnn222_3S1_Block-diag3,00.pdf>] (./
+srg_operator_evolution.bbl) [16 <../../Figures/SRG_operator_evolution/momentum_
+projection_contours_q3,00_kvnn224_3S1_Wegner.pdf> <../../Figures/SRG_operator_e
+volution/momentum_projection_contours_q3,00_kvnn224_3S1_Block-diag2,00.pdf>]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 454.
  (./srg_operator_evolution.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 454.
@@ -2281,8 +2344,8 @@ LaTeX Warning: There were multiply-defined labels.
  ) 
 Here is how much of TeX's memory you used:
  19995 strings out of 492995
- 376091 string characters out of 6132704
- 422877 words of memory out of 5000000
+ 380992 string characters out of 6132704
+ 422906 words of memory out of 5000000
  23233 multiletter control sequences out of 15000+600000
  16360 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2300,7 +2363,7 @@ al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
 xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
 ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on srg_operator_evolution.pdf (16 pages, 1379287 bytes).
+Output written on srg_operator_evolution.pdf (16 pages, 1380379 bytes).
 PDF statistics:
  2083 PDF objects out of 2487 (max. 8388607)
  889 compressed objects within 9 object streams

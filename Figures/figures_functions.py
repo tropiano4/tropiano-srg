@@ -16,55 +16,6 @@ import numpy as np
 from scipy.interpolate import interp2d
 
 
-def current_date():
-    """
-    This function is used to save figures in the correct folder: 
-    /Figures/Month_Year.
-    
-    Returns
-    -------
-    output : str
-        Current month and year as 'Month_Year'.
-    
-    """
-    
-    now = datetime.datetime.now()
-
-    # Current month
-    month = now.month
-    # Convert month from integer to string
-    if month == 1:
-        month = 'January'
-    elif month == 2:
-        month = 'February'
-    elif month == 3:
-        month = 'March'
-    elif month == 4:
-        month = 'April'
-    elif month == 5:
-        month = 'May'
-    elif month == 6:
-        month = 'June'
-    elif month == 7:
-        month = 'July'
-    elif month == 8:
-        month = 'August'
-    elif month == 9:
-        month = 'September'
-    elif month == 10:
-        month = 'October'
-    elif month == 11:
-        month = 'November'
-    elif month == 12:
-        month = 'December'
-        
-    # Current year
-    year = now.year
-    
-    # Return current date as Month_Year (e.g. February_1994)
-    return '%s_%d'%(month,year)
-
-
 def interpolate_matrix(x_array, M, x_max, ntot=500):
     """
     Interpolate matrix over given array for contour plots. Also adds more
@@ -123,7 +74,8 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
 def kvnn_label_conversion(kvnn):
     """
     Converts a kvnn number to a label for plotting purposes (e.g. kvnn = 6 
-    gives 'AV18').
+    gives 'AV18'). THIS NEEDS TO BE UPDATED! DO THIS FOR SRG OPERATOR EVOLUTION
+    FIGURES!
     
     Parameters
     ----------
