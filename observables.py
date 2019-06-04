@@ -79,6 +79,7 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     -------
     psi : 1-D ndarray
         Wave function for the specified state (unitless).
+        
     """
     
     # Diagonalize Hamiltonian
@@ -148,6 +149,7 @@ def quadrupole_moment_from_kspace(psi):
     
     return None
 
+# Old deuteron observables code
 class Deuteron(object):
     
     
