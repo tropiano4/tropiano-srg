@@ -30,10 +30,10 @@ from scipy.special import spherical_jn
 
 def find_eps_index(eps, e_array):
     """
-    Finds the index of the energy value nearest to eps in the given 
-    energy array. For instance, say eps = -2.22 MeV and energies does not 
-    contain -2.22 exactly. Then this function would return an index 
-    corresponding to the energy value nearest to -2.22 in e_array (e.g. 
+    Finds the index of the energy value nearest to eps in the given energy
+    array. For instance, say eps = -2.22 MeV and energies does not contain
+    -2.22 exactly. Then this function would return an index corresponding to 
+    the energy value nearest to -2.22 in e_array (e.g. 
     e_array[eps_index] = -2.25 MeV).
     
     Parameters
