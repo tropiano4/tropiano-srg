@@ -102,22 +102,25 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
         # Save evolved potential and omega matrix for each lambda value
         for lamb in lambda_array:
 
+            # Scattering units here [fm^-2]
+            H_evolved = d['hamiltonian'][lamb]
+            # The evolved Hamiltonian will be None if there was an error in
+            # the Magnus evolution
+            
             # Check for Magnus errors with try except
             try:
                 
-                # Scattering units here [fm^-2]
-                H_evolved = d['hamiltonian'][lamb]
+                # Subtract off kinetic energy (need to convert T_rel from MeV
+                # to fm^-2)
+                V_evolved = H_evolved - T_rel / hbar_sq_over_M
                 
-            # There will be an error when Magnus encounters NaNs or infinities
-            # in the omega matrix
-            except KeyError:
+            # There will be a TypeError when Magnus encounters NaNs or 
+            # infinities in the omega matrix
+            except TypeError:
                 
                 # Error statement is printed by Magnus scripts
                 return d
             
-            # Subtract off kinetic energy (need to convert T_rel from MeV to
-            # fm^-2)
-            V_evolved = H_evolved - T_rel / hbar_sq_over_M
             # Save evolved potential
             lp.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
                               kmax, kmid, ntot, 'magnus', generator, lamb,

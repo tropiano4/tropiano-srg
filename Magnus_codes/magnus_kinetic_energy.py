@@ -172,11 +172,70 @@ class Magnus(object):
             dO_matrix += magnus_factors[k] * ad
     
         return dO_matrix
+    
+    
+    def euler_method(self, O_initial, s_init, s_final):
+        """
+        Solves the Magnus derivative omega equation using the first-order Euler
+        method.
+        
+        Parameters
+        ----------
+        O_initial : 2-D ndarray
+            Initial omega matrix which is a function of s.
+        s_init : float
+            Initial s value.
+        s_final : float
+            Final s value.
+            
+        Returns
+        -------
+        O_evolved : 2-D ndarray
+            Evolved omega matrix.
+            
+        """
+        
+        # Load Euler method step-size
+        ds = self.ds
+        
+        # Set initial s value and initial value of omega
+        s = s_init
+        O_evolved = O_initial
+        
+        # Step in s until s_final is reached
+        while s <= s_final:
+
+            # Next step in s
+            O_evolved += self.derivative(O_evolved) * ds
+                
+            # Check for NaN's and infinities
+            # If true, stop evolving
+            if np.isnan(O_evolved).any() or np.isinf(O_evolved).any():
+                    
+                print('_'*85)
+                error = 'Infinities or NaNs encountered in omega matrix.'
+                print(error)
+                print('s = %.5e' % s)
+                suggestion = 'Try running magnus_split.py instead.'
+                print(suggestion)
+                    
+                return None
+                
+            # Step to next s value
+            s += ds
+                
+        # To ensure omega stops at s = s_final step-size is fixed to go from 
+        # last value of s < s_final to s_final where 
+        # ds_exact = s_final - (s - ds)
+        ds_exact = s_final - s + ds
+        O_evolved += self.derivative(O_evolved) * ds_exact
+        
+        return O_evolved
 
 
     def evolve_hamiltonian(self, lambda_array):
         """
-        Magnus evolved Hamiltonian and omega matrix at each value of lambda in 
+        Magnus evolved Hamiltonian and omega matrix at each value of lambda in
         lambda_array using the first-order Euler method.
         
         Parameters
@@ -211,8 +270,7 @@ class Magnus(object):
         d['omega'] = {}
         
         # Initial s value, step-size, and omega matrix
-        s = 0.0
-        ds = self.ds
+        s_init = 0.0
         O_evolved = O_initial
     
         # Loop over lambda values in lambda_array
@@ -221,33 +279,9 @@ class Magnus(object):
             # Convert lamb to s value
             s_val = 1.0 / lamb**4.0
             
-            # Solve ode up to s_val using the Euler method and store in 
+            # Solve ODE up to s_val using the Euler method and store in 
             # dictionary
-            while s <= s_val:
-
-                # Next step in lambda using the Euler method
-                O_evolved += self.derivative(O_evolved) * ds
-                
-                # Check for NaN's and infinities
-                # If true, stop evolving
-                if np.isnan(O_evolved).any() or np.isinf(O_evolved).any():
-                    
-                    print('_'*85)
-                    error = 'Infinities or NaNs encountered in omega matrix.'
-                    print(error)
-                    print('s = %.5e' % s)
-                    suggestion = 'Try running magnus_split.py instead.'
-                    print(suggestion)
-                    
-                    return d
-                
-                # Step to next s value
-                s += ds
-                
-            # To ensure omega stops at s = s_val step-size is fixed to go from 
-            # last value of s < s_max to s_max where ds_exact = s_max - (s-ds)
-            ds_exact = s_val - s + ds
-            O_evolved += self.derivative(O_evolved) * ds_exact
+            O_evolved = self.euler_method(O_evolved, s_init, s_val)
                 
             # Store evolved omega matrix in dictionary
             d['omega'][lamb] = O_evolved
@@ -260,6 +294,6 @@ class Magnus(object):
             
             # Reset initial s value to last s_val and continue the lambda for
             # loop
-            s = s_val
+            s_init = s_val
                 
         return d
