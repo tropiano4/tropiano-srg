@@ -9,6 +9,9 @@
 # Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter s 
 # using the Wegner generator and the Magnus implementation.
 #
+# Revision history:
+#   June 5, 2019 --- Added an Euler method function.
+#
 # Notes:
 #   * Tried to do lambda differential equation similar to SRG codes but kept
 #     getting infinity errors in computing omega matrix. Thus, we use the flow
