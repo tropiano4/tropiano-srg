@@ -14,6 +14,8 @@
 #   May 29, 2019 --- This file was renamed from deuteron.py to observables.py.
 #                    The idea was to generalize this code to observables for
 #                    any state given an NN potential.
+#   June 6, 2019 --- Added a function that returns the energies of a given
+#                    Hamiltonian.
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -100,6 +102,47 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     #print('Normalization = %.4f (k-space)'%normalization)
             
     return psi
+
+
+def energies(H_matrix, bound_states_only=True):
+    """
+    Energies of a given Hamiltonian in units MeV. Option to return only bound
+    state energies.
+    
+    Parameters
+    ----------
+    H_matrix : 2-D ndarray
+        Hamiltonian matrix in units MeV.
+    bound_states_only : bool, optional
+        If true, returns only bound state energies.
+        
+    Returns
+    -------
+    energies : 1-D ndarray
+        Array of energies in units MeV.
+        
+    """
+        
+    # Diagonalize Hamiltonian and obtain eigenvalues
+    eigenvalues = np.sort( la.eig(H_matrix)[0] )
+        
+    # Return only the bound state energies
+    if bound_states_only:
+            
+        # Store energies in this list 
+        energies = np.empty(0)
+            
+        i = 0
+        while eigenvalues[i] < 0.0:
+            energies = np.append(energies, eigenvalues[i])
+            i += 1
+        
+    # Otherwise return all energies
+    else:
+            
+        energies = eigenvalues
+            
+    return energies
 
 
 # r^2 integrand should be a function in srg_operator_evolution.ipynb
