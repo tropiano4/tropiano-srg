@@ -164,14 +164,14 @@ if __name__ == '__main__':
     generator = 'Wegner'
     #generator = 'T'
     
-    #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
-    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] )
+    lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
+    #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] )
     #lambda_array = np.array( [2.8] )
     #lambda_array = np.array( [1.2] )
     
-    #k_magnus = 2
+    k_magnus = 2
     #k_magnus = 4
-    k_magnus = 6
+    #k_magnus = 6
     #k_magnus = 10
     #k_magnus = 14
     

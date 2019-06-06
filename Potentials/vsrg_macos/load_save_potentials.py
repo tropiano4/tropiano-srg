@@ -674,8 +674,8 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     
     # If coupled channel, double the length of the momentum and weights arrays
     if coupled_channel:
-        gp = np.concatenate((k_array,k_array))
-        gw = np.concatenate((k_weights,k_weights))
+        gp = np.concatenate( (k_array, k_array) )
+        gw = np.concatenate( (k_weights, k_weights) )
     else:
         gp = k_array
         gw = k_weights
