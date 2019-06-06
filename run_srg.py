@@ -170,10 +170,11 @@ if __name__ == '__main__':
     #lambda_bd = 3.00
     #lambda_bd = 4.00
     
-    #lambda_array = np.array( (10.0, 2.8, 2.0, 1.2) )
-    lambda_array = np.array( (6.0, 3.0, 2.0, 1.5) )
-    #lambda_array = np.array( (2.8) )
-    #lambda_array = np.array( (1.2) )
+    #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
+    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] )
+    #lambda_array = np.array( [2.8] )
+    #lambda_array = np.array( [1.2] )
+    #lambda_array = np.array( [10.0] )
     
     # Save the evolved Hamiltonian?
     save = True
