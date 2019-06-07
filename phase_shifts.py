@@ -13,13 +13,13 @@
 # Revision history:
 #   September 25, 2018 --- Updated to manually correct +/- shifts of pi in
 #                          phase shifts.
-#   May 28, 2019       --- Replaced rid of SciPy's interp2d with 
-#                          RectBivariateSpline for interpolation.
+#   May 28, 2019       --- Replaced SciPy's interp2d with RectBivariateSpline
+#                          for interpolation.
 #
 # Notes:
 #   * This code needs to be generalized to non-coupled potentials.
 #   * Difficult to understand what causes shifts in pi. At the moment, manually
-#     correcting these shifts is a sloppy fix. Is there a more elegant 
+#     correcting these shifts is a sloppy fix. Is there a more elegant
 #     solution?
 #
 #------------------------------------------------------------------------------
