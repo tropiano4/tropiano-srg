@@ -11,6 +11,7 @@
 #
 # Revision history:
 #   June 5, 2019 --- Added an Euler method function.
+#   June 7, 2019 --- Adding SciPy's expm function as an option instead of BCH
 #
 # Notes:
 #   * Tried to do lambda differential equation similar to SRG codes but kept
@@ -22,6 +23,7 @@
 
 from math import factorial
 import numpy as np
+#from scipy.linalg import expm
 from sympy import bernoulli
 
 
@@ -150,6 +152,8 @@ class Magnus(object):
         
         # Compute the evolving Hamiltonian with the BCH formula
         H_evolved = self.bch_formula(self.H_initial, O_evolved, 25)
+        # Use expm instead
+        #H_evolved = expm(O_evolved) @ self.H_initial @ expm(-O_evolved)
 
         # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
         # evolving Hamiltonian)
@@ -287,6 +291,8 @@ class Magnus(object):
                 
             # Evaluate the evolved Hamiltonian matrix using the BCH formula
             H_evolved = self.bch_formula(H_initial, O_evolved, 25)
+            # Use expm instead
+            #H_evolved = expm(O_evolved) @ H_initial @ expm(-O_evolved)
             
             # Store evolved Hamiltonian matrix in dictionary
             d['hamiltonian'][lamb] = H_evolved
