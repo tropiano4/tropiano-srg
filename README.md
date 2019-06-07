@@ -9,7 +9,7 @@ Description of each folder:
 
 * Magnus_codes contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See "magnus_split.py" for details.
 
-* Notes contains .pdf notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
+* Notes contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
 
 * Old_codes stores all out-dated codes. See the README stored in this folder for documentation.
 
@@ -28,9 +28,9 @@ Description of major codes:
 
 * "phase_shifts.py" - Calculates phase shifts given an NN potential. Work in progress.
 
-* "observables.py" - Calculates NN observables.
+* "observables.py" - Calculates NN observables. Work in progress.
 
-* "operators.py" - Creates momentum-space operators for NN observables.
+* "operators.py" - Creates momentum-space operators for NN observables. Work in progress.
 
 * "run_magnus.py" - Magnus-evolves a specified Hamiltonian using scripts from the Magnus_codes folder.
 
