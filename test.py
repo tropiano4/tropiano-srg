@@ -9,46 +9,39 @@
 # The purpose of this script is to test out codes.
 #
 # Last thing tested:
-#   Making sure Magnus files are correct by over-writing the current files in
-#   Potentials with old ones from the local folder (kvnn = 900, 901 for G = 
-#   Wegner and T). DID NOT WORK. Will try over-writing the new momenta/weight
-#   files with the old ones which go to several more decimals places. DID NOT
-#   WORK. Try re-evolving these magnus files with less precise momentum/weights
-#   file.
+#  Running run_magnus.py for the following: kvnn = 900-901, G= 'Wegner' and 
+#  'T', and k_magnus = 2, 6, and 10.
 #
 #------------------------------------------------------------------------------
 
 
-import os
 import numpy as np
+from run_magnus import run_magnus
 
 
-cwd = os.getcwd()
-
-os.chdir('../../')
-
-gp = np.loadtxt('gp.dat')
-gw = np.loadtxt('gw.dat')
-
-os.chdir(cwd)
-os.chdir('Potentials/vsrg_macos')
-
-#kvnn = 900
-kvnn = 901
-#kvnn = 902
-
-folder_name = 'vsrg_kvnn_%d_lam12.0_kmax30_kmid4_ntot120'%kvnn
-os.chdir(folder_name)
-
-file_name = 'vsrg_3S1_kvnn_%d_lam12.0_reg_0_3_0_mesh.out'%kvnn
-f = open(file_name, 'w')
-for i in range(len(gp)):
+# Potential details
+kvnn_list = [900, 901]
+channel = '3S1'
+kmax = 30.0
+kmid = 4.0
+ntot = 120
     
-    k = gp[i]
-    w = gw[i]
-    line = '{:^25.18e}\t{:^25.18e}'.format(k, w)
-    f.write(line+'\n')
-    
-f.close()
+# Evolution details
+generator_list = ['Wegner', 'T']
+lambda_array = np.array( [10.0] )
+ds = 1e-6
+#lambda_array = np.array( [2.8, 2.0, 1.2] )
+#ds = 1e-5
+k_magnus_list = [2, 6, 10]    
 
-os.chdir(cwd)
+# Save the evolved Hamiltonian and omega?
+save = True
+    
+# Loop over each option
+for kvnn in kvnn_list:
+    for generator in generator_list:
+        for k_magnus in k_magnus_list:
+            
+            # Evolve Hamiltonian
+            d = run_magnus(kvnn, channel, kmax, kmid, ntot, generator, 
+                           lambda_array, k_magnus, ds, save)
