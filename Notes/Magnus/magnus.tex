@@ -32,8 +32,11 @@
 \usepackage{graphicx}
 % NOTE: Do not get rid of this path until all figures in Figures sub-folder are re-produced
 \graphicspath{{Figures/}} % Setting the graphics path
+% NEW PATH
+\graphicspath{{../../Figures/Magnus/}} % Setting the graphics path
 \usepackage{physics} % For bra-ket notation
 \usepackage{siunitx}
+\usepackage[caption=false]{subfig} % For sub-figures
 
 \newcommand{\eps}{\varepsilon}
 
@@ -47,14 +50,16 @@
 
 \author{A.~J.~Tropiano$^{1}$, S.~K.~Bogner$^{2}$, R.~J.~Furnstahl$^{1}$}
 
-\affiliation{
-$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
-$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
-    \mbox{Michigan State University, East Lansing, MI 48824, USA}}
+\affiliation{%
+		$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
+		$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
+    		\mbox{Michigan State University, East Lansing, MI 48824, USA}
+}
 
 \date{\today}
 
 \begin{abstract}
+
 \noindent{-- Test Magnus expansion SRG implementation on LO NN potential at high $\Lambda$. (Define SRG or IMSRG acronym in abstract.)}
 \\
 -- High $\Lambda$ leads to spurious bound states in spin triplet channels.
@@ -70,8 +75,8 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 -- Confirm unitarity of Hamiltonian by evaluation of deuteron observables.
 \\
 -- Lastly, study operator evolution.
-\end{abstract}
 
+\end{abstract}
 
 \maketitle
 
@@ -83,7 +88,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \label{sec:intro}
 
 
-\noindent{-- In recent years \textit{ab initio} methods have made strides in nuclear structure and reactions.}
+\noindent{%
+-- In recent years \textit{ab initio} methods have made strides in nuclear structure and reactions.
+}
 \\
 -- Realistic binding energies starting from NN and 3N forces have been calculated for many medium mass nuclei using different many-body methods.
 \\
@@ -95,7 +102,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \\
 
 
-\noindent{-- The IMSRG procedure requires solving a system of nonlinear, coupled differential equations which can often be stiff necessitating a high-order ODE solver.}
+\noindent{%
+-- The IMSRG procedure requires solving a system of nonlinear, coupled differential equations which can often be stiff necessitating a high-order ODE solver.
+}
 \\
 -- In principle, the decoupled Hamiltonian (or any operator) is unitarily equivalent but the numerical error of solving the ODE can lead to error on observable quantities.
 \\
@@ -105,7 +114,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \\
 
 
-\noindent{-- A variant of the IMSRG that utilizes the Magnus expansion can overcome these limitations.}
+\noindent{%
+-- A variant of the IMSRG that utilizes the Magnus expansion can overcome these limitations.
+}
 \\
 -- We will refer to this as the Magnus implementation or simply Magnus.
 \\
@@ -119,7 +130,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \\
 
 
-\noindent{-- We test the Magnus implementation on chiral non-local NN potentials in free-space for several EFT cutoffs.}
+\noindent{%
+-- We test the Magnus implementation on chiral non-local NN potentials in free-space for several EFT cutoffs.
+}
 \\
 -- At high cutoffs, spin triplet channels feature spurious, deeply bound states from the strong, repulsive tensor force \cite{Nogga:2005hy}.
 \\
@@ -141,7 +154,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \\
 
 
-\noindent{-- The past decade has seen a tremendous increase in the number of chiral NN potentials.}
+\noindent{%
+-- The past decade has seen a tremendous increase in the number of chiral NN potentials.
+}
 \\
 -- Interactions can now be built up to N5LO and feature several different regularization schemes.
 \\
@@ -159,7 +174,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \\
 
 
-\noindent{-- The rest of the paper is organized as follows:}
+\noindent{%
+-- The rest of the paper is organized as follows:
+}
 \\
 -- In Sec. \ref{sec:formalism} we review the formalism of the SRG and the Magnus implementation emphasizing the major advantages of the Magnus.
 \\
@@ -179,7 +196,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \label{sec:formalism}
 
 
-\noindent{\textbf{SRG formalism}}
+\noindent{%
+\textbf{SRG formalism}
+}
 \\
 -- In this section we describe the SRG in the context of decoupling any operator.
 \\
@@ -188,8 +207,8 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 -- The `dressed' or evolved operator is given by
 %
 \begin{eqnarray}
-  \label{eq:srg_operator}
-  O(s) = U(s) O(0) U^{\dagger}(s),
+	\label{eq:srg_operator}
+	O(s) = U(s) O(0) U^{\dagger}(s),
 \end{eqnarray}
 %
 where $O(0)$ corresponds to the `bare' operator.
@@ -199,8 +218,8 @@ where $O(0)$ corresponds to the `bare' operator.
 -- In practice, the unitary transformation U(s) is not explicitly solved for; the evolved operator is given by a differential flow equation which is obtained by taking the derivative of Eqn. (\ref{eq:srg_operator}),
 %
 \begin{eqnarray}
-  \label{eq:srg_flow}
-  \frac{dO(s)}{ds} = [\eta(s), O(s)],
+	\label{eq:srg_flow}
+	\frac{dO(s)}{ds} = [\eta(s), O(s)],
 \end{eqnarray}
 %
 where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator.
@@ -208,8 +227,8 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 -- The generator is defined as a commutator,
 %
 \begin{eqnarray}
-  \label{eq:srg_generator}
-  \eta(s) = [G, H(s)],
+	\label{eq:srg_generator}
+	\eta(s) = [G, H(s)],
 \end{eqnarray}
 %
 where $G$ specifies the type of flow or form of the decoupled operator.
@@ -229,7 +248,9 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 -- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the diagonal in the decoupled operator.
 \\
 
-\noindent{\textbf{Magnus expansion formalism}}
+\noindent{%
+\textbf{Magnus expansion formalism}
+}
 \\
 -- We now consider the Magnus implementation.
 \\
@@ -242,8 +263,8 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 -- In an intermediate step in deriving Eqn. (\ref{eq:srg_flow}), we have a linear ODE for $U(s)$,
 %
 \begin{eqnarray}
-  \label{eq:unitary_trans}
-  \frac{dU(s)}{ds} = \eta(s) U(s).
+	\label{eq:unitary_trans}
+	\frac{dU(s)}{ds} = \eta(s) U(s).
 \end{eqnarray}
 %
 -- Magnus showed that one can solve the following equation with a solution $U(s)=e^{\Omega(s)}$ where $\Omega(s)$ is expanded as a power series, $\sum_{n}^{\infty} \Omega_n$ (referred to as the Magnus expansion or Magnus series).
@@ -253,8 +274,8 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 -- For our case, we focus on the formally exact derivative of $\Omega(s)$,
 %
 \begin{eqnarray}
-  \label{eq:magnus_omega}
-  \frac{d\Omega(s)}{ds} = \sum_{k=0}^{\infty} \frac{B_k}{k!} ad_{\Omega}^{k}(\eta),
+	\label{eq:magnus_omega}
+	\frac{d\Omega(s)}{ds} = \sum_{k=0}^{\infty} \frac{B_k}{k!} ad_{\Omega}^{k}(\eta),
 \end{eqnarray}
 %
 where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_{\Omega}^{k}(\eta)=[\Omega(s),ad_{\Omega}^{k-1}(\eta)]$.
@@ -264,15 +285,17 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 -- Then the evolved operator can be evaluated with the BCH formula:
 %
 \begin{eqnarray}
-  \label{eq:bch}
-  O(s) = e^{\Omega(s)} O e^{-\Omega(s)} = \sum_{k=0}^{\infty} \frac{1}{k!} ad_{\Omega}^{k}(O).
+	\label{eq:bch}
+	O(s) = e^{\Omega(s)} O e^{-\Omega(s)} = \sum_{k=0}^{\infty} \frac{1}{k!} ad_{\Omega}^{k}(O).
 \end{eqnarray}
 %
 -- As $k \rightarrow \infty$ in both sums in Eqns. (\ref{eq:magnus_omega}) and (\ref{eq:bch}) the Magnus transformation matches the SRG transformation.
 \\
 -- We investigate several truncations $k_{max}$ in Eqn. (\ref{eq:magnus_omega}) and take many terms, $k_{max} \sim 25$, in Eqn. (\ref{eq:bch}).
 \\
-\textcolor{red}{-- Here or earlier (for the following bullets)? Better to motivate the Magnus in the introduction or easier to explain given mathematical detail?}
+\textcolor{red}{%
+-- Here or earlier (for the following bullets)? Better to motivate the Magnus in the introduction or easier to explain given mathematical detail?
+}
 \\
 -- There are significant advantages in the Magnus implementation.
 \\
@@ -308,11 +331,15 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \label{sec:results}
 
 
-\noindent{\textbf{Evolution of potentials}}
+\noindent{%
+\textbf{Evolution of potentials}
+}
 \\
 -- In this section, we Magnus evolve LO non-local potentials in the $^{3}S_1-^{3}D_1$ channel at cutoffs of $\Lambda=4$, $9$, and $20 \, fm^{-1}$.
 \\
-\textcolor{red}{-- Option: add new regularization schemes?}
+\textcolor{red}{%
+-- Option: add new regularization schemes?
+}
 \\
 -- For the higher two cutoffs, the potentials have one and two spurious, deeply bound states, respectively.
 \\
@@ -330,7 +357,9 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 
 
-\noindent{-- First, we compare Magnus to SRG evolution for large cutoff potentials with $G=H_D$ and $G=T_{rel}$.}
+\noindent{%
+-- First, we compare Magnus to SRG evolution for large cutoff potentials with $G=H_D$ and $G=T_{rel}$.
+}
 \\
 -- Figures \ref{fig:magnus_contours_Wendt_Lamb9_Wegner} and \ref{fig:magnus_contours_Wendt_Lamb9_T} show potential matrix element evolution for three truncations in the sum of Eqn. \ref{eq:magnus_omega} up to three values of $\lambda$ with $\Lambda=9 \, fm^{-1}$.
 \\
@@ -338,21 +367,21 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 %	
 \begin{figure}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_Wegner}
-  \hspace*{0.05\textwidth}
-  \caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
-  \label{fig:magnus_contours_Wendt_Lamb9_Wegner}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+	\centering
+	\includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_Wegner}
+	\hspace*{0.05\textwidth}
+	\caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
+	\label{fig:magnus_contours_Wendt_Lamb9_Wegner}
 \end{figure}
 %
 \begin{figure}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_T}
-  \hspace*{0.05\textwidth}
-  \caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
-  \label{fig:magnus_contours_Wendt_Lamb9_T}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+	\centering
+	\includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_T}
+  	\hspace*{0.05\textwidth}
+  	\caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
+  	\label{fig:magnus_contours_Wendt_Lamb9_T}
 \end{figure}
 %
 -- We see the same behavior with the Magnus in comparison to the SRG in \cite{Wendt:2011qj} for both generators.
@@ -367,15 +396,17 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 %
 \begin{figure}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{evolved_diags_Wendt_Lamb9_Wegner}
-  \hspace*{0.05\textwidth}
-  \caption{Diagonal (top row) and far off-diagonal (bottom row) matrix elements of evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for several values of $\lambda$ and truncations in the Magnus series $k_{max}$.}
-  \label{fig:evolved_diags_Wendt_Lamb9_Wegner}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+        \includegraphics[width=14cm]{evolved_diags_Wendt_Lamb9_Wegner}
+	\hspace*{0.05\textwidth}
+	\caption{Diagonal (top row) and far off-diagonal (bottom row) matrix elements of evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for several values of $\lambda$ and truncations in the Magnus series $k_{max}$.}
+	\label{fig:evolved_diags_Wendt_Lamb9_Wegner}
 \end{figure}
 %
-\noindent{-- Furthermore, it is dependent on the momentum mesh on which the potential is generated.}
+\noindent{%
+-- Furthermore, it is dependent on the momentum mesh on which the potential is generated.
+}
 \\
 -- At $k_{max}=2$ and $\lambda=2.0 \, fm^{-1}$, we see large, positive off-diagonal values along the momentum axes where the deep bound state is decoupled.
 \\
@@ -389,15 +420,17 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 %
 \begin{figure}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{evolved_diags_Wendt_Lamb9_T}
-  \hspace*{0.05\textwidth}
-  \caption{Diagonal (top row) and far off-diagonal (bottom row) matrix elements of evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for several values of $\lambda$ and truncations in the Magnus series $k_{max}$.}
-  \label{fig:evolved_diags_Wendt_Lamb9_T}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+	\centering
+	\includegraphics[width=14cm]{evolved_diags_Wendt_Lamb9_T}
+	\hspace*{0.05\textwidth}
+	\caption{Diagonal (top row) and far off-diagonal (bottom row) matrix elements of evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for several values of $\lambda$ and truncations in the Magnus series $k_{max}$.}
+	\label{fig:evolved_diags_Wendt_Lamb9_T}
 \end{figure}
 %
-\noindent{-- Figures \ref{fig:evolved_diags_Wendt_Lamb9_Wegner} and \ref{fig:evolved_diags_Wendt_Lamb9_T} show a more quantitative depiction of the evolved potentials.}
+\noindent{%
+-- Figures \ref{fig:evolved_diags_Wendt_Lamb9_Wegner} and \ref{fig:evolved_diags_Wendt_Lamb9_T} show a more quantitative depiction of the evolved potentials.
+}
 \\
 -- The black dotted line corresponds to the SRG evolved potential whereas the other lines are Magnus evolved potentials for different $k_{max}$ for diagonal and far-off diagonal matrix elements of $V_{\lambda}(k,k')$.
 \\
@@ -405,35 +438,39 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 -- In Figure \ref{fig:evolved_diags_Wendt_Lamb9_Wegner} the decoupled spurious bound state is seen as the large negative drop in the curves at $k \approx 1.75 \, fm^{-1}$.
 \\
-\textcolor{red}{-- Unnecessary?
+\textcolor{red}{%
+-- Unnecessary?
 \\
 -- From applying the Magnus in several other cases, we have seen that harder potentials cause convergence issues in the Magnus expansion due to the relative size of the SRG generator $\eta(s)$.
 \\
 -- To avoid convergence issues we can take a smaller step-size.
 \\
--- In the previous cases (and all other cases unless specified otherwise), we take $ds=10^-5$.}
+-- In the previous cases (and all other cases unless specified otherwise), we take $ds=10^-5$.
+}
 \\
 
 
-\noindent{\textbf{Observables}}
+\noindent{%
+\textbf{Observables}
+}
 \\
 %
 \begin{table}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \caption{Relative error on the deuteron bound state energy and the root mean square of eigenvalues where $\tilde{\epsilon}$ denotes an eigenvalue of an SRG or Magnus evolved Hamiltonian for $\Lambda=9 \, fm^{-1}$ and $\lambda=1.2 \, fm^{-1}$.}
-  \label{tab:energies}
-  \begin{ruledtabular}
-    \begin{tabular}{{>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{1in}>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{2in}}}
-      $  $ & $G$ & $ |\frac{\epsilon_d-\tilde{\epsilon}_d}{\epsilon_d}| $ & $\sqrt{\frac{1}{N} \, \sum_{i}^{N} (\tilde{\epsilon}_i-\epsilon_i)^2}$   [MeV] \\
-      \colrule
-      SRG & $ $ & $\num{1.165e-5}$ & $\num{3.016e-4}$ \\
-      Magnus, $k_{max}=2$ & $H_D$ & $\num{5.010e-10}$ & $\num{4.097e-9}$ \\
-      Magnus, $k_{max}=14$ & $ $ & $\num{1.206e-11}$ & $\num{3.950e-10}$ \\ \hline
-      SRG & $ $ & $\num{1.003e-4}$ & $\num{9.791e-5}$ \\
-      Magnus, $k_{max}=2$ & $T_{rel}$ & $\num{7.775e-8}$ & $\num{6.376e-8}$ \\
-      Magnus, $k_{max}=14$ & $ $ & $\num{7.607e-8}$ & $\num{6.359e-8}$ \\
-    \end{tabular}
-  \end{ruledtabular}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+	\caption{Relative error on the deuteron bound state energy and the root mean square of eigenvalues where $\tilde{\epsilon}$ denotes an eigenvalue of an SRG or Magnus evolved Hamiltonian for $\Lambda=9 \, fm^{-1}$ and $\lambda=1.2 \, fm^{-1}$.}
+	\label{tab:energies}
+	\begin{ruledtabular}
+		\begin{tabular}{{>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{1in}>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{2in}}}
+      			$  $ & $G$ & $ |\frac{\epsilon_d-\tilde{\epsilon}_d}{\epsilon_d}| $ & $\sqrt{\frac{1}{N} \, \sum_{i}^{N} (\tilde{\epsilon}_i-\epsilon_i)^2}$   [MeV] \\
+			\colrule
+      			SRG & $ $ & $\num{1.165e-5}$ & $\num{3.016e-4}$ \\
+      			Magnus, $k_{max}=2$ & $H_D$ & $\num{5.010e-10}$ & $\num{4.097e-9}$ \\
+      			Magnus, $k_{max}=14$ & $ $ & $\num{1.206e-11}$ & $\num{3.950e-10}$ \\ \hline
+      			SRG & $ $ & $\num{1.003e-4}$ & $\num{9.791e-5}$ \\
+      			Magnus, $k_{max}=2$ & $T_{rel}$ & $\num{7.775e-8}$ & $\num{6.376e-8}$ \\
+      			Magnus, $k_{max}=14$ & $ $ & $\num{7.607e-8}$ & $\num{6.359e-8}$ \\
+		\end{tabular}
+  	\end{ruledtabular}
 \end{table}
 %
 -- To emphasize the two major advantages of the Magnus implementation, we now consider evolved observables and operators for the remainder of the section.
@@ -466,109 +503,115 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 
 
-\noindent{\textcolor{red}{UPDATED UP TO HERE 04/03/19}}
+\noindent{%
+	\textcolor{red}{%
+	UPDATED UP TO HERE 04/03/19
+	}
+}
 \\
 \begin{figure}
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{momentum_dist_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Momentum probability densities of the deuteron comparing the un-evolved wavefunction (black dotted line), SRG evolved wavefunction (blue dashed line), and two Magnus evolved wavefunctions with truncations $2$ and $14$ (green and red dash-dotted lines, respectively) where $\lambda=1.2 \, fm^{-1}$. The left panel shows evolution with $G=H_{D}$ and the right with $G=T_{rel}$. Here $\Lambda=9 \, fm^{-1}$.}
-  \label{fig:momentum_dist_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=10cm]{momentum_dist_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Momentum probability densities of the deuteron comparing the un-evolved wavefunction (black dotted line), SRG evolved wavefunction (blue dashed line), and two Magnus evolved wavefunctions with truncations $2$ and $14$ (green and red dash-dotted lines, respectively) where $\lambda=1.2 \, fm^{-1}$. The left panel shows evolution with $G=H_{D}$ and the right with $G=T_{rel}$. Here $\Lambda=9 \, fm^{-1}$.}
+  	\label{fig:momentum_dist_Wendt_Lamb9}
 \end{figure}
 %
-\noindent{-- RMS radius and quadrupole moment of deuteron.}
+\noindent{%
+-- RMS radius and quadrupole moment of deuteron.
+}
 \\
 -- Values from initial potential ($\Lambda=9 \, fm^{-1}$):
 \begin{itemize}
-  \item $r_d = 2.022 \, fm$ (using momentum-space derivatives)
-  \item $r_d = 2.465 \, fm$ (using Fourier transforms)
-  \item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)
+  	\item $r_d = 2.022 \, fm$ (using momentum-space derivatives)
+  	\item $r_d = 2.465 \, fm$ (using Fourier transforms)
+	\item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)
 \end{itemize}
 -- Values from standard Magnus evolved potential ($G=H_D$, $\lambda=1.2 \, fm^{-1}$, and $k_{max}=6$):
 \begin{itemize}
-  \item $r_d = 2.022 \, fm$ (using momentum-space derivatives)
-  \item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)s
-  \item Note: we apply $U^{\dagger}(s) U(s)$ to wave function to compute unitarily equivalent observables
+  	\item $r_d = 2.022 \, fm$ (using momentum-space derivatives)
+  	\item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)s
+  	\item Note: we apply $U^{\dagger}(s) U(s)$ to wave function to compute unitarily equivalent observables
 \end{itemize}
 -- Experimental values:
 \begin{itemize}
-  \item $r_d = 2.141 \, fm$
-  \item $Q_d = 0.286 \, fm^2$
+  	\item $r_d = 2.141 \, fm$
+  	\item $Q_d = 0.286 \, fm^2$
 \end{itemize}
 %
 \textbf{Evolution of operators}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $q=0.31 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
-  \label{fig:momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+ 	\includegraphics[width=14cm]{momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $q=0.31 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
+  	\label{fig:momentum_proj_operator_contours_q0,31_magnus_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{momentum_proj_difference_q0,31_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Difference in evolved and bare matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ right to with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $q=0.31 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
-  \label{fig:momentum_proj_operator_difference_q0,31_magnus_Wendt_Lamb9}
+	\captionsetup{singlelinecheck=false,justification=raggedright}
+	\centering
+  	\includegraphics[width=10cm]{momentum_proj_difference_q0,31_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Difference in evolved and bare matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ right to with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $q=0.31 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
+  	\label{fig:momentum_proj_operator_difference_q0,31_magnus_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $q=3.04 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
-  \label{fig:momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=14cm]{momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $q=3.04 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
+  	\label{fig:momentum_proj_operator_contours_q3,04_magnus_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{momentum_proj_difference_q3,04_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Difference in evolved and bare matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $q=3.04 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
-  \label{fig:momentum_proj_operator_difference_q3,04_magnus_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=10cm]{momentum_proj_difference_q3,04_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Difference in evolved and bare matrix elements of $\mel{k}{a^{\dagger}_q a_q}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $q=3.04 \, fm^{-1}$, $\Lambda=9 \, fm^{-1}$, and $k_{max}=6$.}
+  	\label{fig:momentum_proj_operator_difference_q3,04_magnus_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{r2_operator_contours_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $\Lambda=9 \, fm^{-1}$ and $k_{max}=6$.}
-  \label{fig:r2_operator_contours_srg_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=14cm]{r2_operator_contours_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $\Lambda=9 \, fm^{-1}$ and $k_{max}=6$.}
+  	\label{fig:r2_operator_contours_srg_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{r2_difference_magnus_Wendt_Lamb4}
-  \hspace*{0.05\textwidth}
-  \caption{Difference in evolved and bare matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $\Lambda=4 \, fm^{-1}$ and $k_{max}=6$.}
-  \label{fig:r2_difference_magnus_Wendt_Lamb4}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=10cm]{r2_difference_magnus_Wendt_Lamb4}
+  	\hspace*{0.05\textwidth}
+  	\caption{Difference in evolved and bare matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $\Lambda=4 \, fm^{-1}$ and $k_{max}=6$.}
+  	\label{fig:r2_difference_magnus_Wendt_Lamb4}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=10cm]{r2_difference_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Difference in evolved and bare matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $\Lambda=9 \, fm^{-1}$ and $k_{max}=6$. (Note the difference in color bar scales.)}
-  \label{fig:r2_difference_magnus_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=10cm]{r2_difference_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Difference in evolved and bare matrix elements of $\mel{k}{r^2}{k'}$ Magnus evolving to $\lambda=1.2 \, fm^{-1}$ with $G=H_D$ (left) and $G=T_{rel}$ (right). Here $\Lambda=9 \, fm^{-1}$ and $k_{max}=6$. (Note the difference in color bar scales.)}
+  	\label{fig:r2_difference_magnus_Wendt_Lamb9}
 \end{figure}
 %
 \begin{figure}[H]
-  \captionsetup{singlelinecheck=false,justification=raggedright}
-  \centering
-  \includegraphics[width=14cm]{r2_integrand_contours_magnus_Wendt_Lamb9}
-  \hspace*{0.05\textwidth}
-  \caption{Integrand of $\bra{\Psi}\ket{k} \mel{k}{r^2}{k'} \bra{k'}\ket{\Psi}$ Magnus evolving the wave function in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $\Lambda=9 \, fm^{-1}$, $k_{max}=6$, and the operator $r^2$ is un-evolved.}
-  \label{fig:r2_integrand_contours_srg_Wendt_Lamb9}
+  	\captionsetup{singlelinecheck=false,justification=raggedright}
+  	\centering
+  	\includegraphics[width=14cm]{r2_integrand_contours_magnus_Wendt_Lamb9}
+  	\hspace*{0.05\textwidth}
+  	\caption{Integrand of $\bra{\Psi}\ket{k} \mel{k}{r^2}{k'} \bra{k'}\ket{\Psi}$ Magnus evolving the wave function in $\lambda$ right to left with $G=H_D$ (top) and $G=T_{rel}$ (bottom). Here $\Lambda=9 \, fm^{-1}$, $k_{max}=6$, and the operator $r^2$ is un-evolved.}
+  	\label{fig:r2_integrand_contours_srg_Wendt_Lamb9}
 \end{figure}
 
 	
@@ -577,7 +620,9 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \label{sec:conclusion}
 
 
-\noindent{-- Summarize.}
+\noindent{%
+-- Summarize.
+}
 \\
 -- Where does the Magnus implementation differ from the SRG result?
 \\

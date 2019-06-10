@@ -50,9 +50,9 @@
 
 \author{A.~J.~Tropiano$^{1}$, S.~K.~Bogner$^{2}$, R.~J.~Furnstahl$^{1}$}
 
-\affiliation{
-		$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
-		$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
+\affiliation{%
+		$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA} \\
+		$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,} \\
 		\mbox{Michigan State University, East Lansing, MI 48824, USA}
 }
 
@@ -63,7 +63,6 @@
 Brief description of project.
 
 \end{abstract}
-
 
 \maketitle
 
@@ -95,22 +94,22 @@ Results on SRG-evolved operators from several NN potentials.
 
 
 Diagonalize initial and evolved Hamiltonians which we will call $H(0)$ and $H(s)$, respectively. This gives $\psi_{\alpha}(0)$ and $\psi_{\alpha}(s)$ for each eigenvalue indexed by $\alpha$. Then the SRG unitary transformation can be computed by taking a sum over outer products of the evolved and initial wave functions:
-
+%
 \begin{eqnarray}
 	\label{eq:unitary_transformation}
 	U(s) = \sum_{\alpha=1}^{N} \ket{\psi_{\alpha}(s)} \bra{\psi_{\alpha}(0)},
 \end{eqnarray}
-
+%
 where N is the dimension of the Hamiltonian matrix. Here the weights are factored into the wave functions, thus $U(s)$ is unitless.
 \\
 
 To evolve operators, we simply apply $U(s)$:
-
+%
 \begin{eqnarray}
 	\label{eq:evolved_operator}
 	O(s) = U(s) O(0) U^{\dagger}(s),
 \end{eqnarray}
-
+%
 where $O(0)$ is the bare operator.
 
 
@@ -120,12 +119,12 @@ where $O(0)$ is the bare operator.
 
 
 Applying $a^{\dagger}_q a_q$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1$, ... , $N$. Then $a^{\dagger}_q a_q$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k$. Therefore, we include a factor of $1 / (k^2 dk) \implies 1 / (k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
-
+%
 \begin{eqnarray}
 	\label{eq:momentum_projection_operator}
 	a^{\dagger}_q a_q (k_i, k_j) = \frac{\delta_{k_i q} \delta_{k_j q}}{k_i k_j \sqrt{w_i w_j}},
 \end{eqnarray}
-
+%
 which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For mesh-independent figures, we must divide by an additional factor of $k_i k_j \sqrt{w_i w_j}$.
 
 
@@ -135,12 +134,12 @@ which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For 
 
 
 We diagonalize the Hamiltonian for eigenvectors $\psi_{\alpha}$. In the $^{3}S_1$-$^{3}D_1$ coupled channel, the S-component is given by $\psi_{\alpha}[:N]$ and the D-component by $\psi_{\alpha}[N:]$ where $N$ is the length of the momentum mesh. Then the momentum distribution of the state $\alpha$ is given by,
-
+%
 \begin{eqnarray}
 	\label{eq:momentum_distribution}
 	|\phi_{\alpha}(k)|^2 = |\psi_{\alpha}[:N]|^2 + |\psi_{\alpha}[N:]|^2.
 \end{eqnarray}
-
+%
 This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case, $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
 
 
