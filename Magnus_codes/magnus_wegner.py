@@ -23,7 +23,7 @@
 
 from math import factorial
 import numpy as np
-#from scipy.linalg import expm
+from scipy.linalg import expm
 from sympy import bernoulli
 
 
@@ -151,9 +151,9 @@ class Magnus(object):
         """
         
         # Compute the evolving Hamiltonian with the BCH formula
-        H_evolved = self.bch_formula(self.H_initial, O_evolved, 25)
+        #H_evolved = self.bch_formula(self.H_initial, O_evolved, 25)
         # Use expm instead
-        #H_evolved = expm(O_evolved) @ self.H_initial @ expm(-O_evolved)
+        H_evolved = expm(O_evolved) @ self.H_initial @ expm(-O_evolved)
 
         # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
         # evolving Hamiltonian)
@@ -210,19 +210,6 @@ class Magnus(object):
 
             # Next step in s
             O_evolved += self.derivative(O_evolved) * ds
-                
-            # Check for NaN's and infinities
-            # If true, stop evolving
-            if np.isnan(O_evolved).any() or np.isinf(O_evolved).any():
-                    
-                print('_'*85)
-                error = 'Infinities or NaNs encountered in omega matrix.'
-                print(error)
-                print('s = %.5e' % s)
-                suggestion = 'Try running magnus_split.py instead.'
-                print(suggestion)
-                    
-                return None
                 
             # Step to next s value
             s += ds
@@ -290,9 +277,9 @@ class Magnus(object):
             d['omega'][lamb] = O_evolved
                 
             # Evaluate the evolved Hamiltonian matrix using the BCH formula
-            H_evolved = self.bch_formula(H_initial, O_evolved, 25)
+            #H_evolved = self.bch_formula(H_initial, O_evolved, 25)
             # Use expm instead
-            #H_evolved = expm(O_evolved) @ H_initial @ expm(-O_evolved)
+            H_evolved = expm(O_evolved) @ H_initial @ expm(-O_evolved)
             
             # Store evolved Hamiltonian matrix in dictionary
             d['hamiltonian'][lamb] = H_evolved

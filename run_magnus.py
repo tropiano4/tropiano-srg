@@ -81,11 +81,23 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     # Time the evolution and return dictionary d of evolved Hamiltonians and
     # omega matrices where the keys are lambda values
     t0 = time.time() # Start time
-    d = evolve.evolve_hamiltonian(lambda_array)
+    # Check for OverflowError (this occurs when omega grows to infinity)
+    try:
+        d = evolve.evolve_hamiltonian(lambda_array)
+    except OverflowError:
+        print('_'*85)
+        print('Infinities NaNs encountered in omega matrix.')
+        print('Try using a smaller step-size or running magnus_split.py.')
+        return None
+    except ValueError:
+        print('_'*85)
+        print('Infinities NaNs encountered in omega matrix.')
+        print('Try using a smaller step-size or running magnus_split.py.')
+        return None
     t1 = time.time() # End time
     
     # Print details
-    mins = round((t1-t0)/60.0,2) # Minutes elapsed evolving H(s)
+    mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
     print('_'*85)
     print( 'H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'
           % (lambda_array[-1], mins) )
@@ -104,22 +116,9 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
 
             # Scattering units here [fm^-2]
             H_evolved = d['hamiltonian'][lamb]
-            # The evolved Hamiltonian will be None if there was an error in
-            # the Magnus evolution
-            
-            # Check for Magnus errors with try except
-            try:
-                
-                # Subtract off kinetic energy (need to convert T_rel from MeV
-                # to fm^-2)
-                V_evolved = H_evolved - T_rel / hbar_sq_over_M
-                
-            # There will be a TypeError when Magnus encounters NaNs or 
-            # infinities in the omega matrix
-            except TypeError:
-                
-                # Error statement is printed by Magnus scripts
-                return d
+            # Subtract off kinetic energy (need to convert T_rel from MeV to
+            # fm^-2)
+            V_evolved = H_evolved - T_rel / hbar_sq_over_M
             
             # Save evolved potential
             lp.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
@@ -166,7 +165,7 @@ if __name__ == '__main__':
     
     # Evolve to lambda = 10 fm^-1 separately at a step-size 10^-6
     lambda_array = np.array( [2.8, 2.0, 1.2] )
-    lambda_array = np.array( [10.0] )
+    #lambda_array = np.array( [10.0] )
     #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] )
     #lambda_array = np.array( [2.8] )
     #lambda_array = np.array( [1.2] )
