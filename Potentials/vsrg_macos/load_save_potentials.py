@@ -6,9 +6,9 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     March 22, 2019
 # 
-# Loads potentials from Potentials/vsrg_macos directory.
-# Potentials are organized by a kvnn number and the details of their momentum
-# mesh (kmax, kmid, and ntot). Below are several examples of kvnn numbers:
+# Loads potentials from Potentials/vsrg_macos directory. Potentials are 
+# organized by a kvnn number and the details of their momentum mesh (kmax, 
+# kmid, and ntot). Below are several examples of kvnn numbers:
 #
 # kvnn   description        
 #                         
@@ -243,7 +243,7 @@ def load_kinetic_energy(kvnn, channel, kmax, kmid, ntot):
         # Length of k_array
         n = len(k_array)
         # Matrix of zeros (n x n)
-        o = np.zeros((n, n))
+        o = np.zeros( (n, n) )
         T = np.vstack( ( np.hstack( (T, o) ), np.hstack( (o, T) ) ) )
         
     return T
@@ -302,7 +302,7 @@ def load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='initial',
     V = convert2MeV(k_array, k_weights, V, coupled_channel(channel))
     
     # Add T and V for Hamiltonian
-    H = T+V
+    H = T + V
     
     return H
 
@@ -648,8 +648,7 @@ def coupled_channel(channel):
 
 def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     """
-    Converts a potential from units fm to MeV with momentum array and 
-    weights.
+    Converts a potential from units fm to MeV with momentum array and weights.
     
     Parameters
     ----------
