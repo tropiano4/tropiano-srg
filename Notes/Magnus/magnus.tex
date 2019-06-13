@@ -10,6 +10,7 @@
 % Revision history:
 % 	03/04/19 --- Transitioning these notes into a draft of the eventual paper.
 %     05/30/19 --- Renamed magnus.tex from magnus_Jan08.tex.
+%     06/13/19 --- Added comments for editing purposes.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -66,7 +67,7 @@
 \\
 -- Decouple spurious bound state(s) by using two approaches within the Magnus implementation to drive the Hamiltonian to band-diagonal, unitarily equivalent form.
 \\
--- One choice of generator where the deep bound state is decoupled outside low-momentum and another where it is shifted to low-momentum.
+-- One choice of generator decouples the deep bound state outside low-momentum and another shifts it to low-momentum.
 \\
 -- Deep bound state corrupts low-momentum physics.
 \\
@@ -87,7 +88,8 @@
 \section{Introduction}
 \label{sec:intro}
 
-
+% Comments on this paragraph:
+% Maybe go with SRG first then mention IMSRG as an extension in solving the many-body problem.
 \noindent{%
 -- In recent years \textit{ab initio} methods have made strides in nuclear structure and reactions.
 }
@@ -98,6 +100,7 @@
 \\
 -- The IMSRG separates energy scales in the nuclear Hamiltonian by decoupling the reference state from excited states to band- or block-diagonal form.
 \\
+% Replace the bullet below. See IMSRG term paper.
 -- One can use the decoupled Hamiltonian to solve the many-body Sch{\"o}dinger equation extracting specific eigenvalues and eigenstates which qualifies the IMSRG as an \textit{ab initio} method.
 \\
 
@@ -122,6 +125,7 @@
 \\
 -- The Magnus solves for the unitary transformation directly whereas the IMSRG applies the transformation indirectly in steps of the differential flow equation.
 \\
+% Re-word the bullet below.
 -- From the form of the transformation, the numerical error leaves the unitarity of the evolved Hamiltonian un-affected.
 \\
 -- By explicitly solving for the transformation, one can evolve several operators.
@@ -152,7 +156,7 @@
 \\
 -- NN potentials with spurious bound states offer a good test laboratory for the Magnus implementation to better understand if the Magnus is equivalent to the SRG approach. 
 \\
-
+% Need transition sentence here.
 
 \noindent{%
 -- The past decade has seen a tremendous increase in the number of chiral NN potentials.
@@ -172,6 +176,7 @@
 \\
 -- We leave the other areas as topics for future studies.
 \\
+% Keep the last bullet in mind for the focus of this paper.
 
 
 \noindent{%
@@ -184,7 +189,7 @@
 \\
 -- We briefly review the SRG results for the same set of bare interactions and compare Magnus to SRG results.
 \\
--- With the Magnus evolved operators, we calculate several observables and explore operator evolution.
+-- With the Magnus-evolved operators, we calculate several observables and explore operator evolution.
 \\
 -- Lastly, we summarize our results in Sec. \ref{sec:conclusion}.
 \\
@@ -245,7 +250,7 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 \\
 -- Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver.
 \\
--- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the diagonal in the decoupled operator.
+-- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator.
 \\
 
 \noindent{%
@@ -289,7 +294,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 	O(s) = e^{\Omega(s)} O e^{-\Omega(s)} = \sum_{k=0}^{\infty} \frac{1}{k!} ad_{\Omega}^{k}(O).
 \end{eqnarray}
 %
--- As $k \rightarrow \infty$ in both sums in Eqns. (\ref{eq:magnus_omega}) and (\ref{eq:bch}) the Magnus transformation matches the SRG transformation.
+-- As $k \rightarrow \infty$ in both sums in Eqns. (\ref{eq:magnus_omega}) and (\ref{eq:bch}) the Magnus transformation matches the SRG transformation exactly.
 \\
 -- We investigate several truncations $k_{max}$ in Eqn. (\ref{eq:magnus_omega}) and take many terms, $k_{max} \sim 25$, in Eqn. (\ref{eq:bch}).
 \\
@@ -323,7 +328,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 -- This is especially useful in IMSRG calculations where the model space can be very large.
 \\
--- In the next section, we discuss results from Magnus evolved large-cutoff potentials focusing on the flow of the potential, observables, and operator evolution.
+-- In the next section, we discuss results from Magnus-evolved large-cutoff potentials focusing on the flow of the potential, observables, and operator evolution.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -335,7 +340,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \textbf{Evolution of potentials}
 }
 \\
--- In this section, we Magnus evolve LO non-local potentials in the $^{3}S_1-^{3}D_1$ channel at cutoffs of $\Lambda=4$, $9$, and $20 \, fm^{-1}$.
+-- In this section, we Magnus-evolve LO non-local potentials in the $^{3}S_1-^{3}D_1$ channel at cutoffs of $\Lambda=4$, $9$, and $20 \, fm^{-1}$.
 \\
 \textcolor{red}{%
 -- Option: add new regularization schemes?
@@ -343,7 +348,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 -- For the higher two cutoffs, the potentials have one and two spurious, deeply bound states, respectively.
 \\
--- In \cite{Wendt:2011qj}, potentials at large-cutoffs were SRG evolved with $G=H_D$ and $G=T_{rel}$.
+-- In \cite{Wendt:2011qj}, potentials at large-cutoffs were SRG-evolved with $G=H_D$ and $G=T_{rel}$.
 \\
 -- At lower cutoffs ($\Lambda \lesssim 4 \, fm^{-1}$), potential matrix elements flowed toward a decoupled, universal form independent of $G$, that is the low-momentum matrix elements approached the same values as $\lambda \rightarrow 0$.
 \\
@@ -371,7 +376,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 	\centering
 	\includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_Wegner}
 	\hspace*{0.05\textwidth}
-	\caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
+	\caption{Contours of Magnus-evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=H_{D}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
 	\label{fig:magnus_contours_Wendt_Lamb9_Wegner}
 \end{figure}
 %
@@ -380,7 +385,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 	\centering
 	\includegraphics[width=10cm]{magnus_contours_Wendt_Lamb9_T}
   	\hspace*{0.05\textwidth}
-  	\caption{Contours of Magnus evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
+  	\caption{Contours of Magnus-evolved $V_{\lambda}(k,k')$ with $\Lambda=9 \, fm^{-1}$ and $G=T_{rel}$ for $\lambda=2.8$ (left), $2.0$ (middle), and $1.2$ (right) $fm^{-1}$ and truncations in the Magnus $k_{max}=2$ (top), $6$ (middle), and $10$ (bottom).}
   	\label{fig:magnus_contours_Wendt_Lamb9_T}
 \end{figure}
 %
@@ -432,7 +437,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 -- Figures \ref{fig:evolved_diags_Wendt_Lamb9_Wegner} and \ref{fig:evolved_diags_Wendt_Lamb9_T} show a more quantitative depiction of the evolved potentials.
 }
 \\
--- The black dotted line corresponds to the SRG evolved potential whereas the other lines are Magnus evolved potentials for different $k_{max}$ for diagonal and far-off diagonal matrix elements of $V_{\lambda}(k,k')$.
+-- The black dotted line corresponds to the SRG-evolved potential whereas the other lines are Magnus-evolved potentials for different $k_{max}$ for diagonal and far-off diagonal matrix elements of $V_{\lambda}(k,k')$.
 \\
 -- It is clear in these figures that the Magnus matches the SRG at $k_{max} \gtrsim 6$.
 \\
@@ -457,7 +462,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 %
 \begin{table}
 	\captionsetup{singlelinecheck=false,justification=raggedright}
-	\caption{Relative error on the deuteron bound state energy and the root mean square of eigenvalues where $\tilde{\epsilon}$ denotes an eigenvalue of an SRG or Magnus evolved Hamiltonian for $\Lambda=9 \, fm^{-1}$ and $\lambda=1.2 \, fm^{-1}$.}
+	\caption{Relative error on the deuteron bound state energy and the root mean square of eigenvalues where $\tilde{\epsilon}$ denotes an eigenvalue of an SRG or Magnus-evolved Hamiltonian for $\Lambda=9 \, fm^{-1}$ and $\lambda=1.2 \, fm^{-1}$.}
 	\label{tab:energies}
 	\begin{ruledtabular}
 		\begin{tabular}{{>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{1in}>{\centering\arraybackslash}m{1.5in}>{\centering\arraybackslash}m{2in}}}
@@ -481,12 +486,13 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 -- Again, despite the inclusion of several more terms in the sum of Eqn. \ref{eq:magnus_omega}, we see consistent errors between $k_{max}=2$ and $14$ because of the guaranteed unitarity of $U(s)=e^{\Omega(s)}$
 \\
--- The errors on the Magnus energies are within the region of floating-point error whereas the SRG compounds error in solving the ODE \ref{eq:srg_flow}.
+-- The errors on the Magnus energies are within the region of floating-point error whereas the SRG compounds error in solving the ODE (\ref{eq:srg_flow}).
 \\
--- We have also checked the phase shifts from the evolved potentials match the bare potentials in all cases for Magnus and SRG evolution.
+-- We have also checked that the phase shifts from the evolved potentials match the bare potentials in all cases for Magnus and SRG evolution.
 \\ 
 -- Next we show the evolved deuteron wave function for several cases.
 \\
+% Make sure it's clear that the distributions are not unitarily equivalent.
 -- Figure \ref{fig:momentum_dist_Wendt_Lamb9} shows the deuteron momentum probability density, $|\phi(k)|^2$, on a semi-log scale as a function of momentum for both band-diagonal generators.
 \\
 -- With $G=H_D$, the evolved and un-evolved momentum distributions agree for low-momentum whereas $G=T_{rel}$ significantly distorts the distribution from the presence of the spurious bound state in the $\Lambda=9 \, fm^{-1}$ potential.
@@ -508,13 +514,14 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 	UPDATED UP TO HERE 04/03/19
 	}
 }
+% Re-do the figure below with larger fonts. Can also split into LaTeX sub-plots (a) and (b).
 \\
 \begin{figure}
   	\captionsetup{singlelinecheck=false,justification=raggedright}
   	\centering
   	\includegraphics[width=10cm]{momentum_dist_Wendt_Lamb9}
   	\hspace*{0.05\textwidth}
-  	\caption{Momentum probability densities of the deuteron comparing the un-evolved wavefunction (black dotted line), SRG evolved wavefunction (blue dashed line), and two Magnus evolved wavefunctions with truncations $2$ and $14$ (green and red dash-dotted lines, respectively) where $\lambda=1.2 \, fm^{-1}$. The left panel shows evolution with $G=H_{D}$ and the right with $G=T_{rel}$. Here $\Lambda=9 \, fm^{-1}$.}
+  	\caption{Momentum probability densities of the deuteron comparing the un-evolved wavefunction (black dotted line), SRG-evolved wavefunction (blue dashed line), and two Magnus-evolved wavefunctions with truncations $2$ and $14$ (green and red dash-dotted lines, respectively) where $\lambda=1.2 \, fm^{-1}$. The left panel shows evolution with $G=H_{D}$ and the right with $G=T_{rel}$. Here $\Lambda=9 \, fm^{-1}$.}
   	\label{fig:momentum_dist_Wendt_Lamb9}
 \end{figure}
 %
@@ -528,7 +535,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
   	\item $r_d = 2.465 \, fm$ (using Fourier transforms)
 	\item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)
 \end{itemize}
--- Values from standard Magnus evolved potential ($G=H_D$, $\lambda=1.2 \, fm^{-1}$, and $k_{max}=6$):
+-- Values from standard Magnus-evolved potential ($G=H_D$, $\lambda=1.2 \, fm^{-1}$, and $k_{max}=6$):
 \begin{itemize}
   	\item $r_d = 2.022 \, fm$ (using momentum-space derivatives)
   	\item $Q_d = 0.287 \, fm^2$ (using momentum-space derivatives)s
@@ -540,7 +547,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
   	\item $Q_d = 0.286 \, fm^2$
 \end{itemize}
 %
-\textbf{Evolution of operators}
+\textbf{Evolution of operators} % Ask DF about what to include here.
 %
 \begin{figure}[H]
   	\captionsetup{singlelinecheck=false,justification=raggedright}
