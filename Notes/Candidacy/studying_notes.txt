@@ -1,0 +1,9 @@
+Studying notes for candidacy
+
+
+* Derivation of continuity equation
+    -Start with SE and its complex conjugate
+    -Define probability density rho and its current
+    -Multiply by psi* and psi respectively
+    -Substitute these equations in probability current
+    -Sort terms to define current j
