@@ -9,7 +9,7 @@ Description of each folder:
 
 * Magnus_codes contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See magnus_split.py for details.
 
-* Notes contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of our Magnus paper).
+* Notes contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of the Magnus paper, candidacy paper, etc.)
 
 * Old_codes stores all out-dated codes. See the README stored in this folder for documentation.
 
