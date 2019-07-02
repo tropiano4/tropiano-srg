@@ -1,23 +1,19 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdftex 2017.5.23)  1 JUL 2019 11:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  2 JUL 2019 11:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
 **candidacy_paper.tex
 (./candidacy_paper.tex
-./candidacy_paper.tex:16: Undefined control sequence.
-l.16 \documentclass
-                   [preprintnumbers,floatfix,aps,prc,preprint,nofootinbib]{r...
-
-? 
-./candidacy_paper.tex:16: Emergency stop.
-l.16 \documentclass
-                   [preprintnumbers,floatfix,aps,prc,preprint,nofootinbib]{r...
-End of file on the terminal!
-
-./candidacy_paper.tex:16:  ==> Fatal error occurred, no output PDF file produce
-d!
-.txt
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/revtex/revtex4-1.cls
+Document Class: revtex4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revt
+ex4/ for documentation)
+ Copyright (c) 2009 The American Physical Society.
+ mailto:revtex@aps.org
+ Licensed under the LPPL:
+http://www.ctan.org/tex-archive/macros/latex/base/lppl.txt
  Arthur Ogawa <arthur_ogawa at sbcglobal dot net>
  Based on work by David Carlisle <david at dcarlisle.demon.co.uk>.
 ltxutil[2010/07/25/20:33:00 4.1r utilities package (portions licensed from W. E
@@ -1710,31 +1706,31 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 \c__siunitx_mathtt_int=\count197
  [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./candidacy_paper.bbl) [2]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 104.
+(./candidacy_paper.bbl [2]) [3]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 127.
  (./candidacy_paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 104.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 104.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 127.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 127.
 Package rerunfilecheck Info: File `candidacy_paper.out' has not changed.
-(rerunfilecheck)             Checksum: 459CA52A1A811629D3DFFC0FD93A4B93;428.
+(rerunfilecheck)             Checksum: F9467B296371303F76025B7CC64212F2;482.
  ) 
 Here is how much of TeX's memory you used:
- 19611 strings out of 492995
- 358706 string characters out of 6132704
- 414740 words of memory out of 5000000
- 22984 multiletter control sequences out of 15000+600000
+ 19613 strings out of 492995
+ 358723 string characters out of 6132704
+ 416740 words of memory out of 5000000
+ 22985 multiletter control sequences out of 15000+600000
  14026 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,7n,38p,10411b,745s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,7n,38p,10411b,889s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
 usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></us
 r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on candidacy_paper.pdf (2 pages, 68844 bytes).
+Output written on candidacy_paper.pdf (3 pages, 75523 bytes).
 PDF statistics:
- 74 PDF objects out of 1000 (max. 8388607)
- 63 compressed objects within 1 object stream
- 11 named destinations out of 1000 (max. 500000)
+ 78 PDF objects out of 1000 (max. 8388607)
+ 66 compressed objects within 1 object stream
+ 12 named destinations out of 1000 (max. 500000)
  57 words of extra memory for PDF output out of 10000 (max. 10000000)
 
