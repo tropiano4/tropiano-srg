@@ -7,3 +7,10 @@ Studying notes for candidacy
     - Multiply by psi* and psi respectively
     - Substitute these equations in probability current
     - Sort terms to define current j
+
+* Derivation of the LS equation
+    - Assume the Hamiltonian is split into free and interacting part
+    - Free part has eigenvalues E with waves phi, full Hamiltonian has eigenvalues E with wave function psi
+    - Re-order psi eigenvalue/eigenvector equation for psi assuming psi -> phi as V -> 0 and include +/- epsilon to prevent singularity
+    - Insert complete set of states for phi
+    - Label quantum number alpha for full Hamiltonian, T-matrix
