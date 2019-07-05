@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{1}%
+\begin{thebibliography}{8}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -50,6 +50,42 @@
 \providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
 \let\auto@bib@innerbib\@empty
 %</preamble>
+\bibitem [{\citenamefont {Feshbach}(1958)}]{Feshbach:1958nx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(58)90007-1} {\bibfield
+  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
+  {5}},\ \bibinfo {pages} {357} (\bibinfo {year} {1958})}\BibitemShut {NoStop}%
+%%CITATION = APNYA,5,357;%%
+\bibitem [{\citenamefont {Feshbach}(1962)}]{Feshbach:1962ut}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(62)90221-X} {\bibfield
+  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
+  {19}},\ \bibinfo {pages} {287} (\bibinfo {year} {1962})},\ \bibinfo {note}
+  {[Annals Phys.281,519(2000)]}\BibitemShut {NoStop}%
+%%CITATION = APNYA,19,287;%%
+\bibitem [{\citenamefont {Dickhoff}\ and\ \citenamefont
+  {Charity}(2019)}]{Dickhoff:2018wdd}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {W.~H.}\ \bibnamefont
+  {Dickhoff}}\ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Charity}},\ }\href {\doibase 10.1016/j.ppnp.2018.11.002} {\bibfield
+  {journal} {\bibinfo  {journal} {Prog. Part. Nucl. Phys.}\ }\textbf {\bibinfo
+  {volume} {105}},\ \bibinfo {pages} {252} (\bibinfo {year} {2019})},\ \Eprint
+  {http://arxiv.org/abs/1811.03111} {arXiv:1811.03111 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1811.03111;%%
+\bibitem [{\citenamefont {Koning}\ and\ \citenamefont
+  {Delaroche}(2003)}]{Koning:2003zz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.~J.}\ \bibnamefont
+  {Koning}}\ and\ \bibinfo {author} {\bibfnamefont {J.~P.}\ \bibnamefont
+  {Delaroche}},\ }\href {\doibase 10.1016/S0375-9474(02)01321-0} {\bibfield
+  {journal} {\bibinfo  {journal} {Nucl. Phys. A}\ }\textbf {\bibinfo {volume}
+  {713}},\ \bibinfo {pages} {231} (\bibinfo {year} {2003})}\BibitemShut
+  {NoStop}%
+%%CITATION = NUPHA,A713,231;%%
 \bibitem [{\citenamefont {Rotureau}\ \emph {et~al.}(2017)\citenamefont
   {Rotureau}, \citenamefont {Danielewicz}, \citenamefont {Hagen}, \citenamefont
   {Nunes},\ and\ \citenamefont {Papenbrock}}]{Rotureau:2016jpf}%
@@ -64,4 +100,38 @@
   (\bibinfo {year} {2017})},\ \Eprint {http://arxiv.org/abs/1611.04554}
   {arXiv:1611.04554 [nucl-th]} \BibitemShut {NoStop}%
 %%CITATION = ARXIV:1611.04554;%%
+\bibitem [{\citenamefont {Furumoto}\ \emph {et~al.}(2019)\citenamefont
+  {Furumoto}, \citenamefont {Tsubakihara}, \citenamefont {Ebata},\ and\
+  \citenamefont {Horiuchi}}]{Furumoto:2019anr}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Furumoto}}, \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
+  {Tsubakihara}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ebata}},
+  \ and\ \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Horiuchi}},\
+  }\href {\doibase 10.1103/PhysRevC.99.034605} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {99}},\ \bibinfo
+  {pages} {034605} (\bibinfo {year} {2019})}\BibitemShut {NoStop}%
+%%CITATION = PHRVA,C99,034605;%%
+\bibitem [{\citenamefont {Idini}\ \emph {et~al.}(2019)\citenamefont {Idini},
+  \citenamefont {Barbieri},\ and\ \citenamefont {Navrátil}}]{Idini:2019hkq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Idini}}, \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Barbieri}}, \
+  and\ \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Navrátil}},\
+  }\href@noop {} {\  (\bibinfo {year} {2019})},\ \Eprint
+  {http://arxiv.org/abs/1903.04581} {arXiv:1903.04581 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1903.04581;%%
+\bibitem [{\citenamefont {King}\ \emph {et~al.}(2018)\citenamefont {King},
+  \citenamefont {Lovell},\ and\ \citenamefont {Nunes}}]{King:2018vzw}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {G.~B.}\ \bibnamefont
+  {King}}, \bibinfo {author} {\bibfnamefont {A.~E.}\ \bibnamefont {Lovell}}, \
+  and\ \bibinfo {author} {\bibfnamefont {F.~M.}\ \bibnamefont {Nunes}},\ }\href
+  {\doibase 10.1103/PhysRevC.98.044623} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {98}},\ \bibinfo
+  {pages} {044623} (\bibinfo {year} {2018})},\ \Eprint
+  {http://arxiv.org/abs/1810.06129} {arXiv:1810.06129 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1810.06129;%%
 \end{thebibliography}%
