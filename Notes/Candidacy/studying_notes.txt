@@ -14,3 +14,8 @@ Studying notes for candidacy
     - Re-order psi eigenvalue/eigenvector equation for psi assuming psi -> phi as V -> 0 and include +/- epsilon to prevent singularity
     - Insert complete set of states for phi
     - Label quantum number alpha for full Hamiltonian, T-matrix
+
+* The S-matrix
+    - Just remember that S_{fi} = < Phi_f | Psi(t) > where Psi(t) is the state evolved from the free state.
+    - Or S_{fi} = < Phi_f | S | Phi_i > where S = U(inf, -inf) the time evolution operator
+    - Relation to observables...
