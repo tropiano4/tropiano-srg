@@ -11,6 +11,11 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: candidacy_paperNotes.bib
 Database file #2: ../../tropiano_bib.bib
+I was expecting a `,' or a `}'---line 739 of file ../../tropiano_bib.bib
+ :  
+ :  place={Cambridge},
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
 control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
 control{apsrev41Control}, control.key{N/A}, control.author{08}, control.editor{1}, control.title{}, control.pages{0}, control.year{1}, control.eprint{N/A}, 
 Warning--jnrlst (dependency: not reversed) set 1
@@ -23,46 +28,47 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
+Warning--missing publisher in thompson_nunes_2009
 Warning--missing journal in Idini:2019hkq
-You've used 10 entries,
+You've used 11 entries,
             5847 wiz_defined-function locations,
-            1676 strings with 16390 characters,
-and the built_in function-call counts, 8628 in all, are:
-= -- 529
-> -- 195
-< -- 81
-+ -- 65
-- -- 61
-* -- 1327
-:= -- 833
-add.period$ -- 8
-call.type$ -- 10
-change.case$ -- 33
-chr.to.int$ -- 18
-cite$ -- 11
-duplicate$ -- 848
-empty$ -- 590
-format.name$ -- 108
-if$ -- 1639
+            1679 strings with 16525 characters,
+and the built_in function-call counts, 9369 in all, are:
+= -- 572
+> -- 214
+< -- 85
++ -- 71
+- -- 65
+* -- 1429
+:= -- 914
+add.period$ -- 9
+call.type$ -- 11
+change.case$ -- 36
+chr.to.int$ -- 19
+cite$ -- 13
+duplicate$ -- 923
+empty$ -- 657
+format.name$ -- 121
+if$ -- 1784
 int.to.chr$ -- 1
-int.to.str$ -- 17
-missing$ -- 120
-newline$ -- 84
-num.names$ -- 24
-pop$ -- 366
+int.to.str$ -- 18
+missing$ -- 127
+newline$ -- 87
+num.names$ -- 27
+pop$ -- 405
 preamble$ -- 1
-purify$ -- 40
+purify$ -- 45
 quote$ -- 0
-skip$ -- 306
+skip$ -- 333
 stack$ -- 0
-substring$ -- 213
-swap$ -- 787
-text.length$ -- 21
+substring$ -- 224
+swap$ -- 842
+text.length$ -- 23
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 121
-warning$ -- 2
-while$ -- 32
+type$ -- 133
+warning$ -- 3
+while$ -- 34
 width$ -- 0
-write$ -- 127
-(There were 2 warnings)
+write$ -- 133
+(There was 1 error message)
