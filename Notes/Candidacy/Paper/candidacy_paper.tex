@@ -8,7 +8,9 @@
 % Candidacy paper on the status of nuclear optical potentials and future prospects.
 %
 % Revision history:
-% 	07/02/19 --- Starting with bulleted outline. 
+% 	07/02/19 --- Starting with bulleted outline.
+%     07/10/19 --- Adding equations to formalism section.
+%	07/11/19 --- Put theoretical issues section as part of the conclusion. Also, wrote much of the formalism section.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -78,15 +80,185 @@ Things to include:
 
 Things to include:
 \\
--- More general things from Thompson/Nunes: define optical potentials as complex potentials and consequences of this. Reaction cross section derivation.
+-- Projectile strikes a nucleus: elastic scattering and more.
 \\
--- Derivation of the general optical potential (equation (2.15) in Feshbach).
+-- Derivation of the general optical potential (equation (2.15) in Feshbach). \textcolor{red}{Check.}
 \\
--- Relation to observables (basic quantum stuff?)
+-- More general things from Thompson/Nunes: define optical potentials as complex potentials and consequences of this. Reaction cross section derivation?
 \\
--- Derivation with projection operators.
+-- Drawbacks to this derivation. Transition to projection operator method.
+\\
+-- Relation to observables. Use Lippmann-Schwinger equation to bridge gap to observables: phase shifts and cross sections. Maybe this makes more sense in phenomenology section?
+\\
+-- Generalization: derivation with projection operators.
 \\
 -- References: \cite{Feshbach:1958nx}, \cite{Feshbach:1962ut}, \cite{thompson_nunes_2009}.
+\\
+
+\textcolor{red}{Add Feshbach reference somewhere.}
+\\
+
+First, we present the optical potential for an $A+1$ particle system consisting of an incident nucleon and a target nucleus of mass number $A$. The system is described by the Schr\"odinger equation
+%
+\begin{eqnarray}
+	\label{eq:schrodinger_equation}
+	\mathcal{H} \Psi = E \Psi,
+\end{eqnarray}
+%
+with the Hamiltonian $\mathcal{H}$ given below:
+%
+\begin{eqnarray}
+	\label{eq:total_hamiltonian}
+	\mathcal{H} = H_A(\textbf{r}_1, \cdots , \textbf{r}_A) + T_0 + V(\textbf{r}_0, \cdots , \textbf{r}_A).
+\end{eqnarray}
+%
+The variables $\textbf{r}_k$ correspond to position, spin, and isospin for the incident nucleon ($k=0$) and each nucleon in the target nucleus ($k=1 \cdots A$). $T_0$ is the kinetic energy of the incident nucleon and $V$ is the potential energy of the $A+1$ system. $H_A$ is the Hamiltonian for the target nucleus and satisfies the Schr\"odinger equation
+%
+\begin{eqnarray}
+	\label{eq:nuclear_schrodinger_equation}
+	H_A(\textbf{r}_1, \cdots , \textbf{r}_A) \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A) = \epsilon_i \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A),
+\end{eqnarray}
+%
+for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $i$ corresponds to each state of the target nucleus with $i=0$ being the ground state. The nuclear wave functions $\psi_i$ form a complete, orthonormal set; thus, we expand the wave function $\Psi$ as follows:
+%
+\begin{eqnarray}
+	\label{eq:wave_function}
+	\Psi(\textbf{r}_0, \cdots , \textbf{r}_A) = \sum_{i} \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A) u_i(\textbf{r}_0).
+\end{eqnarray}
+%
+Note, the factors $u_i$ carry the $\textbf{r}_0$ dependence.
+\\
+
+%
+\textcolor{red}{Mention hard-core problem.} In the following, we suppress the coordinate, spin, and isospin dependencies for brevity. We substitute \ref{eq:wave_function} into the Schr\"odinger equation \ref{eq:schrodinger_equation} and use the orthonormality of $\psi_i$ to derive a system of equations for the amplitudes $u_i$:
+%
+\begin{eqnarray}
+	\label{eq:u_equation}
+	(T_0 + V_{ii} + \epsilon_i - E) u_i = - \sum_{j \neq i} V_{ij} u_j,
+\end{eqnarray}
+%
+where the potential matrix elements are
+%
+\begin{eqnarray}
+	\label{eq:potential_matrix_elements}
+	V_{ij}(\textbf{r}_0) = \int{d^3 r_1 d^3 r_2 \cdots d^3 r_A \psi_i^* V \psi_j}.
+\end{eqnarray}
+%
+Next, we would like to derive an uncoupled equation for $u_0$ to describe elastic scattering in which the target nucleus is in its ground state with an incident nucleon of energy $E$. The other indices $i$ describe an emergent nucleon in a different state (e.g. energy, spin, isospin, etc.) from the incident nucleon. It is convenient to define the vectors
+%
+\begin{eqnarray}
+	\label{eq:u_vector}
+	\Phi \equiv
+	\begin{pmatrix}
+		u_1 \\
+		u_2 \\
+		\vdots \\
+	\end{pmatrix}
+	,
+\end{eqnarray}
+%
+\begin{eqnarray}
+	\label{eq:potential_vector}
+	\textbf{V}_0 =
+	\begin{pmatrix}
+		V_{01}, V_{02}, \cdots
+	\end{pmatrix}
+\end{eqnarray}
+%
+and the matrix operator $\textbf{H}$
+%
+\begin{eqnarray}
+	\label{eq:hamiltonian_operator}
+	H_{ij} = T_0 \delta_{ij} + V_{ij} + \epsilon_i \delta_{ij}.
+\end{eqnarray}
+%
+Then we can rewrite \ref{eq:u_equation} as
+%
+\begin{subequations}
+	\label{eq:u_vector_equation}
+	\begin{eqnarray}
+		\label{eq:u_vector_equation_a}
+		(T_0 + V_{00} - E) u_0 = -\textbf{V}_0 \Phi,
+	\end{eqnarray}
+	\begin{eqnarray}
+		\label{eq:u_vector_equation_b}
+		(\textbf{H}-E) \Phi = -\textbf{V}_0^{\dagger} u_0.
+	\end{eqnarray}
+\end{subequations}
+%
+We solve \ref{eq:u_vector_equation_b} for $\Phi$
+%
+\begin{eqnarray}
+	\label{eq:phi}
+	\Phi = \frac{1}{E - \textbf{H} + i \eta} \textbf{V}_0^{\dagger} u_0,
+\end{eqnarray}
+%
+where $\eta \rightarrow 0^+$ to ensure only outgoing waves are present in exit channels for $u_i$ with $i \geq 1$. Lastly, we substitute $\Phi$ into \ref{eq:u_vector_equation_a} to give
+%
+\begin{eqnarray}
+	\label{eq:u0_equation}
+	(T_0 + V_{00}  - \textbf{V}_0 \frac{1}{E-\textbf{H}+i\eta} \textbf{V}_0^{\dagger} - E) u_0 = 0,
+\end{eqnarray}
+%
+and define the optical potential as
+%
+\begin{eqnarray}
+	\label{eq:optical_potential}
+	V_{opt} = V_{00}  - \textbf{V}_0 \frac{1}{E-\textbf{H}+i\eta} \textbf{V}_0^{\dagger}.
+\end{eqnarray}
+%
+\textcolor{red}{Drawbacks of this derivation.}
+\\
+
+We can see from Eq.~\ref{eq:optical_potential} that the optical potential is complex and energy dependent. The factor of $i \eta$ leads to $V^{opt}$ being complex, and thus, non-hermitian. The factor of $i \eta$ accounts for incident particles leaving the entrance channel $u_0$ to an exit channel $u_i$ where $i \geq 1$. This only occurs if reactions are possible, that is, $E > \epsilon_1$. Because $V^{opt}$ is not hermitian, the S matrix is not unitary giving rise to complex scattering phase shifts.
+\\
+
+\textcolor{red}{Furthermore, the potential is non-local... Use reference \cite{Hodgson:1971ab}.}
+\\
+
+\textcolor{red}{%
+-- Generalization by using projection operators.
+\\
+-- What does $P$ and $Q$ do?
+\\
+-- Examples? (Feshbach.)}
+\\
+The projection operators satisfy the following relations: $P+Q=1$, $P^2 = P$, and $Q^2 = Q$. We act on Eq.~\ref{eq:schrodinger_equation} with $P$ and $Q$ and use the projection operator relations to obtain two equations:
+%
+\begin{subequations}
+	\label{eq:intermediate_effective_hamiltonian_equations}
+	\begin{eqnarray}
+		\label{eq:pp_pq}
+		(E - \mathcal{H}_{PP}) P \Psi = \mathcal{H}_{PQ} Q \Psi,
+	\end{eqnarray}
+	\begin{eqnarray}
+		\label{eq:qq_qp}
+		(E - \mathcal{H}_{QQ}) Q \Psi = \mathcal{H}_{QP} P \Psi.
+	\end{eqnarray}
+\end{subequations}
+%
+Solving \ref{eq:qq_qp} for $Q \Psi$ yields
+%
+\begin{eqnarray}
+	\label{eq:q_psi}
+	Q \Psi = \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP} P \Psi.
+\end{eqnarray}
+%
+Note, if $P$ does not include all open channels, then a factor of $i \eta$ where $\eta \rightarrow 0^+$ must be inserted in the denominator as before to account for... \textcolor{red}{Finish this note.} Substituting $Q \Psi$ into Eq.~\ref{eq:pp_pq} and rearranging gives
+%
+\begin{eqnarray}
+	\label{p_psi}
+	(E - \mathcal{H}_{PP} - \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP}) P \Psi = 0,
+\end{eqnarray}
+%
+where the effective Hamiltonian is
+%
+\begin{eqnarray}
+	\label{eq:effective_hamiltonian}
+	H_{eff} = \mathcal{H}_{PP} + \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP}.
+\end{eqnarray}
+%
+\textcolor{red}{Advantages of the projection operator formulation.} Wider applicability with generalization of $P$.	
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,13 +270,15 @@ Things to include:
 \\
 -- Form of the potential: Woods-Saxon shape, coulomb component, spin-orbit force. (Basic example in Thompson/Nunes.). Can start with discussion similar to Thompson/Nunes.
 \\
+-- Types: best fit, local, and global (see Koning). Advantages and disadvantages of each.
+\\
 -- Fit strength, radii, and diffuseness of complex potential.
 \\
 -- Surface and volume component from Dickhoff?
 \\
--- Issue: fitting ambiguities, extractions to exotic regions of the nuclear chart.
+-- Issue: fitting ambiguities, extractions to exotic regions of the nuclear chart. Some short-comings mentioned in Koning.
 \\
--- Make sure to touch on phenomenology of optical potentials in modern experimental analyses (key word is modern!)
+-- Make sure to touch on phenomenology of optical potentials in modern experimental analyses (key word is modern!) Koning.
 \\
 -- References: \cite{Dickhoff:2018wdd} section 3, \cite{Koning:2003zz}.
 
