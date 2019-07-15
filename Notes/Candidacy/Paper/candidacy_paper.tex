@@ -11,6 +11,7 @@
 % 	07/02/19 --- Starting with bulleted outline.
 %     07/10/19 --- Adding equations to formalism section.
 %	07/11/19 --- Put theoretical issues section as part of the conclusion. Also, wrote much of the formalism section.
+%	07/15/19 --- Wrote the phenomenology section.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -70,6 +71,8 @@ Things to include:
 \\
 -- How do optical potentials help us understand nuclear reactions?
 \\
+-- Basic introduction to optical potentials. Why are they complex? Historical introduction.
+\\
 -- References: ...
 
 
@@ -82,7 +85,7 @@ Things to include:
 \\
 -- Projectile strikes a nucleus: elastic scattering and more.
 \\
--- Derivation of the general optical potential (equation (2.15) in Feshbach). \textcolor{red}{Check.}
+-- Derivation of the general optical potential (equation (2.15) in Feshbach).
 \\
 -- More general things from Thompson/Nunes: define optical potentials as complex potentials and consequences of this. Reaction cross section derivation?
 \\
@@ -119,7 +122,7 @@ The variables $\textbf{r}_k$ correspond to position, spin, and isospin for the i
 	H_A(\textbf{r}_1, \cdots , \textbf{r}_A) \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A) = \epsilon_i \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A),
 \end{eqnarray}
 %
-for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $i$ corresponds to each state of the target nucleus with $i=0$ being the ground state. The nuclear wave functions $\psi_i$ form a complete, orthonormal set; thus, we expand the wave function $\Psi$ as follows:
+for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $i$ corresponds to each state of the target nucleus with $i=0$ being the ground state. The nuclear wave functions $\psi_i$ form a complete, orthonormal set; thus, we can expand the wave function $\Psi$ as follows:
 %
 \begin{eqnarray}
 	\label{eq:wave_function}
@@ -129,7 +132,6 @@ for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $
 Note, the factors $u_i$ carry the $\textbf{r}_0$ dependence.
 \\
 
-%
 \textcolor{red}{Mention hard-core problem.} In the following, we suppress the coordinate, spin, and isospin dependencies for brevity. We substitute \ref{eq:wave_function} into the Schr\"odinger equation \ref{eq:schrodinger_equation} and use the orthonormality of $\psi_i$ to derive a system of equations for the amplitudes $u_i$:
 %
 \begin{eqnarray}
@@ -163,6 +165,7 @@ Next, we would like to derive an uncoupled equation for $u_0$ to describe elasti
 	\begin{pmatrix}
 		V_{01}, V_{02}, \cdots
 	\end{pmatrix}
+	,
 \end{eqnarray}
 %
 and the matrix operator $\textbf{H}$
@@ -210,20 +213,13 @@ and define the optical potential as
 \textcolor{red}{Drawbacks of this derivation.}
 \\
 
-We can see from Eq.~\ref{eq:optical_potential} that the optical potential is complex and energy dependent. The factor of $i \eta$ leads to $V^{opt}$ being complex, and thus, non-hermitian. The factor of $i \eta$ accounts for incident particles leaving the entrance channel $u_0$ to an exit channel $u_i$ where $i \geq 1$. This only occurs if reactions are possible, that is, $E > \epsilon_1$. Because $V^{opt}$ is not hermitian, the S matrix is not unitary giving rise to complex scattering phase shifts.
+We can see from Eq.~\ref{eq:optical_potential} that the optical potential is complex and energy dependent. The factor of $i \eta$ leads to $V_{opt}$ being complex, and thus, non-hermitian. The factor of $i \eta$ accounts for incident particles leaving the entrance channel $u_0$ to an exit channel $u_i$ where $i \geq 1$. This only occurs if reactions are possible, that is, $E > \epsilon_1$. Because $V_{opt}$ is not hermitian, the $S$-matrix is not unitary giving rise to complex scattering phase shifts.
 \\
 
 \textcolor{red}{Furthermore, the potential is non-local... Use reference \cite{Hodgson:1971ab}.}
 \\
 
-\textcolor{red}{%
--- Generalization by using projection operators.
-\\
--- What does $P$ and $Q$ do?
-\\
--- Examples? (Feshbach.)}
-\\
-The projection operators satisfy the following relations: $P+Q=1$, $P^2 = P$, and $Q^2 = Q$. We act on Eq.~\ref{eq:schrodinger_equation} with $P$ and $Q$ and use the projection operator relations to obtain two equations:
+\textcolor{red}{Generalization by using projection operators. What do $P$ and $Q$ do? Examples? (Feshbach.)} The projection operators satisfy the following relations: $P+Q=1$, $P^2 = P$, and $Q^2 = Q$. We act on Eq.~\ref{eq:schrodinger_equation} with $P$ and $Q$ and use the projection operator relations to obtain two equations:
 %
 \begin{subequations}
 	\label{eq:intermediate_effective_hamiltonian_equations}
@@ -266,22 +262,50 @@ where the effective Hamiltonian is
 \label{sec:phenomenology}
 
 
-Things to include:
+Historically, phenomenological optical potentials have been obtained by fitting elastic-scattering angular distributions with a complex potential of the form
+%
+\begin{eqnarray}
+	\label{eq:phenomenological_optical_potential}
+	V_{opt}(r) &=& V_C - V f(x_0) + (\frac{\hbar}{m_{\pi} c})^2 V_{SO}(\bm{\sigma} \cdot \textbf{l}) \frac{1}{r} \frac{d}{dr} f(x_{SO}) \nonumber \\ 
+& &- i [W f(x_W) - 4 W_D \frac{d}{dx_D} f(x_D)].
+\end{eqnarray}
+%
+The first term, $V_C$, accounts for charged-interactions between charged particles (e.g. an incident proton and a nuclear target with total charge $Z'$) where
+%
+\begin{eqnarray}
+	\label{eq:coulomb_potential}
+	V_C =
+	\begin{cases}
+		\frac{Z Z' e^2}{r} \qquad \text{if $r \geq R_C$} \\
+		\frac{Z Z' e^2}{2 R_C} (3 - \frac{r^2}{R_C^2}) \qquad \text{if $r \leq R_C$},
+	\end{cases}
+\end{eqnarray}
+%
+with $R_C = r_C A^{1/3}$. This is the Coulomb potential of a spherical, uniformly-charged distribution of radius $R_C$. Note, this term is zero if the projectile particles are neutral; for instance, incident neutrons. \textcolor{red}{Why $A^{1/3}$?}
 \\
--- Form of the potential: Woods-Saxon shape, coulomb component, spin-orbit force. (Basic example in Thompson/Nunes.). Can start with discussion similar to Thompson/Nunes.
-\\
--- Types: best fit, local, and global (see Koning). Advantages and disadvantages of each.
-\\
--- Fit strength, radii, and diffuseness of complex potential.
-\\
--- Surface and volume component from Dickhoff?
-\\
--- Issue: fitting ambiguities, extractions to exotic regions of the nuclear chart. Some short-comings mentioned in Koning.
-\\
--- Make sure to touch on phenomenology of optical potentials in modern experimental analyses (key word is modern!) Koning.
-\\
--- References: \cite{Dickhoff:2018wdd} section 3, \cite{Koning:2003zz}.
 
+The remaining terms include Woods-Saxon form factors $f(x_i)$ where $x_i = \frac{r-r_i A^{1/3}}{a_i}$ with radius and diffusivity parameters $r_i$ and $a_i$. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, hence Woods-Saxon form factors serving as good candidates for modeling the projectile-nucleus interaction. The $V$ term gives the approximate interaction between the incident particle and the target nucleus and typically has a potential well depth of $V \approx 50$ MeV. $V_{SO}$ is the spin-orbit coupling term where $\bm{\sigma}$ is the spin operator and $\bm{l}$ is the angular momentum of the incident particle. \textcolor{red}{Important for describing analyzing powers. Mention derivative of form factor (peaks at surface of nucleus)?}
+\\
+
+At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. The first term, $W$, represents volume absorption, and the second, $W_D$, surface absorption. These components include a Woods-Saxon form factor and its derivative, respectively. Note, the derivative of the Woods-Saxon function peaks at the nuclear radius, hence the $W_D$ accounting for surface absorption. At lower energies ($E < 10$ MeV) the surface term dominates while at higher energies one must include the volume absorption component.
+\\
+
+Phenomenological optical potentials are often obtained by $\chi^2$ minimization fitting angular distributions, analyzing powers, or cross section with radii and diffusivity parameters. The $\chi^2$ function is dependent on experimental data which can heavily affect the fitted parameters depending on which data sets are used or the methodology to arrive at an average data set. In many situations, several sets of parameters can give a good fit to experimental data. Furthermore, optical models may have differing definitions of the $\chi^2$ function. Overall, this leads to an ambiguity in fitting an optical potential model. In the remainder of this section, we discuss three methods in parameterizing a phenomenological optical potential: best-fit, global-fit, and local-fit.
+\\
+
+A best-fit optical model is a model fit from one set of data (e.g. a single elastic angular distribution). With several parameters to obtain a satisfactory fit, these models can adequately describe a specific projectile and nuclear target. However, parameter sets from best-fit models are energy dependent and fail to make predictions at energies outside the range of data. The only recent use of best-fit models are to provide insight in global trends for optical model parameters across different energy ranges, and thus serve as a preliminary step for parameterizing either local or global optical models.
+\\
+
+A global-fit model is the opposite of the best-fit model in the sense that global-fit models cover wide ranges of energy and mass number $A$. In this way, we can expect better predictive power from these models for nuclei where no experimental data exist. These parameterizations require a large range of data sets to give an ``average'' description of the projectile-nucleus interaction. However, these models are often unreliable since different nuclides are not smoothly dependent on $A$ or $Z$ unlike the Woods-Saxon parameters. This fault advocates the development of microscopic optical potentials which can consistently describe the interaction for various nuclei.
+\\
+
+Lastly, the local-fit models are a combination of the former methods. Here, parameters are specific to a given target nucleus with energy-dependence expressed analytically. The parameters are fit by varying them around global-fit parameters for each nucleus of interest. The resulting parameters are similar for neighboring nuclei; however, the variation in parameters is still unpredictable. \textcolor{red}{Give example of local-fit optical model from Koning. Figures 3-5? Pick one.}
+\\
+
+In the next section, we discuss microscopic optical potentials which seek to overcome the shortcomings of the phenomenological models. \textcolor{red}{Motivate and transition to microscopic optical potentials. Try to focus on limitations of phenomenological models here (extractions to exotic regions of the nuclear chart).}
+\\
+
+References: \cite{Dickhoff:2018wdd} section 3, \cite{Perey:1976zz}, \cite{Koning:2003zz}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -290,6 +314,8 @@ Things to include:
 
 
 Things to include:
+\\
+``In the microscopic optical model, the nucleon-nucleon effective interaction is folded with the matter density distribution to give a direct measure of the strength and shape of the nuclear potential."
 \\
 -- Successes and limitations.
 \\
@@ -303,27 +329,19 @@ Things to include:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Theoretical issues}
-\label{sec:section_4}
-
-
-Things to include:
-\\
--- Fitting ambiguities for phenomenological potential.
-\\
--- Uncertainty quantification.
-\\
--- Add this to outlook in conclusion?
-\\
--- References: \cite{King:2018vzw}.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 \label{sec:conclusion}
 
 
 Summary and outlook.
+\\
+Theoretical issues:
+\\
+-- Fitting ambiguities for phenomenological potential.
+\\
+-- Uncertainty quantification.
+\\
+-- References: \cite{King:2018vzw}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

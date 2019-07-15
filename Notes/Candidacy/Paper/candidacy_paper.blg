@@ -11,7 +11,7 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: candidacy_paperNotes.bib
 Database file #2: ../../tropiano_bib.bib
-I was expecting a `,' or a `}'---line 753 of file ../../tropiano_bib.bib
+I was expecting a `,' or a `}'---line 765 of file ../../tropiano_bib.bib
  :       
  :       place={Cambridge},
 (Error may have been on previous line)
@@ -30,45 +30,45 @@ Control: year (1) truncated
 Control: production of eprint (0) enabled
 Warning--missing publisher in thompson_nunes_2009
 Warning--missing journal in Idini:2019hkq
-You've used 12 entries,
+You've used 13 entries,
             5847 wiz_defined-function locations,
-            1690 strings with 16730 characters,
-and the built_in function-call counts, 10116 in all, are:
-= -- 630
-> -- 224
-< -- 90
-+ -- 75
-- -- 67
-* -- 1527
-:= -- 998
-add.period$ -- 10
-call.type$ -- 12
-change.case$ -- 40
-chr.to.int$ -- 20
-cite$ -- 14
-duplicate$ -- 995
-empty$ -- 716
-format.name$ -- 126
-if$ -- 1932
+            1700 strings with 16943 characters,
+and the built_in function-call counts, 10978 in all, are:
+= -- 692
+> -- 243
+< -- 96
++ -- 81
+- -- 71
+* -- 1654
+:= -- 1086
+add.period$ -- 11
+call.type$ -- 13
+change.case$ -- 44
+chr.to.int$ -- 21
+cite$ -- 15
+duplicate$ -- 1078
+empty$ -- 780
+format.name$ -- 139
+if$ -- 2102
 int.to.chr$ -- 1
-int.to.str$ -- 19
-missing$ -- 137
-newline$ -- 90
-num.names$ -- 30
-pop$ -- 437
+int.to.str$ -- 20
+missing$ -- 148
+newline$ -- 94
+num.names$ -- 33
+pop$ -- 473
 preamble$ -- 1
-purify$ -- 50
+purify$ -- 55
 quote$ -- 0
-skip$ -- 364
+skip$ -- 395
 stack$ -- 0
-substring$ -- 247
-swap$ -- 904
-text.length$ -- 24
+substring$ -- 264
+swap$ -- 981
+text.length$ -- 26
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 145
+type$ -- 158
 warning$ -- 3
-while$ -- 37
+while$ -- 40
 width$ -- 0
-write$ -- 141
+write$ -- 150
 (There was 1 error message)
