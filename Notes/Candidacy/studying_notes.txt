@@ -19,3 +19,6 @@ Studying notes for candidacy
     - Just remember that S_{fi} = < Phi_f | Psi(t) > where Psi(t) is the state evolved from the free state.
     - Or S_{fi} = < Phi_f | S | Phi_i > where S = U(inf, -inf) the time evolution operator
     - Relation to observables...
+
+* Optics analogy
+    - Complex index of refraction for light refraction and absorption
