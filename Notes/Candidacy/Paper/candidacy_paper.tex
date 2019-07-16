@@ -63,15 +63,15 @@
 \label{sec:intro}
 
 
-Things to include:
+-- Why are nuclear reactions important? (Processes that help us understand nuclear structure amongst other things. Exotic nuclei are short-lived and must used reactions to study them.) List examples. Connection to experiment. \textcolor{red}{Save this for last.}
 \\
--- Why are nuclear reactions important? (Processes that help us understand nuclear structure amongst other things. Exotic nuclei are short-lived and must used reactions to study them.) List examples.
+-- The nuclear scattering problem.
 \\
--- r-process for motivation.
+-- How do optical potentials help us understand nuclear reactions?. Basic introduction to optical potentials. Why are they complex? Historical introduction. Lead into phenomenology. Use basic references (old papers).
 \\
--- How do optical potentials help us understand nuclear reactions?
+-- Current progress on optical potentials. Ab initio approaches. Use references from Section \ref{sec:microscopic}.
 \\
--- Basic introduction to optical potentials. Why are they complex? Historical introduction.
+-- Overview of sections.
 \\
 -- References: ...
 
@@ -123,6 +123,7 @@ The variables $\textbf{r}_k$ correspond to position, spin, and isospin for the i
 \end{eqnarray}
 %
 for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $i$ corresponds to each state of the target nucleus with $i=0$ being the ground state. The nuclear wave functions $\psi_i$ form a complete, orthonormal set; thus, we can expand the wave function $\Psi$ as follows:
+% This neglects antisymmetrization requirements.
 %
 \begin{eqnarray}
 	\label{eq:wave_function}
@@ -254,6 +255,8 @@ where the effective Hamiltonian is
 	H_{eff} = \mathcal{H}_{PP} + \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP}.
 \end{eqnarray}
 %
+% Finish this derivation using Hodgson.
+%
 \textcolor{red}{Advantages of the projection operator formulation.} Wider applicability with generalization of $P$.	
 
 
@@ -281,13 +284,14 @@ The first term, $V_C$, accounts for charged-interactions between charged particl
 	\end{cases}
 \end{eqnarray}
 %
+% Nuclear radii are roughly proportional to A^1/3.
 with $R_C = r_C A^{1/3}$. This is the Coulomb potential of a spherical, uniformly-charged distribution of radius $R_C$. Note, this term is zero if the projectile particles are neutral; for instance, incident neutrons. \textcolor{red}{Why $A^{1/3}$?}
 \\
 
-The remaining terms include Woods-Saxon form factors $f(x_i)$ where $x_i = \frac{r-r_i A^{1/3}}{a_i}$ with radius and diffusivity parameters $r_i$ and $a_i$. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, hence Woods-Saxon form factors serving as good candidates for modeling the projectile-nucleus interaction. The $V$ term gives the approximate interaction between the incident particle and the target nucleus and typically has a potential well depth of $V \approx 50$ MeV. $V_{SO}$ is the spin-orbit coupling term where $\bm{\sigma}$ is the spin operator and $\bm{l}$ is the angular momentum of the incident particle. \textcolor{red}{Important for describing analyzing powers. Mention derivative of form factor (peaks at surface of nucleus)?}
+The remaining terms include Woods-Saxon form factors $f(x_i)$ where $x_i = \frac{r-r_i A^{1/3}}{a_i}$ with radius and diffusivity parameters $r_i$ and $a_i$. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, hence Woods-Saxon form factors serving as good candidates for modeling the projectile-nucleus interaction. The $V$ term gives the approximate interaction between the incident particle and the target nucleus and typically has a potential well depth of $V \approx 50$ MeV. $V_{SO}$ is the spin-orbit coupling term where $\bm{\sigma}$ is the spin operator and $\bm{l}$ is the angular momentum of the incident particle. \textcolor{red}{Important for describing analyzing powers.}
 \\
 
-At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. The first term, $W$, represents volume absorption, and the second, $W_D$, surface absorption. These components include a Woods-Saxon form factor and its derivative, respectively. Note, the derivative of the Woods-Saxon function peaks at the nuclear radius, hence the $W_D$ accounting for surface absorption. At lower energies ($E < 10$ MeV) the surface term dominates while at higher energies one must include the volume absorption component.
+At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. The first term, $W$, represents volume absorption, and the second, $W_D$, surface absorption. These components include a Woods-Saxon form factor and its derivative, respectively. Note, the derivative of the Woods-Saxon function peaks at the nuclear radius, hence the $W_D$ accounting for surface absorption. At lower energies ($E < 10$ MeV) the surface term dominates while at higher energies one must include the volume absorption component. \textcolor{red}{Mention $W_{SO}$ term.}
 \\
 
 Phenomenological optical potentials are often obtained by $\chi^2$ minimization fitting angular distributions, analyzing powers, or cross section with radii and diffusivity parameters. The $\chi^2$ function is dependent on experimental data which can heavily affect the fitted parameters depending on which data sets are used or the methodology to arrive at an average data set. In many situations, several sets of parameters can give a good fit to experimental data. Furthermore, optical models may have differing definitions of the $\chi^2$ function. Overall, this leads to an ambiguity in fitting an optical potential model. In the remainder of this section, we discuss three methods in parameterizing a phenomenological optical potential: best-fit, global-fit, and local-fit.
