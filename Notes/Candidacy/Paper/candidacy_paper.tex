@@ -71,7 +71,7 @@ Nuclear reactions are central to many areas of physics. A good understanding of 
 From the theoretical side, the task is to solve the nuclear scattering problem, that is, a projectile particle scattering from a target nucleus interacting via the strong force. Typically, projectile particles consist of protons, neutrons, $\alpha$ particles, or nuclei. Scattering from a nuclear target leads to a quantum many-body problem since nuclei are composite particles composed of protons and neutrons; that is, the projectile interacts with several nucleons in the target nucleus. This presents a number of challenges. Nuclear many-body systems are often non-perturbative and the computational difficulty of the problem drastically increases with nuclear mass number $A$. Techniques to simplify the quantum many-body scattering problem are necessary.
 \\
 
-One such technique is to introduce a complex potential as an effective projectile-nucleus interaction to account for refraction and absorption of the incident particles. These complex potentials are called optical potentials. The term optical comes from an analogy where a complex index of refraction is used to describe light refraction and absorption. In nuclear scattering, refraction corresponds to elastic scattering whereas absorption corresponds to flux disappearing to inelastic channels. Optical potentials have been used to calculate observables of many direct reaction processes and play an important role in the development of nuclear reaction theory.
+One such technique is to introduce a complex potential as an effective projectile-nucleus interaction to account for refraction and absorption of the incident particles. These complex potentials are called optical potentials. The term optical comes from an analogy where a complex index of refraction is used to describe light refraction and absorption. In nuclear scattering, refraction corresponds to elastic scattering whereas absorption corresponds to flux disappearing to inelastic channels. Optical potentials have been used to calculate observables of many direct reaction processes and play an important role in the development of nuclear reaction theory \cite{thompson_nunes_2009}.
 \\
 
 Originally, optical potentials were constrained by data, that is, phenomenological models. Progress in effective field theory (EFT) and renormalization group methods (SRG) have led to a wealth of knowledge on the fundamental interaction between nucleons \cite{Epelbaum:2008ga}. These methods are referred to as \textit{ab initio} or microscopic approaches. We now have access to microscopic optical potentials where the interaction between two nucleons (NN force or interaction) is used in place of phenomenological models offering more predictive power for rare isotopes out of experimental reach.
@@ -84,26 +84,6 @@ This paper is organized as follows: in Section \ref{sec:formalism} we present th
 \section{Formalism}
 \label{sec:formalism}
 
-
-Things to include:
-\\
--- Projectile strikes a nucleus: elastic scattering and more.
-\\
--- Derivation of the general optical potential (equation (2.15) in Feshbach).
-\\
--- More general things from Thompson/Nunes: define optical potentials as complex potentials and consequences of this. Reaction cross section derivation?
-\\
--- Drawbacks to this derivation. Transition to projection operator method.
-\\
--- Relation to observables. Use Lippmann-Schwinger equation to bridge gap to observables: phase shifts and cross sections. Maybe this makes more sense in phenomenology section?
-\\
--- Generalization: derivation with projection operators.
-\\
--- References: \cite{Feshbach:1958nx}, \cite{Feshbach:1962ut}, \cite{thompson_nunes_2009}.
-\\
-
-\textcolor{red}{Add Feshbach reference somewhere.}
-\\
 
 First, we present the optical potential for an $A+1$ particle system consisting of an incident nucleon and a target nucleus of mass number $A$ as derived in \cite{Feshbach:1958nx}. The system is described by the Schr\"odinger equation
 %
@@ -127,17 +107,16 @@ The variables $\textbf{r}_k$ correspond to position, spin, and isospin for the i
 \end{eqnarray}
 %
 for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $i$ corresponds to each state of the target nucleus with $i=0$ being the ground state. The nuclear wave functions $\psi_i$ form a complete, orthonormal set; thus, we can expand the wave function $\Psi$ as follows:
-% This neglects antisymmetrization requirements.
 %
 \begin{eqnarray}
 	\label{eq:wave_function}
 	\Psi(\textbf{r}_0, \cdots , \textbf{r}_A) = \sum_{i} \psi_i(\textbf{r}_1, \cdots , \textbf{r}_A) u_i(\textbf{r}_0).
 \end{eqnarray}
 %
-Note, the factors $u_i$ carry the $\textbf{r}_0$ dependence.
+Note, the factors $u_i$ carry the $\textbf{r}_0$ dependence. 
 \\
 
-\textcolor{red}{Mention hard-core problem.} In the following, we suppress the coordinate, spin, and isospin dependencies for brevity. We substitute (\ref{eq:wave_function}) into the Schr\"odinger equation \ref{eq:schrodinger_equation} and use the orthonormality of $\psi_i$ to derive a system of equations for the amplitudes $u_i$:
+In the following, we suppress the coordinate, spin, and isospin dependencies for brevity. We substitute (\ref{eq:wave_function}) into the Schr\"odinger equation \ref{eq:schrodinger_equation} and use the orthonormality of $\psi_i$ to derive a system of equations for the amplitudes $u_i$:
 %
 \begin{eqnarray}
 	\label{eq:u_equation}
@@ -215,16 +194,12 @@ and define the optical potential as
 	V_{opt} = V_{00}  - \textbf{V}_0 \frac{1}{E-\textbf{H}+i\eta} \textbf{V}_0^{\dagger}.
 \end{eqnarray}
 %
-\textcolor{red}{Drawbacks of this derivation.}
 \\
 
-We can see from Eq.~(\ref{eq:optical_potential}) that the optical potential is complex and energy dependent. The factor of $i \eta$ leads to $V_{opt}$ being complex, and thus, non-hermitian. The factor of $i \eta$ accounts for incident particles leaving the entrance channel $u_0$ to an exit channel $u_i$ where $i \geq 1$. This only occurs if reactions are possible, that is, $E > \epsilon_1$. Because $V_{opt}$ is not hermitian, the $S$-matrix is not unitary giving rise to complex scattering phase shifts.
+We can see from Eq.~(\ref{eq:optical_potential}) that the optical potential is complex and energy dependent. The factor of $i \eta$ leads to $V_{opt}$ being complex, and thus, non-hermitian. The factor of $i \eta$ accounts for incident particles leaving the entrance channel $u_0$ to an exit channel $u_i$ where $i \geq 1$. This only occurs if reactions are possible, that is, $E > \epsilon_1$. Because $V_{opt}$ is non-hermitian, the $S$-matrix is not unitary giving rise to complex scattering phase shifts. Furthermore, the potential is non-local from the second term. The effective potential depends on the wave function throughout a surrounding region; mathematically, this corresponds to a potential $V(\textbf{r})$ being replaced by $\int d^3 r' \, V(\textbf{r}, \textbf{r}')$ \cite{Hodgson:1971ab}. The derivation only accounts for one nucleon in the exit channel, and thus, does not describe all types of reactions. Feshbach generalized the approach by using projection operators in \cite{Feshbach:1962ut} which is summarized below.
 \\
 
-\textcolor{red}{Furthermore, the potential is non-local... Use reference \cite{Hodgson:1971ab}.}
-\\
-
-\textcolor{red}{Generalization by using projection operators. What do $P$ and $Q$ do? Examples? (Feshbach.)} The projection operators satisfy the following relations: $P+Q=1$, $P^2 = P$, and $Q^2 = Q$. We act on Eq.~(\ref{eq:schrodinger_equation}) with $P$ and $Q$ and use the projection operator relations to obtain two equations:
+Here, we define the two projection operators $P$ and $Q$. $P$ projects the total wave function onto the ground state part of the target wave function: $P \Psi = \psi_0 u_0$. $Q$ projects onto all other states and is given by $Q = 1-P$. The projection operators satisfy the following relations: $P+Q=1$, $P^2 = P$, $Q^2 = Q$, and $P Q = 0$. We act on Eq.~(\ref{eq:schrodinger_equation}) with $P$ and $Q$ and use the projection operator relations to obtain two equations:
 %
 \begin{subequations}
 	\label{eq:intermediate_effective_hamiltonian_equations}
@@ -242,26 +217,32 @@ Solving (\ref{eq:qq_qp}) for $Q \Psi$ yields
 %
 \begin{eqnarray}
 	\label{eq:q_psi}
-	Q \Psi = \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP} P \Psi.
+	Q \Psi = \frac{1}{E - \mathcal{H}_{QQ} + i \eta} \mathcal{H}_{QP} P \Psi.
 \end{eqnarray}
 %
-Note, if $P$ does not include all open channels, then a factor of $i \eta$ where $\eta \rightarrow 0^+$ must be inserted in the denominator as before to account for... \textcolor{red}{Finish this note.} Substituting $Q \Psi$ into Eq.~(\ref{eq:pp_pq}) and rearranging gives
+Substituting $Q \Psi$ into Eq.~(\ref{eq:pp_pq}) and rearranging gives
 %
 \begin{eqnarray}
-	\label{p_psi}
-	(E - \mathcal{H}_{PP} - \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP}) P \Psi = 0,
+	\label{eq:p_psi}
+	(E - \mathcal{H}_{PP} - \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ} + i \eta} \mathcal{H}_{QP}) P \Psi = 0.
 \end{eqnarray}
 %
-where the effective Hamiltonian is
+By taking the ground state of the target nucleus to be zero, $H_A \psi_0 = 0$,  and using $P = \ket{\psi_0} \bra{\psi_0}$, one can show that Eq. \ref{eq:p_psi} becomes
 %
 \begin{eqnarray}
-	\label{eq:effective_hamiltonian}
-	H_{eff} = \mathcal{H}_{PP} + \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ}} \mathcal{H}_{QP}.
+	\label{eq:p_psi_optical_potential}
+	(E - T - \mel{\psi_0}{V}{\psi_0} - \mel{\psi_0}{V Q \frac{1}{E - \mathcal{H}_{QQ} + i \eta} Q V}{\psi_0}) u_0 = 0,
 \end{eqnarray}
 %
-% Finish this derivation using Hodgson.
+similar to Eq. \ref{eq:u0_equation}. We identify the optical potential as
 %
-\textcolor{red}{Advantages of the projection operator formulation.} Wider applicability with generalization of $P$. See Hodgson.
+\begin{eqnarray}
+	\label{eq:optical_potential_projection}
+	V_{opt} = \mel{\psi_0}{V}{\psi_0} + \mel{\psi_0}{V Q \frac{1}{E - \mathcal{H}_{QQ} + i \eta} Q V}{\psi_0},
+\end{eqnarray}
+% 
+where the first term corresponds to pure elastic scattering, and the second term corresponds to virtual nuclear excitations and de-excitations back to the elastic channel.
+% Comment: add transition to next section here. Make concluding remarks.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -288,14 +269,15 @@ The first term, $V_C$, accounts for charged-interactions between charged particl
 	\end{cases}
 \end{eqnarray}
 %
-% Nuclear radii are roughly proportional to A^1/3.
-and $R_C = r_C A^{1/3}$ is the nuclear radius. This is the Coulomb potential of a spherical, uniformly-charged distribution of radius $R_C$. Note, this term is zero if the projectile particles are neutral; for instance, incident neutrons. \textcolor{red}{Why $A^{1/3}$?}
+and $R_C = r_C A^{1/3}$ is the nuclear radius. Nuclear radii are roughly proportional to $A^{1/3}$, hence the form of $R_C$. Here, $V_C$ is the Coulomb potential of a spherical, uniformly-charged distribution of radius $R_C$. Note, this term is zero if the projectile particles are neutral; for instance, incident neutrons.
 \\
 
-The remaining terms include Woods-Saxon form factors $f(x_i)$ where $x_i = \frac{r-r_i A^{1/3}}{a_i}$ with radius and diffusivity parameters $r_i$ and $a_i$. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, hence Woods-Saxon form factors serving as good candidates for modeling the projectile-nucleus interaction. The $V$ term gives the approximate interaction between the incident particle and the target nucleus and typically has a potential well depth of $V \approx 50$ MeV. $V_{SO}$ is the spin-orbit coupling term where $\bm{\sigma}$ is the spin operator and $\bm{l}$ is the angular momentum of the incident particle. \textcolor{red}{Important for describing analyzing powers.}
+The remaining terms include Woods-Saxon form factors $f(x_i)$ where $x_i = \frac{r-r_i A^{1/3}}{a_i}$ with radius and diffusivity parameters $r_i$ and $a_i$, respectively. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, thus Woods-Saxon form factors serve as good candidates for modeling the projectile-nucleus interaction. The $V$ term gives the approximate interaction between the incident particle and the target nucleus and typically has a potential well depth of $V \approx 50$ MeV. $V_{SO}$ is the spin-orbit coupling term where $\bm{\sigma}$ is the spin operator and $\bm{l}$ is the angular momentum of the incident particle and is important for describing analyzing powers.
+% Comment: explain what analyzing powers are.
 \\
 
-At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. The first term, $W$, represents volume absorption, and the second, $W_D$, surface absorption. These components include a Woods-Saxon form factor and its derivative, respectively. Note, the derivative of the Woods-Saxon function peaks at the nuclear radius, hence the $W_D$ accounting for surface absorption. At lower energies ($E < 10$ MeV) the surface term dominates while at higher energies one must include the volume absorption component. \textcolor{red}{Mention $W_{SO}$ term.}
+At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. The first term, $W$, represents volume absorption, and the second, $W_D$, surface absorption. These components include a Woods-Saxon form factor and its derivative, respectively. Note, the derivative of the Woods-Saxon function peaks at the nuclear radius, hence the $W_D$ accounting for surface absorption. At lower energies ($E < 10$ MeV) the surface term dominates while at higher energies one must include the volume absorption component.
+% Comment: mention $W_{SO}$ term.
 \\
 
 Phenomenological optical potentials are often obtained by $\chi^2$ minimization fitting angular distributions, analyzing powers, or cross section with radii and diffusivity parameters. The $\chi^2$ function is dependent on experimental data which can heavily affect the fitted parameters depending on which data sets are used or the methodology to arrive at an average data set. In many situations, several sets of parameters can give a good fit to experimental data. Furthermore, optical models may have differing definitions of the $\chi^2$ function. Overall, this leads to an ambiguity in fitting an optical potential model. In the remainder of this section, we discuss three methods in parameterizing a phenomenological optical potential: best-fit, global-fit, and local-fit.
@@ -304,16 +286,16 @@ Phenomenological optical potentials are often obtained by $\chi^2$ minimization 
 A best-fit optical model is a model fit from one set of data (e.g. a single elastic angular distribution). With several parameters to obtain a satisfactory fit, these models can adequately describe a specific projectile and nuclear target. However, parameter sets from best-fit models are energy dependent and fail to make predictions at energies outside the range of data. The only recent use of best-fit models are to provide insight in global trends for optical model parameters across different energy ranges, and thus serve as a preliminary step for parameterizing either local or global optical models.
 \\
 
-A global-fit model is the opposite of the best-fit model in the sense that global-fit models cover wide ranges of energy and mass number $A$. In this way, we can expect better predictive power from these models for nuclei where no experimental data exist. These parameterizations require a large range of data sets to give an ``average'' description of the projectile-nucleus interaction. However, these models are often unreliable since different nuclides are not smoothly dependent on $A$ or $Z$ unlike the Woods-Saxon parameters. This fault advocates the development of microscopic optical potentials which can consistently describe the interaction for various nuclei.
+A global-fit model is the opposite of the best-fit model in the sense that global-fit models cover wide ranges of energy and mass number $A$. In this way, we can expect better predictive power from these models for nuclei where no experimental data exist. These parameterizations require a large range of data sets to give an ``average'' description of the projectile-nucleus interaction. However, these models are often unreliable since different nuclei are not smoothly dependent on $A$ or $Z$ unlike the Woods-Saxon parameters. This fault advocates the development of microscopic optical potentials which can consistently describe the interaction for various nuclei.
 \\
 
-Lastly, the local-fit models are a combination of the former methods. Here, parameters are specific to a given target nucleus with energy-dependence expressed analytically. The parameters are fit by varying them around global-fit parameters for each nucleus of interest. The resulting parameters are similar for neighboring nuclei; however, the variation in parameters is still unpredictable. \textcolor{red}{Give example of local-fit optical model from Koning. Figures 3-5? Pick one.}
+Lastly, the local-fit models are a combination of the former methods. Here, parameters are specific to a given target nucleus with energy-dependence expressed analytically. The parameters are fit by varying them around global-fit parameters for each nucleus of interest. The resulting parameters are similar for neighboring nuclei; however, the variation in parameters is still unpredictable. \textcolor{red}{Give example of local-fit optical model from Koning with a figure.}
 \\
 
-In the next section, we discuss microscopic optical potentials which seek to overcome the shortcomings of the phenomenological models. \textcolor{red}{Motivate and transition to microscopic optical potentials. Try to focus on limitations of phenomenological models here (extractions to exotic regions of the nuclear chart).}
+\textcolor{red}{Summarize limitations of phenomenological optical models.} In the next section, we discuss microscopic optical potentials which seek to overcome the shortcomings of the phenomenological models.
 \\
 
-References: \cite{Dickhoff:2018wdd} section 3, \cite{Perey:1976zz}, \cite{Koning:2003zz}.
+References: \cite{Dickhoff:2018wdd}, \cite{Perey:1976zz}, \cite{Koning:2003zz}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -387,10 +369,10 @@ where
 	\tau(0, i) &=& V(0, i) + V(0, i) G_0(E) Q \tau(0, i) = \hat{\tau}(0, i) - \hat{\tau}(0, i) G_0(E) P \tau(0, i),
 \end{eqnarray}
 %
-with the reduced amplitudes $\hat{\tau}(0, i) = V(0, i) + V(0, i) G_0(E) \hat{\tau}(0, i)$. The spectator expansion orders the scattering processes in a sequence of active projectile-target interactions. The first term corresponds to the projectile interacting with one nucleon while the rest are spectators. The second term corresponds to the projectile interacting with two nucleons, etc. We make the simplest approximation and take only the first term in the expansion.
+with the reduced amplitudes $\hat{\tau}(0, i) = V(0, i) + V(0, i) G_0(E) \hat{\tau}(0, i)$. The spectator expansion orders the scattering processes in a sequence of active projectile-target interactions. The first term corresponds to the projectile interacting with one nucleon while the rest are spectators. The second term corresponds to the projectile interacting with two nucleons and so forth. We make the simplest approximation and take only the first term in the expansion.
 \\
 
-Next, we introduce the new momentum variables
+Next, we introduce the momentum variables
 %
 \begin{subequations}
 	\label{eq:momenta}
@@ -416,12 +398,11 @@ which correspond to momentum transfer, total momentum, and total internal moment
 \end{eqnarray}
 %
 where $\eta$ imposes Lorentz invariance flux in transforming from the NN to the $A+1$ system and $\rho$ represents the one-body density matrix.
+% Comment: what is a one-body density matrix?
 \\
 
-There are multiple ways to calculate the $T$-matrix and one-body density matrix $\rho$. For examples, recent studies have used the No-Core Shell Model method to calculate the density matrix which allows for a consistent NN interaction between the density matrix and $T$-matrix (\textcolor{red}{reference}). Other studies have used interactions softened by Similarity Renormalization Group (\textcolor{red}{reference}). Figure \textcolor{red}{figure number} shows cross sections and analyzing power for elastic proton scattering from $^{40}$Ca using the multiple-scattering approach. \textcolor{red}{Add figure here.}
+There are several ways to calculate the $T$-matrix and one-body density matrix $\rho$. Recent studies have used the No-Core Shell Model method to calculate the density matrix which allows for a consistent NN interaction between the density matrix and $T$-matrix (\textcolor{red}{reference}). Other studies have used interactions softened by Similarity Renormalization Group transformations (\textcolor{red}{reference}). Figure \textcolor{red}{add figure} shows cross sections and analyzing power for elastic proton scattering from $^{40}$Ca using the multiple-scattering approach. \textcolor{red}{Discuss results in figure. Drawback to this method: the implementation of three-body forces is challenging and limits the theory to roughly $200$ MeV.}
 \\
-% Add limitations of method.
-% Implementation of three body forces is challenging and limits the theory to large scattering energies (>200 MeV).
 		
 	
 % Nucleon self-energy
@@ -429,7 +410,7 @@ There are multiple ways to calculate the $T$-matrix and one-body density matrix 
 There has been recent interest in the development of microscopic optical potentials based on chiral effective field theory, $\chi^{EFT}$. We will present the nucleon self-energy method from this perspective. In quantum many-body physics, the optical potential for scattering states is identified with the energy- and momentum-dependent single particle self-energy. Here, the basic idea is to calculate the nucleon self-energy in nuclear matter using chiral interactions. First, we give a brief description of $\chi^{EFT}$.
 \\
 
-In $\chi^{EFT}$, chiral perturbation theory is applied to nuclear systems and gives an EFT involving nucleons and Goldstone bosons, which are pions, due to chiral symmetry breaking. The theory is split into long- and short-range terms where the long-range terms (pion exchanges) are calculated explicitly, and the short-range terms (contact terms) are parameterized by NN scattering data. Chiral interactions can be softened by RG transformations to ameliorate obstacles in many-body calculations often due to the hard repulsive core in the NN force. However, being an effective field theory, a regularization procedure is necessary to separate high- and low-energy physics. From the optical potential perspective, this offers a trade-off. These theories are well suited to describe low-energy scattering but fail at energies near or above the momentum-space cutoff employed.
+In $\chi^{EFT}$, chiral perturbation theory is applied to nuclear systems and gives an EFT involving nucleons and Goldstone bosons, which are pions, due to chiral symmetry breaking. The theory is split into long- and short-range terms where the long-range terms (pion exchanges) are calculated explicitly, and the short-range terms (contact terms) are parameterized by NN scattering data. Chiral interactions can be softened by RG transformations to overcome obstacles in many-body calculations often due to the hard repulsive core in the NN force. However, being an effective field theory, a regularization procedure is necessary to separate high- and low-energy physics. From the optical potential perspective, this offers a trade-off. These theories are well suited to describe low-energy scattering but fail at energies near or above the momentum-space cutoff employed.
 \\
 
 We derive an optical potential by computing the nucleon self-energy in nuclear matter using chiral interactions. The first two perturbative contributions to the nucleon self-energy are shown in Figure \textcolor{red}{add figure here} and are given by
@@ -452,7 +433,7 @@ We derive an optical potential by computing the nucleon self-energy in nuclear m
 where $n_i$ is the occupation probability $\theta(k_f - k_i)$ for a filled state with momentum $\textbf{k}_i$ below the Fermi-surface, and the occupation probability for particle states is $\bar{n}_i = 1 - n_i$. The summations are over intermediate-state momenta for particles $\textbf{p}_i$ and holes $\textbf{h}_i$, their spins $s_i$, and isospins $t_i$ The energies are calculated self-consistently with $\epsilon_i = \frac{q^2}{2 M} + \Re \Sigma(q, \epsilon(q))$ where $M$ is the mass of the nucleon.
 \\
 
-The effective potentials $V_{2N}^{eff}$ consist of an NN potential with an effective, medium-dependent NN interaction. The medium-dependent interaction depends on the chiral three-nucleon force. The Hartree-Fock contribution (\ref{eq:nucleon_self_energy_1} is non-local, energy-independent, and real, whereas the next two terms (\ref{eq:nucleon_self_energy_2a} and \ref{eq:nucleon_self_energy_2b}) are non-local, energy dependent, and complex. The optical potential is  then given by
+The effective potentials $V_{2N}^{eff}$ consist of an NN potential with an effective, medium-dependent NN interaction. The medium-dependent interaction depends on the chiral three-nucleon force (3NF). The Hartree-Fock contribution (\ref{eq:nucleon_self_energy_1} is non-local, energy-independent, and real, whereas the next two terms (\ref{eq:nucleon_self_energy_2a} and \ref{eq:nucleon_self_energy_2b}) are non-local, energy dependent, and complex. The optical potential is  then given by
 %
 \begin{eqnarray}
 	\label{eq:nucleon_self_energy_optical_potential}
@@ -472,9 +453,9 @@ where
 %
 where the subscript $N$ refers to a propagating proton or nucleon. Here, $M_N^{k*}$ is the nucleon effective $k$-mass defined by $\frac{M_N^{k*}}{M} = (1+\frac{M}{k} \frac{\partial}{\partial k} V_N(k, E(k)))^{-1}$.
 \\
-% Add limitations of method.
+% Comment: add limitations of method. See motivation on notes.
 
-\textcolor{red}{Successes and limitations.} References: \cite{Dickhoff:2018wdd} section 4, \cite{Furumoto:2019anr} G-matrix interaction, \cite{Idini:2019hkq} self-consistent Green's function, \cite{Rotureau:2016jpf}, \cite{Jeukenne:1977zz}.
+\textcolor{red}{Successes and limitations.} References (other methods): \cite{Dickhoff:2018wdd}, \cite{Furumoto:2019anr} G-matrix interaction, \cite{Idini:2019hkq} self-consistent Green's function, \cite{Rotureau:2016jpf}, \cite{Jeukenne:1977zz}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -482,15 +463,9 @@ where the subscript $N$ refers to a propagating proton or nucleon. Here, $M_N^{k
 \label{sec:conclusion}
 
 
-Summary and outlook.
+Summary and outlook. Include theoretical issues here. Talk about SRG evolution of optical potentials, uncertainty quantification for optical potentials, and implementation of $\chi^{EFT}$.
 \\
-Theoretical issues:
-\\
--- Fitting ambiguities for phenomenological potential.
-\\
--- Uncertainty quantification. SRG evolution of optical potentials. Implementation of $\chi^{EFT}$.
-\\
--- References: \cite{King:2018vzw}.
+% Comment: references: \cite{King:2018vzw}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
