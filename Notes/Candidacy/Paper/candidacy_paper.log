@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  16 JUL 2019 15:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  19 JUL 2019 00:27
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1594,33 +1594,44 @@ Package: subfig 2005/06/28 ver: 1.3 subfig package
 \sf@bottom=\skip71
 )
 Class revtex4-1 Info: Unrecognized array package. Please update this document c
-lass! (Proceeding with fingers crossed.) on input line 43.
+lass! (Proceeding with fingers crossed.) on input line 44.
 
 
 Class revtex4-1 Warning: Repair the float package.
 
-Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 43.
+Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 44.
 
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 43.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 43.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 43.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 44.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 44.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 44.
 (./candidacy_paper.aux)
-\openout1 = `candidacy_paper.aux'.
+Runaway argument?
+{{30}{12}{}{eq 
+./candidacy_paper.tex:44: File ended while scanning use of \@newl@bel.
+<inserted text> 
+                \par 
+l.44 \begin{document}
+                     
+? 
+./candidacy_paper.tex:44: Emergency stop.
+<inserted text> 
+                \par 
+l.44 \begin{document}
+                     
+End of file on the terminal!
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
+ 
+Here is how much of TeX's memory you used:
+ 18583 strings out of 492995
+ 341779 string characters out of 6132704
+ 411740 words of memory out of 5000000
+ 22044 multiletter control sequences out of 15000+600000
+ 3640 words of font info for 14 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 39i,0n,38p,10411b,275s stack positions out of 5000i,500n,10000p,200000b,80000s
+./candidacy_paper.tex:44:  ==> Fatal error occurred, no output PDF file produce
+d!
+TeX Font Info:    ... okay on input line 44.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
@@ -1659,7 +1670,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box70
-Package hyperref Info: Link coloring OFF on input line 43.
+Package hyperref Info: Link coloring OFF on input line 44.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -1669,9 +1680,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count195
 )
-LaTeX Info: Redefining \ref on input line 43.
-LaTeX Info: Redefining \pageref on input line 43.
-LaTeX Info: Redefining \nameref on input line 43.
+LaTeX Info: Redefining \ref on input line 44.
+LaTeX Info: Redefining \pageref on input line 44.
+LaTeX Info: Redefining \nameref on input line 44.
 
 (./candidacy_paper.out) (./candidacy_paper.out)
 \@outlinefile=\write4
@@ -1691,42 +1702,57 @@ Dictionary: translator-basic-dictionary, Language: English
 (/usr/local/texlive/2017/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg
 File: siunitx-abbreviations.cfg 2017/05/19 v2.7g siunitx: Abbreviated units
 )
-Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 43.
+Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 44.
 \openout3 = `candidacy_paperNotes.bib'.
 
 \c__siunitx_mathsf_int=\count196
-LaTeX Font Info:    Try loading font information for U+msa on input line 43.
+LaTeX Font Info:    Try loading font information for U+msa on input line 44.
  (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 43.
+LaTeX Font Info:    Try loading font information for U+msb on input line 44.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 \c__siunitx_mathtt_int=\count197
  [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 84--100
+Underfull \hbox (badness 10000) in paragraph at lines 67--69
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 101--103
+Underfull \hbox (badness 10000) in paragraph at lines 70--72
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 73--75
 
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 131--135
+Underfull \hbox (badness 10000) in paragraph at lines 76--78
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 87--103
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 104--106
 
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 212--216
+Underfull \hbox (badness 10000) in paragraph at lines 134--138
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 217--219
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 215--219
 
  []
 
@@ -1735,17 +1761,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 220--222
 
  []
 
-[4]
-Underfull \hbox (badness 10000) in paragraph at lines 285--290
+
+Underfull \hbox (badness 10000) in paragraph at lines 223--225
+
+ []
+
+[5] [6]
+Underfull \hbox (badness 10000) in paragraph at lines 288--293
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 291--293
-
- []
-
-[5]
 Underfull \hbox (badness 10000) in paragraph at lines 294--296
 
  []
@@ -1760,7 +1786,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 300--302
 
  []
 
-[6]
+[7]
 Underfull \hbox (badness 10000) in paragraph at lines 303--305
 
  []
@@ -1775,25 +1801,80 @@ Underfull \hbox (badness 10000) in paragraph at lines 309--311
 
  []
 
-[7] (./candidacy_paper.bbl [8]
+
+Underfull \hbox (badness 10000) in paragraph at lines 312--314
+
+ []
+
+[8]
+Underfull \hbox (badness 10000) in paragraph at lines 323--325
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 328--330
+
+ []
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 350--354
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 387--391
+
+ []
+
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 415--419
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 420--424
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 428--430
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 431--433
+
+ []
+
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 449--453
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 470--475
+
+ []
+
+[12] (./candidacy_paper.bbl
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no ¡ in font cmr10!
-) [9]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 357.
+ [13]) [14]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 501.
  (./candidacy_paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 357.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 357.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 501.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 501.
 Package rerunfilecheck Info: File `candidacy_paper.out' has not changed.
 (rerunfilecheck)             Checksum: 5C73128AAEC286B59E27A4CA36C750AD;453.
  ) 
 Here is how much of TeX's memory you used:
- 19737 strings out of 492995
- 360884 string characters out of 6132704
- 424740 words of memory out of 5000000
- 23064 multiletter control sequences out of 15000+600000
+ 19789 strings out of 492995
+ 361878 string characters out of 6132704
+ 426740 words of memory out of 5000000
+ 23090 multiletter control sequences out of 15000+600000
  16401 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,17n,38p,10411b,908s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,17n,38p,10411b,924s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -1811,10 +1892,10 @@ ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive
 017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/20
 17/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/201
 7/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on candidacy_paper.pdf (9 pages, 208835 bytes).
+Output written on candidacy_paper.pdf (14 pages, 235319 bytes).
 PDF statistics:
- 230 PDF objects out of 1000 (max. 8388607)
- 199 compressed objects within 2 object streams
- 51 named destinations out of 1000 (max. 500000)
+ 295 PDF objects out of 1000 (max. 8388607)
+ 258 compressed objects within 3 object streams
+ 77 named destinations out of 1000 (max. 500000)
  57 words of extra memory for PDF output out of 10000 (max. 10000000)
 
