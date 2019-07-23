@@ -1,0 +1,82 @@
+In general: you won't be able to put many of the details of the individual sections in the paper because of space limitations, but you should be prepared to fill in details at your oral exam.  The goal in the paper is to explain clearly (in words) the motivation and key elements of the different parts. 
+
+
+--- INTRODUCTION ---
+
+
+pg. 2
+neutron-rich isotopes (nuclei with fixed proton number and varying neutron number)
+  * not a definition but seems like it
+
+pg. 3
+These methods are referred to as ab initio or microscopic approaches.
+  * ok, not exclusive.
+  * the paragraph needs more work to differentiate ab initio from phenomenological optical potentials.  May need to first say more about what phenomenological optical potentials are.  Relation to NN interactions.
+ It's sort of there but not quite.
+
+
+--- FORMALISM ---
+
+
+pg.4
+Say what the u_i are (expansion coefficients).  Expanding at each r_0.
+
+pg. 5
+What happens if E < \epsilon_i?
+
+How do we see the non-locality?
+
+pg. 6
+How do I see the approaches are the same?
+
+
+--- PHENOMENOLOGY ---
+
+
+pg. 7
+What is a mean field potential?
+What is an analyzing power?  Why would the spin-orbit interaction matter for that?
+
+At higher energies, an imaginary component is necessary to describe absorption where particles penetrate into and through the target nucleus without losing energy. 
+  * What?  Why not losing energy?  What happens to the nucleus?
+
+What about uncertainty quantification?
+
+pg. 8
+Where does the energy dependence come in?  What are typical functional forms for the energy dependence?
+
+
+--- MICROSCOPIC OPTICAL POTENTIALS ---
+
+
+pg. 9
+What about three-body forces?
+
+pg. 10
+How good is the approximation to keep the first term?  Has it been corrected?
+
+What does this expansion look like diagrammatically?
+
+What do the momentum variables look like in a diagram with individual momenta?
+
+What is eta functionally?  How do you figure it out?
+
+pg. 11
+What is a self-energy?
+
+The theory is split into long- and short-range terms where the long-range terms (pion exchanges) are calculated explicitly, and the short-range terms (contact terms) are parameterized by NN scattering data.
+  * Be careful that the Hamiltonian still has the long range terms when fitting the scattering.  
+  * How do you find these terms?
+
+pg. 12
+The EFT part is pretty rough.
+
+Successes and limitations are needed for sure!
+
+
+--- CONCLUSION ---
+
+
+Ideas for Conclusion?
+
+
