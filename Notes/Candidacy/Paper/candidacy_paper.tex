@@ -306,7 +306,11 @@ References: \cite{Dickhoff:2018wdd}, \cite{Perey:1976zz}, \cite{Koning:2003zz}.
 In this section, we present two methods to calculate microscopic optical potentials: the multiple scattering approach and nucleon self-energy methods. As mentioned before, it is important to have a theoretical grasp on applying microscopic NN potentials to the optical potential methodology in order to make predictions where no experimental data are available. Groups have attempted to fit global optical potentials to accomplish this goal but fail to consistently match experimental observables across several nuclei and energies primarily because of the lack of nuclear structure inputs to their models. Recently, a number of methods have been successful in calculating microscopic optical potentials (\textcolor{red}{add references here}).
 \\
 
-% Multiple-scattering approach
+
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Multiple-scattering approach}
+\label{sec:multiple_scattering}
+
 
 The multiple-scattering approach includes important multiple scattering events in the NN $T$-matrix which is used to calculate the optical potential. The NN $T$-matrix uses pairwise interactions between the projectile particle and nucleons with realistic NN forces derived from \textit{ab initio} methods. We derive the optical potential using this approach following the notation in \cite{Dickhoff:2018wdd}.
 \\
@@ -398,14 +402,16 @@ which correspond to momentum transfer, total momentum, and total internal moment
 \end{eqnarray}
 %
 where $\eta$ imposes Lorentz invariance flux in transforming from the NN to the $A+1$ system and $\rho$ represents the one-body density matrix.
-% Comment: what is a one-body density matrix?
+% Comment: what is a one-body density matrix? What is alpha?
 \\
 
 There are several ways to calculate the $T$-matrix and one-body density matrix $\rho$. Recent studies have used the No-Core Shell Model method to calculate the density matrix which allows for a consistent NN interaction between the density matrix and $T$-matrix (\textcolor{red}{reference}). Other studies have used interactions softened by Similarity Renormalization Group transformations (\textcolor{red}{reference}). Figure \textcolor{red}{add figure} shows cross sections and analyzing power for elastic proton scattering from $^{40}$Ca using the multiple-scattering approach. \textcolor{red}{Discuss results in figure. Drawback to this method: the implementation of three-body forces is challenging and limits the theory to roughly $200$ MeV.}
 \\
 		
 	
-% Nucleon self-energy
+%------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\subsection{Nucleon self-energy with chiral interactions}
+\label{sec:nucleon_self_energy}
 
 There has been recent interest in the development of microscopic optical potentials based on chiral effective field theory, $\chi^{EFT}$. We will present the nucleon self-energy method from this perspective. In quantum many-body physics, the optical potential for scattering states is identified with the energy- and momentum-dependent single particle self-energy. Here, the basic idea is to calculate the nucleon self-energy in nuclear matter using chiral interactions. First, we give a brief description of $\chi^{EFT}$.
 \\
@@ -466,6 +472,14 @@ where the subscript $N$ refers to a propagating proton or nucleon. Here, $M_N^{k
 Summary and outlook. Include theoretical issues here. Talk about SRG evolution of optical potentials, uncertainty quantification for optical potentials, and implementation of $\chi^{EFT}$.
 \\
 % Comment: references: \cite{King:2018vzw}.
+
+% Summary
+%
+% Motivation for optical potentials (a couple sentences). Summary of formalism (one sentence). Summary of phenomenological models with recap on limitations. Summary of multiple scattering approach with recap on limitations and successes. Same for nucleon self-energy. Transition sentence to next paragraph about microscopic approaches not listed. Other microscopic approaches: G-matrix interaction, self-consistent Green's function (other Green's function methods), etc. Cite these. 
+
+% Outlook
+%
+% Key theoretical issues. Getting nuclear radii is important? Too in-precise for experimental use. Microscopic models can help guide phenomenological ones. Lead into uncertainty quantification. 3N forces. See proposal for SRG evolution of optical potentials. Closing sentence.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
