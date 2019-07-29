@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{19}%
+\begin{thebibliography}{20}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -50,6 +50,21 @@
 \providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
 \let\auto@bib@innerbib\@empty
 %</preamble>
+\bibitem [{\citenamefont {Feshbach}(1958)}]{Feshbach:1958nx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(58)90007-1} {\bibfield
+  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
+  {5}},\ \bibinfo {pages} {357} (\bibinfo {year} {1958})}\BibitemShut {NoStop}%
+%%CITATION = APNYA,5,357;%%
+\bibitem [{\citenamefont {Feshbach}(1962)}]{Feshbach:1962ut}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(62)90221-X} {\bibfield
+  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
+  {19}},\ \bibinfo {pages} {287} (\bibinfo {year} {1962})}\BibitemShut
+  {NoStop}%
+%%CITATION = APNYA,19,287;%%
 \bibitem [{\citenamefont {Thompson}\ and\ \citenamefont
   {Nunes}(2009)}]{thompson_nunes_2009}%
   \BibitemOpen
@@ -71,21 +86,6 @@
   {http://arxiv.org/abs/0811.1338} {arXiv:0811.1338 [nucl-th]} \BibitemShut
   {NoStop}%
 %%CITATION = ARXIV:0811.1338;%%
-\bibitem [{\citenamefont {Feshbach}(1958)}]{Feshbach:1958nx}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
-  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(58)90007-1} {\bibfield
-  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
-  {5}},\ \bibinfo {pages} {357} (\bibinfo {year} {1958})}\BibitemShut {NoStop}%
-%%CITATION = APNYA,5,357;%%
-\bibitem [{\citenamefont {Feshbach}(1962)}]{Feshbach:1962ut}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
-  {Feshbach}},\ }\href {\doibase 10.1016/0003-4916(62)90221-X} {\bibfield
-  {journal} {\bibinfo  {journal} {Annals Phys.}\ }\textbf {\bibinfo {volume}
-  {19}},\ \bibinfo {pages} {287} (\bibinfo {year} {1962})}\BibitemShut
-  {NoStop}%
-%%CITATION = APNYA,19,287;%%
 \bibitem [{\citenamefont {Koning}\ and\ \citenamefont
   {Delaroche}(2003)}]{Koning:2003zz}%
   \BibitemOpen
@@ -215,6 +215,20 @@
   {http://arxiv.org/abs/1812.08725} {arXiv:1812.08725 [nucl-th]} \BibitemShut
   {NoStop}%
 %%CITATION = ARXIV:1812.08725;%%
+\bibitem [{\citenamefont {Holt}\ \emph {et~al.}(2013)\citenamefont {Holt},
+  \citenamefont {Kaiser}, \citenamefont {Miller},\ and\ \citenamefont
+  {Weise}}]{Holt:2013tna}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~W.}\ \bibnamefont
+  {Holt}}, \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont {Kaiser}},
+  \bibinfo {author} {\bibfnamefont {G.~A.}\ \bibnamefont {Miller}}, \ and\
+  \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Weise}},\ }\href
+  {\doibase 10.1103/PhysRevC.88.024614} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {88}},\ \bibinfo
+  {pages} {024614} (\bibinfo {year} {2013})},\ \Eprint
+  {http://arxiv.org/abs/1304.3175} {arXiv:1304.3175 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1304.3175;%%
 \bibitem [{\citenamefont {Jeukenne}\ \emph {et~al.}(1977)\citenamefont
   {Jeukenne}, \citenamefont {Lejeune},\ and\ \citenamefont
   {Mahaux}}]{Jeukenne:1977zz}%

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  26 JUL 2019 11:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  29 JUL 2019 18:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1594,33 +1594,33 @@ Package: subfig 2005/06/28 ver: 1.3 subfig package
 \sf@bottom=\skip71
 )
 Class revtex4-1 Info: Unrecognized array package. Please update this document c
-lass! (Proceeding with fingers crossed.) on input line 47.
+lass! (Proceeding with fingers crossed.) on input line 48.
 
 
 Class revtex4-1 Warning: Repair the float package.
 
-Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 47.
+Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 48.
 
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 47.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 47.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 47.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 48.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 48.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 48.
 (./candidacy_paper.aux)
 \openout1 = `candidacy_paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 48.
+LaTeX Font Info:    ... okay on input line 48.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
@@ -1659,7 +1659,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box70
-Package hyperref Info: Link coloring OFF on input line 47.
+Package hyperref Info: Link coloring OFF on input line 48.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -1669,9 +1669,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count195
 )
-LaTeX Info: Redefining \ref on input line 47.
-LaTeX Info: Redefining \pageref on input line 47.
-LaTeX Info: Redefining \nameref on input line 47.
+LaTeX Info: Redefining \ref on input line 48.
+LaTeX Info: Redefining \pageref on input line 48.
+LaTeX Info: Redefining \nameref on input line 48.
 
 (./candidacy_paper.out) (./candidacy_paper.out)
 \@outlinefile=\write4
@@ -1691,195 +1691,204 @@ Dictionary: translator-basic-dictionary, Language: English
 (/usr/local/texlive/2017/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg
 File: siunitx-abbreviations.cfg 2017/05/19 v2.7g siunitx: Abbreviated units
 )
-Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 47.
+Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 48.
 \openout3 = `candidacy_paperNotes.bib'.
 
 \c__siunitx_mathsf_int=\count196
-LaTeX Font Info:    Try loading font information for U+msa on input line 47.
+LaTeX Font Info:    Try loading font information for U+msa on input line 48.
  (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 47.
+LaTeX Font Info:    Try loading font information for U+msb on input line 48.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 \c__siunitx_mathtt_int=\count197
  [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 70--72
+Underfull \hbox (badness 10000) in paragraph at lines 75--77
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 73--75
+Underfull \hbox (badness 10000) in paragraph at lines 78--80
 
  []
 
 
-<../../../Figures/Pictures/nuclear_chart_2018.pdf, id=50, 1204.5pt x 725.71124p
+<../../../Figures/Pictures/nuclear_chart_2018.pdf, id=58, 1204.5pt x 725.71124p
 t>
 File: ../../../Figures/Pictures/nuclear_chart_2018.pdf Graphic file (type pdf)
  <use ../../../Figures/Pictures/nuclear_chart_2018.pdf>
 Package pdftex.def Info: ../../../Figures/Pictures/nuclear_chart_2018.pdf used 
-on input line 80.
+on input line 85.
 (pdftex.def)             Requested size: 398.33858pt x 239.99483pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 86--88
+Underfull \hbox (badness 10000) in paragraph at lines 91--94
 
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 89--92
+Underfull \hbox (badness 10000) in paragraph at lines 95--97
 
  []
 
 [3 <../../../Figures/Pictures/nuclear_chart_2018.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 127--131
+Underfull \hbox (badness 10000) in paragraph at lines 132--136
 
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 208--211
+Underfull \hbox (badness 10000) in paragraph at lines 214--217
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 212--214
+Underfull \hbox (badness 10000) in paragraph at lines 218--220
 
  []
 
 [5] [6]
-Underfull \hbox (badness 10000) in paragraph at lines 284--288
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 289--291
+Underfull \hbox (badness 10000) in paragraph at lines 278--284
 
  []
 
 [7]
-Underfull \hbox (badness 10000) in paragraph at lines 292--294
+Underfull \hbox (badness 10000) in paragraph at lines 294--298
 
  []
 
 
-<../../../Figures/Pictures/potential_wells_omp.png, id=157, 279.9258pt x 229.81
+Underfull \hbox (badness 10000) in paragraph at lines 299--301
+
+ []
+
+
+<../../../Figures/Pictures/potential_wells_omp.png, id=160, 279.9258pt x 229.81
 86pt>
 File: ../../../Figures/Pictures/potential_wells_omp.png Graphic file (type png)
 
  <use ../../../Figures/Pictures/potential_wells_omp.png>
 Package pdftex.def Info: ../../../Figures/Pictures/potential_wells_omp.png used
- on input line 299.
+ on input line 306.
 (pdftex.def)             Requested size: 284.52756pt x 233.61234pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 305--307
+Underfull \hbox (badness 10000) in paragraph at lines 312--314
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 308--310
+Underfull \hbox (badness 10000) in paragraph at lines 315--317
 
  []
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 311--313
+Underfull \hbox (badness 10000) in paragraph at lines 318--320
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 314--316
+Underfull \hbox (badness 10000) in paragraph at lines 321--323
 
  []
 
 [9 <../../../Figures/Pictures/potential_wells_omp.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 333--335
+Underfull \hbox (badness 10000) in paragraph at lines 340--342
 
  []
 
 [10]
-Underfull \hbox (badness 10000) in paragraph at lines 355--359
+Underfull \hbox (badness 10000) in paragraph at lines 362--366
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 399--403
 
  []
 
 [11]
-<../../../Figures/Pictures/single_scattering.png, id=199, 187.4202pt x 82.8696p
+<../../../Figures/Pictures/single_scattering.png, id=204, 187.4202pt x 82.8696p
 t>
 File: ../../../Figures/Pictures/single_scattering.png Graphic file (type png)
  <use ../../../Figures/Pictures/single_scattering.png>
 Package pdftex.def Info: ../../../Figures/Pictures/single_scattering.png used o
-n input line 400.
+n input line 408.
 (pdftex.def)             Requested size: 227.62204pt x 100.65182pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 429--433
+Underfull \hbox (badness 10000) in paragraph at lines 437--443
 
  []
 
 [12 <../../../Figures/Pictures/single_scattering.png>]
-<../../../Figures/Pictures/burrows_figure.png, id=218, 259.6902pt x 412.4208pt>
+<../../../Figures/Pictures/burrows_figure.png, id=223, 259.6902pt x 412.4208pt>
 File: ../../../Figures/Pictures/burrows_figure.png Graphic file (type png)
 <use ../../../Figures/Pictures/burrows_figure.png>
 Package pdftex.def Info: ../../../Figures/Pictures/burrows_figure.png used on i
-nput line 438.
+nput line 448.
 (pdftex.def)             Requested size: 227.62204pt x 361.49031pt.
- [13 <../../../Figures/Pictures/burrows_figure.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 451--453
+
+Underfull \hbox (badness 10000) in paragraph at lines 462--465
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 454--456
+Underfull \hbox (badness 10000) in paragraph at lines 466--469
 
  []
 
-
-<../../../Figures/Pictures/nucleon_self_energy.png, id=230, 207.6558pt x 72.27p
+[13] [14 <../../../Figures/Pictures/burrows_figure.png>]
+<../../../Figures/Pictures/nucleon_self_energy.png, id=241, 207.6558pt x 72.27p
 t>
 File: ../../../Figures/Pictures/nucleon_self_energy.png Graphic file (type png)
 
  <use ../../../Figures/Pictures/nucleon_self_energy.png>
 Package pdftex.def Info: ../../../Figures/Pictures/nucleon_self_energy.png used
- on input line 461.
+ on input line 474.
 (pdftex.def)             Requested size: 284.52756pt x 99.03683pt.
- [14]
-Underfull \hbox (badness 10000) in paragraph at lines 482--486
 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 503--507
+Underfull \hbox (badness 10000) in paragraph at lines 500--504
 
  []
 
 [15 <../../../Figures/Pictures/nucleon_self_energy.png>]
-<../../../Figures/Pictures/whitehead_figure.png, id=253, 469.2732pt x 205.7286p
+Underfull \hbox (badness 10000) in paragraph at lines 521--525
+
+ []
+
+
+<../../../Figures/Pictures/whitehead_figure.png, id=260, 469.2732pt x 205.7286p
 t>
 File: ../../../Figures/Pictures/whitehead_figure.png Graphic file (type png)
  <use ../../../Figures/Pictures/whitehead_figure.png>
 Package pdftex.def Info: ../../../Figures/Pictures/whitehead_figure.png used on
- input line 512.
+ input line 530.
 (pdftex.def)             Requested size: 426.79134pt x 187.11285pt.
- [16 <../../../Figures/Pictures/whitehead_figure.png>] (./candidacy_paper.bbl [
-17]
+
+Underfull \hbox (badness 10000) in paragraph at lines 544--546
+
+ []
+
+[16 <../../../Figures/Pictures/whitehead_figure.png>] [17]
+(./candidacy_paper.bbl
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no ¡ in font cmr10!
  [18]) [19]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 539.
-
-(./candidacy_paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 539.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 539.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 556.
+ (./candidacy_paper.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 556.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 556.
 Package rerunfilecheck Info: File `candidacy_paper.out' has not changed.
-(rerunfilecheck)             Checksum: 4D565AAA3674DA42637F72515DE733A6;620.
+(rerunfilecheck)             Checksum: A9EE5C7AFF2199E26F0EF6B32CFC90B1;675.
  ) 
 Here is how much of TeX's memory you used:
- 19897 strings out of 492995
- 364650 string characters out of 6132704
- 427598 words of memory out of 5000000
- 23168 multiletter control sequences out of 15000+600000
+ 19905 strings out of 492995
+ 364784 string characters out of 6132704
+ 427612 words of memory out of 5000000
+ 23174 multiletter control sequences out of 15000+600000
  18735 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,17n,44p,10411b,942s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,17n,44p,10411b,931s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -1898,10 +1907,10 @@ e/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/
 17/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/201
 7/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2017
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on candidacy_paper.pdf (19 pages, 771894 bytes).
+Output written on candidacy_paper.pdf (19 pages, 773194 bytes).
 PDF statistics:
- 405 PDF objects out of 1000 (max. 8388607)
- 349 compressed objects within 4 object streams
- 97 named destinations out of 1000 (max. 500000)
- 103 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 416 PDF objects out of 1000 (max. 8388607)
+ 360 compressed objects within 4 object streams
+ 99 named destinations out of 1000 (max. 500000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 
