@@ -89,7 +89,6 @@ From the theoretical side, the task is to solve the nuclear scattering problem, 
 %
 
 One such technique is to introduce a complex potential as an effective projectile-nucleus interaction to account for refraction and absorption of the incident particles. These complex potentials are called optical potentials and are used for interpretation of data from reaction experiments. The term optical comes from an analogy where a complex index of refraction is used to describe light refraction and absorption. In nuclear scattering, refraction corresponds to elastic scattering and absorption corresponds to flux disappearing to inelastic channels. Optical potentials have been used to calculate observables of many direct reaction processes and play an important role in the development of nuclear reaction theory \cite{thompson_nunes_2009}.
-% Question: something you should be ready for, and perhaps add a couple of sentences about in your paper, is how optical potentials are actually used in the analysis of reaction experiments, such as might happen at FRIB
 \\
 
 Originally, optical potentials were constrained by nuclear scattering data to compute effective projectile-nucleus potentials. These phenomenological models are parametrized by fitting scattering observables with parameters such as nuclear radii, diffusivity, etc. Progress in effective field theory (EFT) and renormalization group (RG) methods have led to a wealth of knowledge on the fundamental interaction between nucleons \cite{Epelbaum:2008ga}. We now have access to optical potentials where the interaction between two nucleons (NN force or interaction) is used to compute an effective potential. These potentials are called \textit{ab initio} or microscopic optical potentials. Since microscopic models rely less on scattering data, they offer more predictive power for rare isotopes out of experimental reach.
@@ -134,7 +133,6 @@ for nuclear wave functions $\psi_i$ and energies $\epsilon_i$. Here, the index $
 Note, the expansion coefficients $u_i$ carry the $\textbf{r}_0$ dependence. Physically, the expansion coefficients correspond to different outgoing channels with $u_0$ representing elastic scattering.
 \\
 
-% Comment: You go from a potential in (2) that is a function of A+1 nucleons. Where is there a discussion of the decomposition of the potential into two-body, three-body, ... potentials between nucleons? EMAIL DF
 In the following, we suppress the notation of coordinate, spin, and isospin dependencies for brevity. We substitute Eq.~(\ref{eq:wave_function}) into the Schr\"odinger equation (\ref{eq:schrodinger_equation}) and use the orthonormality of $\psi_i$ to derive a system of equations for the expansion coefficients $u_i$:
 %
 \begin{eqnarray}
@@ -246,7 +244,6 @@ Substituting $Q \Psi$ into Eq.~(\ref{eq:pp_pq}) and rearranging gives
 	(E - \mathcal{H}_{PP} - \mathcal{H}_{PQ} \frac{1}{E - \mathcal{H}_{QQ} + i \eta} \mathcal{H}_{QP}) P \Psi = 0.
 \end{eqnarray}
 %
-% Question: be able to derive this below.
 By taking the ground state of the target nucleus to be zero, $H_A \psi_0 = 0$,  and using $P = \ket{\psi_0} \bra{\psi_0}$, one can show that Eq.~(\ref{eq:p_psi}) becomes
 %
 \begin{eqnarray}
@@ -276,9 +273,7 @@ Historically, phenomenological optical potentials have been obtained by fitting 
 	V_{opt}(r, E) &=& V_C(r) - V(E) f(x_0) + (\frac{\hbar}{m_{\pi} c})^2 V_{SO}(E) \bm{\sigma} \cdot \textbf{l} \frac{1}{r} \frac{d}{dr} f(x_{SO}) \nonumber \\ 
 & &- i [W(E) f(x_W) - 4 W_D(E) \frac{d}{dx_D} f(x_D)].
 \end{eqnarray}
-% Question: how is this related to nuclear density or probability of finding a nucleon in the nucleus?
 %
-% Put a couple sentences here explaining Woods-Saxon form factors and parameters. Combine V_C, V and V_SO. Then W paragraph.
 Here, $f(x_i) = (1 + \exp[x_i])^{-1}$ are Woods-Saxon form factors dependent on the radii and diffusivity parameters, $R_i$ and $a_i$, where $x_i = \frac{r-R_i}{a_i}$. The index $i$ specifies each of the terms above (e.g. $C$, $0$, $SO$, etc.), $a_i$ is the diffusivity, and $R_i = r_i A^{1/3}$ is the nuclear radius. Nuclear radii are roughly proportional to $A^{1/3}$, hence the form of $R_i$. Woods-Saxon potentials have been used to describe the mean field potential of a nucleon in a nucleus, thus serve as good candidates for modeling the projectile-nucleus interaction. (A mean field potential is a potential that averages over the interactions of a system reducing a many-body problem to a one-body problem.)
 \\
 
@@ -437,8 +432,6 @@ which correspond to momentum transfer, total momentum, and total internal moment
 \end{eqnarray}
 %
 where $\eta$, the M\o ller factor, relates the NN zero-momentum frame to the NA zero-momentum frame (details in \cite{Elster:1996xh}), and $\rho_{\alpha}$ represents the one-body density matrix (proton and neutron densities). There are several ways to calculate the $T$-matrix and one-body density matrix $\rho$. Recent studies have used the No-Core Shell Model (NCSM) method to calculate the density matrix which allows for a consistent NN interaction between the density matrix and $T$-matrix (\cite{Burrows:2018ggt, Gennari:2017yez}). It is possible to further simplify Eq.~(\ref{eq:ms_optical_potential}) by making the $\tau \rho$ approximation, which involves writing the potential where the density $\rho$ does not depend on the total internal momentum $\textbf{P}$, and the NN $T$-matrix and the M\o ller factor determine the non-local character of the potential.
-% Question: it would be useful to have a bit more discussion of (30) and what it implies. E.g., if one could do the integration over P by pulling the density matrix out of the integral with P=0, then we would have the \tau\rho approximation. How does this relate to the phenomenological forms? 
-% Question: have an idea of the NCSM.
 \\
 
 %
@@ -452,7 +445,6 @@ where $\eta$, the M\o ller factor, relates the NN zero-momentum frame to the NA 
 %
 
 Fig.~\ref{fig:burrows_figure} shows cross section results for elastic proton scattering from $^{4}$He using the multiple-scattering approach. Overall, the multiple-scattering approach at first order describes experiments well in the energy range of $100$ to $200$ MeV and up to roughly $60$ degrees in the center-of-mass frame. At angles larger than this, 3NF's become important due to three-body scattering. Unfortunately, the implementation of 3NF's is challenging as including an extra term in Eq.~(\ref{eq:ms_total_potential}) forces one to take another term in the spectator expansion (\ref{eq:spec_exp}).
-% Question: why are 3NF's important eventually? Why are they difficult to implement (math only).
 		
 	
 %___________________________________________________________________________________________________________________
@@ -460,11 +452,9 @@ Fig.~\ref{fig:burrows_figure} shows cross section results for elastic proton sca
 \label{sec:nucleon_self_energy}
 
 There has been recent interest in the development of microscopic optical potentials based on chiral effective field theory, $\chi^{EFT}$. We will present the nucleon self-energy method from this perspective. In quantum many-body physics, the optical potential for scattering states is identified with the energy- and momentum-dependent single particle self-energy. Particle self-energy is the modification to particle energy due to interactions with its environment (in this case, the nuclear medium) and is used in many-body perturbation theory. We will denote self-energy with $\Sigma$. Here, the basic idea is to calculate the nucleon self-energy in nuclear matter using chiral interactions. First, we give a brief description of $\chi^{EFT}$.
-% Question: where did you get the definition of the self-energy as the energy as a result of changes it itself causes in its environment? That is not a definition I would have used.
 \\
 
 In $\chi^{EFT}$, chiral perturbation theory is applied to nuclear systems and gives an EFT involving nucleons and Goldstone bosons, which are pions, due to chiral symmetry breaking. This gives a low-energy description of the nuclear force with proton, neutron, and pion degrees of freedom with protons and neutrons interacting by pion exchanges and contact forces. The theory contains long- and short-range terms where the long-range terms (pion exchanges) are calculated explicitly, and the short-range terms (contact forces) are parameterized by NN scattering data. Chiral interactions can be softened by RG transformations to overcome obstacles in many-body calculations often due to the hard repulsive core in the NN force. However, being an effective field theory, a regularization procedure is necessary to separate high- and low-energy physics. At high energies, the theory is no longer valid and a cutoff must be introduced. From the optical potential perspective, this offers a trade-off. These theories are well suited to describe low-energy scattering but fail at energies near or above the momentum-space cutoff employed.
-% Question: this may imply questions about the cutoff.
 \\
 
 %
@@ -475,11 +465,6 @@ In $\chi^{EFT}$, chiral perturbation theory is applied to nuclear systems and gi
 	\caption{First- and second-order contributions to the nucleon self-energy where the solid lines indicate nucleon propagators and the wavy lines indicate the in-medium, anti-symmetrized NN interaction \cite{Whitehead:2018bfs}.}
 	\label{fig:nucleon_self_energy}
 \end{figure}
-% Question: Looking at Figure 5, you state the characteristics of the contributions resulting from each of the diagrams.  How do I see them? 
-% For (a), the diagram looks local (with a local potential).  Why is it actually non-local?  (Hint: the figure actually only shows the Hartree term unless you say that the wavy lines are the *antisymmetrized* NN interactions.
-% How can I see that (b) and (c) have imaginary parts?  (This may be evident from (32) and (33), but how do I see that from the diagrams?) 
-% If I think of time running upwards, how would you describe the processes depicted in the figures?
-% For (a) - we know the antisymmetrized NN interaction includes contact and exchange. See https://journals.aps.org/prc/pdf/10.1103/PhysRevC.88.024614.
 %
 
 We derive an optical potential by computing the nucleon self-energy in nuclear matter using chiral interactions following the formalism of \cite{Whitehead:2018bfs, Holt:2013tna}. The first two perturbative contributions to the nucleon self-energy are shown in Fig.~\ref{fig:nucleon_self_energy} and are given by
