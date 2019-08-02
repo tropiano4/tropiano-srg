@@ -18,41 +18,41 @@ Questions to address (make notes and flash cards)
 
 --- INTRODUCTION ---
 
-* Where do heavy elements come from? (#1 - SUN)
+* Where do heavy elements come from?
 
-* What are fundamental symmetries? (#2 - SUN)
+* What are fundamental symmetries?
 
-* Why are nuclei unstable? How do they decay? (#3 - SUN)
+* Why are nuclei unstable? How do they decay?
 
-* What does r-process mean? Are there other processes? Do we care about them? (#1 - WED)
+* What does r-process mean? Are there other processes? Do we care about them?
 
-* How does FRIB work? (#2 - WED)
+* How does FRIB work?
 
-* How will optical potentials be used in analysis of reaction experiments like FRIB? (#3 - WED)
+* How will optical potentials be used in analysis of reaction experiments like FRIB?
 
-* In the first paragraph of your paper, what does "exotic" mean? (#4 - SUN)
+* In the first paragraph of your paper, what does "exotic" mean?
 
-* Why is the nuclear scattering problem the relevant problem to solve? (#4 - WED)
+* Why is the nuclear scattering problem the relevant problem to solve?
 
-* Nuclear resonances: how they show up in quantum scattering (#5 - SUN)
+* Nuclear resonances: how they show up in quantum scattering.
 
-* How does the difficulty of a nuclear many-body calculation scale with A? Exponential? Power law? (#6 - SUN)
+* How does the difficulty of a nuclear many-body calculation scale with A? Exponential? Power law?
 
-* Why are nuclear many-body problems highly non-perturbative? (#5 - WED)
+* Why are nuclear many-body problems highly non-perturbative?
 
-* How do I understand why a complex potential means losing flux? Can you have a potential where probability flux is gained? (#1 - MON)
+* How do I understand why a complex potential means losing flux? Can you have a potential where probability flux is gained?
 
-* Understand optics analogy (#6 - WED)
+* Understand optics analogy
 
 --- FORMALISM ---
 
-* What is in V in (2) that is not in H_A? (#2 - MON)
+* What is in V in (2) that is not in H_A?
 
 * After (6) you say other indices describe an emergent nucleon. Does there have to be a nucleon emerging? As opposed to being absorbed?
 
-* What is the S-matrix? Relation to observables (#1 - THU)
+* What is the S-matrix? Relation to observables
 
-* Why does going from (14b) to (15) pick up i\eta? Are there other choices? (#2 - THU)
+* Why does going from (14b) to (15) pick up i\eta? Are there other choices?
 
 * Epsilon_0 = 0 business
 
@@ -62,23 +62,23 @@ Questions to address (make notes and flash cards)
 
 * Can you derive (20)? Is this quantum mechanical?
 
-* How is this related to nuclear density? (#3 - THU)
+* How is this related to nuclear density?
 
-* Understand spin-orbit, volume, surface part of potential physically (#4 - THU)
+* Understand spin-orbit, volume, surface part of potential physically
 
-* What is a diffusivity parameter? (#5 - THU)
+* What is a diffusivity parameter?
 
-* Where does the pion mass come in? (#6 - THU)
+* Where does the pion mass come in?
 
-* Derive the Coulomb potential for a uniformly spherical charged distribution (#7 - THU)
+* Derive the Coulomb potential for a uniformly spherical charged distribution
 
 * Read Koning (page 243) on energy dependence of OMP’s
 
 --- MULTIPLE-SCATTERING ---
 
-* What is the T-matrix? How does it relate to the Schrodinger equation? (#8 - THU)
+* What is the T-matrix? How does it relate to the Schrodinger equation?
 
-* Time-ordered Green's functions (#9 - THU)
+* Time-ordered Green's functions
 
 * Why is it called the "spectator expansion"? What is the expansion parameter?
 
@@ -90,27 +90,27 @@ Questions to address (make notes and flash cards)
 
 * How does this relate to the phenomenological forms?
 
-* Have an idea about the NCSM. (#10 - THU)
+* Have an idea about the NCSM.
 
-* Why does one divide by the Rutherford cross section in figure 4? (#11 - THU)
+* Why does one divide by the Rutherford cross section in figure 4?
 
-* Derive Rutherford cross-section (or at least be able to say what it is) (#12 - THU)
+* Derive Rutherford cross-section (or at least be able to say what it is)
 
 * Why are 3NF important and hard to implement here?
 
 --- SELF-ENERGY ---
 
-* What is chiral symmetry breaking? (#1 - FRI)
+* What is chiral symmetry breaking?
 
-* Chiral perturbation theory (notes on Epelbaum 2010) (#2 - FRI)
+* Chiral perturbation theory (notes on Epelbaum 2010)
 
-* Why is a cutoff necessary? (#3 - FRI)
+* Why is a cutoff necessary?
 
 * How is it possible (or why is it valid) to use a contact term to describe short-range physics? What does a cutoff do to a contact term?
 
-* Self-energy from many-body physics textbook (#4 - FRI)
+* Self-energy from many-body physics textbook
 
-* Explain how equations 31-33 connect to diagrams. DF comment below: (#5 - FRI)
+* Explain how equations 31-33 connect to diagrams. DF comment below:
 	- Looking at Figure 5, you state the characteristics of the contributions resulting from each of the diagrams.  How do I see them? 
 	- For (a), the diagram looks local (with a local potential). Why is it actually non-local? (Hint: the figure actually only shows the Hartree term unless you say that the wavy lines are the *antisymmetrized* NN interactions.
 	- How can I see that (b) and (c) have imaginary parts? (This may be evident from (32) and (33), but how do I see that from the diagrams?) 
@@ -118,7 +118,7 @@ Questions to address (make notes and flash cards)
 
 * What does it mean to calculate energies self-consistently?
 
-* Explain connection of self-energy to original presentation of optical potential (#6 - FRI)
+* Explain connection of self-energy to original presentation of optical potential.
 
 * How can you understand diagrammatically how a three-body force becomes a density-dependent two-body force?
 
