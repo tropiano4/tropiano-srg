@@ -16,6 +16,18 @@ Studying notes for candidacy
 
 Questions to address (make notes and flash cards)
 
+
+--- IMPORTANT ---
+
+* SRG bullet point on last slide
+
+* Derive Feshbach optical potential
+	
+* Questions about Fig. 7
+	- Why is the peak underestimated for E = 25 MeV?
+	- Where is 46Ca? Odd Ca?
+	- Why is there a dip at theta ~ 155 deg for E = 45 MeV?
+
 --- INTRODUCTION ---
 
 * Where do heavy elements come from?
