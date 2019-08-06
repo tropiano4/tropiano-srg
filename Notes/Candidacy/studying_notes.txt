@@ -19,96 +19,98 @@ Questions to address (make notes and flash cards)
 
 --- IMPORTANT ---
 
-* SRG bullet point on last slide
+* S-matrix relation to observables CHECK
 
-* Derive Feshbach optical potential
+* Derive Feshbach optical potential CHECK
+
+* Fermi surface CHECK
 	
-* Questions about Fig. 7
+* Questions about Fig. 7 CHECK
 	- Why is the peak underestimated for E = 25 MeV?
 	- Where is 46Ca? Odd Ca?
 	- Why is there a dip at theta ~ 155 deg for E = 45 MeV?
 
+* SRG bullet point on last slide CHECK
+
 --- INTRODUCTION ---
 
-* Where do heavy elements come from?
+* Where do heavy elements come from? r-process, s-process, etc.
 
-* What are fundamental symmetries?
+* What are fundamental symmetries? CHECK
 
-* Why are nuclei unstable? How do they decay?
+* Why are nuclei unstable? How do they decay? CHECK
 
-* What does r-process mean? Are there other processes? Do we care about them?
+* What does r-process mean? Are there other processes? Do we care about them? CHECK
 
-* How does FRIB work?
+* How does FRIB work? CHECK
 
-* How will optical potentials be used in analysis of reaction experiments like FRIB?
+* How will optical potentials be used in analysis of reaction experiments like FRIB? CHECK
 
-* In the first paragraph of your paper, what does "exotic" mean?
+* In the first paragraph of your paper, what does "exotic" mean? CHECK
 
-* Why is the nuclear scattering problem the relevant problem to solve?
+* Why is the nuclear scattering problem the relevant problem to solve? CHECK
 
-* Nuclear resonances: how they show up in quantum scattering.
+* Nuclear resonances: how they show up in quantum scattering. CHECK
 
-* How does the difficulty of a nuclear many-body calculation scale with A? Exponential? Power law?
+* How does the difficulty of a nuclear many-body calculation scale with A? Exponential? Power law? CHECK
 
-* Why are nuclear many-body problems highly non-perturbative?
+* Why are nuclear many-body problems highly non-perturbative? CHECK
 
-* How do I understand why a complex potential means losing flux? Can you have a potential where probability flux is gained?
+* How do I understand why a complex potential means losing flux? Can you have a potential where probability flux is gained? CHECK
 
-* Understand optics analogy
+* Understand optics analogy CHECK
 
 --- FORMALISM ---
 
-* What is in V in (2) that is not in H_A?
+* What is in V in (2) that is not in H_A? CHECK
 
-* After (6) you say other indices describe an emergent nucleon. Does there have to be a nucleon emerging? As opposed to being absorbed?
+* After (6) you say other indices describe an emergent nucleon. Does there have to be a nucleon emerging? As opposed to being absorbed? CHECK
 
-* What is the S-matrix? Relation to observables
+* What is the S-matrix? Relation to observables CHECK
 
-* Why does going from (14b) to (15) pick up i\eta? Are there other choices?
+* Why does going from (14b) to (15) pick up i\eta? Are there other choices? CHECK
 
-* Epsilon_0 = 0 business
-
-* Be able to sketch a derivation of 17-18
+* Epsilon_0 = 0 business CHECK
 
 --- PHENOMENOLOGY ---
 
-* Can you derive (20)? Is this quantum mechanical?
+* Can you derive (20)? Is this quantum mechanical? CHECK
 
-* How is this related to nuclear density?
+* How is this related to nuclear density? CHECK
 
-* Understand spin-orbit, volume, surface part of potential physically
+* Understand spin-orbit, volume, surface part of potential physically CHECK
 
-* What is a diffusivity parameter?
+* What is a diffusivity parameter? CHECK
 
-* Where does the pion mass come in?
+* Where does the pion mass come in? CHECK
 
-* Derive the Coulomb potential for a uniformly spherical charged distribution
+* Derive the Coulomb potential for a uniformly spherical charged distribution CHECK
 
-* Read Koning (page 243) on energy dependence of OMP’s
+* Read Koning (page 243) on energy dependence of OMP’s CHECK
 
 --- MULTIPLE-SCATTERING ---
 
-* What is the T-matrix? How does it relate to the Schrodinger equation?
+* What is the T-matrix? How does it relate to the Schrodinger equation? CHECK
 
-* Time-ordered Green's functions
+* Time-ordered Green's functions CHECK
 
-* Why is it called the "spectator expansion"? What is the expansion parameter?
+* Why is it called the "spectator expansion"? What is the expansion parameter? CHECK
 
-* How good of an approximation is the impulse approximation?
+* How good of an approximation is the impulse approximation? CHECK
 
-* Corrections to the impulse approximation
+* Corrections to the impulse approximation CHECK
 
-* Calculating the Møller factor
+* Calculating the Møller factor CHECK
 
-* How does this relate to the phenomenological forms?
+* How does this relate to the phenomenological forms? CHECK
 
-* Have an idea about the NCSM.
+* Have an idea about the NCSM. CHECK
 
-* Why does one divide by the Rutherford cross section in figure 4?
+* Why does one divide by the Rutherford cross section in figure 4? CHECK
 
-* Derive Rutherford cross-section (or at least be able to say what it is)
+* Derive Rutherford cross-section (or at least be able to say what it is) CHECK
 
-* Why are 3NF important and hard to implement here?
+* Why are 3NF important and hard to implement here? CHECK
 
 --- SELF-ENERGY ---
 
@@ -116,24 +118,24 @@ Questions to address (make notes and flash cards)
 
 * Chiral perturbation theory (notes on Epelbaum 2010)
 
-* Why is a cutoff necessary?
+* Why is a cutoff necessary? CHECK
 
 * How is it possible (or why is it valid) to use a contact term to describe short-range physics? What does a cutoff do to a contact term?
 
-* Self-energy from many-body physics textbook
+* Self-energy from many-body physics textbook CHECK
 
 * Explain how equations 31-33 connect to diagrams. DF comment below:
 	- Looking at Figure 5, you state the characteristics of the contributions resulting from each of the diagrams.  How do I see them? 
 	- For (a), the diagram looks local (with a local potential). Why is it actually non-local? (Hint: the figure actually only shows the Hartree term unless you say that the wavy lines are the *antisymmetrized* NN interactions.
 	- How can I see that (b) and (c) have imaginary parts? (This may be evident from (32) and (33), but how do I see that from the diagrams?) 
-	- If I think of time running upwards, how would you describe the processes depicted in the figures?
+	- If I think of time running upwards, how would you describe the processes depicted in the figures? CHECK
 
-* What does it mean to calculate energies self-consistently?
+* What does it mean to calculate energies self-consistently? CHECK
 
-* Explain connection of self-energy to original presentation of optical potential.
+* Explain connection of self-energy to original presentation of optical potential. CHECK
 
-* How can you understand diagrammatically how a three-body force becomes a density-dependent two-body force?
+* How can you understand diagrammatically how a three-body force becomes a density-dependent two-body force? CHECK
 
 --- CONCLUSION ---
 
-* What does uncertainty quantification mean? How do you do it?
+* What does uncertainty quantification mean? How do you do it? CHECK
