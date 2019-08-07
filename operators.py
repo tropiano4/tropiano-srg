@@ -12,6 +12,9 @@
 # look at SRG evolved operators by applying unitary transformations to the
 # operator matrices.
 #
+# Revision history:
+#   August 7, 2019 --- Minor revisions to r^2 operator.
+#
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
 #     still needs to be generalized.
@@ -147,7 +150,7 @@ def hankel_transformation(channel, k_array, r_array):
     return M
 
 
-def r2_operator(self, k_array, k_weights, r_array, dr, U=np.empty(0)):
+def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     """
     r^2 operator in momentum-space. For an evolved operator, enter in a unitary 
     transformation U. For presentation, one should divide out the momenta and 
@@ -204,5 +207,5 @@ def r2_operator(self, k_array, k_weights, r_array, dr, U=np.empty(0)):
         
     # Factor of dr for one integration over dr (the other dr' integration is 
     # killed by delta function) - not sure what the weights should be???
-    return r2_momentum_space*self.dr
+    return r2_momentum_space * dr
     #return r2_momentum_space
