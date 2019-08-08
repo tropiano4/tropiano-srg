@@ -118,11 +118,11 @@ where $O(0)$ is the bare operator.
 \label{sec:momentum_proj_operator}
 
 
-Applying $a^{\dagger}_q a_q$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1$, ... , $N$. Then $a^{\dagger}_q a_q$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k$. Therefore, we include a factor of $1 / (k^2 dk) \implies 1 / (k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
+Applying $a^{\dagger}_q a_q$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1$, ... , $N$. Then $a^{\dagger}_q a_q$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k / (2 \pi)^3 = 2 / (\pi k^2 dk)$ in spherical coordinates. Therefore, we include a factor of $\pi / (2 k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
 %
 \begin{eqnarray}
 	\label{eq:momentum_projection_operator}
-	a^{\dagger}_q a_q (k_i, k_j) = \frac{\delta_{k_i q} \delta_{k_j q}}{k_i k_j \sqrt{w_i w_j}},
+	a^{\dagger}_q a_q (k_i, k_j) = \frac{\pi \delta_{k_i q} \delta_{k_j q}}{2 k_i k_j \sqrt{w_i w_j}},
 \end{eqnarray}
 %
 which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For mesh-independent figures, we must divide by an additional factor of $k_i k_j \sqrt{w_i w_j}$.
