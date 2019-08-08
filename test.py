@@ -63,8 +63,6 @@ w_initial = psi_initial[ntot:] # 3D1 component
 phi_squared_initial = ( u_initial**2 + w_initial**2 ) / \
                       ( k_array**2 * k_weights )
 
-
-### DO EVOLVED CALCULATION HERE (SEE WHITEBOARD) ###
 # Load evolved wave function
 psi_evolved = ob.wave_function(H_initial, eps, U_matrix) # Unitless
 
