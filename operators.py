@@ -94,7 +94,8 @@ def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
         
     # Build momentum projection operator 
     operator = np.zeros( (m, m) )
-    operator[q_index, q_index] = 1 / ( q**2 * q_weight )
+    #operator[q_index, q_index] = 1 / ( q**2 * q_weight )
+    operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
     
     # Matrix of zeros (m x m) for coupled-channel operator
     o = np.zeros( (m, m) )
@@ -145,7 +146,8 @@ def hankel_transformation(channel, k_array, r_array):
         
         L = 2
         
-    M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
 
     return M
 
@@ -208,4 +210,5 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     # Factor of dr for one integration over dr (the other dr' integration is 
     # killed by delta function) - not sure what the weights should be???
     return r2_momentum_space * dr
+    #return r2_momentum_space / dr
     #return r2_momentum_space
