@@ -45,29 +45,42 @@ eps = -2.22
 # Load initial Hamiltonian, momentum, and weights
 H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot) 
+H_initial2 = lp.load_hamiltonian(kvnn, channel, 8.0, 2.0, ntot)
+k_array2, k_weights2 = lp.load_momentum(kvnn, channel, 8.0, 2.0, ntot)
     
 # Load unitary transformation
 # SRG calls function which builds U(s) out of un-evolved and evolved
 # eigenvectors
 H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
                                 generator, lamb)
+H_evolved2 = lp.load_hamiltonian(kvnn, channel, 8.0, 2.0, ntot, 'srg',
+                                 generator, lamb)
 U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
+U_matrix2 = SRG_unitary_transformation(H_initial2, H_evolved2)
         
 # Compute initial wave functions
 psi_initial = ob.wave_function(H_initial, eps)
 u_initial = psi_initial[:ntot] # 3S1 component
 w_initial = psi_initial[ntot:] # 3D1 component
+
+psi_initial2 = ob.wave_function(H_initial2, eps)
+u_initial2 = psi_initial2[:ntot] # 3S1 component
+w_initial2 = psi_initial2[ntot:] # 3D1 component
     
 # Initial and evolved momentum distribution (divide by momenta and weights for
 # mesh-independent result)
 phi_squared_initial = ( u_initial**2 + w_initial**2 ) / \
                       ( k_array**2 * k_weights )
+phi_squared_initial2 = ( u_initial2**2 + w_initial2**2 ) / \
+                       ( k_array2**2 * k_weights2 )
 
 # Load evolved wave function
 psi_evolved = ob.wave_function(H_initial, eps, U_matrix) # Unitless
+psi_evolved2 = ob.wave_function(H_initial2, eps, U_matrix2) # Unitless
 
 # Initialize evolved momentum distribution
 phi_squared_evolved = np.zeros(ntot)
+phi_squared_evolved2 = np.zeros(ntot)
 
 i = 0
 for q in k_array:
@@ -77,8 +90,37 @@ for q in k_array:
                                                        U_matrix) # Units fm^3
     
     phi_squared_evolved[i] = psi_evolved.T @ momentum_proj_op @ psi_evolved
+
     
     i += 1
+    
+j = 0
+for q in k_array2:
+    
+    momentum_proj_op2 = op.momentum_projection_operator(q, k_array2, 
+                                                        k_weights2, U_matrix2)
+    phi_squared_evolved2[j] = psi_evolved2.T @ momentum_proj_op2 @ psi_evolved2
+    j += 1
+    
+    
+# Divide out factor of pi/2
+phi_squared_evolved *= 2 / np.pi
+phi_squared_evolved2 *= 2 / np.pi
+    
+    
+# Calculate normalization
+    
+norm_initial = np.sum(phi_squared_initial * k_array**2 * k_weights)
+print('Initial normalization (a) = %.3f'%norm_initial)
+
+norm_initial2 = np.sum(phi_squared_initial2 * k_array2**2 * k_weights2)
+print('Initial normalization (b) = %.3f'%norm_initial2)
+
+norm_evolved = np.sum(phi_squared_evolved * k_array**2 * k_weights)
+print('Evolved normalization (a) = %.3f'%norm_evolved)
+
+norm_evolved2 = np.sum(phi_squared_evolved2 * k_array2**2 * k_weights2)
+print('Evolved normalization (b) = %.3f'%norm_evolved2)
     
 
 # Plot specifications
@@ -110,7 +152,10 @@ plt.close('all')
 f, ax = plt.subplots()
     
 ax.semilogy(k_array, phi_squared_evolved, 'r-', label=lamb_label%lamb)
+ax.semilogy(k_array2, phi_squared_evolved2, 'b-.', label=lamb_label%lamb)
 ax.semilogy(k_array, phi_squared_initial, 'k:', 
+            label=r'$\lambda=\infty \/ \/ fm^{-1}$')
+ax.semilogy(k_array2, phi_squared_initial2, 'g--', 
             label=r'$\lambda=\infty \/ \/ fm^{-1}$')
 ax.set_xlim(xlim)
 ax.set_ylim(ylim)
