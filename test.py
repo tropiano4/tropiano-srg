@@ -66,7 +66,11 @@ w_initial = psi_initial[ntot:] # 3D1 component
 psi_initial2 = ob.wave_function(H_initial2, eps)
 u_initial2 = psi_initial2[:ntot] # 3S1 component
 w_initial2 = psi_initial2[ntot:] # 3D1 component
+
+
+# First round of tests --------------------------------------------------------
     
+
 # Initial and evolved momentum distribution (divide by momenta and weights for
 # mesh-independent result)
 phi_squared_initial = ( u_initial**2 + w_initial**2 ) / \
@@ -168,3 +172,22 @@ anchored_text = AnchoredText(generator_label,
 ax.add_artist(anchored_text)
 
 plt.show()
+
+
+# Second round of tests -------------------------------------------------------
+
+
+# Select momentum value
+q = k_array[9]
+
+# Initial phi^2
+phi_q2 = phi_squared_initial[9]
+
+# Projection operator phi(q)^2
+momentum_proj_op = op.momentum_projection_operator(q, k_array, k_weights,
+                                                   U_matrix)
+phi_q2_proj_op = psi_evolved.T @ momentum_proj_op @ psi_evolved
+phi_q2_proj_op *= 2/np.pi
+        
+print('Straight forward psi(q)^2 = %.5e'%phi_q2)
+print('Projection operator psi(q)^2 = %.5e'%phi_q2_proj_op)
