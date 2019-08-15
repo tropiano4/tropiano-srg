@@ -44,7 +44,8 @@ eps = -2.22
     
 # Load initial Hamiltonian, momentum, and weights
 H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot) 
+k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+# Different momentum mesh 
 H_initial2 = lp.load_hamiltonian(kvnn, channel, 8.0, 2.0, ntot)
 k_array2, k_weights2 = lp.load_momentum(kvnn, channel, 8.0, 2.0, ntot)
     
@@ -53,38 +54,41 @@ k_array2, k_weights2 = lp.load_momentum(kvnn, channel, 8.0, 2.0, ntot)
 # eigenvectors
 H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
                                 generator, lamb)
+U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
+# Different momentum mesh
 H_evolved2 = lp.load_hamiltonian(kvnn, channel, 8.0, 2.0, ntot, 'srg',
                                  generator, lamb)
-U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
 U_matrix2 = SRG_unitary_transformation(H_initial2, H_evolved2)
         
 # Compute initial wave functions
 psi_initial = ob.wave_function(H_initial, eps)
 u_initial = psi_initial[:ntot] # 3S1 component
 w_initial = psi_initial[ntot:] # 3D1 component
-
+# Different momentum mesh
 psi_initial2 = ob.wave_function(H_initial2, eps)
 u_initial2 = psi_initial2[:ntot] # 3S1 component
 w_initial2 = psi_initial2[ntot:] # 3D1 component
 
 
 # First round of tests --------------------------------------------------------
-    
+# Calculate momentum distribution by evaluating u**2 + w**2 explicitly and by
+# using the momentum projection operator with full wave functions psi. This
+# should give the same, mesh-indepedent momentum distribution.
+
 
 # Initial and evolved momentum distribution (divide by momenta and weights for
 # mesh-independent result)
 phi_squared_initial = ( u_initial**2 + w_initial**2 ) / \
                       ( k_array**2 * k_weights )
-phi_squared_initial2 = ( u_initial2**2 + w_initial2**2 ) / \
-                       ( k_array2**2 * k_weights2 )
-
 # Load evolved wave function
 psi_evolved = ob.wave_function(H_initial, eps, U_matrix) # Unitless
+# Different momentum mesh
+phi_squared_initial2 = ( u_initial2**2 + w_initial2**2 ) / \
+                       ( k_array2**2 * k_weights2 )
 psi_evolved2 = ob.wave_function(H_initial2, eps, U_matrix2) # Unitless
 
 # Initialize evolved momentum distribution
 phi_squared_evolved = np.zeros(ntot)
-phi_squared_evolved2 = np.zeros(ntot)
 
 i = 0
 for q in k_array:
@@ -97,7 +101,10 @@ for q in k_array:
 
     
     i += 1
-    
+
+# Different momentum mesh
+phi_squared_evolved2 = np.zeros(ntot)
+
 j = 0
 for q in k_array2:
     
@@ -112,7 +119,10 @@ phi_squared_evolved *= 2 / np.pi
 phi_squared_evolved2 *= 2 / np.pi
     
     
-# Calculate normalization
+# Calculate normalization for all cases
+
+print('Case a: kmax = 30 fm^-1, kmid = 4 fm^-1')
+print('Case b: kmax = 8 fm^-1, kmid = 2 fm^-1')
     
 norm_initial = np.sum(phi_squared_initial * k_array**2 * k_weights)
 print('Initial normalization (a) = %.3f'%norm_initial)
@@ -155,12 +165,13 @@ plt.close('all')
 
 f, ax = plt.subplots()
     
-ax.semilogy(k_array, phi_squared_evolved, 'r-', label=lamb_label%lamb)
-ax.semilogy(k_array2, phi_squared_evolved2, 'b-.', label=lamb_label%lamb)
+ax.semilogy(k_array, phi_squared_evolved, 'r-', label=lamb_label%lamb+' (a)')
+ax.semilogy(k_array2, phi_squared_evolved2, 'b-.',
+            label=lamb_label%lamb+' (b)')
 ax.semilogy(k_array, phi_squared_initial, 'k:', 
-            label=r'$\lambda=\infty \/ \/ fm^{-1}$')
+            label=r'$\lambda=\infty \/ \/ fm^{-1}$'+' (a)')
 ax.semilogy(k_array2, phi_squared_initial2, 'g--', 
-            label=r'$\lambda=\infty \/ \/ fm^{-1}$')
+            label=r'$\lambda=\infty \/ \/ fm^{-1}$'+' (b)')
 ax.set_xlim(xlim)
 ax.set_ylim(ylim)
 ax.legend(loc=legend_label_location, frameon=False, fontsize=legend_label_size)
@@ -175,6 +186,7 @@ plt.show()
 
 
 # Second round of tests -------------------------------------------------------
+# Evaluate the momentum distribution at some value of q in the momentum mesh.
 
 
 # Select momentum value
