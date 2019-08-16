@@ -8,7 +8,8 @@
 # 
 # SRG evolves a given Hamiltonian in units MeV. The run_srg function returns a 
 # dictionary of the evolved Hamiltonian (in scattering units [fm^-2]) at each 
-# point in lambda (which serves as the key).
+# point in lambda (which serves as the key). Includes an option to save the
+# evolved potentials.
 #
 # Revision history:
 #   May 28, 2019 --- Updated along with various updates to SRG codes. Split 
@@ -63,7 +64,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
         
     """
 
-    # Load initial Hamiltonian, kinetic energy and weights
+    # Load initial Hamiltonian, kinetic energy, and weights
     H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
     T_rel = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
     k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
