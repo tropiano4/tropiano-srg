@@ -8,7 +8,8 @@
 # 
 # Magnus evolves a given Hamiltonian in units MeV. The run_magnus function 
 # returns a dictionary of the evolved Hamiltonian (in scattering units [fm^-2])
-# and omega matrix at each point in lambda (which serves as the key).
+# and omega matrix at each point in lambda (which serves as the key). Includes
+# an option to save the evolved potentials and omega matrices.
 #
 #------------------------------------------------------------------------------
 
@@ -81,19 +82,21 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     # Time the evolution and return dictionary d of evolved Hamiltonians and
     # omega matrices where the keys are lambda values
     t0 = time.time() # Start time
+    
     # Check for OverflowError (this occurs when omega grows to infinity)
     try:
         d = evolve.evolve_hamiltonian(lambda_array)
     except OverflowError:
         print('_'*85)
-        print('Infinities NaNs encountered in omega matrix.')
+        print('Infinities or NaNs encountered in omega matrix.')
         print('Try using a smaller step-size or running magnus_split.py.')
         return None
     except ValueError:
         print('_'*85)
-        print('Infinities NaNs encountered in omega matrix.')
+        print('Infinities or NaNs encountered in omega matrix.')
         print('Try using a smaller step-size or running magnus_split.py.')
         return None
+    
     t1 = time.time() # End time
     
     # Print details
