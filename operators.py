@@ -112,7 +112,7 @@ def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
     return coupled_channel_operator
 
 
-def hankel_transformation(channel, k_array, r_array):
+def hankel_transformation(channel, k_array, r_array, dr):
     """
     <r|k;channel> matrix for given partial wave channel. If len(k_array) = m
     and len(r_array) = n, then this function returns an n x m matrix in units
@@ -148,7 +148,8 @@ def hankel_transformation(channel, k_array, r_array):
         L = 2
         
     #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
-    M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(2*dr/np.pi) * r_rows**2 * spherical_jn(L, k_cols*r_rows)
 
     return M
 
@@ -186,8 +187,8 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     r2_coordinate_space = np.diag(r_array**2)
         
     # Transform operator to momentum-space
-    s_wave_trans = hankel_transformation('3S1', k_array, r_array)
-    d_wave_trans = hankel_transformation('3D1', k_array, r_array)
+    s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
+    d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
     
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
@@ -210,6 +211,6 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
         
     # Factor of dr for one integration over dr (the other dr' integration is 
     # killed by delta function) - not sure what the weights should be???
-    return r2_momentum_space * dr
+    #return r2_momentum_space * dr
     #return r2_momentum_space / dr
-    #return r2_momentum_space
+    return r2_momentum_space
