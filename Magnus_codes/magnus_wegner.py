@@ -48,7 +48,7 @@ class Magnus(object):
             Step-size in the flow parameter s.
         
         """
-        
+
         # h-bar^2 / M [MeV fm^2]
         hbar_sq_over_M = 41.47
         

@@ -167,10 +167,10 @@ if __name__ == '__main__':
     #generator = 'T'
     
     # Evolve to lambda = 10 fm^-1 separately at a step-size 10^-6
-    lambda_array = np.array( [2.8, 2.0, 1.2] )
+    #lambda_array = np.array( [2.8, 2.0, 1.2] )
     #lambda_array = np.array( [10.0] )
     #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] )
-    #lambda_array = np.array( [2.8] )
+    lambda_array = np.array( [2.8] )
     #lambda_array = np.array( [1.2] )
     
     k_magnus = 2
@@ -183,8 +183,8 @@ if __name__ == '__main__':
     #ds = 1e-6
     
     # Save the evolved Hamiltonian and omega?
-    save = True
-    #save = False
+    #save = True
+    save = False
     
     # Evolve Hamiltonian
     d = run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
