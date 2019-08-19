@@ -114,9 +114,9 @@ for q in k_array2:
     j += 1
     
     
-# Divide out factor of pi/2
-phi_squared_evolved *= 2 / np.pi
-phi_squared_evolved2 *= 2 / np.pi
+# Divide out factor of pi/2 ?
+#phi_squared_evolved *= 2 / np.pi
+#phi_squared_evolved2 *= 2 / np.pi
     
     
 # Calculate normalization for all cases
@@ -199,7 +199,8 @@ phi_q2 = phi_squared_initial[9]
 momentum_proj_op = op.momentum_projection_operator(q, k_array, k_weights,
                                                    U_matrix)
 phi_q2_proj_op = psi_evolved.T @ momentum_proj_op @ psi_evolved
-phi_q2_proj_op *= 2/np.pi
-        
+#phi_q2_proj_op *= 2/np.pi
+
+print('Evaluating psi(q)^2 at q = %.4f fm^-1'%q)
 print('Straight forward psi(q)^2 = %.5e'%phi_q2)
 print('Projection operator psi(q)^2 = %.5e'%phi_q2_proj_op)

@@ -94,8 +94,8 @@ def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
         
     # Build momentum projection operator 
     operator = np.zeros( (m, m) )
-    #operator[q_index, q_index] = 1 / ( q**2 * q_weight )
-    operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
+    operator[q_index, q_index] = 1 / ( q**2 * q_weight )
+    #operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
     #operator[q_index, q_index] = 1
     
     # Matrix of zeros (m x m) for coupled-channel operator
