@@ -158,7 +158,8 @@ if __name__ == '__main__':
     #kmid = 4.0
     kmid = 2.0
     
-    ntot = 120
+    #ntot = 120
+    ntot = 140
     
     # Specify evolution
     

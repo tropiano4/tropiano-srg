@@ -16,6 +16,8 @@
 #   13-Aug-2016 --- generated all files up to Jmax
 #   02-Apr-2018 --- generating SMS (semi-local momentum space) s-waves
 #   22-Mar-2019 --- generating any potential for Tropiano SRG project
+#   20-Aug-2019 --- changed number of mesh points at low-momentum to test
+#                   SRG evolution of momentum projection operators
 #   
 
 # This script runs the executable generate_vsrg_vlowk.x one or more times,
@@ -46,12 +48,14 @@ $nsmooth = 0;     # integer smoothness parameter [exponent] (0 for SRG)
 $rsmooth = 0.00;  # real smoothness parameter [for non-exponential] (0.0 for SRG)
 
 # Set the momentum mesh parameters
-$nmod = 54;  # momentum points for low-k = P space (up to lambda for SRG) 
-$ntot = 120; # momentum points for P+Q = full = bare space
-#$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
-$kmax = 30.0;
-#$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
-$kmid = 4.0;
+#$nmod = 54;  # momentum points for low-k = P space (up to lambda for SRG)
+$nmod = 74; # changes made by AT to test SRG evolution of momentum projection operator
+#$ntot = 120; # momentum points for P+Q = full = bare space
+$ntot = 140; # changes made by AT
+$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
+#$kmax = 30.0;
+$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
+#$kmid = 4.0;
 
 # The potentials are labeled by the value of kvnn (see allvnnmodels.f)
 #  Some standard values:
@@ -85,8 +89,8 @@ $kmid = 4.0;
 #     cutnum = 1,2,3,4--> 400, 450, 500, 550 MeV cutoff
 
 #@kvnns = (06); # Argonne v18
-#@kvnns = (10); # Entem-Machleidt
-@kvnns = (32); # Epelbaum
+@kvnns = (10); # Entem-Machleidt
+#@kvnns = (32); # Epelbaum
 #@kvnns = (90,91,92,93,95,96,97,98,100,101,102,103,105,106,107,108,110,111,112,113,115,116,117,118); # RKE semi-local potentials
 #@kvnns = (90); # RKE semi-local potential at LO with specified cutoff (unless changed it's 400 MeV)
 #@kvnns = (105,106,107,110,111,112); # RKE semi-local potential at N3LO and N4LO

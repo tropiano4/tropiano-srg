@@ -10,8 +10,8 @@
 0     ! iherm ==> Hermitization (1=G-S, 2=Okubo, 3=Cholesky, 4=kato) 
  
 ! Mesh parameters 
-120   ! ntot   ==> momentum mesh size for P+Q = full = bare space
-54    ! nmod  ==> momentum mesh size for low-k = P space
+140   ! ntot   ==> momentum mesh size for P+Q = full = bare space
+74    ! nmod  ==> momentum mesh size for low-k = P space
  8.0  ! kmax ==> maximum momentum for bare potential
 
 ! End of input file 
