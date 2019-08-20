@@ -1,0 +1,18 @@
+Ideas for Magnus / SRG operator evolution paper
+
+
+Primary topics
+
+i) Testing the Magnus expansion for high cutoff potentials using the potentials from Wendt 2011 for comparison
+
+	-Spurious bound states and connection to intruder states in IMSRG calculations
+
+ii) High cutoffs for different potentials (semi-local and non-local) and SRG evolution
+
+	-Universality
+
+iii) Block-diagonal generator for some of the cases above
+
+	-How the block-diagonal generator handles spurious bound states
+
+iv) Operator evolution
