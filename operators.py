@@ -13,7 +13,8 @@
 # operator matrices.
 #
 # Revision history:
-#   August 7, 2019 --- Minor revisions to r^2 operator.
+#   08/07/19 --- Minor revisions to r^2 operator.
+#   08/22/19 --- Changed find_q_index function to use np.fabs() and .argmin()
 #
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
@@ -47,9 +48,8 @@ def find_q_index(q, k_array):
         
     """
     
-    k_difference_array = abs(k_array - q)
-    k_difference_min = min(k_difference_array)
-    q_index = list(k_difference_array).index(k_difference_min)
+    k_difference_array = np.fabs(k_array - q)
+    q_index = k_difference_array.argmin()
     
     return q_index
 
