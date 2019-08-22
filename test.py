@@ -10,7 +10,7 @@
 #
 # Last thing tested:
 #   Testing the deuteron momentum distribution using projection operators from
-#   operator.py.
+#   operators.py.
 #
 #------------------------------------------------------------------------------
 
@@ -190,6 +190,13 @@ plt.show()
 
 
 # Select momentum value
+q = 3.0
+q_index = op.find_q_index(q, k_array)
+print('q = %.5f'%k_array[q_index])
+q_index2 = op.find_q_index(q, k_array2)
+print('q = %.5f'%k_array2[q_index2])
+
+
 q = k_array[9]
 
 # Initial phi^2
@@ -198,8 +205,20 @@ phi_q2 = phi_squared_initial[9]
 # Projection operator phi(q)^2
 momentum_proj_op = op.momentum_projection_operator(q, k_array, k_weights,
                                                    U_matrix)
-phi_q2_proj_op = psi_evolved.T @ momentum_proj_op @ psi_evolved
+#phi_q2_proj_op = psi_evolved.T @ momentum_proj_op @ psi_evolved
 #phi_q2_proj_op *= 2/np.pi
+                                                   
+# Try the same thing above but with inclusion of factor
+factor_array = k_array * np.sqrt(k_weights)
+factor_array = np.concatenate((factor_array, factor_array))
+row, col = np.meshgrid(factor_array, factor_array)
+
+momentum_proj_op_units = momentum_proj_op / row / col * np.pi/2
+psi_evolved_units = psi_evolved / factor_array
+
+phi_q2_proj_op = 2/np.pi * ( psi_evolved_units.T * factor_array**2 ) \
+                 @ momentum_proj_op_units @ \
+                 ( psi_evolved_units * factor_array**2 )
 
 print('Evaluating psi(q)^2 at q = %.4f fm^-1'%q)
 print('Straight forward psi(q)^2 = %.5e'%phi_q2)
