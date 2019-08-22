@@ -12,9 +12,9 @@
 # evolved potentials.
 #
 # Revision history:
-#   May 28, 2019 --- Updated along with various updates to SRG codes. Split 
-#                    original script evolve_hamiltonian.py into run_srg.py and 
-#                    run_magnus.py.
+#   05/28/19 --- Updated along with various updates to SRG codes. Split 
+#                original script evolve_hamiltonian.py into run_srg.py and 
+#                run_magnus.py.
 #
 #------------------------------------------------------------------------------
 
@@ -151,15 +151,20 @@ if __name__ == '__main__':
     
     channel = '3S1'
     
-    #kmax = 30.0
-    kmax = 8.0
+    kmax = 30.0
+    #kmax = 8.0
     #kmax = 10.0
+    #kmax = 6.0
     
     #kmid = 4.0
-    kmid = 2.0
+    #kmid = 2.0
+    kmid = 3.0
     
     #ntot = 120
-    ntot = 140
+    ntot = 100
+    #ntot = 121
+    #ntot = 140
+    #ntot = 140
     
     # Specify evolution
     
