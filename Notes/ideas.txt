@@ -5,9 +5,10 @@ i) Testing the Magnus expansion for high cutoff potentials using the potentials 
 
 	-Spurious bound states and connection to intruder states in IMSRG calculations
 
-ii) High cutoffs for different potentials (semi-local and non-local) and SRG evolution
+ii) SRG/Magnus evolution in different potentials (non-local, local, semi-local)
 
 	-Universality
+	-High cutoffs?
 
 iii) Block-diagonal generator for high cutoff potentials and operator evolution
 
@@ -15,5 +16,4 @@ iii) Block-diagonal generator for high cutoff potentials and operator evolution
 
 iv) Operator evolution
 
-	-Connection to the Magnus
 	-SRG operator evolution for different potentials and generators
