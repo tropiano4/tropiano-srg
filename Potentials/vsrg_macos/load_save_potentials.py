@@ -27,7 +27,7 @@
 # Also saves SRG or Magnus evolved potentials in the same directory.
 #
 # Revision history:
-#   May 7, 2019 --- Save and load Magnus evolved potentials and omega matrices.
+#   05/07/19 --- Save and load Magnus evolved potentials and omega matrices.
 #
 #------------------------------------------------------------------------------
 
