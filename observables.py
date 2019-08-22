@@ -11,11 +11,12 @@
 # calculate observable quantities with functions from operators.py
 #
 # Revision history:
-#   May 29, 2019 --- This file was renamed from deuteron.py to observables.py.
-#                    The idea was to generalize this code to observables for
-#                    any state given an NN potential.
-#   June 6, 2019 --- Added a function that returns the energies of a given
-#                    Hamiltonian.
+#   05/29/19 --- This file was renamed from deuteron.py to observables.py. The 
+#                idea was to generalize this code to observables for any state
+#                given an NN potential.
+#   06/06/19 --- Added a function that returns the energies of a given
+#                Hamiltonian.
+#   08/22/19 --- Changed find_eps_index function to use np.fabs() and .argmin()
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -52,9 +53,8 @@ def find_eps_index(eps, e_array):
         
     """
     
-    e_difference_array = abs(e_array - eps)
-    e_difference_min = min(e_difference_array)
-    eps_index = list(e_difference_array).index(e_difference_min)
+    e_difference_array = np.fabs(e_array - eps)
+    eps_index = e_difference_array.argmin()
     
     return eps_index
 
