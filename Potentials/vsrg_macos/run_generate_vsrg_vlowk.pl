@@ -16,8 +16,8 @@
 #   13-Aug-2016 --- generated all files up to Jmax
 #   02-Apr-2018 --- generating SMS (semi-local momentum space) s-waves
 #   22-Mar-2019 --- generating any potential for Tropiano SRG project
-#   20-Aug-2019 --- changed number of mesh points at low-momentum to test
-#                   SRG evolution of momentum projection operators
+#   20-Aug-2019 --- changed number of mesh points at low-/high-momentum to 
+#                   test SRG evolution of momentum projection operators
 #   
 
 # This script runs the executable generate_vsrg_vlowk.x one or more times,
@@ -48,13 +48,18 @@ $nsmooth = 0;     # integer smoothness parameter [exponent] (0 for SRG)
 $rsmooth = 0.00;  # real smoothness parameter [for non-exponential] (0.0 for SRG)
 
 # Set the momentum mesh parameters
-#$nmod = 54;  # momentum points for low-k = P space (up to lambda for SRG)
-$nmod = 74; # changes made by AT to test SRG evolution of momentum projection operator
+$nmod = 54;  # momentum points for low-k = P space (up to lambda for SRG)
+#$nmod = 74; # changes made by AT to test SRG evolution of momentum projection operator
+#$ntot = 100; # setting in Anderson:2010aq
 #$ntot = 120; # momentum points for P+Q = full = bare space
-$ntot = 140; # changes made by AT
-$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
+#$ntot = 121;
+#$ntot = 140; # changes made by AT
+$ntot = 141;
+$kmax = 6.0;
+#$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
 #$kmax = 30.0;
 $kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
+#$kmid = 3.0; # setting in Anderson:2010aq
 #$kmid = 4.0;
 
 # The potentials are labeled by the value of kvnn (see allvnnmodels.f)
