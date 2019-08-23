@@ -164,7 +164,7 @@ if __name__ == '__main__':
     ntot = 100
     #ntot = 121
     #ntot = 140
-    #ntot = 140
+    #ntot = 141
     
     # Specify evolution
     
