@@ -10,8 +10,8 @@
 # lambda [fm^-1] using the Wegner generator.
 #
 # Revision history:
-#   May 27, 2019 --- Solve flow equation with respect to parameter lambda and 
-#                    use SciPy's ode function.
+#   05/27/19 --- Solve flow equation with respect to parameter lambda and use 
+#                SciPy's ode function.
 #
 #------------------------------------------------------------------------------
 

@@ -10,8 +10,8 @@
 # lambda [fm^-1] using the block-diagonal generator.
 #
 # Revision history:
-#   May 28, 2019 --- Solve flow equation with respect to parameter lambda and 
-#                    use SciPy's ode function.
+#   05/28/19 --- Solve flow equation with respect to parameter lambda and use
+#                SciPy's ode function.
 #
 #------------------------------------------------------------------------------
 

@@ -10,9 +10,8 @@
 # lambda [fm^-1] using the relative kinetic energy generator.
 #
 # Revision history:
-#   May 27, 2019 --- Solve flow equation with respect to parameter lambda 
-#                    instead of s and use SciPy's ode function instead of
-#                    odeint. This speeds up the process.
+#   05/27/19 --- Solve flow equation with respect to parameter lambda and use 
+#                SciPy's ode function.
 #
 #------------------------------------------------------------------------------
 
