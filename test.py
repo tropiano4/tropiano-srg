@@ -13,12 +13,9 @@
 # momentum_projection_operator_testv1.py. Use the revision history below to
 # document when and why these files are created.
 #
-# Last thing tested:
-#   Testing the deuteron momentum distribution using projection operators from
-#   operators.py.
 # Revision history:
-#   08/28/19 --- Testing the deuteron momentum distribution using projection operators from
-#                operators.py
+#   08/28/19 --- Testing the deuteron momentum distribution using projection
+#                operators from operators.py
 #
 #------------------------------------------------------------------------------
 
