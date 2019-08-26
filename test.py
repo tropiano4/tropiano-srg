@@ -6,11 +6,19 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 1, 2019
 # 
-# The purpose of this script is to test out codes.
+# The purpose of this script is to test out codes. Generally, something is
+# tested here, which evolves into several tests/checks. In the case of an
+# extensive script, one should save the script as a seperate file with an
+# extension _testv#.py where v# corresponds to the version number. For example,
+# momentum_projection_operator_testv1.py. Use the revision history below to
+# document when and why these files are created.
 #
 # Last thing tested:
 #   Testing the deuteron momentum distribution using projection operators from
 #   operators.py.
+# Revision history:
+#   08/28/19 --- Testing the deuteron momentum distribution using projection operators from
+#                operators.py
 #
 #------------------------------------------------------------------------------
 
