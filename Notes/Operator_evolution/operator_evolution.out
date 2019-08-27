@@ -1,6 +1,12 @@
 \BOOKMARK [0][-]{section*.2}{Operator evolution from the similarity renormalization group and the Magnus expansion}{}% 2
 \BOOKMARK [1][-]{section*.1}{Abstract}{section*.2}% 1
 \BOOKMARK [1][-]{section*.3}{Introduction}{section*.2}% 3
-\BOOKMARK [1][-]{section*.4}{Formalism}{section*.2}% 4
-\BOOKMARK [1][-]{section*.5}{Results}{section*.2}% 5
-\BOOKMARK [1][-]{section*.6}{Conclusion}{section*.2}% 6
+\BOOKMARK [1][-]{section*.4}{SRG evolution of NN potentials}{section*.2}% 4
+\BOOKMARK [1][-]{section*.6}{The Magnus expansion}{section*.2}% 5
+\BOOKMARK [2][-]{section*.7}{Formalism}{section*.6}% 6
+\BOOKMARK [1][-]{section*.8}{Evolution of other operators}{section*.2}% 7
+\BOOKMARK [2][-]{section*.9}{Building SRG unitary transformations}{section*.8}% 8
+\BOOKMARK [2][-]{section*.10}{Momentum projection operator: aq aq \(k, k'\)}{section*.8}% 9
+\BOOKMARK [2][-]{section*.11}{Momentum distribution function: 2\(k\)}{section*.8}% 10
+\BOOKMARK [1][-]{section*.12}{Conclusion}{section*.2}% 11
+\BOOKMARK [1][-]{section*.13}{References}{section*.2}% 12
