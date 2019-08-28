@@ -1,0 +1,32 @@
+Outline
+
+
+I. Introduction
+  a) Wide range of NN potentials - how do they change under SRG transformations?
+  b) Motivate long list of unaddressed questions: regulator, generator dependence, universality, high cutoffs, the Magnus expansion
+  c) SRG formalism
+
+
+II. SRG evolution of NN potentials
+  a) Comparison of potential evolution with different regulators, orders, generator
+    - N2LO, N3LO, ...; non-local, semi-local, local; Wegner, T_rel, block-diagonal
+  b) Universality
+  c) Discussion of high cutoffs, block-diagonal generator at high cutoffs and how it handles spurious bound states
+  d) Use high cutoffs to transition to Magnus test problem
+
+
+III. The Magnus expansion
+  a) Summary of Wendt high cutoff results and connection to IMSRG intruder state
+  b) Formalism
+    - Motivation: simplifies computational problem for evolving multiple operators, exact unitarity
+    - Important equations and how to evolve operators with omega
+  c) Results (comparison to Wendt problem)
+    - Implications for IMSRG
+  d) Use discussion of operator evolution to transition to next section
+
+
+IV. Evolution of other operators
+  a) SRG operator evolution for different potentials and generators
+
+
+V. Conclusion
