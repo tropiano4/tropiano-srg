@@ -83,11 +83,11 @@
 \textbf{Background on modern nuclear potentials.}
 }
 \\
--- Variety of potentials.
+-- Wide range of NN potentials: how do they change under SRG transformations?
 \\
 -- Implementation to many-body calculations and SRG decoupling.
 \\
--- Regulators, order, cutoff, etc. Universality.
+-- Motivate long list of unaddressed questions: regulator, generator dependence, universality, high cutoffs, the Magnus expansion.
 \\
 \textbf{SRG formalism}
 \\
@@ -142,15 +142,11 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 \\
 \textbf{Operator evolution}
 \\
--- State how a potential changes: how does this affect other operators?
+-- State how a potential and wave function changes: how does this affect other operators?
 \\
 -- How operators evolve from band- and block-diagonal SRG transformations.
 \\
 -- Operator evolution for different potentials (regulators, chiral order, etc.)
-\\
-\textcolor{red}{%
--- Mention the Magnus expansion?
-}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,8 +155,16 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 
 
 \noindent{%
--- Example figure. EM N$^3$LO potential.
+-- Comparison of potential evolution with different regulators, orders, generators.
 }
+\\
+-- Universality.
+\\
+-- Discussion of high cutoffs, block-diagonal generator at high cutoffs, and how it handles spurious bound states.
+\\
+-- Use high cutoffs to transition to Magnus test problem.
+\\
+-- Example figure. EM N$^3$LO potential.
 %
 \begin{figure}[H]
 	\centering
@@ -185,14 +189,21 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 \label{sec:magnus_expansion}
 
 
+\noindent{%
+-- Summary of Wendt high cutoff results and connection to IMSRG intruder state.
+}
+
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 \subsection{Formalism}
 \label{sec:magnus_expansion_formalism}
 
 
 \noindent{%
--- We now consider the Magnus implementation.
+-- Motivation: simplifies computational problem for evolving multiple operators, exact unitarity.
 }
+\\
+-- We now consider the Magnus implementation.
 \\
 -- Mathematically speaking, the Magnus expansion is a method for solving an initial value problem associated with a linear ordinary differential equation (ODE).
 \\
@@ -266,9 +277,28 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 -- In the next section, we discuss results from Magnus-evolved large-cutoff potentials focusing on the flow of the potential, observables, and operator evolution.
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{Results}
+\label{sec:magnus_expansion_results}
+
+
+\noindent{%
+-- Comparison to Wendt problem.
+}
+\\
+-- Implications for IMSRG.
+\\
+-- Use discussion of operator evolution to transition to next section.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evolution of other operators}
 \label{sec:evolution_other_operators}
+
+
+\noindent{%
+-- SRG operator evolution for different potentials and generators.
+}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
