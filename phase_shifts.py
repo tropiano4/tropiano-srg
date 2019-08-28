@@ -240,3 +240,44 @@ class Phase_shifts(object):
                     deltas[i] -= 180.0
 
         return deltas  
+    
+    
+# -----------------------------------------------------------------------------
+# Try to do everything above in one function that takes V(k, k'), e_array, and
+# convention as arguments
+        
+    
+def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    
+    Returns
+    -------
+    
+    
+    Notes
+    -----
+    
+    """
+    
+    return None
+
+
+def phase_corrector(phase_array):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    
+    Returns
+    -------
+    
+    """
+    
+    return None
