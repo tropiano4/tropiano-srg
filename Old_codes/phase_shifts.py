@@ -11,10 +11,10 @@
 # PHY989_Project1.pdf in the Notes folder.
 #
 # Revision history:
-#   September 25, 2018 --- Updated to manually correct +/- shifts of pi in
-#                          phase shifts.
-#   May 28, 2019       --- Replaced SciPy's interp2d with RectBivariateSpline
-#                          for interpolation.
+#   09/25/18 --- Updated to manually correct +/- shifts of pi in phase shifts.
+#   05/28/19 --- Replaced SciPy's interp2d with RectBivariateSpline for 
+#                interpolation.
+#   08/29/19 --- Merged phase_shifts.py code to observables.py.
 #
 # Notes:
 #   * This code needs to be generalized to non-coupled potentials.
@@ -239,45 +239,4 @@ class Phase_shifts(object):
                 if deltas[i] > ( deltas[i-1] + 100.0 ):
                     deltas[i] -= 180.0
 
-        return deltas  
-    
-    
-# -----------------------------------------------------------------------------
-# Try to do everything above in one function that takes V(k, k'), e_array, and
-# convention as arguments
-        
-    
-def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
-    """
-    Description.
-    
-    Parameters
-    ----------
-    
-    
-    Returns
-    -------
-    
-    
-    Notes
-    -----
-    
-    """
-    
-    return None
-
-
-def phase_corrector(phase_array):
-    """
-    Description.
-    
-    Parameters
-    ----------
-    
-    
-    Returns
-    -------
-    
-    """
-    
-    return None
+        return deltas
