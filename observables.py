@@ -17,6 +17,7 @@
 #   06/06/19 --- Added a function that returns the energies of a given
 #                Hamiltonian.
 #   08/22/19 --- Changed find_eps_index function to use np.fabs() and .argmin()
+#   08/29/19 --- Merged phase_shifts.py code to this script.
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -27,6 +28,7 @@
 
 import numpy as np
 import numpy.linalg as la
+from scipy.interpolate import RectBivariateSpline
 from scipy.special import spherical_jn
 #from scipy.interpolate import CubicSpline
 
@@ -143,6 +145,191 @@ def energies(H_matrix, bound_states_only=True):
         energies = eigenvalues
             
     return energies
+
+
+def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
+    """
+    Calculates NN phase shifts as a function of lab energy for a given 
+    potential. For details on the calculation, see Phase_Shift_Notes.pdf or
+    PHY989_Project1.pdf in the Notes folder.
+    
+    Parameters
+    ----------
+    e_array : 1-D ndarray
+        Array of lab energies in MeV.
+    V_matrix : 2-D ndarray
+        Potential matrix in units fm.
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights : 1-D ndarray
+        Momentum weights.
+    convention : str, optional
+        Phase shift calculation convention 'Stapp' or 'Blatt'.
+    
+    Returns
+    -------
+    phase_shifts : 2-D ndarray
+        Array of phase shifts delta_a, delta_b, and epsilon for each lab energy
+        in e_array. For example, phase_shifts[i, 0] returns delta_a at the ith
+        lab energy in e_array. For an entire array of one type of phase shift,
+        take phase_shifts[:, i] where i = 0, 1, or 2.
+    
+    
+    Notes
+    -----
+    * This code needs to be generalized to non-coupled potentials.
+    * Difficult to understand what causes shifts in pi. At the moment, manually
+      correcting these shifts is a sloppy fix. Is there a more elegant
+      solution?
+    
+    """
+    
+    # Set-up
+    
+    # h-bar^2 / M [MeV fm^2]
+    hbar_sq_over_M = 41.47
+    
+    # Length of the energy array
+    M = len(e_array)
+    
+    # Maximum momentum value in fm^-1
+    k_max = max(k_array)
+        
+    # Length of the momentum array
+    N = len(k_array)
+        
+    # Interpolate potential with RectBivariateSpline doing each sub-block
+    # separately for the coupled-channel potential
+    V11_func = RectBivariateSpline(k_array, k_array, V_matrix[:N, :N])
+    V12_func = RectBivariateSpline(k_array, k_array, V_matrix[:N, N:2*N])
+    V21_func = RectBivariateSpline(k_array, k_array, V_matrix[N:2*N, :N])
+    V22_func = RectBivariateSpline(k_array, k_array, V_matrix[N:2*N, N:2*N])
+    
+    # Initialize array for phase shifts
+    phase_shifts = np.zeros( (M, 3) )
+
+
+    # Loop over each lab energy
+    for i in range(M):
+        
+        # Lab energy
+        e = e_array[i]
+        
+        # Momentum corresponding to center of mass energy E_lab / 2 where the 
+        # factor of 41.47 converts from MeV to fm^-1
+        k0 = np.sqrt( e / 2.0 / hbar_sq_over_M )
+        
+        # Build D_vector
+        
+        # First N elements of D_vector
+        D_vector = 2.0/np.pi * ( k_weights * k_array**2 ) / \
+                   ( k_array**2 - k0**2 )
+        # N+1 element of D_vector
+        D_last = -2.0/np.pi * k0**2 *( np.sum( k_weights /
+                 ( k_array**2 - k0**2 ) ) + np.log( ( k_max + k0 ) /
+                 ( k_max - k0 ) ) / ( 2.0*k0 ) )
+        # Append N+1 element to D_vector
+        D_vector = np.append(D_vector, D_last) # Length is now N+1
+        
+        # Append k0 to k_array
+        k_full = np.append(k_array, k0)
+        
+        # Create meshes for interpolation
+        col, row = np.meshgrid(k_full, k_full)
+        
+        # Append k0 points by using the interpolated potential
+        V11_matrix = V11_func.ev(row, col)
+        V12_matrix = V12_func.ev(row, col)
+        V21_matrix = V21_func.ev(row, col)
+        V22_matrix = V22_func.ev(row, col)
+            
+        # Build coupled channel potential with k0 points included
+        V_matrix = np.vstack( ( np.hstack( (V11_matrix, V12_matrix) ), 
+                                np.hstack( (V21_matrix, V22_matrix) ) ) )
+        
+        # Build F matrix, N+1 x N+1, unitless where F_ij = delta_ij + D_j V_ij
+        F_matrix = np.identity( 2*(N+1) ) + np.tile( D_vector, (2*(N+1), 2) ) \
+                   * V_matrix
+
+        # Calculate R matrix and define extremes of R_matrix
+        R_matrix = la.solve(F_matrix, V_matrix) # Units fm
+        
+        # These are scalars!
+        R11 = R_matrix[N ,N]
+        R12 = R_matrix[N, 2*N+1]
+        # R21 = R12
+        R22 = R_matrix[2*N+1, 2*N+1]
+
+        # Coupled-channel variables
+        eps = 0.5 * np.arctan( 2.0 * R12 / ( R11 - R22 ) )
+        R_eps = ( R11 - R22 ) / np.cos( 2.0*eps )
+        delta_a = -np.arctan( 0.5 * k0 * ( R11 + R22 + R_eps ) )
+        delta_b = -np.arctan( 0.5 * k0 * ( R11 + R22 - R_eps ) )
+            
+        # Restrict values on phases (not sure how this works!)
+        while delta_a - delta_b <= 0:
+            delta_a += np.pi
+        while delta_a - delta_b > np.pi/2.0:
+            delta_b += np.pi
+        
+        # Blatt convention
+        if convention == 'Blatt':
+            
+            # Manually fix +/- shifts in pi
+            if delta_b > 0.0: 
+                delta_b -= np.pi
+                
+            phases = np.array( (delta_a, delta_b, eps) )
+        
+        # Stapp convention
+        else:
+        
+            eps_bar = 0.5 * np.arcsin( np.sin( 2.0*eps ) * \
+                      np.sin( delta_a - delta_b ) )
+            delta_bar_a = 0.5 * ( delta_a + delta_b + np.arcsin(
+                          np.tan( 2.0*eps_bar ) / np.tan( 2.0*eps ) ) )
+            delta_bar_b = 0.5 * ( delta_a + delta_b - np.arcsin(
+                          np.tan( 2.0*eps_bar ) / np.tan( 2.0*eps ) ) )
+            
+            # Manually fix +/- shifts in pi
+            if delta_b > 0.0: 
+                delta_bar_b -= np.pi
+                eps_bar *= -1.0
+                
+            while delta_bar_a < -100.0 * np.pi / 180.0:
+            #while delta_bar_a < 0.0:
+                delta_bar_a += np.pi
+            if e > 120.0:
+                ang = 80.0 * np.pi / 180.0
+            else:
+                ang = np.pi
+            while delta_bar_a > ang:
+                delta_bar_a -= np.pi
+                
+            phases = np.array( (delta_bar_a, delta_bar_b, eps_bar) )
+            
+        # Append phases to phase_shifts in degrees
+        phase_shifts[i, :] = np.degrees(phases)
+            
+    # End of the loop and return the phases
+    # This is an M x 3 dimensional array where M is the length of e_array
+    return phase_shifts
+
+
+def phase_corrector(phase_array):
+    """
+    Description.
+    
+    Parameters
+    ----------
+    
+    
+    Returns
+    -------
+    
+    """
+    
+    return None
 
 
 # r^2 integrand should be a function in srg_operator_evolution.ipynb
