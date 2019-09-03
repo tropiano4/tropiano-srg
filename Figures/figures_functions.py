@@ -10,7 +10,10 @@
 #
 # Revision history:
 #   09/03/19 --- Updated kvnn_label_conversion function to include more
-#                potentials (e.g. RKE, Gezrelis potentials).
+#                potentials (e.g. RKE, Gezrelis potentials). Added a function
+#                that returns color arguments for plotting which is useful for
+#                putting several curves on the same figure. Also, added a line
+#                styles function that works in the same way as xkcd_colors.
 #
 #------------------------------------------------------------------------------
 
@@ -117,6 +120,48 @@ def kvnn_label_conversion(kvnn):
     return label
 
 
+def line_styles(curve_number):
+    """
+    Default curve line style for plotting. Styles are ordered by the ordering
+    of curves on the plot, that is, the first curve corresponds
+    to 'solid', the second to 'dashdot', etc. Do not use this function for
+    plots with more than four curves. An error message will display when a
+    number higher than four is used and the function will return 'solid'.
+    
+    Parameters
+    ----------
+    curve_number : int
+        The number of curves being assigned a color.
+    
+    Returns
+    -------
+    out : str
+        The line style argument to be used in plotting functions. For example,
+        
+        plt.plot(x, y_1, linestyle=line_style(0))
+        plt.plot(x, y_2, linestyle=line_style(3))
+        
+        plots two curves as solid and dotted lines.
+    
+    """
+    
+    line_styles = ['solid', 'dashdot', 'dashed', 'dotted']
+    
+    try:
+        
+        return line_styles[curve_number]
+    
+    except IndexError:
+        
+        error = 'Curve number is too high to match with default line style.'
+        suggestion = 'Manually assign styles to each curve.'
+        print_statement = error + ' ' + suggestion
+        
+        print(print_statement)
+        
+        return 'solid'
+
+
 def replace_periods_with_commas(file_name):
     """
     Replaces all periods in a file name with commas. This is necessary for
@@ -150,3 +195,46 @@ def replace_periods_with_commas(file_name):
         new_file_name += letter
         
     return new_file_name
+
+
+def xkcd_colors(curve_number):
+    """
+    Default curve colors for plotting using xkcd colors. Colors are ordered
+    by the ordering of curves on the plot, that is, the first curve corresponds
+    to black, the second to red, etc. Do not use this function for plots with
+    more than seven curves. An error message will display when a number higher
+    than seven is used and the function will return 'xkcd:black'.
+    
+    Parameters
+    ----------
+    curve_number : int
+        The number of curves being assigned a color.
+    
+    Returns
+    -------
+    out : str
+        The color argument to be used in plotting functions. For example,
+        
+        plt.plot(x, y_1, color=xkcd_colors(0))
+        plt.plot(x, y_2, color=xkcd_colors(1))
+        
+        plots two curves as black and red lines.
+    
+    """
+    
+    colors = ['xkcd:black', 'xkcd:red', 'xkcd:blue', 'xkcd:green',
+              'xkcd:orange', 'xkcd:purple', 'xkcd:grey']
+    
+    try:
+        
+        return colors[curve_number]
+    
+    except IndexError:
+        
+        error = 'Curve number is too high to match with default color.'
+        suggestion = 'Manually assign colors to each curve.'
+        print_statement = error + ' ' + suggestion
+        
+        print(print_statement)
+        
+        return 'xkcd:black'
