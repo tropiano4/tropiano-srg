@@ -8,6 +8,10 @@
 # 
 # Functions useful for generating figures.
 #
+# Revision history:
+#   09/03/19 --- Updated kvnn_label_conversion function to include more
+#                potentials (e.g. RKE, Gezrelis potentials).
+#
 #------------------------------------------------------------------------------
 
 
@@ -73,8 +77,7 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
 def kvnn_label_conversion(kvnn):
     """
     Converts a kvnn number to a label for plotting purposes (e.g. kvnn = 6 
-    gives 'AV18'). THIS NEEDS TO BE UPDATED! DO THIS FOR SRG OPERATOR EVOLUTION
-    FIGURES!
+    gives 'AV18').
     
     Parameters
     ----------
@@ -93,14 +96,23 @@ def kvnn_label_conversion(kvnn):
         label = 'AV18'
     # Entem/Machleidt N3LO (500 MeV cutoff)   
     elif kvnn == 10:
-        label = 'N3LO'
+        label = 'EM N' + r'$^3$' + 'LO'
+    # RKE N3LO (400, 450, 500 MeV cutoffs)
+    elif kvnn in [105, 106, 107]:
+        label = 'RKE N' + r'$^3$' + 'LO'
+    # RKE N4LO (400, 450, 500 MeV cutoffs)
+    elif kvnn in [110, 111, 112]:
+        label = 'RKE N' + r'$^4$' + 'LO'
+    # Gezrelis N2LO (1 and 1.2 fm cutoff)
+    elif kvnn in [222, 224]:
+        label = 'Gezerlis N' + r'$^2$' + 'LO'
     # Wendt LO non-local potential
     elif kvnn == 900: # Cutoff 4 fm^-1
-        label = r'$\Lambda = 4 \/ fm^{-1}$'
+        label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
     elif kvnn == 901: # Cutoff 9 fm^-1
-        label = r'$\Lambda = 9 \/ fm^{-1}$'
+        label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
     elif kvnn == 902: # Cutoff 20 fm^-1
-        label = r'$\Lambda = 20 \/ fm^{-1}$'
+        label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
 
     return label
 
