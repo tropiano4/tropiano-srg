@@ -216,7 +216,7 @@ class SRG(object):
         solver = ode(self.derivative)
         # Following the example in Hergert:2016iju with modifications to nsteps
         # and error tolerances
-        solver.set_integrator('vode', method='bdf', order=5, nsteps=500000, 
+        solver.set_integrator('vode', method='bdf', order=5, nsteps=1000000, 
                               atol=1e-6, rtol=1e-6)
         # Set initial value of Hamiltonian at lambda = lambda_initial
         solver.set_initial_value(H_initial, lambda_initial)
