@@ -14,12 +14,49 @@
 #                that returns color arguments for plotting which is useful for
 #                putting several curves on the same figure. Also, added a line
 #                styles function that works in the same way as xkcd_colors.
+#   09/05/19 --- Added generator_label_conversion function. Analogous to
+#                kvnn_label_conversion function.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
 from scipy.interpolate import interp2d
+
+
+def generator_label_conversion(generator, lambda_bd=0.00):
+    """
+    Converts a generator string argument to a label for plotting purposes (e.g.
+    generator = 'Wegner' gives r'$G = H_D$').
+    
+    Parameters
+    ----------
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lambda_bd : float, optional
+        Lambda value for block-diagonal decoupling (e.g. 2.00 fm^-1).
+        
+    Returns
+    -------
+    label : str
+        Label for the generator.
+        
+    """
+
+    # Block-diagonal
+    if generator == 'Block-diag':
+        # If lambda_bd is already an integer, format as an integer
+        if int(lambda_bd) == lambda_bd:
+            label = r'$G=H_{BD}$' + ' (%d fm' % lambda_bd + r'$^{-1}$' + ')'
+        # Otherwise, present with two decimal places
+        else:
+            label = r'$G=H_{BD}$' + ' (%.2f fm' % lambda_bd + r'$^{-1}$' + ')'
+    elif generator == 'Wegner':
+        label = r'$G=H_{D}$'
+    elif generator == 'T':
+        label = r'$G=T_{rel}$'
+
+    return label
 
 
 def interpolate_matrix(x_array, M, x_max, ntot=500):
