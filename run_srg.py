@@ -143,8 +143,8 @@ if __name__ == '__main__':
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
-    #kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
-    #kvnn = 224 # Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
+    #kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm
+    #kvnn = 224 # Gezerlis et al N2LO local potential at R_0 = 1.2 fm
     #kvnn = 900 # Wendt at Lambda = 4 fm^-1
     #kvnn = 901 # Wendt at Lambda = 9 fm^-1
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
@@ -168,9 +168,9 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    generator = 'Wegner'
+    #generator = 'Wegner'
     #generator = 'T'
-    #generator = 'Block-diag'
+    generator = 'Block-diag'
     
     #lambda_bd = 1.00 # This won't affect the band-diagonal generators
     lambda_bd = 2.00 # Default
@@ -180,8 +180,9 @@ if __name__ == '__main__':
     #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
     #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
     #lambda_array = np.array( [2.8] )
-    lambda_array = np.array( [1.2] )
+    #lambda_array = np.array( [1.2] )
     #lambda_array = np.array( [10.0] )
+    lambda_array = np.array( [1.0] )
     
     # Save the evolved Hamiltonian?
     save = True
