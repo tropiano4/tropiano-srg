@@ -18,6 +18,8 @@
 #                Hamiltonian.
 #   08/22/19 --- Changed find_eps_index function to use np.fabs() and .argmin()
 #   08/29/19 --- Merged phase_shifts.py code to this script.
+#   09/06/19 --- Split phase_shifts function into coupled-channel and normal
+#                functions, coupled_channel_phase_shifts and phase_shifts.
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -31,6 +33,7 @@ import numpy.linalg as la
 from scipy.interpolate import RectBivariateSpline
 from scipy.special import spherical_jn
 #from scipy.interpolate import CubicSpline
+# Scripts made by A.T.
 
 
 def find_eps_index(eps, e_array):
@@ -147,11 +150,108 @@ def energies(H_matrix, bound_states_only=True):
     return energies
 
 
-def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
+def phase_shifts(e_array, V_matrix, k_array, k_weights):
     """
     Calculates NN phase shifts as a function of lab energy for a given 
+    potential. Note, this function will not work for a coupled-channel
     potential. For details on the calculation, see Phase_Shift_Notes.pdf or
-    PHY989_Project1.pdf in the Notes folder.
+    PHY989_Project1.pdf in the Notes folder
+    
+    Parameters
+    ----------
+    e_array : 1-D ndarray
+        Array of lab energies in MeV.
+    V_matrix : 2-D ndarray
+        Potential matrix in units fm.
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights : 1-D ndarray
+        Momentum weights.
+    
+    Returns
+    -------
+    phase_shifts : 1-D ndarray
+        Array of phase shifts in degrees for each lab energy in e_array.
+    
+    
+    Notes
+    -----
+    * Difficult to understand what causes shifts in pi. At the moment, manually
+      correcting these shifts is a sloppy fix. Is there a more elegant
+      solution?
+    
+    """
+    
+    # Set-up
+    
+    # h-bar^2 / M [MeV fm^2]
+    hbar_sq_over_M = 41.47
+    
+    # Length of the energy array
+    M = len(e_array)
+    
+    # Maximum momentum value in fm^-1
+    k_max = max(k_array)
+        
+    # Length of the momentum array
+    N = len(k_array)
+        
+    # Interpolate potential with RectBivariateSpline
+    V_func = RectBivariateSpline(k_array, k_array, V_matrix)
+    
+    # Initialize array for phase shifts
+    phase_shifts = np.zeros(M)
+
+
+    # Loop over each lab energy
+    for i in range(M):
+        
+        # Lab energy
+        e = e_array[i]
+        
+        # Momentum corresponding to center of mass energy E_lab / 2 where the 
+        # factor of 41.47 converts from MeV to fm^-1
+        k0 = np.sqrt( e / 2.0 / hbar_sq_over_M )
+        
+        # Build D_vector
+        
+        # First N elements of D_vector
+        D_vector = 2.0/np.pi * ( k_weights * k_array**2 ) / \
+                   ( k_array**2 - k0**2 )
+        # N+1 element of D_vector
+        D_last = -2.0/np.pi * k0**2 *( np.sum( k_weights /
+                 ( k_array**2 - k0**2 ) ) + np.log( ( k_max + k0 ) / \
+                 ( k_max - k0 ) ) / ( 2.0*k0 ) )
+        # Append N+1 element to D_vector
+        D_vector = np.append(D_vector, D_last) # Length is now N+1
+        
+        # Append k0 to k_array
+        k_full = np.append(k_array, k0)
+        
+        # Create meshes for interpolation
+        col, row = np.meshgrid(k_full, k_full)
+        
+        # Append k0 points by using the interpolated potential
+        V_matrix = V_func.ev(row, col)
+            
+        # Build F matrix, N+1 x N+1, unitless where F_ij = delta_ij + D_j V_ij
+        F_matrix = np.identity(N+1) + np.tile( D_vector, (N+1, 1) ) * V_matrix
+
+        # Calculate R matrix and define extremes of R_matrix
+        R_matrix = la.solve(F_matrix, V_matrix) # Units fm
+
+        phase_shifts[i] = np.arctan( -k0 * R_matrix[N, N] )
+
+    # Return phase shifts in degrees
+    return np.degrees(phase_shifts)
+
+
+def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
+                                 convention='Stapp'):
+    """
+    Calculates NN phase shifts as a function of lab energy for a given coupled-
+    channel potential. For details on the calculation, see
+    Phase_Shift_Notes.pdf or PHY989_Project1.pdf in the Notes folder.
     
     Parameters
     ----------
@@ -177,7 +277,6 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
     
     Notes
     -----
-    * This code needs to be generalized to non-coupled potentials.
     * Difficult to understand what causes shifts in pi. At the moment, manually
       correcting these shifts is a sloppy fix. Is there a more elegant
       solution?
@@ -246,14 +345,15 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights, convention='Stapp'):
         # Build coupled channel potential with k0 points included
         V_matrix = np.vstack( ( np.hstack( (V11_matrix, V12_matrix) ), 
                                 np.hstack( (V21_matrix, V22_matrix) ) ) )
-        
-        # Build F matrix, N+1 x N+1, unitless where F_ij = delta_ij + D_j V_ij
+            
+        # Build F matrix, 2*(N+1) x 2*(N+1), unitless where 
+        # F_ij = delta_ij + D_j V_ij
         F_matrix = np.identity( 2*(N+1) ) + np.tile( D_vector, (2*(N+1), 2) ) \
                    * V_matrix
 
         # Calculate R matrix and define extremes of R_matrix
         R_matrix = la.solve(F_matrix, V_matrix) # Units fm
-        
+
         # These are scalars!
         R11 = R_matrix[N ,N]
         R12 = R_matrix[N, 2*N+1]
