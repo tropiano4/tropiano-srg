@@ -45,8 +45,12 @@ def generator_label_conversion(generator, lambda_bd=0.00):
 
     # Block-diagonal
     if generator == 'Block-diag':
+        # In the case, lambda_bd is not entered as an argument, return just
+        # G = H_BD
+        if lambda_bd == 0.00:
+            label = r'$G=H_{BD}$'
         # If lambda_bd is already an integer, format as an integer
-        if int(lambda_bd) == lambda_bd:
+        elif int(lambda_bd) == lambda_bd:
             label = r'$G=H_{BD}$' + ' (%d fm' % lambda_bd + r'$^{-1}$' + ')'
         # Otherwise, present with two decimal places
         else:
