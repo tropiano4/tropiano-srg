@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  28 AUG 2019 14:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  9 SEP 2019 11:56
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1711,116 +1711,123 @@ Overfull \hbox (9.18227pt too wide) in paragraph at lines 71--71
  []
 
 [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-[2]
-<../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Wegner.pdf, id=82, 1
-021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Wegner.pdf Grap
-hic file (type pdf)
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 88.
 
-<use ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Wegner.pdf>
-Package pdftex.def Info: ../../Figures/SRG_operators/potential_contours_kvnn10_
-3S1_Wegner.pdf used on input line 172.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 88.
+ [2] [3]
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf, id=85, 
+1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf Gra
+phic file (type pdf)
+
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
+_3S1_Wegner.pdf used on input line 190.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
-<../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag2,00.pdf, 
-id=84, 1021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag2,00.
-pdf Graphic file (type pdf)
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.pdf,
+ id=87, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00
+.pdf Graphic file (type pdf)
 
-<use ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag2,00.p
-df>
-Package pdftex.def Info: ../../Figures/SRG_operators/potential_contours_kvnn10_
-3S1_Block-diag2,00.pdf used on input line 176.
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.
+pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
+_3S1_Block-diag2,00.pdf used on input line 194.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
-<../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag3,00.pdf, 
-id=86, 1021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag3,00.
-pdf Graphic file (type pdf)
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.pdf,
+ id=89, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00
+.pdf Graphic file (type pdf)
 
-<use ../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag3,00.p
-df>
-Package pdftex.def Info: ../../Figures/SRG_operators/potential_contours_kvnn10_
-3S1_Block-diag3,00.pdf used on input line 180.
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.
+pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
+_3S1_Block-diag3,00.pdf used on input line 198.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
- [3]
-
-Package natbib Warning: Citation `Blanes:2009ab' on page 4 undefined on input l
-ine 209.
-
-[4 <../../Figures/SRG_operators/potential_contours_kvnn10_3S1_Wegner.pdf> <../.
-./Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag2,00.pdf> <../.
-./Figures/SRG_operators/potential_contours_kvnn10_3S1_Block-diag3,00.pdf>]
+ [4]
 
 Package natbib Warning: Citation `Blanes:2009ab' on page 5 undefined on input l
-ine 222.
+ine 227.
+
+[5 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf> <../
+../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.pdf> <..
+/../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.pdf>]
+
+Package natbib Warning: Citation `Blanes:2009ab' on page 6 undefined on input l
+ine 240.
 
 
-Package natbib Warning: Citation `Magnus:1954zz' on page 5 undefined on input l
-ine 222.
+Package natbib Warning: Citation `Magnus:1954zz' on page 6 undefined on input l
+ine 240.
 
-[5] [6]
-Underfull \hbox (badness 10000) in paragraph at lines 313--317
+[6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 331--335
 
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 329.
+(hyperref)                removing `math shift' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 329.
+(hyperref)                removing `superscript' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\dagger' on input line 329.
+(hyperref)                removing `\dagger' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 329.
+(hyperref)                removing `subscript' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 329.
+(hyperref)                removing `subscript' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 329.
+(hyperref)                removing `math shift' on input line 347.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 344.
+(hyperref)                removing `math shift' on input line 362.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 344.
+(hyperref)                removing `\phi' on input line 362.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 344.
+(hyperref)                removing `superscript' on input line 362.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 344.
+(hyperref)                removing `math shift' on input line 362.
 
-[7] (./operator_evolution.bbl)
+[8] (./operator_evolution.bbl)
 
 Package natbib Warning: There were undefined citations.
 
-[8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 375.
+[9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 393.
  (./operator_evolution.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 375.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 375.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 393.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 393.
 Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
 (rerunfilecheck)             Checksum: 2855109597C4566087C14257E60BB225;935.
  ) 
 Here is how much of TeX's memory you used:
- 19705 strings out of 492995
- 361058 string characters out of 6132704
+ 19722 strings out of 492995
+ 361359 string characters out of 6132704
  423731 words of memory out of 5000000
- 23044 multiletter control sequences out of 15000+600000
+ 23058 multiletter control sequences out of 15000+600000
  16360 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  39i,11n,49p,10414b,785s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1837,10 +1844,10 @@ al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
 xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
 ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (8 pages, 328032 bytes).
+Output written on operator_evolution.pdf (9 pages, 331183 bytes).
 PDF statistics:
- 317 PDF objects out of 1000 (max. 8388607)
- 208 compressed objects within 3 object streams
+ 321 PDF objects out of 1000 (max. 8388607)
+ 210 compressed objects within 3 object streams
  37 named destinations out of 1000 (max. 500000)
  138 words of extra memory for PDF output out of 10000 (max. 10000000)
 

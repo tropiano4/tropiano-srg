@@ -9,6 +9,7 @@
 %
 % Revision history:
 %	08/28/19 --- Started outlining and added pieces from old notes.
+%	09/09/19 --- Added more bullets to the introduction. Further organization.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -82,12 +83,22 @@
 \textbf{Background on modern nuclear potentials.}
 }
 \\
--- Wide range of NN potentials: how do they change under SRG transformations?
-\\
+-- Wide range of NN potentials.
+%
+\begin{itemize}
+	\item Chiral EFT background.
+	\item Different potential matrix elements but give same $S$-matrix.
+\end{itemize}
+%
 -- Implementation to many-body calculations and SRG decoupling.
-\\
--- Motivate long list of unaddressed questions: regulator, generator dependence, universality, high cutoffs, the Magnus expansion.
-\\
+%
+\begin{itemize}
+	\item Strong coupling between low- and high-momentum matrix elements in realistic potentials.
+	\item Very difficult to implement these interactions in many-body methods using basis expansions. Matrix dimension becomes too large for accurate calculations.
+	\item RG transformations are used to soften the interaction to make many-body methods feasible. One such method, the SRG, also preserves observables from unitarity.
+	\item How do different interactions change under SRG transformations?
+\end{itemize}
+%
 \textbf{SRG formalism}
 \\
 -- The SRG decouples low- and high-momentum scales by applying a continuous unitary transformation $U(s)$ where $s=0 \rightarrow \infty$ is the flow parameter.
@@ -112,40 +123,48 @@ where $O(0)$ corresponds to the `bare' operator.
 %
 where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator.
 \\
--- The generator is defined as a commutator,
-%
-\begin{eqnarray}
-	\label{eq:srg_generator}
-	\eta(s) = [G, H(s)],
-\end{eqnarray}
-%
-where $G$ specifies the type of flow or form of the decoupled operator.
+-- The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow or form of the decoupled operator.
 \\
 -- To drive the operator to band-diagonal form, set $G=H_D(s)$, the diagonal of the Hamiltonian.
 \\
 -- This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}.
 \\
--- For notational convenience, we write the Wegner choice without the $s$ dependence in the rest of the paper.
-\\
 -- In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form.
-\\
--- In this paper, we consider both choices.
-\\
-\textcolor{red}{%
--- Add block-diagonal generator.
-}
-\\
--- Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver.
 \\
 -- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator.
 \\
+-- For block-diagonal decoupling, denoted $G=H_{BD}(s)$, the operator is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda_{BD}$.
+\\
+-- These transformations are similar to $V_{low k}$ Lee-Suzuki transformations but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block.
+\\
+-- Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver.
+\\
+-- For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
+\\
+\textbf{Universality}
+\\
+-- The explicit long-range physics should be the same. Decoupling low- and high-energy gives matching low-energy matrix elements. In the NN potential, this means softened NN interactions should have the same low-momentum matrix elements after sufficient decoupling.
+\\
+-- Add takeaways from Dainton: phase shift equivalence implies matrix element equivalence for $\lambda$ approaching the momenta of phase equivalence. Correct binding energy is critical or the lowest matrix elements will not match.
+\\
+-- Motivate long list of unaddressed questions: regulator, generator dependence, high cutoffs, the Magnus expansion.
+%
+\begin{itemize}
+	\item Regulator. Functional dependence of regulator. Reasons for implementing each.
+	\item Generators. Band- and block-diagonal transformations.
+	\item High cutoffs. Cite Nogga, Wendt, and Tews papers.
+	\item The Magnus expansion. High cutoffs and connection to IMSRG intruder state problem.
+\end{itemize}
+%
 \textbf{Operator evolution}
 \\
 -- State how a potential and wave function changes: how does this affect other operators?
 \\
+-- Operator evolution for different potentials (regulators, chiral order, etc.)
+\\
 -- How operators evolve from band- and block-diagonal SRG transformations.
 \\
--- Operator evolution for different potentials (regulators, chiral order, etc.)
+\textbf{Overview of sections.}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,15 +187,15 @@ where $G$ specifies the type of flow or form of the decoupled operator.
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/potential_contours_kvnn10_3S1_Wegner}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn10_3S1_Wegner}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/potential_contours_kvnn10_3S1_Block-diag2,00}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00}%
 	}
 
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/potential_contours_kvnn10_3S1_Block-diag3,00}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00}%
 	}
 	\caption{Matrix elements of the Entem-Machleidt N$^3$LO non-local potential $V_{\lambda}(k, k')$ SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator (a) and block-diagonal generators decoupling at $\Lambda=2$ and $3$ fm$^{-1}$ (b and c).}
 	\label{potential_contours_kvnn10_3S1}
