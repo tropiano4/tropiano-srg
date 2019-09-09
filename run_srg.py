@@ -150,8 +150,8 @@ if __name__ == '__main__':
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
     
     #channel = '1S0'
-    channel = '3S1'
-    #channel = '1P1'
+    #channel = '3S1'
+    channel = '1P1'
     #channel = '3P0'
     
     kmax = 30.0
