@@ -149,8 +149,8 @@ if __name__ == '__main__':
     #kvnn = 901 # Wendt at Lambda = 9 fm^-1
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
     
-    channel = '1S0'
-    #channel = '3S1'
+    #channel = '1S0'
+    channel = '3S1'
     #channel = '1P1'
     #channel = '3P0'
     
@@ -171,9 +171,9 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    generator = 'Wegner'
+    #generator = 'Wegner'
     #generator = 'T'
-    #generator = 'Block-diag'
+    generator = 'Block-diag'
     
     lambda_bd = 1.00 # This won't affect the band-diagonal generators
     #lambda_bd = 2.00 # Default
