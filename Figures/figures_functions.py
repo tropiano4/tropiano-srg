@@ -16,6 +16,9 @@
 #                styles function that works in the same way as xkcd_colors.
 #   09/05/19 --- Added generator_label_conversion function. Analogous to
 #                kvnn_label_conversion function.
+#   09/09/19 --- Added channel_label_conversion function. Analogous to
+#                kvnn_label_conversion and generator_label_conversion
+#                functions.
 #
 #------------------------------------------------------------------------------
 
@@ -23,6 +26,28 @@
 import numpy as np
 from scipy.interpolate import interp2d
 
+
+def channel_label_conversion(channel):
+    """
+    Converts a channel string argument to a label for plotting purposes.
+    
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.)
+        
+    Returns
+    -------
+    label : str
+        Label for the channel.
+        
+    """
+    
+    # Make numbers super- and sub-scripts
+    label = r'$^%s$' % channel[0] + channel[1] + r'$_%s$' % channel[2]
+    
+    return label
+        
 
 def generator_label_conversion(generator, lambda_bd=0.00):
     """
