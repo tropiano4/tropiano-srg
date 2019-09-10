@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  9 SEP 2019 11:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  10 SEP 2019 16:17
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1594,33 +1594,33 @@ Package: subfig 2005/06/28 ver: 1.3 subfig package
 \sf@bottom=\skip71
 )
 Class revtex4-1 Info: Unrecognized array package. Please update this document c
-lass! (Proceeding with fingers crossed.) on input line 40.
+lass! (Proceeding with fingers crossed.) on input line 41.
 
 
 Class revtex4-1 Warning: Repair the float package.
 
-Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 40.
+Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 41.
 
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 40.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 40.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 40.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 41.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 41.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 41.
 (./operator_evolution.aux)
 \openout1 = `operator_evolution.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
@@ -1659,7 +1659,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box70
-Package hyperref Info: Link coloring OFF on input line 40.
+Package hyperref Info: Link coloring OFF on input line 41.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -1669,9 +1669,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count195
 )
-LaTeX Info: Redefining \ref on input line 40.
-LaTeX Info: Redefining \pageref on input line 40.
-LaTeX Info: Redefining \nameref on input line 40.
+LaTeX Info: Redefining \ref on input line 41.
+LaTeX Info: Redefining \pageref on input line 41.
+LaTeX Info: Redefining \nameref on input line 41.
 
 (./operator_evolution.out) (./operator_evolution.out)
 \@outlinefile=\write4
@@ -1691,146 +1691,173 @@ Dictionary: translator-basic-dictionary, Language: English
 (/usr/local/texlive/2017/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg
 File: siunitx-abbreviations.cfg 2017/05/19 v2.7g siunitx: Abbreviated units
 )
-Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 40.
+Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 41.
 \openout3 = `operator_evolutionNotes.bib'.
 
 \c__siunitx_mathsf_int=\count196
-LaTeX Font Info:    Try loading font information for U+msa on input line 40.
+LaTeX Font Info:    Try loading font information for U+msa on input line 41.
  (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 40.
+LaTeX Font Info:    Try loading font information for U+msb on input line 41.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 \c__siunitx_mathtt_int=\count197
 
-Overfull \hbox (9.18227pt too wide) in paragraph at lines 71--71
+Overfull \hbox (9.18227pt too wide) in paragraph at lines 72--72
  []$[] 
  []
 
 [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 88.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 89.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 88.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 89.
  [2] [3]
-<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf, id=85, 
-1021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf Gra
-phic file (type pdf)
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potential.pd
+f, id=85, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potenti
+al.pdf Graphic file (type pdf)
 
-<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf>
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potentia
+l.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-_3S1_Wegner.pdf used on input line 190.
+_3S1_Wegner_potential.pdf used on input line 189.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
-<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.pdf,
- id=87, 1021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00
-.pdf Graphic file (type pdf)
+<../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potential.p
+df, id=87, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potent
+ial.pdf Graphic file (type pdf)
 
-<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.
-pdf>
+<use ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potenti
+al.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-_3S1_Block-diag2,00.pdf used on input line 194.
+6_3S1_Wegner_potential.pdf used on input line 193.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
-<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.pdf,
- id=89, 1021.34387pt x 260.8925pt>
-File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00
-.pdf Graphic file (type pdf)
+<../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potential.p
+df, id=89, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potent
+ial.pdf Graphic file (type pdf)
 
-<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.
-pdf>
-Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-_3S1_Block-diag3,00.pdf used on input line 198.
+<use ../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potenti
+al.pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn22
+2_3S1_Wegner_potential.pdf used on input line 197.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
- [4]
 
-Package natbib Warning: Citation `Blanes:2009ab' on page 5 undefined on input l
-ine 227.
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_generator.pd
+f, id=91, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_generat
+or.pdf Graphic file (type pdf)
 
-[5 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner.pdf> <../
-../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag2,00.pdf> <..
-/../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag3,00.pdf>]
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_generato
+r.pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
+_3S1_Wegner_generator.pdf used on input line 206.
+(pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
+
+<../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag_generato
+r.pdf, id=93, 1021.34387pt x 260.8925pt>
+File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag_gen
+erator.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag_gene
+rator.pdf>
+Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
+_3S1_Block-diag_generator.pdf used on input line 210.
+(pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
+ [4] [5 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_pote
+ntial.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_
+potential.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Weg
+ner_potential.pdf>]
 
 Package natbib Warning: Citation `Blanes:2009ab' on page 6 undefined on input l
-ine 240.
+ine 239.
+
+[6 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_generator
+.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Block-diag_ge
+nerator.pdf>]
+
+Package natbib Warning: Citation `Blanes:2009ab' on page 7 undefined on input l
+ine 252.
 
 
-Package natbib Warning: Citation `Magnus:1954zz' on page 6 undefined on input l
-ine 240.
+Package natbib Warning: Citation `Magnus:1954zz' on page 7 undefined on input l
+ine 252.
 
-[6] [7]
-Underfull \hbox (badness 10000) in paragraph at lines 331--335
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 343--347
 
  []
 
+[8]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 347.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 347.
+(hyperref)                removing `math shift' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\dagger' on input line 347.
+(hyperref)                removing `superscript' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 347.
+(hyperref)                removing `\dagger' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 347.
+(hyperref)                removing `subscript' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 347.
+(hyperref)                removing `subscript' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 362.
+(hyperref)                removing `math shift' on input line 359.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 362.
+(hyperref)                removing `math shift' on input line 374.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 362.
+(hyperref)                removing `\phi' on input line 374.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 362.
+(hyperref)                removing `superscript' on input line 374.
 
-[8] (./operator_evolution.bbl)
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 374.
+
+(./operator_evolution.bbl [9])
 
 Package natbib Warning: There were undefined citations.
 
-[9]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 393.
+[10]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 405.
  (./operator_evolution.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 393.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 393.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 405.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 405.
 Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
-(rerunfilecheck)             Checksum: 2855109597C4566087C14257E60BB225;935.
+(rerunfilecheck)             Checksum: 63C8E89CB5885A644A35551CC5C22372;939.
  ) 
 Here is how much of TeX's memory you used:
- 19722 strings out of 492995
- 361359 string characters out of 6132704
- 423731 words of memory out of 5000000
- 23058 multiletter control sequences out of 15000+600000
+ 19738 strings out of 492995
+ 362351 string characters out of 6132704
+ 422731 words of memory out of 5000000
+ 23068 multiletter control sequences out of 15000+600000
  16360 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,11n,49p,10414b,785s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,11n,49p,10414b,880s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -1844,10 +1871,10 @@ al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
 xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
 ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (9 pages, 331183 bytes).
+Output written on operator_evolution.pdf (10 pages, 394547 bytes).
 PDF statistics:
- 321 PDF objects out of 1000 (max. 8388607)
- 210 compressed objects within 3 object streams
- 37 named destinations out of 1000 (max. 500000)
- 138 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 425 PDF objects out of 1000 (max. 8388607)
+ 248 compressed objects within 3 object streams
+ 41 named destinations out of 1000 (max. 500000)
+ 160 words of extra memory for PDF output out of 10000 (max. 10000000)
 
