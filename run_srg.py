@@ -150,8 +150,8 @@ if __name__ == '__main__':
     #kvnn = 902 # Wendt at Lambda = 20 fm^-1
     
     #channel = '1S0'
-    #channel = '3S1'
-    channel = '1P1'
+    channel = '3S1'
+    #channel = '1P1'
     #channel = '3P0'
     
     kmax = 30.0
@@ -175,14 +175,16 @@ if __name__ == '__main__':
     #generator = 'T'
     generator = 'Block-diag'
     
-    lambda_bd = 1.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 1.00 # This won't affect the band-diagonal generators
+    lambda_bd = 1.50
     #lambda_bd = 2.00 # Default
     #lambda_bd = 3.00
     #lambda_bd = 4.00
+    #lambda_bd = 6.00
     
     #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
-    #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
-    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
+    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
+    #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
     #lambda_array = np.array( [2.8] )
     #lambda_array = np.array( [1.2] )
     #lambda_array = np.array( [10.0] )
