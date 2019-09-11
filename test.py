@@ -20,25 +20,41 @@
 #                useful for plotting codes. Created
 #                momentum_projection_operator_testv1.py in Old_codes based off
 #                last tests in this script.
+#   09/10/19 --- Using this script to run SRG evolution on several potentials.
 #
 #------------------------------------------------------------------------------
 
 
-def func(channel, *args):
+import numpy as np
+from run_srg import run_srg
 
-    print(channel)
-    for arg in args:
-        print('kvnn = %d'%arg[0])
-        print('kmax = %.1f'%arg[1])
-        print('kmid = %.1f'%arg[2])
-        print('generator = %s'%arg[3])
-        if arg[3] == 'Block-diag':
-            print('Lambda_bd = %.2f'%arg[4])
 
-channel = '3S1'
+kvnn_list = [10, 106, 222]
+channel_list = ['1S0', '1P1']
+ntot = 120
 
-em_n3lo_wegner = (10, 30.0, 4.0, 'Wegner')
-rke_n3lo_wegner = (106, 8.0, 2.0, 'Wegner')
-gez_n2lo_wegner = (222, 10.0, 2.0, 'Block-diag', 2.00)
+generator = 'Block-diag'
+lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
+# Save the evolved Hamiltonian?
+save = True
 
-func(channel, em_n3lo_wegner, rke_n3lo_wegner, gez_n2lo_wegner)
+
+for kvnn in kvnn_list:
+    
+    if kvnn == 10:
+        kmax = 30.0
+        kmid = 4.0
+    elif kvnn == 106:
+        kmax = 8.0
+        kmid = 2.0
+    else:
+        kmax = 10.0
+        kmid = 2.0
+    
+    for channel in channel_list:
+        
+        for lamb in lambda_array:
+            
+            # Evolve Hamiltonian
+            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
+                        lambda_array, lamb, save)
