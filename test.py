@@ -29,32 +29,21 @@ import numpy as np
 from run_srg import run_srg
 
 
-kvnn_list = [10, 106, 222]
-channel_list = ['1S0', '1P1']
+#kvnn = 900
+kvnn = 901
+#kvnn = 902
+channel = '3S1'
+kmax = 30.0
+kmid = 4.0
 ntot = 120
 
 generator = 'Block-diag'
-lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
+lambda_array = np.array( [6.0, 3.0, 2.8, 2.0, 1.5, 1.2, 1.0] )
 # Save the evolved Hamiltonian?
 save = True
 
-
-for kvnn in kvnn_list:
-    
-    if kvnn == 10:
-        kmax = 30.0
-        kmid = 4.0
-    elif kvnn == 106:
-        kmax = 8.0
-        kmid = 2.0
-    else:
-        kmax = 10.0
-        kmid = 2.0
-    
-    for channel in channel_list:
-        
-        for lamb in lambda_array:
+for lamb in lambda_array:
             
-            # Evolve Hamiltonian
-            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
-                        lambda_array, lamb, save)
+    # Evolve Hamiltonian
+    d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array, lamb,
+                save)
