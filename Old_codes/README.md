@@ -11,3 +11,8 @@ ________________________________________________________________________________
 __Name__: phase_shifts.py<br/>
 __Date moved__: August 29, 2019<br/>
 __Brief description__: Used to calculate NN phase shifts for a coupled-channel potential. Now merged with observables.py.
+
+____________________________________________________________________________________________________________________________
+__Name__: momentum_projection_operator_testv1.py<br/>
+__Date moved__: August 30, 2019<br/>
+__Brief description__: Used to test how to build momentum projection operators (which should be momentum mesh-independent).
