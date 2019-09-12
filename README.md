@@ -26,8 +26,6 @@ Description of major codes:
 
 * Jupyter notebooks titled with an extension fig.ipynb are used to generate figures which go to the __Figures__ folder.
 
-* phase_shifts.py - Calculates phase shifts given an NN potential. Work in progress.
-
 * observables.py - Calculates NN observables. Work in progress.
 
 * operators.py - Creates momentum-space operators for NN observables. Work in progress.
