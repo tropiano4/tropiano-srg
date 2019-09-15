@@ -30,8 +30,8 @@ from run_srg import run_srg
 
 
 #kvnn = 900
-kvnn = 901
-#kvnn = 902
+#kvnn = 901
+kvnn = 902
 # Could add the RKE 1-20 fm^-1 LO potentials as 903, 904, ...
 channel = '3S1'
 kmax = 30.0
@@ -39,7 +39,7 @@ kmid = 4.0
 ntot = 120
 
 generator = 'Block-diag'
-lambda_array = np.array( [6.0, 3.0, 2.8, 2.0, 1.5, 1.2, 1.0] )
+lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
 # Save the evolved Hamiltonian?
 save = True
 
