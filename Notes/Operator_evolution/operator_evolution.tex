@@ -85,18 +85,19 @@
 \\
 -- Wide range of NN potentials.
 %
+% Add what you have from IMSRG paper.
 \begin{itemize}
 	\item Chiral EFT background.
-	\item Different potential matrix elements but give same $S$-matrix.
+	\item Different potentials but give same $S$-matrix.
 \end{itemize}
 %
 -- Implementation to many-body calculations and SRG decoupling.
 %
 \begin{itemize}
-	\item Strong coupling between low- and high-momentum matrix elements in realistic potentials.
+	\item Strong coupling between low- and high-momentum matrix elements in NN potentials.
 	\item Very difficult to implement these interactions in many-body methods using basis expansions. Matrix dimension becomes too large for accurate calculations.
 	\item RG transformations are used to soften the interaction to make many-body methods feasible. One such method, the SRG, also preserves observables from unitarity.
-	\item How do different interactions change under SRG transformations?
+	\item How do different potentials change under SRG transformations?
 \end{itemize}
 %
 \textbf{SRG formalism}
@@ -125,11 +126,12 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 \\
 -- The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow or form of the decoupled operator.
 \\
--- To drive the operator to band-diagonal form, set $G=H_D(s)$, the diagonal of the Hamiltonian.
+-- By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the operator is driven to band-diagonal form.
 \\
 -- This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}.
 \\
 -- In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form.
+% Do I need to explain the intermediate step here?
 \\
 -- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator.
 \\
@@ -143,6 +145,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 \\
 \textbf{Universality}
 \\
+% Try to understand this better. Ask DF.
 -- The explicit long-range physics should be the same. Decoupling low- and high-energy gives matching low-energy matrix elements. In the NN potential, this means softened NN interactions should have the same low-momentum matrix elements after sufficient decoupling.
 \\
 -- Add takeaways from Dainton: phase shift equivalence implies matrix element equivalence for $\lambda$ approaching the momenta of phase equivalence. Correct binding energy is critical or the lowest matrix elements will not match.
@@ -196,7 +199,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_1P1_Wegner_channel_label}%
 	}
 	\caption{Matrix elements of the RKE N$^3$LO potential SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) channels.}
-	\label{potential_contours_RKE_Wegner}
+	\label{fig:potential_contours_RKE_Wegner}
 \end{figure}
 %
 \begin{figure}[H]
@@ -213,7 +216,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potential_label}%
 	}
 	\caption{Matrix elements of the EM N$^3$LO (a), RKE N$^3$LO (b), and Gezerlis et al. N$^2$LO (c) potentials SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^3$S$_1$ channel.}
-	\label{potential_contours_3S1_Wegner}
+	\label{fig:potential_contours_3S1_Wegner}
 \end{figure}
 %
 \begin{figure}[H]
@@ -226,7 +229,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_3S1_Block-diag_generator_label}%
 	}
 	\caption{Matrix elements of the RKE N$^3$LO potential SRG-evolving right to left under transformations with Wegner (a) and block-diagonal (b) generators in the $^3$S$_1$ channel. Here, we use $\lambda$ for Wegner evolution in the top row and $\Lambda$ for block-diagonal evolution in the bottom row. For block-diagonal evolution, we fix $\lambda=1.5$ fm$^{-1}$.}
-	\label{potential_contours_3S1_RKE}
+	\label{fig:potential_contours_3S1_RKE}
 \end{figure}
 %
 \begin{figure}[H]
@@ -243,7 +246,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_1P1_kvnns_10_106_222}%
 	}
 	\caption{$^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) phase shifts for the EM N$^3$LO (solid black), RKE N$^3$LO (red dash-dotted), and Gezerlis et al. N$^2$LO (blue dashed) potentials.}
-	\label{phase_shifts}
+	\label{fig:phase_shifts}
 \end{figure}
 %
 \begin{figure}[H]
@@ -255,8 +258,8 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\subfloat[]{%
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb1,0}%
 	}
-	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the EM N$^3$LO (black), RKE N$^3$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials SRG-evolving right to left under transformations with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^1$S$_0$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1.0$ fm$^{-1}$.}
-	\label{potential_slices_1S0}
+	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the EM N$^3$LO (black), RKE N$^3$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials SRG-evolving right to left under transformations with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^1$S$_0$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1$ fm$^{-1}$.}
+	\label{fig:potential_slices_1S0}
 \end{figure}
 %
 \begin{figure}[H]
@@ -269,7 +272,7 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_3S1_kvnns_10_106_222_lamb1,0}%
 	}
 	\caption{Same as Fig.~\ref{fig:potential_slices_1S0} but in the $^3$S$_1$ channel.}
-	\label{potential_slices_3S1}
+	\label{fig:potential_slices_3S1}
 \end{figure}
 %
 \begin{figure}[H]
@@ -282,12 +285,12 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb1,0}%
 	}
 	\caption{Same as Figs.~\ref{fig:potential_slices_1S0} and \ref{fig:potential_slices_3S1} but in the $^1$P$_1$ channel.}
-	\label{potential_slices_1P1}
+	\label{fig:potential_slices_1P1}
 \end{figure}
 %
 % Ideas for high cutoffs:
 %	- Last thing to look at in potentials: cutoff dependence.
-%	- Recap Wendt (2011).
+%	- Recap Wendt (2011) focusing on universality in matrix elements.
 %	- Test block-diagonal evolution for the 3 cutoffs.
 %	- Lead into Magnus expansion.
 
