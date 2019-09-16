@@ -29,9 +29,9 @@ import numpy as np
 from run_srg import run_srg
 
 
-#kvnn = 900
+kvnn = 900
 #kvnn = 901
-kvnn = 902
+#kvnn = 902
 # Could add the RKE 1-20 fm^-1 LO potentials as 903, 904, ...
 channel = '3S1'
 kmax = 30.0
