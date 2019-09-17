@@ -19,6 +19,8 @@
 #   09/09/19 --- Added channel_label_conversion function. Analogous to
 #                kvnn_label_conversion and generator_label_conversion
 #                functions.
+#   09/17/19 --- Changed kvnn label for kvnn = 900-902 from Lambda = ... fm^-1
+#                to just ... fm^-1.
 #
 #------------------------------------------------------------------------------
 
@@ -177,11 +179,14 @@ def kvnn_label_conversion(kvnn):
         label = 'Gezerlis N' + r'$^2$' + 'LO'
     # Wendt LO non-local potential
     elif kvnn == 900: # Cutoff 4 fm^-1
-        label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
+        #label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
+        label = '4 fm' + r'$^{-1}$'
     elif kvnn == 901: # Cutoff 9 fm^-1
-        label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
+        #label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
+        label = '9 fm' + r'$^{-1}$'
     elif kvnn == 902: # Cutoff 20 fm^-1
-        label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
+        #label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
+        label = '20 fm' + r'$^{-1}$'
 
     return label
 
