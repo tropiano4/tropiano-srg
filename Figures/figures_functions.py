@@ -145,7 +145,7 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
     return x_array_new, M_new
 
 
-def kvnn_label_conversion(kvnn):
+def kvnn_label_conversion(kvnn, full_label=True):
     """
     Converts a kvnn number to a label for plotting purposes (e.g. kvnn = 6 
     gives 'AV18').
@@ -154,6 +154,10 @@ def kvnn_label_conversion(kvnn):
     ----------
     kvnn : int
         This number specifies the potential.
+    full_label : bool, optional
+        For some labels, there is a shortened version. Set full_label = False
+        for the shortened version. For example, kvnn = 902 gives
+        '\Lambda = 20 fm^-1' normally, but the shortened version is '20 fm^-1'.
         
     Returns
     -------
@@ -165,28 +169,38 @@ def kvnn_label_conversion(kvnn):
     # Argonne v18
     if kvnn == 6:
         label = 'AV18'
+        
     # Entem/Machleidt N3LO (500 MeV cutoff)   
     elif kvnn == 10:
         label = 'EM N' + r'$^3$' + 'LO'
+        
     # RKE N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         label = 'RKE N' + r'$^3$' + 'LO'
     # RKE N4LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [110, 111, 112]:
         label = 'RKE N' + r'$^4$' + 'LO'
+        
     # Gezrelis N2LO (1 and 1.2 fm cutoff)
     elif kvnn in [222, 224]:
         label = 'Gezerlis N' + r'$^2$' + 'LO'
+        
     # Wendt LO non-local potential
     elif kvnn == 900: # Cutoff 4 fm^-1
-        #label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
-        label = '4 fm' + r'$^{-1}$'
+        if full_label:
+            label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
+        else:
+            label = '4 fm' + r'$^{-1}$'
     elif kvnn == 901: # Cutoff 9 fm^-1
-        #label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
-        label = '9 fm' + r'$^{-1}$'
+        if full_label:
+            label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
+        else:
+            label = '9 fm' + r'$^{-1}$'
     elif kvnn == 902: # Cutoff 20 fm^-1
-        #label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
-        label = '20 fm' + r'$^{-1}$'
+        if full_label:
+            label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
+        else:
+            label = '20 fm' + r'$^{-1}$'
 
     return label
 
