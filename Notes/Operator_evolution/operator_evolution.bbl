@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{1}%
+\begin{thebibliography}{6}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -57,4 +57,66 @@
   {\bibinfo  {journal} {Annalen der Physik}\ }\textbf {\bibinfo {volume}
   {506}},\ \bibinfo {pages} {77} (\bibinfo {year} {1994})}\BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Reinert}\ \emph {et~al.}(2018)\citenamefont
+  {Reinert}, \citenamefont {Krebs},\ and\ \citenamefont
+  {Epelbaum}}]{Reinert:2017usi}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
+  {Reinert}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Krebs}}, \
+  and\ \bibinfo {author} {\bibfnamefont {E.}~\bibnamefont {Epelbaum}},\ }\href
+  {\doibase 10.1140/epja/i2018-12516-4} {\bibfield  {journal} {\bibinfo
+  {journal} {Eur. Phys. J. A}\ }\textbf {\bibinfo {volume} {54}},\ \bibinfo
+  {pages} {86} (\bibinfo {year} {2018})},\ \Eprint
+  {http://arxiv.org/abs/1711.08821} {arXiv:1711.08821 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1711.08821;%%
+\bibitem [{\citenamefont {Entem}\ and\ \citenamefont
+  {Machleidt}(2003)}]{Entem:2003ft}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~R.}\ \bibnamefont
+  {Entem}}\ and\ \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Machleidt}},\ }\href {\doibase 10.1103/PhysRevC.68.041001} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume}
+  {68}},\ \bibinfo {pages} {041001} (\bibinfo {year} {2003})},\ \Eprint
+  {http://arxiv.org/abs/nucl-th/0304018} {arXiv:nucl-th/0304018 [nucl-th]}
+  \BibitemShut {NoStop}%
+%%CITATION = NUCL-TH/0304018;%%
+\bibitem [{\citenamefont {Gezerlis}\ \emph {et~al.}(2014)\citenamefont
+  {Gezerlis}, \citenamefont {Tews}, \citenamefont {Epelbaum}, \citenamefont
+  {Freunek}, \citenamefont {Gandolfi}, \citenamefont {Hebeler}, \citenamefont
+  {Nogga},\ and\ \citenamefont {Schwenk}}]{Gezerlis:2014zia}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Gezerlis}}, \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tews}},
+  \bibinfo {author} {\bibfnamefont {E.}~\bibnamefont {Epelbaum}}, \bibinfo
+  {author} {\bibfnamefont {M.}~\bibnamefont {Freunek}}, \bibinfo {author}
+  {\bibfnamefont {S.}~\bibnamefont {Gandolfi}}, \bibinfo {author}
+  {\bibfnamefont {K.}~\bibnamefont {Hebeler}}, \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Nogga}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Schwenk}},\ }\href {\doibase 10.1103/PhysRevC.90.054323}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo
+  {volume} {90}},\ \bibinfo {pages} {054323} (\bibinfo {year} {2014})},\
+  \Eprint {http://arxiv.org/abs/1406.0454} {arXiv:1406.0454 [nucl-th]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1406.0454;%%
+\bibitem [{\citenamefont {Blanes}\ \emph {et~al.}(2009)\citenamefont {Blanes},
+  \citenamefont {Casas}, \citenamefont {Oteo},\ and\ \citenamefont
+  {Ros}}]{Blanes:2009ab}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Blanes}}, \bibinfo {author} {\bibfnamefont {F.}~\bibnamefont {Casas}},
+  \bibinfo {author} {\bibfnamefont {J.~A.}\ \bibnamefont {Oteo}}, \ and\
+  \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Ros}},\ }\href {\doibase
+  10.1016/j.physrep.2008.11.001} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Rep.}\ }\textbf {\bibinfo {volume} {470}},\ \bibinfo {pages} {151}
+  (\bibinfo {year} {2009})},\ \Eprint {http://arxiv.org/abs/0810.5488}
+  {arXiv:0810.5488 [math-ph]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:0810.5488;%%
+\bibitem [{\citenamefont {Magnus}(1954)}]{Magnus:1954zz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
+  {Magnus}},\ }\href {\doibase 10.1002/cpa.3160070404} {\bibfield  {journal}
+  {\bibinfo  {journal} {Commun. Pure Appl. Math.}\ }\textbf {\bibinfo {volume}
+  {7}},\ \bibinfo {pages} {649} (\bibinfo {year} {1954})}\BibitemShut {NoStop}%
+%%CITATION = CPAMA,7,649;%%
 \end{thebibliography}%
