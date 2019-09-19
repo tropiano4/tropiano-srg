@@ -29,30 +29,30 @@ import numpy as np
 from run_srg import run_srg
 
 
-kvnn_list = [900, 901, 902]
+kvnn = 902
 # Could add the RKE 1-20 fm^-1 LO potentials as 903, 904, ...
 channel = '3S1'
 kmax = 30.0
 kmid = 4.0
 ntot = 120
 
-generator_list = ['Wegner', 'T', 'Block-diag']
+#generator_list = ['Wegner', 'T']
+generator_list = ['Block-diag']
 lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
 # Save the evolved Hamiltonian?
 save = True
 
-for kvnn in kvnn_list:
-    for generator in generator_list:
+for generator in generator_list:
         
-        if generator == 'Block-diag':
-            for lamb in lambda_array:
-            
-                # Evolve Hamiltonian
-                d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
-                            lambda_array, lamb, save)
-                
-        else:
+    if generator == 'Block-diag':
+        for lamb in lambda_array:
             
             # Evolve Hamiltonian
-            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
-                        lambda_array, 0.00, save)
+            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
+                        lambda_array, lamb, save)
+                
+    else:
+            
+        # Evolve Hamiltonian
+        d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
+                    0.00, save)

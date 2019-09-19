@@ -12,12 +12,13 @@
 # Revision history:
 #   05/27/19 --- Solve flow equation with respect to parameter lambda and use 
 #                SciPy's ode function.
+#   09/18/19 --- Added odeint as an option for the ODE solver instead of ode.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
-from scipy.integrate import ode
+from scipy.integrate import ode, odeint
   
 
 class SRG(object):
@@ -179,7 +180,7 @@ class SRG(object):
         return dH_vector
 
 
-    def evolve_hamiltonian(self, lambda_initial, lambda_array):
+    def evolve_hamiltonian(self, lambda_initial, lambda_array, method='ode'):
         """
         Evolved Hamiltonian at each value of lambda in lambda_array.
         
@@ -191,6 +192,8 @@ class SRG(object):
             run_generate_vsrg_vlowk.pl to be sure.)
         lambda_array : 1-D ndarray
             Lambda evolution values in units fm^-1.
+        method : str, optional
+            ODE solver to use: SciPy 'ode' or 'odeint'. 'ode' is the default.
             
         Returns
         -------
@@ -203,46 +206,65 @@ class SRG(object):
 
         # Set-up ODE
         
-        # Initial Hamiltonian as a vector
+        # Initial Hamiltonian as a vector and dictionary
         H_initial = self.matrix2vector(self.H_initial)
-
-        # Use SciPy's ode function to solve flow equation
-        solver = ode(self.derivative)
-        # Following the example in Hergert:2016iju with modifications to nsteps
-        # and error tolerances
-        solver.set_integrator('vode', method='bdf', order=5, nsteps=1000000, 
-                              atol=1e-6, rtol=1e-6)
-        # Set initial value of Hamiltonian at lambda = lambda_initial
-        solver.set_initial_value(H_initial, lambda_initial)
-    
-        # Initialize dictionary
         d = {}
+        
+        # Use SciPy's ode function to solve flow equation
+        if method == 'ode':
+
+            solver = ode(self.derivative)
+            # Following the example in Hergert:2016iju with modifications to
+            # nsteps and error tolerances
+            solver.set_integrator('vode', method='bdf', order=5,
+                                  atol=1e-6, rtol=1e-6, nsteps=1000000)
+            # Set initial value of Hamiltonian at lambda = lambda_initial
+            solver.set_initial_value(H_initial, lambda_initial)
     
-        # Loop over lambda values in lambda_array
-        for lamb in lambda_array:
+            # Loop over lambda values in lambda_array
+            for lamb in lambda_array:
             
-            # Solve ODE up to lamb and store in dictionary
-            while solver.successful() and solver.t > lamb:
+                # Solve ODE up to lamb and store in dictionary
+                while solver.successful() and solver.t > lamb:
             
-                # Select step-size depending on extent of evolution
-                if solver.t >= 6.0:
-                    dlamb = 1.0
-                elif solver.t < 6.0 and solver.t >= 2.5:
-                    dlamb = 0.5
-                elif solver.t < 2.5 and solver.t >= lamb:
-                    dlamb = 0.1
+                    # Select step-size depending on extent of evolution
+                    if solver.t >= 6.0:
+                        dlamb = 1.0
+                    elif solver.t < 6.0 and solver.t >= 2.5:
+                        dlamb = 0.5
+                    elif solver.t < 2.5 and solver.t >= lamb:
+                        dlamb = 0.1
                 
-                # This if statement prevents the solver from over-shooting 
-                # lambda and takes a step in lambda equal to the exact amount 
-                # necessary to reach the specified lambda value
-                if solver.t - dlamb < lamb:
+                    # This if statement prevents the solver from over-shooting 
+                    # lambda and takes a step in lambda equal to the exact
+                    # amount necessary to reach the specified lambda value
+                    if solver.t - dlamb < lamb:
                 
-                    dlamb = solver.t - lamb
+                        dlamb = solver.t - lamb
                 
-                # Integrate to next step in lambda
-                H_evolved = solver.integrate(solver.t - dlamb)
+                    # Integrate to next step in lambda
+                    H_evolved = solver.integrate(solver.t - dlamb)
                 
-            # Store evolved Hamiltonian matrix in dictionary
-            d[lamb] = self.vector2matrix(H_evolved)
+                # Store evolved Hamiltonian matrix in dictionary
+                d[lamb] = self.vector2matrix(H_evolved)
+        
+        # Use SciPy's odeint function to solve flow equation
+        elif method == 'odeint':
+        
+            sol = odeint(self.derivative, lambda_initial, lambda_array,
+                         atol=1e-6, rtol=1e-6, mxstep=1000000, tfirst=True)
+            
+            # Store each evolved Hamiltonian matrix in dictionary
+            i = 1
+            for lamb in lambda_array:
+            
+                H_evolved = sol[i] # This is a vector
+                d[lamb] = self.vector2matrix(H_evolved)
+                i += 1
+        
+        else:
+            
+            d = None
+            print("Need to specify either 'ode' or 'odeint' for a solver.")
                 
         return d
