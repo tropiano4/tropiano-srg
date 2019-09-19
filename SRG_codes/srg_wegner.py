@@ -252,7 +252,7 @@ class SRG(object):
         elif method == 'odeint':
         
             sol = odeint(self.derivative, lambda_initial, lambda_array,
-                         atol=1e-6, rtol=1e-6, mxstep=1000000, tfirst=True)
+                         atol=1e-6, rtol=1e-6, mxstep=5000000, tfirst=True)
             
             # Store each evolved Hamiltonian matrix in dictionary
             i = 1
