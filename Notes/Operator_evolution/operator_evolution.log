@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  17 SEP 2019 10:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  19 SEP 2019 16:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1753,252 +1753,286 @@ Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
  [4]
 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potential_la
-bel.pdf, id=103, 1021.34387pt x 260.8925pt>
+bel.pdf, id=104, 1021.34387pt x 260.8925pt>
 File: ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potenti
 al_label.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potentia
 l_label.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-_3S1_Wegner_potential_label.pdf used on input line 218.
+_3S1_Wegner_potential_label.pdf used on input line 222.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
 <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potential_l
-abel.pdf, id=105, 1021.34387pt x 260.8925pt>
+abel.pdf, id=106, 1021.34387pt x 260.8925pt>
 File: ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potent
 ial_label.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potenti
 al_label.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-6_3S1_Wegner_potential_label.pdf used on input line 222.
+6_3S1_Wegner_potential_label.pdf used on input line 226.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
 <../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potential_l
-abel.pdf, id=107, 1021.34387pt x 260.8925pt>
+abel.pdf, id=108, 1021.34387pt x 260.8925pt>
 File: ../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potent
 ial_label.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potenti
 al_label.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn22
-2_3S1_Wegner_potential_label.pdf used on input line 226.
+2_3S1_Wegner_potential_label.pdf used on input line 230.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
-
+ [5 <../../Figures/SRG_potentials/potential_contours_kvnn106_1S0_Wegner_channel
+_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner
+_channel_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_1P
+1_Wegner_channel_label.pdf>] [6]
 <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_generator_l
-abel.pdf, id=109, 1021.34387pt x 260.8925pt>
+abel.pdf, id=245, 1021.34387pt x 260.8925pt>
 File: ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_genera
 tor_label.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_generat
 or_label.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-6_3S1_Wegner_generator_label.pdf used on input line 235.
+6_3S1_Wegner_generator_label.pdf used on input line 245.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
 
 <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Block-diag_generat
-or_label.pdf, id=111, 1021.34387pt x 260.8925pt>
+or_label.pdf, id=247, 1021.34387pt x 260.8925pt>
 File: ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Block-diag_ge
 nerator_label.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Block-diag_gen
 erator_label.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_contours_kvnn10
-6_3S1_Block-diag_generator_label.pdf used on input line 239.
+6_3S1_Block-diag_generator_label.pdf used on input line 249.
 (pdftex.def)             Requested size: 421.19714pt x 107.59161pt.
- [5 <../../Figures/SRG_potentials/potential_contours_kvnn106_1S0_Wegner_channel
-_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner
-_channel_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_1P
-1_Wegner_channel_label.pdf>]
-<../../Figures/SRG_observables/phase_shifts_1S0_kvnns_10_106_222.pdf, id=242, 2
+ [7 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potentia
+l_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegne
+r_potential_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn222
+_3S1_Wegner_potential_label.pdf>]
+<../../Figures/SRG_observables/phase_shifts_1S0_kvnns_10_106_222.pdf, id=399, 2
 95.29698pt x 277.04692pt>
 File: ../../Figures/SRG_observables/phase_shifts_1S0_kvnns_10_106_222.pdf Graph
 ic file (type pdf)
 
 <use ../../Figures/SRG_observables/phase_shifts_1S0_kvnns_10_106_222.pdf>
 Package pdftex.def Info: ../../Figures/SRG_observables/phase_shifts_1S0_kvnns_1
-0_106_222.pdf used on input line 248.
+0_106_222.pdf used on input line 265.
 (pdftex.def)             Requested size: 140.40143pt x 131.72969pt.
 
-<../../Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106_222.pdf, id=244, 2
+<../../Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106_222.pdf, id=401, 2
 95.29698pt x 277.04692pt>
 File: ../../Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106_222.pdf Graph
 ic file (type pdf)
 
 <use ../../Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106_222.pdf>
 Package pdftex.def Info: ../../Figures/SRG_observables/phase_shifts_3S1_kvnns_1
-0_106_222.pdf used on input line 252.
+0_106_222.pdf used on input line 269.
 (pdftex.def)             Requested size: 140.40143pt x 131.72969pt.
 
-<../../Figures/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf, id=246, 2
+<../../Figures/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf, id=403, 2
 95.29698pt x 277.34491pt>
 File: ../../Figures/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf Graph
 ic file (type pdf)
 
 <use ../../Figures/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf>
 Package pdftex.def Info: ../../Figures/SRG_observables/phase_shifts_1P1_kvnns_1
-0_106_222.pdf used on input line 256.
+0_106_222.pdf used on input line 273.
 (pdftex.def)             Requested size: 140.40143pt x 131.87138pt.
 
-[6 <../../Figures/SRG_potentials/potential_contours_kvnn10_3S1_Wegner_potential
-_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner
-_potential_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn222_
-3S1_Wegner_potential_label.pdf>]
+[8 <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_generato
+r_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Block
+-diag_generator_label.pdf>]
 <../../Figures/SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0.pdf, 
-id=390, 959.37799pt x 277.34491pt>
+id=499, 959.37799pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0.
 pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0.p
 df>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_diag_1S0_kvnns_
-10_106_222_lamb1,0.pdf used on input line 265.
+10_106_222_lamb1,0.pdf used on input line 282.
 (pdftex.def)             Requested size: 421.19714pt x 121.76128pt.
 
 <../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb1,0.p
-df, id=392, 959.37799pt x 277.34491pt>
+df, id=501, 959.37799pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb
 1,0.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb1
 ,0.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_off-diag_1S0_kv
-nns_10_106_222_lamb1,0.pdf used on input line 269.
+nns_10_106_222_lamb1,0.pdf used on input line 286.
 (pdftex.def)             Requested size: 421.19714pt x 121.76128pt.
 
 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222_lamb1,0.pdf, 
-id=394, 959.37799pt x 277.34491pt>
+id=503, 959.37799pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222_lamb1,0.
 pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222_lamb1,0.p
 df>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_
-10_106_222_lamb1,0.pdf used on input line 278.
+10_106_222_lamb1,0.pdf used on input line 295.
 (pdftex.def)             Requested size: 421.19714pt x 121.76128pt.
 
 <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106_222_lamb1,0.p
-df, id=396, 959.37799pt x 277.34491pt>
+df, id=505, 959.37799pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106_222_lamb
 1,0.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106_222_lamb1
 ,0.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_off-diag_3S1_kv
-nns_10_106_222_lamb1,0.pdf used on input line 282.
+nns_10_106_222_lamb1,0.pdf used on input line 299.
 (pdftex.def)             Requested size: 421.19714pt x 121.76128pt.
- [7 <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Wegner_generat
-or_label.pdf> <../../Figures/SRG_potentials/potential_contours_kvnn106_3S1_Bloc
-k-diag_generator_label.pdf> <../../Figures/SRG_observables/phase_shifts_1S0_kvn
-ns_10_106_222.pdf> <../../Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106
-_222.pdf> <../../Figures/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf>
-]
+ [9 <../../Figures/SRG_observables/phase_shifts_1S0_kvnns_10_106_222.pdf> <../.
+./Figures/SRG_observables/phase_shifts_3S1_kvnns_10_106_222.pdf> <../../Figures
+/SRG_observables/phase_shifts_1P1_kvnns_10_106_222.pdf>]
 <../../Figures/SRG_potentials/potential_diag_1P1_kvnns_10_106_222_lamb1,0.pdf, 
-id=625, 968.96066pt x 277.34491pt>
+id=645, 968.96066pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_diag_1P1_kvnns_10_106_222_lamb1,0.
 pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_diag_1P1_kvnns_10_106_222_lamb1,0.p
 df>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_diag_1P1_kvnns_
-10_106_222_lamb1,0.pdf used on input line 291.
+10_106_222_lamb1,0.pdf used on input line 308.
 (pdftex.def)             Requested size: 421.19714pt x 120.55942pt.
 
 <../../Figures/SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb1,0.p
-df, id=627, 968.96066pt x 277.34491pt>
+df, id=647, 968.96066pt x 277.34491pt>
 File: ../../Figures/SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb
 1,0.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb1
 ,0.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_off-diag_1P1_kv
-nns_10_106_222_lamb1,0.pdf used on input line 295.
+nns_10_106_222_lamb1,0.pdf used on input line 312.
 (pdftex.def)             Requested size: 421.19714pt x 120.55942pt.
- [8 <../../Figures/SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0.p
-df> <../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb1
-,0.pdf>] [9 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222_l
-amb1,0.pdf> <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106_2
-22_lamb1,0.pdf>] [10 <../../Figures/SRG_potentials/potential_diag_1P1_kvnns_10_
-106_222_lamb1,0.pdf> <../../Figures/SRG_potentials/potential_off-diag_1P1_kvnns
-_10_106_222_lamb1,0.pdf>] [11]
-Underfull \hbox (badness 10000) in paragraph at lines 434--438
+ [10 <../../Figures/SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0.
+pdf> <../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb
+1,0.pdf>] [11 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222
+_lamb1,0.pdf> <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106
+_222_lamb1,0.pdf>] [12 <../../Figures/SRG_potentials/potential_diag_1P1_kvnns_1
+0_106_222_lamb1,0.pdf> <../../Figures/SRG_potentials/potential_off-diag_1P1_kvn
+ns_10_106_222_lamb1,0.pdf>] [13]
+<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf, id=1002,
+ 871.5357pt x 445.63176pt>
+File: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf Grap
+hic file (type pdf)
+
+<use ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf>
+Package pdftex.def Info: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn
+901_Wegner.pdf used on input line 437.
+(pdftex.def)             Requested size: 421.19714pt x 215.36276pt.
+
+<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf, id=1004, 871.
+5357pt x 445.63176pt>
+File: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf Graphic f
+ile (type pdf)
+
+<use ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf>
+Package pdftex.def Info: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn
+901_T.pdf used on input line 444.
+(pdftex.def)             Requested size: 421.19714pt x 215.36276pt.
+ [14]
+[15 <../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf> <../
+../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 471--475
 
  []
 
-[12]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 450.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 450.
+(hyperref)                removing `math shift' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\dagger' on input line 450.
+(hyperref)                removing `superscript' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 450.
+(hyperref)                removing `\dagger' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 450.
+(hyperref)                removing `subscript' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 450.
+(hyperref)                removing `subscript' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 465.
+(hyperref)                removing `math shift' on input line 487.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 465.
+(hyperref)                removing `math shift' on input line 502.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `superscript' on input line 465.
+(hyperref)                removing `\phi' on input line 502.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 465.
+(hyperref)                removing `superscript' on input line 502.
 
-(./operator_evolution.bbl [13]) [14]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 496.
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 502.
+
+[16] (./operator_evolution.bbl) [17]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 533.
  (./operator_evolution.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 496.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 496.
-Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
-(rerunfilecheck)             Checksum: 0172B94EC37F76B0DC233B9FE1E5ACD4;944.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 533.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 533.
+
+
+Package rerunfilecheck Warning: File `operator_evolution.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `operator_evolution.out':
+(rerunfilecheck)             Before: 6C2F41EEE4CECD30C2AFA3881CFED8AE;944
+(rerunfilecheck)             After:  4C46A067CBDA638706C808EE52D44353;944.
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right .
+
+
  ) 
 Here is how much of TeX's memory you used:
- 19848 strings out of 492995
- 367900 string characters out of 6132704
- 421731 words of memory out of 5000000
- 23138 multiletter control sequences out of 15000+600000
- 16360 words of font info for 61 fonts, out of 8000000 for 9000
+ 19877 strings out of 492995
+ 368875 string characters out of 6132704
+ 423731 words of memory out of 5000000
+ 23154 multiletter control sequences out of 15000+600000
+ 17061 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,11n,49p,10414b,887s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
-</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
-/usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
-usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></u
-sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr
-/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/l
-ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loc
-al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
-/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/te
-xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
-live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
-ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (14 pages, 749983 bytes).
+ 39i,11n,49p,10414b,785s stack positions out of 5000i,500n,10000p,200000b,80000s
+pdfTeX warning (dest): name{section*.16} has been referenced but does not exi
+st, replaced by a fixed one
+
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
+/usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
+usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
+sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr
+/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loc
+al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
+/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texl
+ive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
+ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive
+/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on operator_evolution.pdf (17 pages, 808930 bytes).
 PDF statistics:
- 1074 PDF objects out of 1200 (max. 8388607)
- 459 compressed objects within 5 object streams
- 67 named destinations out of 1000 (max. 500000)
- 292 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1204 PDF objects out of 1440 (max. 8388607)
+ 509 compressed objects within 6 object streams
+ 74 named destinations out of 1000 (max. 500000)
+ 314 words of extra memory for PDF output out of 10000 (max. 10000000)
 

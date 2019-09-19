@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{6}%
+\begin{thebibliography}{7}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -99,6 +99,19 @@
   \Eprint {http://arxiv.org/abs/1406.0454} {arXiv:1406.0454 [nucl-th]}
   \BibitemShut {NoStop}%
 %%CITATION = ARXIV:1406.0454;%%
+\bibitem [{\citenamefont {Dainton}\ \emph {et~al.}(2014)\citenamefont
+  {Dainton}, \citenamefont {Furnstahl},\ and\ \citenamefont
+  {Perry}}]{Dainton:2013axa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Dainton}}, \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Furnstahl}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Perry}},\ }\href {\doibase 10.1103/PhysRevC.89.014001} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {89}},\
+  \bibinfo {pages} {014001} (\bibinfo {year} {2014})},\ \Eprint
+  {http://arxiv.org/abs/1310.6690} {arXiv:1310.6690 [nucl-th]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1310.6690;%%
 \bibitem [{\citenamefont {Blanes}\ \emph {et~al.}(2009)\citenamefont {Blanes},
   \citenamefont {Casas}, \citenamefont {Oteo},\ and\ \citenamefont
   {Ros}}]{Blanes:2009ab}%
