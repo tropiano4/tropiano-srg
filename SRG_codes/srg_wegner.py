@@ -18,7 +18,7 @@
 
 
 import numpy as np
-from scipy.integrate import ode, odeint
+from scipy.integrate import ode
   
 
 class SRG(object):
