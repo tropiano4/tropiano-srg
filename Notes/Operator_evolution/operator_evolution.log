@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  19 SEP 2019 16:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  20 SEP 2019 09:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1986,53 +1986,39 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 502.
 
-[16] (./operator_evolution.bbl) [17]
+(./operator_evolution.bbl [16]) [17]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 533.
  (./operator_evolution.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 533.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 533.
-
-
-Package rerunfilecheck Warning: File `operator_evolution.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `operator_evolution.out':
-(rerunfilecheck)             Before: 6C2F41EEE4CECD30C2AFA3881CFED8AE;944
-(rerunfilecheck)             After:  4C46A067CBDA638706C808EE52D44353;944.
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right .
-
-
+Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
+(rerunfilecheck)             Checksum: 4C46A067CBDA638706C808EE52D44353;944.
  ) 
 Here is how much of TeX's memory you used:
- 19877 strings out of 492995
- 368875 string characters out of 6132704
+ 19876 strings out of 492995
+ 368864 string characters out of 6132704
  423731 words of memory out of 5000000
  23154 multiletter control sequences out of 15000+600000
  17061 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  39i,11n,49p,10414b,785s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{section*.16} has been referenced but does not exi
-st, replaced by a fixed one
-
-</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
-/usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
-usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
-sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
-r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr
-/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/l
-ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loc
-al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
-/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/t
-exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texl
-ive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
-ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive
-/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (17 pages, 808930 bytes).
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
+/usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
+usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></u
+sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr
+/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loc
+al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
+/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/te
+xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
+live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
+ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on operator_evolution.pdf (17 pages, 808741 bytes).
 PDF statistics:
- 1204 PDF objects out of 1440 (max. 8388607)
- 509 compressed objects within 6 object streams
- 74 named destinations out of 1000 (max. 500000)
+ 1203 PDF objects out of 1440 (max. 8388607)
+ 508 compressed objects within 6 object streams
+ 73 named destinations out of 1000 (max. 500000)
  314 words of extra memory for PDF output out of 10000 (max. 10000000)
 
