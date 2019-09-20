@@ -251,11 +251,14 @@ class SRG(object):
         # Use SciPy's odeint function to solve flow equation
         elif method == 'odeint':
         
-            sol = odeint(self.derivative, lambda_initial, lambda_array,
+            if lambda_array[0] < 12.0:
+                lambda_array = np.append(np.array([12.0]), lambda_array)
+                
+            sol = odeint(self.derivative, H_initial, lambda_array,
                          atol=1e-6, rtol=1e-6, mxstep=5000000, tfirst=True)
             
             # Store each evolved Hamiltonian matrix in dictionary
-            i = 1
+            i = 0
             for lamb in lambda_array:
             
                 H_evolved = sol[i] # This is a vector
