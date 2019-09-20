@@ -211,63 +211,39 @@ class SRG(object):
         d = {}
         
         # Use SciPy's ode function to solve flow equation
-        if method == 'ode':
-
-            solver = ode(self.derivative)
-            # Following the example in Hergert:2016iju with modifications to
-            # nsteps and error tolerances
-            solver.set_integrator('vode', method='bdf', order=5,
-                                  atol=1e-6, rtol=1e-6, nsteps=1000000)
-            # Set initial value of Hamiltonian at lambda = lambda_initial
-            solver.set_initial_value(H_initial, lambda_initial)
+        solver = ode(self.derivative)
+        # Following the example in Hergert:2016iju with modifications to nsteps
+        # and error tolerances
+        solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
+                              rtol=1e-6, nsteps=5000000)
+        # Set initial value of Hamiltonian at lambda = lambda_initial
+        solver.set_initial_value(H_initial, lambda_initial)
     
-            # Loop over lambda values in lambda_array
-            for lamb in lambda_array:
+        # Loop over lambda values in lambda_array
+        for lamb in lambda_array:
             
-                # Solve ODE up to lamb and store in dictionary
-                while solver.successful() and solver.t > lamb:
+            # Solve ODE up to lamb and store in dictionary
+            while solver.successful() and solver.t > lamb:
             
-                    # Select step-size depending on extent of evolution
-                    if solver.t >= 6.0:
-                        dlamb = 1.0
-                    elif solver.t < 6.0 and solver.t >= 2.5:
-                        dlamb = 0.5
-                    elif solver.t < 2.5 and solver.t >= lamb:
-                        dlamb = 0.1
+                # Select step-size depending on extent of evolution
+                if solver.t >= 6.0:
+                    dlamb = 1.0
+                elif solver.t < 6.0 and solver.t >= 2.5:
+                    dlamb = 0.5
+                elif solver.t < 2.5 and solver.t >= lamb:
+                    dlamb = 0.1
                 
-                    # This if statement prevents the solver from over-shooting 
-                    # lambda and takes a step in lambda equal to the exact
-                    # amount necessary to reach the specified lambda value
-                    if solver.t - dlamb < lamb:
+                # This if statement prevents the solver from over-shooting 
+                # lambda and takes a step in lambda equal to the exact amount
+                # necessary to reach the specified lambda value
+                if solver.t - dlamb < lamb:
                 
-                        dlamb = solver.t - lamb
+                    dlamb = solver.t - lamb
                 
-                    # Integrate to next step in lambda
-                    H_evolved = solver.integrate(solver.t - dlamb)
+                # Integrate to next step in lambda
+                H_evolved = solver.integrate(solver.t - dlamb)
                 
-                # Store evolved Hamiltonian matrix in dictionary
-                d[lamb] = self.vector2matrix(H_evolved)
-        
-        # Use SciPy's odeint function to solve flow equation
-        elif method == 'odeint':
-        
-            if lambda_array[0] < 12.0:
-                lambda_array = np.append(np.array([12.0]), lambda_array)
-                
-            sol = odeint(self.derivative, H_initial, lambda_array,
-                         atol=1e-6, rtol=1e-6, mxstep=5000000, tfirst=True)
-            
-            # Store each evolved Hamiltonian matrix in dictionary
-            i = 0
-            for lamb in lambda_array:
-            
-                H_evolved = sol[i] # This is a vector
-                d[lamb] = self.vector2matrix(H_evolved)
-                i += 1
-        
-        else:
-            
-            d = None
-            print("Need to specify either 'ode' or 'odeint' for a solver.")
-                
+            # Store evolved Hamiltonian matrix in dictionary
+            d[lamb] = self.vector2matrix(H_evolved)
+
         return d
