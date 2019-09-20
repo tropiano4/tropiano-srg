@@ -154,13 +154,13 @@ if __name__ == '__main__':
     #channel = '1P1'
     #channel = '3P0'
     
-    kmax = 30.0
-    #kmax = 8.0
+    #kmax = 30.0
+    kmax = 8.0
     #kmax = 10.0
     #kmax = 6.0
     
-    kmid = 4.0
-    #kmid = 2.0
+    #kmid = 4.0
+    kmid = 2.0
     #kmid = 3.0
     
     ntot = 120 # Default
@@ -175,8 +175,8 @@ if __name__ == '__main__':
     #generator = 'T'
     generator = 'Block-diag'
     
-    #lambda_bd = 1.00 # This won't affect the band-diagonal generators
-    lambda_bd = 1.50
+    lambda_bd = 1.00 # This won't affect the band-diagonal generators
+    #lambda_bd = 1.50
     #lambda_bd = 2.00 # Default
     #lambda_bd = 3.00
     #lambda_bd = 4.00
