@@ -324,6 +324,20 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\item Discussion on how the block-diagonal generator handles spurious bound states. Where they are ``decoupled'' in the matrix compared to Wegner.
 	\item Transition to Magnus expansion.
 \end{itemize}
+%
+\begin{figure}[H]
+	\centering
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_3S1_kvnns_900_901_902_lamb1,2}%
+	}
+	
+	\subfloat[]{%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_3S1_kvnns_900_901_902_lamb1,2}%
+	}
+	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the non-local LO potentials at cutoffs $\Lambda=4$ (black), $9$ (red) and $20$ (blue) fm$^{-1}$ SRG-evolving right to left under transformations with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^3$S$_1$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1.2$ fm$^{-1}$.}
+	\label{fig:potential_slices_high_cutoffs}
+\end{figure}
+%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -456,61 +470,19 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \noindent{%
 -- SRG operator evolution for different potentials and generators.
 }
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-\subsection{Building SRG unitary transformations}
-\label{sec:srg_unitary_transformations}
-
-
-Diagonalize initial and evolved Hamiltonians which we will call $H(0)$ and $H(s)$, respectively. This gives $\psi_{\alpha}(0)$ and $\psi_{\alpha}(s)$ for each eigenvalue indexed by $\alpha$. Then the SRG unitary transformation can be computed by taking a sum over outer products of the evolved and initial wave functions:
-%
-\begin{eqnarray}
-	\label{eq:unitary_transformation}
-	U(s) = \sum_{\alpha=1}^{N} \ket{\psi_{\alpha}(s)} \bra{\psi_{\alpha}(0)},
-\end{eqnarray}
-%
-where N is the dimension of the Hamiltonian matrix. Here the weights are factored into the wave functions, thus $U(s)$ is unitless.
 \\
-
-To evolve operators, we simply apply $U(s)$:
+-- General questions to address: universality for operators, different generators.
+\\
+-- Momentum projection operator.
 %
-\begin{eqnarray}
-	\label{eq:evolved_operator}
-	O(s) = U(s) O(0) U^{\dagger}(s),
-\end{eqnarray}
+\begin{itemize}
+	\item Contours and general behavior: SRG transformation shifts strength of operator to low-momentum.
+	\item Deuteron momentum distributions. Why does this make sense with the transformed operators?
+	\item Diagonals and far off-diagonals. Universality.
+	\item Same questions but with figures of the integrand.
+\end{itemize}
 %
-where $O(0)$ is the bare operator.
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-\subsection{Momentum projection operator: $a^{\dagger}_q a_q (k, k')$}
-\label{sec:momentum_proj_operator}
-
-
-Applying $a^{\dagger}_q a_q (k, k')$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1\cdots N$. Then $a^{\dagger}_q a_q (k, k')$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k / (2 \pi)^3 = 2 / (\pi k^2 dk)$ in spherical coordinates. Therefore, we include a factor of $\pi / (2 k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
-%
-\begin{eqnarray}
-	\label{eq:momentum_projection_operator}
-	a^{\dagger}_q a_q (k_i, k_j) = \frac{\pi \delta_{k_i q} \delta_{k_j q}}{2 k_i k_j \sqrt{w_i w_j}},
-\end{eqnarray}
-%
-which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For mesh-independent figures, we must divide by an additional factor of $k_i k_j \sqrt{w_i w_j}$. This operator is inherently mesh-dependent based off discretizing $\delta_{k_i q} \delta_{k_j q}$ above.
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-\subsection{Momentum distribution function: $\phi^2(k)$}
-\label{sec:momentum_dist_funcs}
-
-
-We diagonalize the Hamiltonian for eigenvectors $\psi_{\alpha}$. In the $^3$S$_1$-$^3$D$_1$ coupled channel, the S-component is given by $\psi_{\alpha}[: \! N]$ and the D-component by $\psi_{\alpha}[N \! :]$ where $N$ is the length of the momentum mesh. Then the momentum distribution of the state $\alpha$ is given by,
-%
-\begin{eqnarray}
-	\label{eq:momentum_distribution}
-	|\phi_{\alpha}(k)|^2 = |\psi_{\alpha}[: \! N]|^2 + |\psi_{\alpha}[N \! :]|^2.
-\end{eqnarray}
-%
-This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case, $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
+-- $\hat{r}^2$ operator.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
