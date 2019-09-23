@@ -1,0 +1,112 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% File: operator_evolution_notes.tex
+%
+% Author: A. J. Tropiano (tropiano.4@osu.edu)
+% Date: September 23, 2019
+%
+% PUT DESCRIPTION HERE.
+%
+% Revision history:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass[preprintnumbers,floatfix,aps,prc,preprint,nofootinbib]{revtex4-1}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage[font=small,skip=0pt]{caption} % For captions on figures and tables
+\usepackage{cellspace}
+\usepackage{color}
+\usepackage{enumerate}
+\usepackage{epsfig}
+\usepackage[figuresright]{rotating}
+\usepackage{float}
+\usepackage{hyperref} % For clickable links to sections within table of contents
+\usepackage{graphicx}
+\graphicspath{{../../Figures/}} % Setting the graphics path
+\usepackage{physics} % For bra-ket notation
+\usepackage{siunitx}
+\usepackage[caption=false]{subfig} % For sub-figures
+
+\newcommand{\eps}{\varepsilon}
+
+
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Operator evolution notes}
+
+
+\author{A.~J.~Tropiano$^{1}$}
+
+\affiliation{$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}}
+
+\date{\today}
+
+\maketitle
+
+\newpage
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{Building SRG unitary transformations}
+\label{sec:srg_unitary_transformations}
+
+
+Diagonalize initial and evolved Hamiltonians which we will call $H(0)$ and $H(s)$, respectively. This gives $\psi_{\alpha}(0)$ and $\psi_{\alpha}(s)$ for each eigenvalue indexed by $\alpha$. Then the SRG unitary transformation can be computed by taking a sum over outer products of the evolved and initial wave functions:
+%
+\begin{eqnarray}
+	\label{eq:unitary_transformation}
+	U(s) = \sum_{\alpha=1}^{N} \ket{\psi_{\alpha}(s)} \bra{\psi_{\alpha}(0)},
+\end{eqnarray}
+%
+where N is the dimension of the Hamiltonian matrix. Here the weights are factored into the wave functions, thus $U(s)$ is unitless.
+\\
+
+To evolve operators, we simply apply $U(s)$:
+%
+\begin{eqnarray}
+	\label{eq:evolved_operator}
+	O(s) = U(s) O(0) U^{\dagger}(s),
+\end{eqnarray}
+%
+where $O(0)$ is the bare operator.
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{Momentum projection operator: $a^{\dagger}_q a_q (k, k')$}
+\label{sec:momentum_proj_operator}
+
+
+Applying $a^{\dagger}_q a_q (k, k')$ to a wave function $\psi(k)$ returns $\psi(q)$. For the discrete case, $\psi(k_i)$ is an $N \times 1$ vector and $a^{\dagger}_q a_q (k_i, k_j)$ is an $N \times N$ matrix where $i$, $j=1\cdots N$. Then $a^{\dagger}_q a_q (k, k')$ acting on $\psi(k)$ is a matrix multiplication, implying a continuous integration over $d^3k / (2 \pi)^3 = 2 / (\pi k^2 dk)$ in spherical coordinates. Therefore, we include a factor of $\pi / (2 k_i k_j \sqrt{w_i w_j})$ in $a^{\dagger}_q a_q (k_i, k_j)$ where $w$ represents the momentum weights. In matrix form,
+%
+\begin{eqnarray}
+	\label{eq:momentum_projection_operator}
+	a^{\dagger}_q a_q (k_i, k_j) = \frac{\pi \delta_{k_i q} \delta_{k_j q}}{2 k_i k_j \sqrt{w_i w_j}},
+\end{eqnarray}
+%
+which has units fm$^3$. To evolve operators, we apply $U(s)$ at this point. For mesh-independent figures, we must divide by an additional factor of $k_i k_j \sqrt{w_i w_j}$. This operator is inherently mesh-dependent based off discretizing $\delta_{k_i q} \delta_{k_j q}$ above.
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{Momentum distribution function: $\phi^2(k)$}
+\label{sec:momentum_dist_funcs}
+
+
+We diagonalize the Hamiltonian for eigenvectors $\psi_{\alpha}$. In the $^3$S$_1$-$^3$D$_1$ coupled channel, the S-component is given by $\psi_{\alpha}[: \! N]$ and the D-component by $\psi_{\alpha}[N \! :]$ where $N$ is the length of the momentum mesh. Then the momentum distribution of the state $\alpha$ is given by,
+%
+\begin{eqnarray}
+	\label{eq:momentum_distribution}
+	|\phi_{\alpha}(k)|^2 = |\psi_{\alpha}[: \! N]|^2 + |\psi_{\alpha}[N \! :]|^2.
+\end{eqnarray}
+%
+This satisfies the normalization condition $\sum_{i=1}^N |\phi(k_i)|^2 = 1$, implying that the factor $k^2 dk$ (or in the discrete case, $k_i^2 w_i$) is factored into the wave function. For mesh-independent figures, divide by $k_i^2 w_i$.
+
+
+\end{document}
