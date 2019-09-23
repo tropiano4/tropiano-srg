@@ -15,6 +15,8 @@
 # Revision history:
 #   08/07/19 --- Minor revisions to r^2 operator.
 #   08/22/19 --- Changed find_q_index function to use np.fabs() and .argmin()
+#   09/23/19 --- Generalized momentum_projection_operator to any channel, not
+#                just coupled-channels.
 #
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
@@ -25,6 +27,8 @@
 
 import numpy as np
 from scipy.special import spherical_jn
+# Scripts made by A.T.
+from Potentials.vsrg_macos import load_save_potentials as lp
 
 
 def find_q_index(q, k_array):
@@ -54,7 +58,8 @@ def find_q_index(q, k_array):
     return q_index
 
 
-def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
+def momentum_projection_operator(q, k_array, k_weights, channel,
+                                 U=np.empty(0)):
     """
     ( a_q^dagger a_q ) momentum projection operator in momentum-space. When
     applied to a wave function, returns the wave function at momentum value q.
@@ -71,6 +76,10 @@ def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
         Momentum array.
     k_weights: 1-D ndarray
         Momentum weights.
+    channel : str
+        The partial wave channel ('1S0', '3S1', etc.) This allows the function
+        to distinguish whether the operator should work for coupled-channels or
+        not.
     U : 2-D ndarray, optional
         Unitary transformation matrix. If no unitary transformation is
         provided, the function will skip the line where it evolves the
@@ -98,18 +107,21 @@ def momentum_projection_operator(q, k_array, k_weights, U=np.empty(0)):
     #operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
     #operator[q_index, q_index] = 1
     
-    # Matrix of zeros (m x m) for coupled-channel operator
-    o = np.zeros( (m, m) )
+    # Build coupled channel operator 
+    if lp.coupled_channel(channel):
     
-    # Build coupled channel operator
-    coupled_channel_operator = np.vstack( ( np.hstack( (operator, o) ),
-                                            np.hstack( (o, operator) ) ) )
+        # Matrix of zeros (m x m) for coupled-channel operator
+        o = np.zeros( (m, m) )
+    
+        # Build coupled channel operator
+        operator = np.vstack( ( np.hstack( (operator, o) ),
+                                np.hstack( (o, operator) ) ) )
             
     # Evolve operator by applying unitary transformation U
     if U.any():
-        coupled_channel_operator = U @ coupled_channel_operator @ U.T
+        operator = U @ operator @ U.T
 
-    return coupled_channel_operator
+    return operator
 
 
 def hankel_transformation(channel, k_array, r_array, dr):
