@@ -31,7 +31,6 @@ from run_srg import run_srg
 
 
 kvnn_list = [10, 106]
-# Could add the RKE 1-20 fm^-1 LO potentials as 903, 904, ...
 channel_list = ['1S0', '3S1', '1P1']
 kmax = 10.0
 kmid = 2.0
