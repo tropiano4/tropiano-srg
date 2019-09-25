@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  24 SEP 2019 14:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  25 SEP 2019 15:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1711,13 +1711,13 @@ Overfull \hbox (9.18227pt too wide) in paragraph at lines 73--73
  []
 
 [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 91.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 88.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 91.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 88.
  [2] [3]
 <../../Figures/SRG_potentials/potential_contours_kvnn106_1S0_Wegner_channel_lab
 el.pdf, id=75, 1021.34387pt x 260.8925pt>
@@ -1974,10 +1974,10 @@ Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
 (rerunfilecheck)             Checksum: 8826BF6388127DFAD6A581E5D4C99008;678.
  ) 
 Here is how much of TeX's memory you used:
- 19873 strings out of 492995
- 369400 string characters out of 6132704
+ 19872 strings out of 492995
+ 369390 string characters out of 6132704
  423731 words of memory out of 5000000
- 23153 multiletter control sequences out of 15000+600000
+ 23152 multiletter control sequences out of 15000+600000
  17061 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  39i,11n,49p,10414b,785s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1993,7 +1993,7 @@ al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/
 texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (17 pages, 839541 bytes).
+Output written on operator_evolution.pdf (17 pages, 839826 bytes).
 PDF statistics:
  1268 PDF objects out of 1440 (max. 8388607)
  512 compressed objects within 6 object streams

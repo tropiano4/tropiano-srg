@@ -49,9 +49,9 @@
 \author{A.~J.~Tropiano$^{1}$, S.~K.~Bogner$^{2}$, R.~J.~Furnstahl$^{1}$}
 
 \affiliation{%
-		$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
-		$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
-    		\mbox{Michigan State University, East Lansing, MI 48824, USA}
+$^1$\mbox{Department of Physics, The Ohio State University, Columbus, OH 43210, USA}  \\
+$^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physics and Astronomy,}  \\
+\mbox{Michigan State University, East Lansing, MI 48824, USA}
 }
 
 \date{\today}
@@ -81,24 +81,13 @@
 
 
 \noindent{%
-\textbf{Background on modern nuclear potentials.}
+\textbf{NN interaction and SRG decoupling.}
 }
-\\
--- Wide range of NN potentials.
-%
-% Add what you have from IMSRG paper.
-\begin{itemize}
-	\item Chiral EFT background.
-	\item Different potentials but give same $S$-matrix.
-\end{itemize}
-%
--- Implementation to many-body calculations and SRG decoupling.
 %
 \begin{itemize}
 	\item Strong coupling between low- and high-momentum matrix elements in NN potentials.
 	\item Very difficult to implement these interactions in many-body methods using basis expansions. Matrix dimension becomes too large for accurate calculations.
 	\item RG transformations are used to soften the interaction to make many-body methods feasible. One such method, the SRG, also preserves observables from unitarity.
-	\item How do different potentials change under SRG transformations?
 \end{itemize}
 %
 \textbf{SRG formalism}
@@ -144,6 +133,17 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 \\
 -- For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
 \\
+\textbf{Background on modern nuclear potentials.}
+\\
+-- Wide range of NN potentials.
+%
+% Add what you have from IMSRG paper.
+\begin{itemize}
+	\item Chiral EFT background.
+	\item Different potentials but give same $S$-matrix.
+	\item How do different potentials change under SRG transformations?
+\end{itemize}
+%
 \textbf{Universality}
 \\
 % Try to understand this better. Ask DF.
