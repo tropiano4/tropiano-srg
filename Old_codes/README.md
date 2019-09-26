@@ -16,3 +16,9 @@ ________________________________________________________________________________
 __Name__: momentum_projection_operator_testv1.py<br/>
 __Date moved__: August 30, 2019<br/>
 __Brief description__: Used to test how to build momentum projection operators (which should be momentum mesh-independent).
+
+____________________________________________________________________________________________________________________________
+__Name__: srg_operators_fig_with_test_funcs.ipynb<br/>
+__Date moved__: September 26, 2019<br/>
+__Brief description__: Old version of srg_operators_fig.ipynb but with functions that test mesh-dependence in operator figures.
+
