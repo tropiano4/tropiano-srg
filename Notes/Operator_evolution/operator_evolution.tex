@@ -11,6 +11,7 @@
 %	08/28/19 --- Started outlining and added pieces from old notes.
 %	09/09/19 --- Added more bullets to the introduction. Further organization.
 %	09/19/19 --- Added more bullets to section 2.
+%	09/27/19 --- Wrote the introduction and swapped the Magnus and operator sections.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -79,96 +80,58 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \section{Introduction}
 \label{sec:intro}
 
-
 \noindent{%
 \textbf{NN interaction and SRG decoupling.}
 }
-%
-\begin{itemize}
-	\item Strong coupling between low- and high-momentum matrix elements in NN potentials.
-	\item Very difficult to implement these interactions in many-body methods using basis expansions. Matrix dimension becomes too large for accurate calculations.
-	\item RG transformations are used to soften the interaction to make many-body methods feasible. One such method, the SRG, also preserves observables from unitarity.
-\end{itemize}
-%
+\\
+The nuclear many-body problem has long been hindered by the short-range repulsive core and strong tensor force in nucleon-nucleon (NN) interactions leading to non-perturbative few- and many-body systems and strongly correlated wave functions. The Fourier transform of NN interactions gives rise to the coupling of low- and high-momentum modes, which is manifested as non-zero off-diagonal potential matrix elements. It is very difficult to implement these interactions in many-body methods using basis expansions, because the matrix dimension becomes too large for accurate calculations. Renormalization group (RG) methods can be used to soften the interaction to make many-body methods feasible. One such method, the similarity renormalization group (SRG), allows for a continuous change in resolution of the potential without changing the observables. More generally, the SRG can evolve any operator and wave function for consistent calculation of observables.
+\\
+
+\noindent{%
 \textbf{SRG formalism}
+}
 \\
--- The SRG decouples low- and high-momentum scales by applying a continuous unitary transformation $U(s)$ where $s=0 \rightarrow \infty$ is the flow parameter.
-\\
--- The `dressed' or evolved operator is given by
+The SRG decouples low- and high-momentum scales by applying a continuous unitary transformation $U(s)$ where $s=0 \rightarrow \infty$ is the flow parameter. The evolved operator is given by
 %
 \begin{eqnarray}
 	\label{eq:srg_operator}
 	O(s) = U(s) O(0) U^{\dagger}(s),
 \end{eqnarray}
 %
-where $O(0)$ corresponds to the `bare' operator.
-\\
--- Because $U(s)$ is unitary, the observables of the operator are preserved.
-\\
--- In practice, the unitary transformation U(s) is not explicitly solved for; the evolved operator is given by a differential flow equation which is obtained by taking the derivative of Eqn. (\ref{eq:srg_operator}),
+where $O(0)$ corresponds to the initial operator. Because $U(s)$ is unitary, the observables of the operator are preserved. In practice, the unitary transformation U(s) is not explicitly solved for; the evolved operator is given by solving a differential flow equation which is obtained by taking the derivative of Eqn. (\ref{eq:srg_operator}),
 %
 \begin{eqnarray}
 	\label{eq:srg_flow}
 	\frac{dO(s)}{ds} = [\eta(s), O(s)],
 \end{eqnarray}
 %
-where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator.
+where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator. The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow. The choice in $G$ determines the pattern of decoupling in the operator. By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the operator is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling, $G=P H(s) P + Q H(s) Q \equiv H_{BD}(s)$, where $P$ and $Q$ are low- and high-momentum projection operators, the operator is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda$. These transformations are similar to V\textsubscript{low k} transformations \textcolor{red}{(references?)} but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block. Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver. For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
 \\
--- The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow or form of the decoupled operator.
+
+\noindent{%
+\textbf{Background on modern nuclear potentials and universality.}
+}
 \\
--- By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the operator is driven to band-diagonal form.
+There has been tremendous progress in development of NN interactions from chiral effective field theory ($\chi^{EFT}$) in the last decade. Previous SRG studies were limited to phenomenological interactions or some of the first non-local chiral interactions \cite{Entem:2003ft}, but with much more variance in modern chiral interactions, we would like to revisit the question of how different potentials and other operators change under SRG transformations. Since $\chi^{EFT}$ is an effective field theory, different potentials will still give the same $S$-matrix, that is, the potentials are phase equivalent up to some higher energy. However, the potentials themselves can differ in many ways such as the regulator functions, cutoff, order, and so forth, and thus, the potential matrix elements are not the same. Dainton \textit{et al.} \cite{Dainton:2013axa} demonstrated SRG transformations drive different NN potentials to the same low-momentum matrix elements, that is, a flow to universality up to the momentum value of phase inequivalence. We address the question of universality for modern chiral potentials as well as how other operators change with respect to the corresponding SRG transformations.
 \\
--- This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}.
+
+\noindent{%
+\textbf{High cutoffs}
+}
 \\
--- In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form.
-% Do I need to explain the intermediate step here?
+There has also been renewed interest in studying chiral interactions at high cutoffs \cite{Tews:2018sbi}. In spin-triplet channels and at leading-order (LO), taking the cutoff to high values can result in spurious, deeply bound states from a highly singular short-ranged tensor force. In principle, these deep bound states are outside the range of the EFT and are absorbed by counterterms at higher order. In \cite{Wendt:2011qj}, it was shown that band-diagonal SRG decoupling of NN potentials in partial waves with spurious bound states changes significantly depending on the choice of SRG generator. These high cutoff potentials provide a unique opportunity to understand some of the previous points about universality, the choice of SRG generator and decoupling, as well as a good test problem for a variant of the SRG, which utilizes the Magnus expansion \cite{Morris:2015yna}.
 \\
--- It is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator.
+
+\noindent{%
+\textbf{The Magnus expansion}
+}
 \\
--- For block-diagonal decoupling, denoted $G=H_{BD}(s)$, the operator is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda_{BD}$.
+The Magnus expansion gives the SRG the capability to solve for the unitary transformation explicitly which can then be applied to any other operator of interest. This offers a huge numerical simplification in Fock-space where the matrix size of operators can become very large. The Magnus expansion is often used in in-medium SRG (IMSRG) calculations to solve the nuclear many-body problem directly. In some IMSRG calculations, intruder states can shift to the energy scale of the reference state in valence-space and severely distort low-energy properties. It is not understood how the IMSRG procedure evolves intruder state systems. Due to the prominence of the Magnus expansion in IMSRG, one must first understand if the Magnus approach matches the typical approach for difficult systems before investigating the intruder state problem. For this reason, NN potentials with spurious bound states offer a good test laboratory for the Magnus implementation to better understand if the Magnus is equivalent to the SRG approach.
 \\
--- These transformations are similar to $V_{low k}$ Lee-Suzuki transformations but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block.
-\\
--- Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver.
-\\
--- For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
-\\
-\textbf{Background on modern nuclear potentials.}
-\\
--- Wide range of NN potentials.
-%
-% Add what you have from IMSRG paper.
-\begin{itemize}
-	\item Chiral EFT background.
-	\item Different potentials but give same $S$-matrix.
-	\item How do different potentials change under SRG transformations?
-\end{itemize}
-%
-\textbf{Universality}
-\\
-% Try to understand this better. Ask DF.
--- The explicit long-range physics should be the same. Decoupling low- and high-energy gives matching low-energy matrix elements. In the NN potential, this means softened NN interactions should have the same low-momentum matrix elements after sufficient decoupling.
-\\
--- Add takeaways from Dainton: phase shift equivalence implies matrix element equivalence for $\lambda$ approaching the momenta of phase equivalence. Correct binding energy is critical or the lowest matrix elements will not match.
-\\
--- Motivate long list of unaddressed questions: regulator, generator dependence, high cutoffs, the Magnus expansion.
-%
-\begin{itemize}
-	\item Regulator. Functional dependence of regulator. Reasons for implementing each.
-	\item Generators. Band- and block-diagonal transformations.
-	\item High cutoffs. Cite Nogga, Wendt, and Tews papers.
-	\item The Magnus expansion. High cutoffs and connection to IMSRG intruder state problem.
-\end{itemize}
-%
-\textbf{Operator evolution}
-\\
--- State how a potential and wave function changes: how does this affect other operators?
-\\
--- Operator evolution for different potentials (regulators, chiral order, etc.)
-\\
--- How operators evolve from band- and block-diagonal SRG transformations.
-\\
+
+\noindent{%
 \textbf{Overview of sections.}
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,17 +139,15 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 \label{sec:srg_evolution_nn_potentials}
 
 
+% Summarize what we're looking at in this section and general conclusions. What did I not cover in the introduction?
+%
 \noindent{%
 \textbf{General outline of the section}
 }
 \\
--- Comparison of potential evolution with different regulators, orders, generators.
+-- Comparison of potential evolution with different potentials and SRG generators.
 \\
 -- Universality.
-\\
--- Discussion of high cutoffs, block-diagonal generator at high cutoffs, and how it handles spurious bound states.
-\\
--- Use high cutoffs to transition to Magnus test problem.
 \\
 \textbf{Analysis of figures}
 \\
@@ -313,7 +274,38 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\caption{Same as Figs.~\ref{fig:potential_slices_1S0} and \ref{fig:potential_slices_3S1} but in the $^1$P$_1$ channel.}
 	\label{fig:potential_slices_1P1}
 \end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evolution of other operators}
+\label{sec:evolution_other_operators}
+
+
+\noindent{%
+-- SRG operator evolution for different potentials and generators.
+}
+\\
+-- General questions to address: universality for operators, different generators.
+\\
+-- Momentum projection operator.
 %
+\begin{itemize}
+	\item Contours and general behavior: SRG transformation shifts strength of operator to low-momentum.
+	\item Deuteron momentum distributions. Why does this make sense with the transformed operators?
+	\item Diagonals and far off-diagonals. Universality.
+	\item Same questions but with figures of the integrand.
+\end{itemize}
+%
+-- Note, the unitary transformations and evolved wave functions for different potentials are not the same (at low momentum too) swhich implies that evolved operators cannot have the same universality property as the evolved potentials since they are dependent on the evolved wave functions.
+\\
+-- $\hat{r}^2$ operator.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{High cutoffs and the Magnus expansion}
+\label{sec:magnus_expansion}
+
+
 \noindent{%
 \textbf{High cutoffs}
 }
@@ -321,7 +313,6 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\item Cutoff dependence in non-local LO (Wendt) potential.
 	\item Band- and block-diagonal evolution and universality. Add figure analogous to Fig.~\ref{fig:potential_slices_3S1} but for $\Lambda=4$, $9$, and $20$ fm$^{-1}$.
 	\item Spurious bound state(s).
-	\item Discussion on how the block-diagonal generator handles spurious bound states. Where they are ``decoupled'' in the matrix compared to Wegner.
 	\item Transition to Magnus expansion.
 \end{itemize}
 %
@@ -338,16 +329,6 @@ where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti
 	\label{fig:potential_slices_high_cutoffs}
 \end{figure}
 %
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The Magnus expansion}
-\label{sec:magnus_expansion}
-
-
-\noindent{%
--- Connection to IMSRG intruder state.
-}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -444,7 +425,7 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 \\
 -- Implications for IMSRG.
 \\
--- Use discussion of operator evolution to transition to next section.
+-- Discussion on how the block-diagonal generator handles spurious bound states. Where they are ``decoupled'' in the matrix compared to Wegner. One figure to show this?
 %
 \begin{figure}[H]
 	\centering
@@ -460,31 +441,6 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 	\label{fig:potential_slices_high_cutoffs_T}
 \end{figure}
 %
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Evolution of other operators}
-\label{sec:evolution_other_operators}
-
-
-\noindent{%
--- SRG operator evolution for different potentials and generators.
-}
-\\
--- General questions to address: universality for operators, different generators.
-\\
--- Momentum projection operator.
-%
-\begin{itemize}
-	\item Contours and general behavior: SRG transformation shifts strength of operator to low-momentum.
-	\item Deuteron momentum distributions. Why does this make sense with the transformed operators?
-	\item Diagonals and far off-diagonals. Universality.
-	\item Same questions but with figures of the integrand.
-\end{itemize}
-%
--- Note, the unitary transformations and evolved wave functions for different potentials are not the same (at low momentum too) swhich implies that evolved operators cannot have the same universality property as the evolved potentials since they are dependent on the evolved wave functions.
-\\
--- $\hat{r}^2$ operator.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
