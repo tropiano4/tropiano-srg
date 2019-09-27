@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  27 SEP 2019 16:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  27 SEP 2019 16:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1935,78 +1935,103 @@ pdf> <../../Figures/SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb
 1,0.pdf>] [11 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_10_106_222
 _lamb1,0.pdf> <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_10_106
 _222_lamb1,0.pdf>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 293.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 297.
 
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 293.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 297.
+
+<../../Figures/SRG_operators/momentum_projection_diag_q3,00_3S1_kvnns_10_106_22
+2_lamb1,5.pdf, id=869, 990.40013pt x 277.34491pt>
+File: ../../Figures/SRG_operators/momentum_projection_diag_q3,00_3S1_kvnns_10_1
+06_222_lamb1,5.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operators/momentum_projection_diag_q3,00_3S1_kvnns_10_10
+6_222_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operators/momentum_projection_diag_q
+3,00_3S1_kvnns_10_106_222_lamb1,5.pdf used on input line 307.
+(pdftex.def)             Requested size: 421.19714pt x 117.9483pt.
+
+<../../Figures/SRG_operators/momentum_projection_off-diag_q3,00_3S1_kvnns_10_10
+6_222_lamb1,5.pdf, id=871, 990.40013pt x 277.34491pt>
+File: ../../Figures/SRG_operators/momentum_projection_off-diag_q3,00_3S1_kvnns_
+10_106_222_lamb1,5.pdf Graphic file (type pdf)
+
+<use ../../Figures/SRG_operators/momentum_projection_off-diag_q3,00_3S1_kvnns_1
+0_106_222_lamb1,5.pdf>
+Package pdftex.def Info: ../../Figures/SRG_operators/momentum_projection_off-di
+ag_q3,00_3S1_kvnns_10_106_222_lamb1,5.pdf used on input line 311.
+(pdftex.def)             Requested size: 421.19714pt x 117.9483pt.
  [12 <../../Figures/SRG_potentials/potential_diag_1P1_kvnns_10_106_222_lamb1,0.
 pdf> <../../Figures/SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb
-1,0.pdf>]
+1,0.pdf>] [13 <../../Figures/SRG_operators/momentum_projection_diag_q3,00_3S1_k
+vnns_10_106_222_lamb1,5.pdf> <../../Figures/SRG_operators/momentum_projection_o
+ff-diag_q3,00_3S1_kvnns_10_106_222_lamb1,5.pdf>]
 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_900_901_902_lamb1,2.pdf,
- id=981, 959.37799pt x 277.04692pt>
+ id=1103, 959.37799pt x 277.04692pt>
 File: ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_900_901_902_lamb1,2
 .pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_900_901_902_lamb1,2.
 pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_diag_3S1_kvnns_
-900_901_902_lamb1,2.pdf used on input line 323.
+900_901_902_lamb1,2.pdf used on input line 342.
 (pdftex.def)             Requested size: 421.19714pt x 121.63046pt.
 
 <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_900_901_902_lamb1,2.
-pdf, id=983, 959.37799pt x 277.04692pt>
+pdf, id=1105, 959.37799pt x 277.04692pt>
 File: ../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_900_901_902_lam
 b1,2.pdf Graphic file (type pdf)
 
 <use ../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_900_901_902_lamb
 1,2.pdf>
 Package pdftex.def Info: ../../Figures/SRG_potentials/potential_off-diag_3S1_kv
-nns_900_901_902_lamb1,2.pdf used on input line 327.
+nns_900_901_902_lamb1,2.pdf used on input line 346.
 (pdftex.def)             Requested size: 421.19714pt x 121.63046pt.
- [13] [14 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_900_901_902_la
-mb1,2.pdf> <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_900_901_9
-02_lamb1,2.pdf>] [15]
-<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf, id=1093,
+ [14 <../../Figures/SRG_potentials/potential_diag_3S1_kvnns_900_901_902_lamb1,2
+.pdf> <../../Figures/SRG_potentials/potential_off-diag_3S1_kvnns_900_901_902_la
+mb1,2.pdf>] [15]
+<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf, id=1211,
  871.5357pt x 445.63176pt>
 File: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf Grap
 hic file (type pdf)
 
 <use ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf>
 Package pdftex.def Info: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn
-901_Wegner.pdf used on input line 432.
+901_Wegner.pdf used on input line 451.
 (pdftex.def)             Requested size: 421.19714pt x 215.36276pt.
 
-<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf, id=1095, 871.
+<../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf, id=1213, 871.
 5357pt x 445.63176pt>
 File: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf Graphic f
 ile (type pdf)
 
 <use ../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_T.pdf>
 Package pdftex.def Info: ../../Figures/Magnus/potential_diagonals_offdiags_kvnn
-901_T.pdf used on input line 439.
+901_T.pdf used on input line 458.
 (pdftex.def)             Requested size: 421.19714pt x 215.36276pt.
- [16 <../../Figures/Magnus/potential_diagonals_offdiags_kvnn901_Wegner.pdf>]
+ [16]
 (./operator_evolution.bbl [17 <../../Figures/Magnus/potential_diagonals_offdiag
-s_kvnn901_T.pdf>]) [18]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 463.
+s_kvnn901_Wegner.pdf> <../../Figures/Magnus/potential_diagonals_offdiags_kvnn90
+1_T.pdf>]) [18]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 482.
  (./operator_evolution.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 463.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 463.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 482.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 482.
 Package rerunfilecheck Info: File `operator_evolution.out' has not changed.
-(rerunfilecheck)             Checksum: B52D802A9B0F2929028F97C50C8D4875;695.
+(rerunfilecheck)             Checksum: C152DA3FFBDA9CA38E3629767EFF2224;695.
  ) 
 Here is how much of TeX's memory you used:
- 19888 strings out of 492995
- 369693 string characters out of 6132704
- 422731 words of memory out of 5000000
- 23164 multiletter control sequences out of 15000+600000
+ 19903 strings out of 492995
+ 370704 string characters out of 6132704
+ 423854 words of memory out of 5000000
+ 23172 multiletter control sequences out of 15000+600000
  17061 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,11n,49p,10414b,905s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,11n,49p,10414b,890s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -2019,10 +2044,10 @@ al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/
 texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
 live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on operator_evolution.pdf (18 pages, 845757 bytes).
+Output written on operator_evolution.pdf (18 pages, 907921 bytes).
 PDF statistics:
- 1289 PDF objects out of 1440 (max. 8388607)
- 532 compressed objects within 6 object streams
- 73 named destinations out of 1000 (max. 500000)
- 312 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1406 PDF objects out of 1440 (max. 8388607)
+ 557 compressed objects within 6 object streams
+ 76 named destinations out of 1000 (max. 500000)
+ 334 words of extra memory for PDF output out of 10000 (max. 10000000)
 
