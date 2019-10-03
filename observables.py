@@ -432,9 +432,6 @@ def phase_corrector(phase_array):
     return None
 
 
-# r^2 integrand should be a function in srg_operator_evolution.ipynb
-    
-
 def rms_radius_from_rspace(psi, r2_operator):
     """
     Description.
@@ -447,7 +444,10 @@ def rms_radius_from_rspace(psi, r2_operator):
     
     """
     
-    return None
+    # psi should be unitless
+    r2 = psi.T @ r2_operator @ psi
+    
+    return 0.5 * np.sqrt(r2)
 
 
 def rms_radius_from_kspace(psi):
