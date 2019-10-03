@@ -150,18 +150,24 @@ def hankel_transformation(channel, k_array, r_array, dr):
     k_cols, r_rows = np.meshgrid(k_array, r_array)
         
     # L = 0 (0th spherical Bessel function)
-    if channel == '3S1':
+    if channel[1] == 'S':
         
         L = 0
+        
+    elif channel[1] == 'P':
+        
+        L = 1
             
     # L = 2 (2nd spherical Bessel function)
-    elif channel == '3D1':
+    elif channel[1] == 'D':
         
         L = 2
         
-    M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(2/np.pi) * k_cols**2 * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2*dr/np.pi) * r_rows**2 * spherical_jn(L, k_cols*r_rows)
+    #M = k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
 
     return M
 
@@ -204,8 +210,8 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
-    ss_block = s_wave_trans.T @ r2_coordinate_space @ s_wave_trans
-    dd_block = d_wave_trans.T @ r2_coordinate_space @ d_wave_trans
+    ss_block = s_wave_trans.T @ r2_coordinate_space @ s_wave_trans * dr
+    dd_block = d_wave_trans.T @ r2_coordinate_space @ d_wave_trans * dr
         
     # Length of k_array
     m = len(k_array)
