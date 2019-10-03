@@ -159,9 +159,9 @@ def hankel_transformation(channel, k_array, r_array, dr):
         
         L = 2
         
-    #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
-    M = np.sqrt(2*dr/np.pi) * r_rows**2 * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2*dr/np.pi) * r_rows**2 * spherical_jn(L, k_cols*r_rows)
 
     return M
 
