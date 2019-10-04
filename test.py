@@ -45,9 +45,9 @@ from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 cwd = getcwd()
 
 # Use RKE N3LO as test
-#kvnn = 106
-#kmax = 10.0
-#kmid = 2.0
+kvnn = 106
+kmax = 10.0
+kmid = 2.0
 
 # Use EM N3LO as test
 #kvnn = 10
@@ -57,27 +57,38 @@ cwd = getcwd()
 #kmid = 2.0
 
 # Use Gezerlis et al. as test
-kvnn = 222
-kmax = 10.0
-kmid = 2.0
+#kvnn = 222
+#kmax = 10.0
+#kmid = 2.0
 
 channel = '3S1'
 ntot = 120
 
 # SRG details
-generator = 'Wegner'
+#generator = 'Wegner'
+generator = 'Block-diag'
 lambda_array = np.array( (6.0, 3.0, 2.0, 1.5) )
 
 # Load Hamiltonians and momentum
 H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+# Double the length of the arrays for coupled-channel operators
+k_array_long = np.concatenate( (k_array, k_array) )
+k_weights_long = np.concatenate( (k_weights, k_weights) )
 # The arrays below are used later to present a mesh-independent result
-factor_array = np.concatenate( (k_array * np.sqrt(k_weights), k_array * np.sqrt(k_weights) ) )
+factor_array = k_array_long * np.sqrt(k_weights_long)
 row, col = np.meshgrid(factor_array, factor_array)
 
 # Initial operator
 constant = 1.0
-operator_initial = np.ones( (2*ntot, 2*ntot) ) * constant * row * col
+lamb = 500 / 197 # 500 MeV cutoff
+k2_mesh, kp2_mesh = np.meshgrid(k_array_long**2, k_array_long**2)
+reg_row, reg_col = np.meshgrid( np.exp( -k_array_long / lamb )**2,
+                                np.exp( -k_array_long / lamb )**2 )
+regulator = reg_row * reg_col
+#regulator = 1.0
+#operator_initial = np.ones( (2*ntot, 2*ntot) ) * constant * regulator * row * col
+operator_initial = constant * ( k2_mesh + kp2_mesh ) * regulator * row * col
 
 
 # --- Calculate evolved operator --- #
@@ -87,8 +98,13 @@ d = {}
 for lamb in lambda_array:
     
     # Load evolved Hamiltonian
-    H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
-                                    generator, lamb)
+    if generator == 'Wegner':
+        H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
+                                        generator, lamb)
+    else:
+        H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
+                                        generator, lambda_array[-1],
+                                        lambda_bd=lamb)
 
     # Load SRG unitary transformation
     U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
@@ -104,16 +120,21 @@ for lamb in lambda_array:
     
 # Limits of axes on contours (units are fm^-1)
 axes_max = 10.0
+#axes_max = 5.0
         
 # Specifications of x and y axes
 # Step-size in labeling tick marks
 axes_stepsize = 2.0
+#axes_stepsize = 1.0
 # x and y axes ticks
 axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
         
 # Labels
 axes_label = 'k [fm' + r'$^{-1}$' + ']'
-lambda_label = r'$\lambda=%.1f$' + ' fm' + r'$^{-1}$'
+if generator == 'Wegner':
+    lambda_label = r'$\lambda=%.1f$' + ' fm' + r'$^{-1}$'
+else:
+    lambda_label = r'$\Lambda=%.1f$' + ' fm' + r'$^{-1}$'
 generator_label = ff.generator_label_conversion(generator)
     
 # Fontsize for labels and tick marks
@@ -124,7 +145,8 @@ axes_tick_size = 18
 colorbar_tick_size = 18
         
 # Limits of colorbar
-mx = 4.0
+#mx = 4.0
+mx = 1.0
 mn = 0.0
         
 # Location of labels
@@ -206,7 +228,18 @@ cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
 cbar = f.colorbar(c, cax=cbar_ax)
 cbar.ax.tick_params(labelsize=colorbar_tick_size)
 
-file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v1' % (kvnn, kmax, kmid)
+# Constant with no regulator
+#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v1' % (kvnn, kmax, kmid)
+# p^2 + p'^2 with no regulator
+#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v2' % (kvnn, kmax, kmid)
+# Constant with regulator
+#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v3' % (kvnn, kmax, kmid)
+# p^2 + p'^2 with regulator
+#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v4' % (kvnn, kmax, kmid)
+# Constant with regulator and block-diagonal generator
+#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v5' % (kvnn, kmax, kmid)
+# p^2 + p'^2 with regulator and block-diagonal generator
+file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v6' % (kvnn, kmax, kmid)
     
 # Save figure
 chdir('Figures/SRG_operators')
