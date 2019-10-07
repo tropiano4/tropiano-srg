@@ -136,14 +136,14 @@ if __name__ == '__main__':
     
     # Specify potential
     
-    #kvnn = 6 # AV18
+    kvnn = 6 # AV18
     #kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
     #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
-    kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm
+    #kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm
     #kvnn = 224 # Gezerlis et al N2LO local potential at R_0 = 1.2 fm
     #kvnn = 900 # Wendt at Lambda = 4 fm^-1
     #kvnn = 901 # Wendt at Lambda = 9 fm^-1
@@ -154,13 +154,13 @@ if __name__ == '__main__':
     #channel = '1P1'
     #channel = '3P0'
     
-    #kmax = 30.0
+    kmax = 30.0
     #kmax = 8.0
-    kmax = 10.0
+    #kmax = 10.0
     #kmax = 6.0
     
-    #kmid = 4.0
-    kmid = 2.0
+    kmid = 4.0
+    #kmid = 2.0
     #kmid = 3.0
     
     ntot = 120 # Default
@@ -183,12 +183,12 @@ if __name__ == '__main__':
     #lambda_bd = 6.00
     
     #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
-    #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
+    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
     #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
     #lambda_array = np.array( [2.8] )
     #lambda_array = np.array( [1.2] )
     #lambda_array = np.array( [10.0] )
-    lambda_array = np.array( [1.0] )
+    #lambda_array = np.array( [1.0] )
     
     # Save the evolved Hamiltonian?
     save = True
