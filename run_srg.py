@@ -136,12 +136,12 @@ if __name__ == '__main__':
     
     # Specify potential
     
-    kvnn = 6 # AV18
+    #kvnn = 6 # AV18
     #kvnn = 10 # EM N3LO
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
-    #kvnn = 111 # RKE N4LO at Lambda = 450 MeV
+    kvnn = 111 # RKE N4LO at Lambda = 450 MeV
     #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
     #kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm
     #kvnn = 224 # Gezerlis et al N2LO local potential at R_0 = 1.2 fm
@@ -154,13 +154,13 @@ if __name__ == '__main__':
     #channel = '1P1'
     #channel = '3P0'
     
-    kmax = 30.0
+    #kmax = 30.0
     #kmax = 8.0
-    #kmax = 10.0
+    kmax = 10.0
     #kmax = 6.0
     
-    kmid = 4.0
-    #kmid = 2.0
+    #kmid = 4.0
+    kmid = 2.0
     #kmid = 3.0
     
     ntot = 120 # Default
@@ -171,9 +171,9 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    #generator = 'Wegner'
+    generator = 'Wegner'
     #generator = 'T'
-    generator = 'Block-diag'
+    #generator = 'Block-diag'
     
     #lambda_bd = 1.00 # This won't affect the band-diagonal generators
     lambda_bd = 1.50

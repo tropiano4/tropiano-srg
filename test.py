@@ -26,6 +26,7 @@
 #   10/01/19 --- Testing SRG-evolution of an operator which is a constant at
 #                all values of k and k' (this is a delta function in
 #                coordinate-space).
+#   10/14/19 --- Making a couple of plots for DNP 2019 meeting.
 #
 #------------------------------------------------------------------------------
 
@@ -37,211 +38,178 @@ import numpy as np
 # Scripts made by A.T.
 from Figures import figures_functions as ff
 from Potentials.vsrg_macos import load_save_potentials as lp
-from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
-# --- Set up --- #
+# --- Variables --- #
 
-cwd = getcwd()
-
-# Use RKE N3LO as test
-kvnn = 106
-kmax = 10.0
-kmid = 2.0
-
-# Use EM N3LO as test
-#kvnn = 10
-#kmax = 30.0
-#kmax = 10.0
-#kmid = 4.0
-#kmid = 2.0
-
-# Use Gezerlis et al. as test
-#kvnn = 222
-#kmax = 10.0
-#kmid = 2.0
-
+potentials = ((10, 30.0, 4.0, 120), (111, 8.0, 2.0, 120), (222, 10.0, 2.0, 120))
+lambda_array = np.array( [6.0, 3.0, 1.5, 1.0] )
 channel = '3S1'
-ntot = 120
-
-# SRG details
 #generator = 'Wegner'
 generator = 'Block-diag'
-lambda_array = np.array( (6.0, 3.0, 2.0, 1.5) )
 
-# Load Hamiltonians and momentum
-H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
-# Double the length of the arrays for coupled-channel operators
-k_array_long = np.concatenate( (k_array, k_array) )
-k_weights_long = np.concatenate( (k_weights, k_weights) )
-# The arrays below are used later to present a mesh-independent result
-factor_array = k_array_long * np.sqrt(k_weights_long)
-row, col = np.meshgrid(factor_array, factor_array)
-
-# Initial operator
-constant = 1.0
-lamb = 500 / 197 # 500 MeV cutoff
-k2_mesh, kp2_mesh = np.meshgrid(k_array_long**2, k_array_long**2)
-reg_row, reg_col = np.meshgrid( np.exp( -k_array_long / lamb )**2,
-                                np.exp( -k_array_long / lamb )**2 )
-regulator = reg_row * reg_col
-#regulator = 1.0
-#operator_initial = np.ones( (2*ntot, 2*ntot) ) * constant * regulator * row * col
-operator_initial = constant * ( k2_mesh + kp2_mesh ) * regulator * row * col
-
-
-# --- Calculate evolved operator --- #
-
-d = {}
-
-for lamb in lambda_array:
+# --- Set-up --- #
     
-    # Load evolved Hamiltonian
-    if generator == 'Wegner':
-        H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
-                                        generator, lamb)
-    else:
-        H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
-                                        generator, lambda_array[-1],
-                                        lambda_bd=lamb)
-
-    # Load SRG unitary transformation
-    U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-    
-    # Calculate evolved operator
-    evolved_operator = U_matrix @ operator_initial @ U_matrix.T
-    
-    # Re-size to same dimension of k_array and store in dictionary
-    d[lamb] = ( evolved_operator / row / col )[:ntot, :ntot]
-
-
-# --- Plot figure --- #
-    
-# Limits of axes on contours (units are fm^-1)
-axes_max = 10.0
-#axes_max = 5.0
-        
-# Specifications of x and y axes
-# Step-size in labeling tick marks
-axes_stepsize = 2.0
-#axes_stepsize = 1.0
-# x and y axes ticks
-axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
+# Limits of x and y axes (dependent on channel and potential)
+xlim = [0.0, 3.0]
+ylim = [-4.5, 2.0]
         
 # Labels
-axes_label = 'k [fm' + r'$^{-1}$' + ']'
+x_label = 'k [fm' + r'$^{-1}$' + ']'
+y_label = 'V(k,k) [fm]'
+channel_label = ff.channel_label_conversion(channel)
+generator_label = ff.generator_label_conversion(generator)
+# Label for lambda and Lambda_BD
 if generator == 'Wegner':
     lambda_label = r'$\lambda=%.1f$' + ' fm' + r'$^{-1}$'
 else:
     lambda_label = r'$\Lambda=%.1f$' + ' fm' + r'$^{-1}$'
-generator_label = ff.generator_label_conversion(generator)
     
 # Fontsize for labels and tick marks
-axes_label_size = 18
+x_label_size = 18
+y_label_size = 20
+legend_label_size = 15
+channel_label_size = 22
+generator_label_size = 20
 lambda_label_size = 17
-generator_label_size = 17
-axes_tick_size = 18
-colorbar_tick_size = 18
-        
-# Limits of colorbar
-#mx = 4.0
-mx = 1.0
-mn = 0.0
-        
+    
 # Location of labels
-generator_label_location = 'upper right'
-lambda_label_location = 'lower right'
-        
-# Color scheme for contour plots
-color_style = 'Blues'
+legend_label_location = 'lower right'
+generator_label_location = 'lower right'
+channel_label_location = 'lower right'
+lambda_label_location = 'upper left'
     
 # Size of figure
 row_number = 1
 col_number = len(lambda_array)
-figure_size = (4*col_number, 3.5*row_number)
+figure_size = (4*col_number, 4*row_number) # (width, height)
+    
+# Initialize file name of figure
+file_name = 'potential_%s_%s_kvnns' % ('diag', '3S1') # This reads 'potential_line_channel_kvnns'
+kvnn_list = [10, 111, 222]
 
+# Current working directory
+cwd = getcwd()
+
+
+# --- Load data and plot lines --- #
+    
 # Initialize figure
 plt.close('all')
 f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True,
                       figsize=figure_size)
+    
+# Loop over potential specifications
+for potential in potentials:
+        
+    # Set kvnn, kmax, kmid, ntot, and generator
+    kvnn = potential[0]
+    kmax = potential[1]
+    kmid = potential[2]
+    ntot = potential[3]
+            
+    # Load momentum
+    k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+        
+    # Curve labels and styles
+            
+    # Curve color depends on potential
+    if kvnn in [10, 900]:
+        curve_color = 'xkcd:black'
+    elif kvnn in [105, 106, 107, 110, 111, 112, 901]:
+        curve_color = 'xkcd:red'
+    elif kvnn in [222, 224, 902]:
+        curve_color = 'xkcd:blue'
+    curve_style = 'solid'
+    potential_label = ff.kvnn_label_conversion(kvnn, full_label=False)
+        
+    # Loop over lambda
+    i = 0 # Sub-plot number
+    for lamb in lambda_array:
 
-i = 0 # Sub-plot number
-for lamb in lambda_array:
+        # Load evolved potential
+        if generator == 'Block-diag':
+            V_matrix = lp.load_potential(kvnn, channel, kmax, kmid, ntot, 
+                                         'srg', generator, lambda_array[-1],
+                                         lambda_bd=lamb)
+        else:
+            V_matrix = lp.load_potential(kvnn, channel, kmax, kmid, ntot,
+                                         'srg', generator, lamb)
+            
+        # Take a slice of the potential to plot
+        # (indexing :ntot keeps the same dimension of k_array in the case of a coupled-channel potential)
+        V_vector = np.diag( V_matrix[:ntot, :ntot] )
+ 
+        # Add sub-plot to figure
+        if i == 2: # 3rd sub-plot - label potential
+            axs[i].plot(k_array, V_vector, color=curve_color, linestyle=curve_style, label=potential_label)
+        else: # Middle sub-plots - no labels
+            axs[i].plot(k_array, V_vector, color=curve_color, linestyle=curve_style)
+                
+        i += 1
+        
+        
+# --- Set figure specifications and save --- #
     
-    # Add sub-plot to figure (for last sub-plot, must specify colorbar c)
-    if i != ( len(lambda_array) - 1):
-        axs[i].pcolormesh(k_array, k_array, d[lamb], cmap=color_style,
-                          vmin=mn, vmax=mx, rasterized=True)
-    else:
-        c = axs[i].pcolormesh(k_array, k_array, d[lamb], cmap=color_style,
-                              vmin=mn, vmax=mx, rasterized=True)
-    
-    # Specify axes tick marks
-    axs[i].xaxis.set_ticks(axes_ticks)
-    axs[i].xaxis.set_ticklabels(axes_ticks)
+# Loop over sub-plots
+for j in range( len(lambda_array) ):
         
     # Specify axes limits
-    axs[i].set_xlim( (0, axes_max) )
-    axs[i].set_ylim( (0, axes_max) )
-        
-    # Position of x-axis label and tick marks
-    axs[i].xaxis.set_label_position('top')
-    axs[i].xaxis.tick_top()
-    axs[i].tick_params(labeltop=True, labelsize=axes_tick_size)
+    axs[j].set_xlim(xlim)
+    axs[j].set_ylim(ylim)
         
     # Prevent overlapping x-axis tick marks unless it's the last sub-plot
-    if i != ( len(lambda_array) - 1 ):
-        xticks = axs[i].xaxis.get_major_ticks()
+    if j != ( len(lambda_array) - 1 ):
+        xticks = axs[j].xaxis.get_major_ticks()
         xticks[-1].set_visible(False)
             
     # Set axes labels
-    axs[i].set_xlabel(axes_label, fontsize=axes_label_size)
-    # Only specify y axis tick marks, set label, and add generator label as anchored text for 1st sub-plot
-    if i == 0:
-        axs[i].yaxis.set_ticks(axes_ticks)
-        axs[i].yaxis.set_ticklabels(axes_ticks)
-        axs[i].set_ylabel(axes_label, fontsize=axes_label_size)
-        generator_anchored_text = AnchoredText(generator_label, prop=dict(size=generator_label_size),
-                                               loc=generator_label_location)
-        axs[i].add_artist(generator_anchored_text)
-            
-    # Add lambda label as anchored text
-    lambda_anchored_text = AnchoredText(lambda_label % lambda_array[i], 
-                                        prop=dict(size=lambda_label_size),
-                                        loc=lambda_label_location)
-    axs[i].add_artist(lambda_anchored_text)
-            
-    i += 1
+    axs[j].set_xlabel(x_label, fontsize=x_label_size)
         
-    
-# --- Set figure specifications and save --- #
+    # Only specify y label and potential labels as legend for 1st sub-plot
+    if j == 0:
+        # Add y label
+        axs[j].set_ylabel(y_label, fontsize=y_label_size)
+        
+    if j == 1:
+        # Add channel label as anchored text to 2nd sub-plot for diag plot only
+        channel_anchored_text = AnchoredText(channel_label, 
+                                         prop=dict(size=channel_label_size),
+                                         loc=channel_label_location,
+                                         frameon=False)
+        axs[j].add_artist(channel_anchored_text)
 
-# Invert y-axis
-plt.gca().invert_yaxis()
+    if j == 2:
+        # Add legend for potentials
+        axs[j].legend(loc=legend_label_location, frameon=False, fontsize=legend_label_size)
+            
+    if j == ( len(lambda_array) - 1 ):
+        # Add channel label as anchored text to 2nd sub-plot for diag plot only
+        generator_anchored_text = AnchoredText(generator_label, 
+                                               prop=dict(size=generator_label_size),
+                                               loc=generator_label_location,
+                                               frameon=False)
+        axs[j].add_artist(generator_anchored_text)
+            
+    # Add lambda's label as anchored text
+    lambda_anchored_text = AnchoredText(lambda_label % lambda_array[j],
+                                        prop=dict(size=lambda_label_size),
+                                        loc=lambda_label_location, frameon=False)
+    # Add lambda
+    axs[j].add_artist(lambda_anchored_text)
+    
 # Amount of white space in-between sub-plots
 f.subplots_adjust(hspace=0.0, wspace=0.0)
-# Adjust for colorbar space
-f.subplots_adjust(right=0.8)
-cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
-# Add colorbar and set tick size
-cbar = f.colorbar(c, cax=cbar_ax)
-cbar.ax.tick_params(labelsize=colorbar_tick_size)
-
-# Constant with no regulator
-#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v1' % (kvnn, kmax, kmid)
-# p^2 + p'^2 with no regulator
-#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v2' % (kvnn, kmax, kmid)
-# Constant with regulator
-#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v3' % (kvnn, kmax, kmid)
-# p^2 + p'^2 with regulator
-#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v4' % (kvnn, kmax, kmid)
-# Constant with regulator and block-diagonal generator
-#file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v5' % (kvnn, kmax, kmid)
-# p^2 + p'^2 with regulator and block-diagonal generator
-file_name = 'toy_operator_srg_evolution_kvnn%d_kmax%.1f_kmid%.1f_v6' % (kvnn, kmax, kmid)
+    
+# Name of the file
+for kvnn in kvnn_list:
+    file_name += '_%d' % kvnn
+# Add last value of lambda to file name
+file_name += '_%s_lamb%.1f' % (generator, lambda_array[-1])
+# Replace '.' with ',' in file name since LaTeX doesn't like periods
+file_name = ff.replace_periods_with_commas(file_name)
     
 # Save figure
-chdir('Figures/SRG_operators')
+chdir('Figures/SRG_potentials')
 f.savefig(file_name+'.pdf', bbox_inches='tight')
 chdir(cwd)
