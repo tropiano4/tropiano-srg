@@ -22,3 +22,7 @@ __Name__: srg_operators_fig_with_test_funcs.ipynb<br/>
 __Date moved__: September 26, 2019<br/>
 __Brief description__: Old version of srg_operators_fig.ipynb but with functions that test mesh-dependence in operator figures.
 
+____________________________________________________________________________________________________________________________
+__Name__: toy_operator_srg_evolution_v1.ipynb<br/>
+__Date moved__: October 18, 2019<br/>
+__Brief description__: Tests SRG-evolution of toy operators: SRG running of high momentum contact forces induced in high-momentum operators.
