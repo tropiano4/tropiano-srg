@@ -9,8 +9,7 @@
 %
 % Revision history:
 %	08/28/19 --- Started outlining and added pieces from old notes.
-%	09/09/19 --- Added more bullets to the introduction. Further organization.
-%	09/19/19 --- Added more bullets to section 2.
+%	09/19/19 --- Added more bullets up through section 2.
 %	09/27/19 --- Wrote the introduction and swapped the Magnus and operator sections.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -80,18 +79,26 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 \section{Introduction}
 \label{sec:intro}
 
-% Be more up front with motivation/purpose of the paper.
+% Unnecessary paragraph.
+%\noindent{%
+%\textbf{NN interaction and SRG decoupling.}
+%}
+%\\
+%The nuclear many-body problem has long been hindered by the short-range repulsive core and strong tensor force in nucleon-nucleon (NN) interactions leading to non-perturbative few- and many-body systems and strongly correlated wave functions. The Fourier transform of NN interactions gives rise to the coupling of low- and high-momentum modes, which is manifested as non-zero off-diagonal potential matrix elements. It is very difficult to implement these interactions in many-body methods using basis expansions, because the matrix dimension becomes too large for accurate calculations. Renormalization group (RG) methods can be used to soften the interaction to make many-body methods feasible. One such method, the similarity renormalization group (SRG), allows for a continuous change in resolution of the potential without changing the observables. More generally, the SRG can evolve any operator and wave function for consistent calculation of observables.
+%\\
+
 \noindent{%
-\textbf{NN interaction and SRG decoupling.}
+\textbf{Modern nuclear potentials and universality.}
 }
 \\
-The nuclear many-body problem has long been hindered by the short-range repulsive core and strong tensor force in nucleon-nucleon (NN) interactions leading to non-perturbative few- and many-body systems and strongly correlated wave functions. The Fourier transform of NN interactions gives rise to the coupling of low- and high-momentum modes, which is manifested as non-zero off-diagonal potential matrix elements. It is very difficult to implement these interactions in many-body methods using basis expansions, because the matrix dimension becomes too large for accurate calculations. Renormalization group (RG) methods can be used to soften the interaction to make many-body methods feasible. One such method, the similarity renormalization group (SRG), allows for a continuous change in resolution of the potential without changing the observables. More generally, the SRG can evolve any operator and wave function for consistent calculation of observables.
+There has been tremendous progress in development of NN interactions from chiral effective field theory ($\chi^{EFT}$) in the last decade. Previous SRG studies were limited to phenomenological interactions or some of the first non-local chiral interactions \cite{Entem:2003ft}, but with much more variance in modern chiral interactions, we would like to revisit the question of how different potentials and other operators change under SRG transformations. Since $\chi^{EFT}$ is an effective field theory, different potentials will still give the same $S$-matrix, that is, the potentials are phase equivalent up to some higher energy. However, the potentials themselves can differ in many ways such as the regulator functions, cutoff, order, and so forth, and thus, the potential matrix elements are not the same. Dainton \textit{et al.} \cite{Dainton:2013axa} demonstrated SRG transformations drive different NN potentials to the same low-momentum matrix elements, that is, a flow to universality up to the momentum value of phase inequivalence. We address the question of universality for modern chiral potentials as well as how other operators change with respect to the corresponding SRG transformations.
 \\
 
 \noindent{%
 \textbf{SRG formalism}
 }
 \\
+% Reword this section to be consistent with conclusions: decoupling and operator evolution.
 The SRG decouples low- and high-momentum scales by applying a continuous unitary transformation $U(s)$ where $s=0 \rightarrow \infty$ is the flow parameter. The evolved operator is given by
 %
 \begin{eqnarray}
@@ -107,13 +114,6 @@ where $O(0)$ corresponds to the initial operator. Because $U(s)$ is unitary, the
 \end{eqnarray}
 %
 where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator. The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow. The choice in $G$ determines the pattern of decoupling in the operator. By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the operator is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling, $G=P H(s) P + Q H(s) Q \equiv H_{BD}(s)$, where $P$ and $Q$ are low- and high-momentum projection operators, the operator is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda$. These transformations are similar to V\textsubscript{low k} transformations \textcolor{red}{(references?)} but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block. Generally the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver. For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
-\\
-
-\noindent{%
-\textbf{Background on modern nuclear potentials and universality.}
-}
-\\
-There has been tremendous progress in development of NN interactions from chiral effective field theory ($\chi^{EFT}$) in the last decade. Previous SRG studies were limited to phenomenological interactions or some of the first non-local chiral interactions \cite{Entem:2003ft}, but with much more variance in modern chiral interactions, we would like to revisit the question of how different potentials and other operators change under SRG transformations. Since $\chi^{EFT}$ is an effective field theory, different potentials will still give the same $S$-matrix, that is, the potentials are phase equivalent up to some higher energy. However, the potentials themselves can differ in many ways such as the regulator functions, cutoff, order, and so forth, and thus, the potential matrix elements are not the same. Dainton \textit{et al.} \cite{Dainton:2013axa} demonstrated SRG transformations drive different NN potentials to the same low-momentum matrix elements, that is, a flow to universality up to the momentum value of phase inequivalence. We address the question of universality for modern chiral potentials as well as how other operators change with respect to the corresponding SRG transformations.
 \\
 
 \noindent{%
@@ -152,27 +152,28 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 \\
 \textbf{Analysis of figures}
 \\
--- Fig.~\ref{fig:potential_contours_RKE_Wegner} illustrates the SRG in a nutshell. Here, we evolve three partial wave channels of RKE N$^3$LO \cite{Reinert:2017usi} where the cutoff $\Lambda=450$ MeV to $\lambda=1.5$ fm$^{-1}$. We see that the off-diagonal elements of the potential approach zero and the potential is driven to band-diagonal form.
+%-- Fig.~\ref{fig:potential_contours_RKE_Wegner} illustrates the SRG in a nutshell. Here, we evolve three partial wave channels of RKE N$^4$LO \cite{Reinert:2017usi} where the cutoff $\Lambda=450$ MeV to $\lambda=1.5$ fm$^{-1}$. We see that the off-diagonal elements of the potential approach zero and the potential is driven to band-diagonal form.
 %
-\begin{figure}[H]
-	\centering
-	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_1S0_Wegner_channel_label}%
-	}
+% Unnecessary figure.
+%\begin{figure}[H]
+%	\centering
+%	\subfloat[]{%
+%	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_1S0_Wegner_channel_label}%
+%	}
 	
-	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_3S1_Wegner_channel_label}%
-	}
+%	\subfloat[]{%
+%	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_3S1_Wegner_channel_label}%
+%	}
 
-	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_1P1_Wegner_channel_label}%
-	}
-	\caption{Matrix elements of the RKE N$^3$LO potential SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) channels.}
-	\label{fig:potential_contours_RKE_Wegner}
-\end{figure}
+%	\subfloat[]{%
+%	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_1P1_Wegner_channel_label}%
+%	}
+%	\caption{Matrix elements of the RKE N$^4$LO potential SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) channels.}
+%	\label{fig:potential_contours_RKE_Wegner}
+%\end{figure}
 %
 \noindent{%
--- In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^3$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al. N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. The major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(p/\Lambda)^{2n}-(p'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer. However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^3$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al. N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
+-- In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^4$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al. N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. The major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(p/\Lambda)^{2n}-(p'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer. However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^4$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al. N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
 }
 \\
 -- Takeaways from Fig.~\ref{fig:potential_contours_3S1_Wegner}: completely different at $\lambda=6$ fm$^{-1}$ but low-momentum matrix elements are similar at $\lambda=1$ fm$^{-1}$. Decoupled, low-momentum matrix elements are necessarily the same since the pion-exchange terms are calculated explicitly. (Cutoff dependence can play a role though for lower cutoffs.)
@@ -184,37 +185,37 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_3S1_Wegner_potential_label}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_3S1_Wegner_potential_label}%
 	}
 
 	\subfloat[]{%
 	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn222_3S1_Wegner_potential_label}%
 	}
-	\caption{Matrix elements of the EM N$^3$LO (a), RKE N$^3$LO (b), and Gezerlis et al. N$^2$LO (c) potentials SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^3$S$_1$ channel.}
+	\caption{Matrix elements of the EM N$^3$LO (a), RKE N$^4$LO (b), and Gezerlis et al. N$^2$LO (c) potentials SRG-evolving in $\lambda$ right to left under transformations with the Wegner generator in the $^3$S$_1$ channel.}
 	\label{fig:potential_contours_3S1_Wegner}
 \end{figure}
 %
 \noindent{%
--- Fig.~\ref{fig:potential_contours_3S1_RKE} shows the SRG-evolved RKE N$^3$LO (450 MeV cutoff) potential in the $^3$S$_1$ channel for two SRG generators: the Wegner and block-diagonal generators which drive the potential to band- and block-diagonal form, respectively. We continue to evolve to band-diagonal form with respect to the parameter $\lambda$, but for the block-diagonal generator, we label sub-plots with the parameter $\Lambda$ which characterizes the sharp cutoff in decoupling the low- and high-momentum matrix elements.
+-- Fig.~\ref{fig:potential_contours_1P1_RKE} shows the SRG-evolved RKE N$^4$LO (450 MeV cutoff) potential in the $^1$P$_1$ channel for two SRG generators: the Wegner and block-diagonal generators which drive the potential to band- and block-diagonal form, respectively. We continue to evolve to band-diagonal form with respect to the parameter $\lambda$, but for the block-diagonal generator, we label sub-plots with the parameter $\Lambda$ which characterizes the sharp cutoff in decoupling the low- and high-momentum matrix elements.
 }
 \\
--- Takeaways from Fig.~\ref{fig:potential_contours_3S1_RKE}: smooth decoupling for Wegner and sharp for block-diagonal, each unique generator should have its own type of universality. Check this more quantitatively by comparing matrix element ``slices''.
+-- Takeaways from Fig.~\ref{fig:potential_contours_1P1_RKE}: smooth decoupling for Wegner and sharp for block-diagonal, each unique generator should have its own type of universality. Check this more quantitatively by comparing matrix element ``slices''.
 %
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_3S1_Wegner_generator_label}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_1P1_Wegner_generator_label}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn106_3S1_Block-diag_generator_label}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_contours_kvnn111_1P1_Block-diag_generator_label}%
 	}
-	\caption{Matrix elements of the RKE N$^3$LO potential SRG-evolving right to left under transformations with Wegner (a) and block-diagonal (b) generators in the $^3$S$_1$ channel. Here, we use $\lambda$ for Wegner evolution in the top row and $\Lambda$ for block-diagonal evolution in the bottom row. For block-diagonal evolution, we fix $\lambda=1.5$ fm$^{-1}$.}
-	\label{fig:potential_contours_3S1_RKE}
+	\caption{Matrix elements of the RKE N$^4$LO potential SRG-evolving right to left under transformations with Wegner (a) and block-diagonal (b) generators in the $^1$P$_1$ channel. Here, we use $\lambda$ for Wegner evolution in the top row and $\Lambda$ for block-diagonal evolution in the bottom row. For block-diagonal evolution, we fix $\lambda=1.5$ fm$^{-1}$.}
+	\label{fig:potential_contours_1P1_RKE}
 \end{figure}
 %
 \noindent{%
--- Fig.~\ref{fig:phase_shifts} shows the NN phase shifts of EM N$^3$LO, RKE N$^3$LO, and Gezerlis et al. N$^2$LO potentials in the $^1$S$_0$, $^3$S$_1$, and $^1$P$_1$ channels. In \cite{Dainton:2013axa}, it was found that phase equivalence up to some value of momentum $k$ implies matrix element equivalence up to the same value of $k$ in SRG-evolved potentials. We verify this conclusion by checking the matrix elements in Fig.~\ref{fig:potential_slices_1S0} where we see a collapse of the different potential matrix elements to the same line in the last column ($\lambda=1$ fm$^{-1}$). Note, Figs.~\ref{fig:potential_slices_1S0}-\ref{fig:potential_slices_1P1} show both Wegner and block-diagonal evolution where the solid lines correspond to the Wegner generator and dash-dotted to block-diagonal evolution. We see each generator collapses the potential to a different form because the low- and high-momentum matrix elements decouple in a different manner.
+-- Fig.~\ref{fig:phase_shifts} shows the NN phase shifts of EM N$^3$LO, RKE N$^4$LO, and Gezerlis et al. N$^2$LO potentials in the $^1$S$_0$, $^3$S$_1$, and $^1$P$_1$ channels. In \cite{Dainton:2013axa}, it was found that phase equivalence up to some value of momentum $k$ implies matrix element equivalence up to the same value of $k$ in SRG-evolved potentials. We verify this conclusion by checking the matrix elements in Fig.~\ref{fig:potential_slices_1S0} where we see a collapse of the different potential matrix elements to the same line in the last column ($\lambda=1$ fm$^{-1}$). Note, Figs.~\ref{fig:potential_slices_1S0}-\ref{fig:potential_slices_1P1} show both Wegner and block-diagonal evolution where the solid lines correspond to the Wegner generator and dash-dotted to block-diagonal evolution. We see each generator collapses the potential to a different form because the low- and high-momentum matrix elements decouple in a different manner.
 }
 \\
 -- In the $^3$S$_1$ channel, we see a slight deviation in the lowest momentum potential matrix element from EM N$^3$LO and the other two potentials. This is due to a minor difference in the deuteron binding energy ($\approx 1\%$ difference).
@@ -223,41 +224,41 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_1S0_kvnns_10_106_222}%
+	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_1S0_kvnns_10_111_222}%
 	}
 	\quad
 	\subfloat[]{%
-	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_3S1_kvnns_10_106_222}%
+	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_3S1_kvnns_10_111_222}%
 	}
 	\quad
 	\subfloat[]{%
-	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_1P1_kvnns_10_106_222}%
+	\includegraphics[clip,width=0.3\columnwidth]{SRG_observables/phase_shifts_1P1_kvnns_10_111_222}%
 	}
-	\caption{$^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) phase shifts for the EM N$^3$LO (solid black), RKE N$^3$LO (red dash-dotted), and Gezerlis et al. N$^2$LO (blue dashed) potentials.}
+	\caption{$^1$S$_0$ (a), $^3$S$_1$ (b), and $^1$P$_1$ (c) phase shifts for the EM N$^3$LO (solid black), RKE N$^4$LO (red dash-dotted), and Gezerlis et al. N$^2$LO (blue dashed) potentials.}
 	\label{fig:phase_shifts}
 \end{figure}
 %
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_1S0_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_1S0_kvnns_10_111_222_lamb1,0}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1S0_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1S0_kvnns_10_111_222_lamb1,0}%
 	}
-	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the EM N$^3$LO (black), RKE N$^3$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials SRG-evolving right to left under transformations with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^1$S$_0$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1$ fm$^{-1}$.}
+	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the EM N$^3$LO (black), RKE N$^4$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials SRG-evolving right to left under transformations with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^1$S$_0$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1$ fm$^{-1}$.}
 	\label{fig:potential_slices_1S0}
 \end{figure}
 %
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_3S1_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_3S1_kvnns_10_111_222_lamb1,0}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_3S1_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_3S1_kvnns_10_111_222_lamb1,0}%
 	}
 	\caption{Same as Fig.~\ref{fig:potential_slices_1S0} but in the $^3$S$_1$ channel.}
 	\label{fig:potential_slices_3S1}
@@ -266,11 +267,11 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_1P1_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_diag_1P1_kvnns_10_111_222_lamb1,0}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1P1_kvnns_10_106_222_lamb1,0}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_potentials/potential_off-diag_1P1_kvnns_10_111_222_lamb1,0}%
 	}
 	\caption{Same as Figs.~\ref{fig:potential_slices_1S0} and \ref{fig:potential_slices_3S1} but in the $^1$P$_1$ channel.}
 	\label{fig:potential_slices_1P1}
@@ -304,13 +305,13 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 \begin{figure}[H]
 	\centering
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/momentum_projection_diag_q3,00_3S1_kvnns_10_106_222_lamb1,5}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/momentum_projection_diag_q3,00_3S1_kvnns_10_111_222_lamb1,5}%
 	}
 	
 	\subfloat[]{%
-	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/momentum_projection_off-diag_q3,00_3S1_kvnns_10_106_222_lamb1,5}%
+	\includegraphics[clip,width=0.9\columnwidth]{SRG_operators/momentum_projection_off-diag_q3,00_3S1_kvnns_10_111_222_lamb1,5}%
 	}
-	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the momentum projection operator under SRG transformations with EM N$^3$LO (black), RKE N$^3$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials evolving right to left with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^3$S$_1$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1.5$ fm$^{-1}$.}
+	\caption{Diagonal (a) and far off-diagonal (b) matrix elements of the momentum projection operator under SRG transformations with EM N$^3$LO (black), RKE N$^4$LO (red) and Gezerlis et al. N$^2$LO (blue) potentials evolving right to left with Wegner (solid) and block-diagonal (dash-dotted) generators in the $^3$S$_1$ channel. Here, we use $\lambda$ for Wegner evolution and $\Lambda$ for block-diagonal evolution. For block-diagonal evolution, we fix $\lambda=1.5$ fm$^{-1}$.}
 	\label{fig:momentum_proj_3S1}
 \end{figure}
 %
