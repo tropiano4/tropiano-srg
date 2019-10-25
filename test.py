@@ -52,11 +52,12 @@ lamb = 1.5
 #lamb = 1.0
 #lamb = 3.0
 #lamb = 6.0
-Lamb = 2.0
-#Lamb = 3.0
+#Lamb = 2.0
+Lamb = 3.0
 #Lamb = 1.5
 
-eps = -2.22
+#eps = -2.22
+eps = 200.0
 
 # Load initial Hamiltonian (and momentum)
 k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
