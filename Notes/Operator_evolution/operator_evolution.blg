@@ -11,7 +11,7 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: operator_evolutionNotes.bib
 Database file #2: ../tropiano_bib.bib
-I was expecting a `,' or a `}'---line 888 of file ../tropiano_bib.bib
+I was expecting a `,' or a `}'---line 931 of file ../tropiano_bib.bib
  :       
  :       place={Cambridge},
 (Error may have been on previous line)
@@ -28,45 +28,46 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
-You've used 12 entries,
+Warning--missing journal in Bogner:2001jn
+You've used 16 entries,
             5847 wiz_defined-function locations,
-            1703 strings with 17042 characters,
-and the built_in function-call counts, 11334 in all, are:
-= -- 694
-> -- 276
-< -- 97
-+ -- 89
-- -- 81
-* -- 1819
-:= -- 1074
-add.period$ -- 10
-call.type$ -- 12
-change.case$ -- 40
-chr.to.int$ -- 20
-cite$ -- 12
-duplicate$ -- 1090
-empty$ -- 787
-format.name$ -- 152
-if$ -- 2182
-int.to.chr$ -- 1
-int.to.str$ -- 19
-missing$ -- 149
-newline$ -- 91
-num.names$ -- 30
-pop$ -- 439
+            1739 strings with 18029 characters,
+and the built_in function-call counts, 15708 in all, are:
+= -- 953
+> -- 407
+< -- 124
++ -- 130
+- -- 113
+* -- 2570
+:= -- 1486
+add.period$ -- 14
+call.type$ -- 16
+change.case$ -- 56
+chr.to.int$ -- 23
+cite$ -- 17
+duplicate$ -- 1501
+empty$ -- 1108
+format.name$ -- 228
+if$ -- 3039
+int.to.chr$ -- 2
+int.to.str$ -- 23
+missing$ -- 199
+newline$ -- 107
+num.names$ -- 42
+pop$ -- 605
 preamble$ -- 1
-purify$ -- 50
+purify$ -- 70
 quote$ -- 0
-skip$ -- 400
+skip$ -- 535
 stack$ -- 0
-substring$ -- 288
-swap$ -- 1048
-text.length$ -- 31
+substring$ -- 373
+swap$ -- 1457
+text.length$ -- 47
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 153
-warning$ -- 1
-while$ -- 39
+type$ -- 213
+warning$ -- 2
+while$ -- 50
 width$ -- 0
-write$ -- 149
+write$ -- 187
 (There was 1 error message)

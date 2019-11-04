@@ -87,22 +87,9 @@ $^2$\mbox{National Superconducting Cyclotron Laboratory and Department of Physic
 %The nuclear many-body problem has long been hindered by the short-range repulsive core and strong tensor force in nucleon-nucleon (NN) interactions leading to non-perturbative few- and many-body systems and strongly correlated wave functions. The Fourier transform of NN interactions gives rise to the coupling of low- and high-momentum modes, which is manifested as non-zero off-diagonal potential matrix elements. It is very difficult to implement these interactions in many-body methods using basis expansions, because the matrix dimension becomes too large for accurate calculations. Renormalization group (RG) methods can be used to soften the interaction to make many-body methods feasible. One such method, the similarity renormalization group (SRG), allows for a continuous change in resolution of the potential without changing the observables. More generally, the SRG can evolve any operator and wave function for consistent calculation of observables.
 %\\
 
-\noindent{%
-\textbf{Modern nuclear potentials and universality}
-}
-\\
-There has been rapid development of new NN interactions from chiral effective field theory ($\chi^{EFT}$) in the last decade. Previous SRG studies were limited to phenomenological interactions or some of the first non-local chiral interactions \cite{Entem:2003ft}, but with much more variety in modern chiral interactions, we would like to revisit the question of how different potentials and other operators change under SRG transformations. Since $\chi^{EFT}$ is an effective field theory, different potentials will still give the same $S$-matrix, that is, the potentials are phase equivalent up to some higher energy. However, the potentials themselves can differ in many ways such as the regulator functions, cutoff, order, and so forth, and thus, the potential matrix elements are not the same. Dainton \textit{et al.}~\cite{Dainton:2013axa} demonstrated SRG transformations drive different NN potentials to the same low-momentum matrix elements, that is, a flow to universality up to the momentum value of phase inequivalence. We address the question of universality for modern chiral potentials as well as how other operators change with respect to the corresponding SRG transformations.
+Nuclear physics has seen a massive increase in the number of new NN interactions from chiral effective field theory ($\chi^{EFT}$) in the last decade. Previous SRG studies were limited to phenomenological interactions or some of the first non-local chiral interactions \cite{Entem:2003ft}, but with much more variety in modern chiral interactions, we would like to revisit the question of how different potentials and other operators change under SRG transformations. Since $\chi^{EFT}$ is an effective field theory, different potentials will still give the same $S$-matrix, that is, the potentials are phase equivalent up to some higher energy. However, the potentials themselves can differ in many ways such as the regulator functions, cutoff, order, and so forth, and thus, the potential matrix elements are not the same. Dainton \textit{et al.}~\cite{Dainton:2013axa} demonstrated SRG transformations drive different NN potentials to the same low-momentum matrix elements, that is, a flow to universality up to the momentum value of phase inequivalence. We address the question of universality for modern chiral potentials as well as how other operators change with respect to the corresponding SRG transformations.
 \\
 
-% Add something on operator evolution.
-The decoupling of matrix elements will not necessarily hold in other operators as it does in the Hamiltonian. In a previous work \cite{Anderson:2010aq}, it was shown that SRG transformations induce low-momentum contributions in high-momentum operators and change very little in low-momentum operators. What are the main questions here? How do we look into these questions?
-\\
-
-\noindent{%
-\textbf{SRG formalism}
-}
-\\
-% Reword this section to be consistent with conclusions: decoupling and operator evolution.
 The SRG decouples low- and high-momentum scales in the Hamiltonian by applying a continuous unitary transformation $U(s)$ where $s=0 \rightarrow \infty$ is the flow parameter. An evolved operator is given by
 %
 \begin{eqnarray}
@@ -117,20 +104,30 @@ where $O(0)$ corresponds to the initial operator. Because $U(s)$ is unitary, the
 	\frac{dO(s)}{ds} = [\eta(s), O(s)],
 \end{eqnarray}
 %
-where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator. The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow and $H(s)$ is the evolved Hamiltonian. The choice in $G$ determines the pattern of decoupling in the Hamiltonian. By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the Hamiltonian is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling, $G=P H(s) P + Q H(s) Q \equiv H_{BD}(s)$, where $P$ and $Q$ are low- and high-momentum projection operators, the operator is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda$. These transformations are similar to V\textsubscript{low k} transformations \textcolor{red}{(references?)} but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block. Generally, the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver. For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
+where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator. The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow and $H(s)$ is the evolved Hamiltonian. The choice in $G$ determines the pattern of decoupling in the Hamiltonian.
 \\
 
-\noindent{%
-\textbf{High cutoffs}
-}
-\\
-There has also been renewed interest in studying chiral interactions at high cutoffs \cite{Tews:2018sbi}. In spin-triplet channels and at leading-order (LO), taking the cutoff to high values can result in spurious, deeply bound states from a highly singular short-ranged tensor force. In principle, these deep bound states are outside the range of the EFT and are absorbed by counterterms at higher order. In \cite{Wendt:2011qj}, it was shown that band-diagonal SRG decoupling of NN potentials in partial waves with spurious bound states changes significantly depending on the choice of SRG generator. These high cutoff potentials provide a unique opportunity to understand some of the previous points about universality, the choice of SRG generator and decoupling, as well as a good test problem for a variant of the SRG, which utilizes the Magnus expansion \cite{Morris:2015yna}.
+By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the Hamiltonian is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators \textcolor{red}{(check that is true for momentum projection operator and $r^2$ operator)}. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling, 
+%
+\begin{eqnarray}
+	\label{eq:block_diag_g}
+	G =
+	\begin{pmatrix}
+		PH(s)P & 0 \\
+		0 & QH(s)Q \\
+	\end{pmatrix}
+	\equiv H_{BD}(s),
+\end{eqnarray}
+%
+where $P$ and $Q$ are low- and high-momentum projection operators, the Hamiltonian is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda$ and taking $s \rightarrow \infty$. In momentum-space, the projection operators are step functions defined by the sharp cutoff in $\Lambda$. These transformations are similar to V\textsubscript{low $k$} transformations \cite{Bogner:2001gq, Bogner:2001jn, Bogner:2003wn} but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block. Generally, the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver. For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
 \\
 
-\noindent{%
-\textbf{The Magnus expansion}
-}
+The decoupling of matrix elements does not necessarily hold in other operators as it does in the Hamiltonian. In a previous work \cite{Anderson:2010aq}, it was shown that SRG transformations induce low-momentum contributions in high-momentum operators and change very little in low-momentum operators. We apply SRG band- and block-diagonal transformations to other operators from building the unitary transformations explicitly using the eigenvectors of the initial and evolved Hamiltonians. SRG-evolved operators depend on the NN interaction despite having the same initial operator, since the flow equation (\ref{eq:srg_flow}) depends on $H(s)$ from the definition of $\eta(s)$.
 \\
+
+There has also been renewed interest in studying chiral interactions at high cutoffs \cite{Tews:2018sbi}. In spin-triplet channels and at leading-order (LO), taking the cutoff to high values can result in spurious, deeply bound states from a highly singular short-ranged tensor force. In principle, these deep bound states are outside the range of the EFT and are absorbed by counterterms at higher order. In \cite{Wendt:2011qj}, it was shown that band-diagonal SRG decoupling of NN potentials in partial waves with spurious bound states differs significantly depending on the choice of SRG generator. These high cutoff potentials provide a unique opportunity to understand some of the previous points about universality, the choice of SRG generator and decoupling, as well as a good test problem for a variant of the SRG, which utilizes the Magnus expansion \cite{Morris:2015yna}.
+\\
+
 The Magnus expansion gives the SRG the capability to solve for the unitary transformation explicitly which can then be applied to any other operator of interest. This offers a huge numerical simplification in Fock-space where the matrix size of operators can become very large. The Magnus expansion is often used in in-medium SRG (IMSRG) calculations to solve the nuclear many-body problem directly. In some IMSRG calculations, intruder states can shift to the energy scale of the reference state in valence-space and severely distort low-energy properties. It is not understood how the IMSRG procedure evolves intruder state systems. Due to the prominence of the Magnus expansion in IMSRG, one must first understand if the Magnus approach matches the typical approach for difficult systems before investigating the intruder state problem. For this reason, NN potentials with spurious bound states offer a good test laboratory for the Magnus implementation to better understand if the Magnus is equivalent to the SRG approach.
 \\
 
@@ -146,16 +143,7 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 
 % Summarize what we're looking at in this section and general conclusions. What did I not cover in the introduction?
 %
-\noindent{%
-\textbf{General outline of the section}
-}
-\\
--- Comparison of potential evolution with different potentials and SRG generators.
-\\
--- Universality.
-\\
-\textbf{Analysis of figures}
-\\
+%
 %-- Fig.~\ref{fig:potential_contours_RKE_Wegner} illustrates the SRG in a nutshell. Here, we evolve three partial wave channels of RKE N$^4$LO \cite{Reinert:2017usi} where the cutoff $\Lambda=450$ MeV to $\lambda=1.5$ fm$^{-1}$. We see that the off-diagonal elements of the potential approach zero and the potential is driven to band-diagonal form.
 %
 % Unnecessary figure.
@@ -176,9 +164,7 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 %	\label{fig:potential_contours_RKE_Wegner}
 %\end{figure}
 %
-\noindent{%
--- In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^4$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al.~N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. The major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(p/\Lambda)^{2n}-(p'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer. However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^4$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al.~N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
-}
+Here, we analyze SRG evolution of various chiral potentials with the Wegner band-diagonal generator and the block-diagonal generator. In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^4$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al.~N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. The major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(p/\Lambda)^{2n}-(p'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer. However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^4$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al.~N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
 \\
 -- Takeaways from Fig.~\ref{fig:potential_contours_3S1_Wegner}: completely different at $\lambda=6$ fm$^{-1}$ but low-momentum matrix elements are similar at $\lambda=1$ fm$^{-1}$. Decoupled, low-momentum matrix elements are necessarily the same since the pion-exchange terms are calculated explicitly. (Cutoff dependence can play a role though for lower cutoffs.)
 %
