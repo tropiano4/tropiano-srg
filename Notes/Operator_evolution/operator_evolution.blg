@@ -29,45 +29,45 @@ Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
 Warning--missing journal in Bogner:2001jn
-You've used 16 entries,
+You've used 17 entries,
             5847 wiz_defined-function locations,
-            1739 strings with 18029 characters,
-and the built_in function-call counts, 15708 in all, are:
-= -- 953
-> -- 407
-< -- 124
-+ -- 130
-- -- 113
-* -- 2570
-:= -- 1486
-add.period$ -- 14
-call.type$ -- 16
-change.case$ -- 56
-chr.to.int$ -- 23
-cite$ -- 17
-duplicate$ -- 1501
-empty$ -- 1108
-format.name$ -- 228
-if$ -- 3039
+            1749 strings with 18290 characters,
+and the built_in function-call counts, 17059 in all, are:
+= -- 1027
+> -- 454
+< -- 133
++ -- 144
+- -- 125
+* -- 2810
+:= -- 1606
+add.period$ -- 15
+call.type$ -- 17
+change.case$ -- 60
+chr.to.int$ -- 24
+cite$ -- 18
+duplicate$ -- 1622
+empty$ -- 1205
+format.name$ -- 255
+if$ -- 3310
 int.to.chr$ -- 2
-int.to.str$ -- 23
-missing$ -- 199
-newline$ -- 107
-num.names$ -- 42
-pop$ -- 605
+int.to.str$ -- 24
+missing$ -- 214
+newline$ -- 111
+num.names$ -- 45
+pop$ -- 648
 preamble$ -- 1
-purify$ -- 70
+purify$ -- 75
 quote$ -- 0
-skip$ -- 535
+skip$ -- 579
 stack$ -- 0
-substring$ -- 373
-swap$ -- 1457
-text.length$ -- 47
+substring$ -- 405
+swap$ -- 1585
+text.length$ -- 53
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 213
+type$ -- 230
 warning$ -- 2
-while$ -- 50
+while$ -- 53
 width$ -- 0
-write$ -- 187
+write$ -- 197
 (There was 1 error message)

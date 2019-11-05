@@ -9,7 +9,6 @@
 %
 % Revision history:
 %	08/28/19 --- Started outlining and added pieces from old notes.
-%	09/19/19 --- Added more bullets up through section 2.
 %	09/27/19 --- Wrote the introduction and swapped the Magnus and operator sections.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,7 +106,7 @@ where $O(0)$ corresponds to the initial operator. Because $U(s)$ is unitary, the
 where $\eta(s)=\frac{dU(s)}{ds} U^{\dagger}(s) = -\eta^{\dagger}(s)$ is the anti-hermitian SRG generator. The generator is defined as a commutator, $\eta(s) = [G, H(s)]$, where $G$ specifies the type of flow and $H(s)$ is the evolved Hamiltonian. The choice in $G$ determines the pattern of decoupling in the Hamiltonian.
 \\
 
-By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the Hamiltonian is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators \textcolor{red}{(check that is true for momentum projection operator and $r^2$ operator)}. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling, 
+By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the Hamiltonian is driven to band-diagonal form. This choice was implemented by Wegner in condensed matter physics \cite{Wegner:1994ab}. In a similar option used in nuclear physics, $G$ is set to the relative kinetic energy, $T_{rel}$, which also drives to band-diagonal form. In most cases, these two choices give the same evolved operators. In exceptional cases, which will be discussed later in the paper, the two band-diagonal choices can have drastically different behavior. For band-diagonal decoupling, it is convenient to define $\lambda \equiv s^{-1/4}$ which roughly measures the width of the band-diagonal in the decoupled operator. For block-diagonal decoupling \cite{Anderson:2008mu}, 
 %
 \begin{eqnarray}
 	\label{eq:block_diag_g}
@@ -122,7 +121,7 @@ By setting $G=H_D(s)$, the diagonal of the Hamiltonian, the Hamiltonian is drive
 where $P$ and $Q$ are low- and high-momentum projection operators, the Hamiltonian is split into low- and high-momentum sub-blocks by specifying a separation in momentum $\Lambda$ and taking $s \rightarrow \infty$. In momentum-space, the projection operators are step functions defined by the sharp cutoff in $\Lambda$. These transformations are similar to V\textsubscript{low $k$} transformations \cite{Bogner:2001gq, Bogner:2001jn, Bogner:2003wn} but keep the high-momentum matrix elements non-zero, although entirely decoupled from the low-momentum sub-block. Generally, the flow equation (\ref{eq:srg_flow}) is solved up to some finite value of $s$ with a high-order ODE solver. For notational convenience, we write the generators without the $s$ dependence in the rest of the paper.
 \\
 
-The decoupling of matrix elements does not necessarily hold in other operators as it does in the Hamiltonian. In a previous work \cite{Anderson:2010aq}, it was shown that SRG transformations induce low-momentum contributions in high-momentum operators and change very little in low-momentum operators. We apply SRG band- and block-diagonal transformations to other operators from building the unitary transformations explicitly using the eigenvectors of the initial and evolved Hamiltonians. SRG-evolved operators depend on the NN interaction despite having the same initial operator, since the flow equation (\ref{eq:srg_flow}) depends on $H(s)$ from the definition of $\eta(s)$.
+The decoupling of matrix elements does not necessarily hold in other operators as it does in the Hamiltonian. In a previous work \cite{Anderson:2010aq}, it was shown that SRG transformations induce low-momentum contributions in high-momentum operators and change very little in low-momentum operators. We investigate whether this is a general trend of the SRG for any potential and SRG generator. Instead of solving another set of flow equations, we apply SRG band- and block-diagonal transformations to other operators by building the unitary transformations explicitly using the eigenvectors of the initial and evolved Hamiltonians. SRG-evolved operators depend on the NN interaction despite having the same initial operator, since the flow equation (\ref{eq:srg_flow}) depends on $H(s)$ from the definition of $\eta(s)$.
 \\
 
 There has also been renewed interest in studying chiral interactions at high cutoffs \cite{Tews:2018sbi}. In spin-triplet channels and at leading-order (LO), taking the cutoff to high values can result in spurious, deeply bound states from a highly singular short-ranged tensor force. In principle, these deep bound states are outside the range of the EFT and are absorbed by counterterms at higher order. In \cite{Wendt:2011qj}, it was shown that band-diagonal SRG decoupling of NN potentials in partial waves with spurious bound states differs significantly depending on the choice of SRG generator. These high cutoff potentials provide a unique opportunity to understand some of the previous points about universality, the choice of SRG generator and decoupling, as well as a good test problem for a variant of the SRG, which utilizes the Magnus expansion \cite{Morris:2015yna}.
@@ -317,15 +316,16 @@ Here, we analyze SRG evolution of various chiral potentials with the Wegner band
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{High cutoffs and the Magnus expansion}
 \label{sec:magnus_expansion}
+% Split this section into two sections?
 
 
 \noindent{%
 \textbf{High cutoffs}
 }
 \begin{itemize}
-	\item Cutoff dependence in non-local LO (Wendt) potential.
+	\item Cutoff dependence in non-local LO (Wendt) potential. Recap of Wendt.
 	\item Band- and block-diagonal evolution and universality. Add figure analogous to Fig.~\ref{fig:potential_slices_3S1} but for $\Lambda=4$, $9$, and $20$ fm$^{-1}$.
-	\item Spurious bound state(s).
+	\item Spurious bound state(s). Decoupling with block-diagonal.
 	\item Transition to Magnus expansion.
 \end{itemize}
 %
@@ -348,7 +348,7 @@ Here, we analyze SRG evolution of various chiral potentials with the Wegner band
 \subsection{Formalism}
 \label{sec:magnus_expansion_formalism}
 
-
+% What was said in the introduction: The Magnus expansion gives the SRG the capability to solve for the unitary transformation explicitly which can then be applied to any other operator of interest. This offers a huge numerical simplification in Fock-space where the matrix size of operators can become very large. The Magnus expansion is often used in in-medium SRG (IMSRG) calculations to solve the nuclear many-body problem directly
 \noindent{%
 -- Motivation: simplifies computational problem for evolving multiple operators, exact unitarity.
 }
@@ -393,10 +393,6 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 -- As $k \rightarrow \infty$ in both sums in Eqns. (\ref{eq:magnus_omega}) and (\ref{eq:bch}) the Magnus transformation matches the SRG transformation exactly.
 \\
 -- We investigate several truncations $k_{max}$ in Eqn. (\ref{eq:magnus_omega}) and take many terms, $k_{max} \sim 25$, in Eqn. (\ref{eq:bch}).
-\\
-\textcolor{red}{%
--- Here or earlier (for the following bullets)? Better to motivate the Magnus in the introduction or easier to explain given mathematical detail?
-}
 \\
 -- There are significant advantages in the Magnus implementation.
 \\
