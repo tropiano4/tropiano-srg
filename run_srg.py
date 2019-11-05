@@ -155,8 +155,8 @@ if __name__ == '__main__':
     #channel = '3P0'
     
     #kmax = 30.0
-    kmax = 8.0
-    #kmax = 10.0
+    #kmax = 8.0
+    kmax = 10.0
     #kmax = 6.0
     
     #kmid = 4.0
@@ -172,8 +172,8 @@ if __name__ == '__main__':
     # Specify evolution
     
     #generator = 'Wegner'
-    #generator = 'T'
-    generator = 'Block-diag'
+    generator = 'T'
+    #generator = 'Block-diag'
     
     lambda_bd = 1.00 # This won't affect the band-diagonal generators
     #lambda_bd = 1.50
