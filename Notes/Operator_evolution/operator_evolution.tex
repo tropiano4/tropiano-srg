@@ -163,8 +163,9 @@ The Magnus expansion gives the SRG the capability to solve for the unitary trans
 %	\label{fig:potential_contours_RKE_Wegner}
 %\end{figure}
 %
-Here, we analyze SRG evolution of various chiral potentials with the Wegner band-diagonal generator and the block-diagonal generator. In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^4$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al.~N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. The major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(p/\Lambda)^{2n}-(p'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer. However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^4$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al.~N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
+Here, we analyze SRG evolution of various chiral potentials with the Wegner band-diagonal generator and the block-diagonal generator. In Fig.~\ref{fig:potential_contours_3S1_Wegner} we consider three different SRG-evolved potentials in the $^3$S$_1$ channel: EM N$^3$LO (500 MeV cutoff) \cite{Entem:2003ft}, RKE N$^4$LO (450 MeV cutoff) \cite{Reinert:2017usi}, and Gezerlis et al.~N$^2$LO (1 fm cutoff) \cite{Gezerlis:2014zia}. A major difference in these three potentials are the regulator functions in the contact and pion-exchange terms. The EM N$^3$LO interaction is a non-local potential where both contact and pion-exchange interactions feature a non-local regulator function of the form exp$[-(k/\Lambda)^{2n}-(k'/\Lambda)^{2n}]$, where $\Lambda$ is the momentum-space cutoff and $n$ is an integer ($n=2$ in this case). However, a non-local regulator function for pion-exchange contributions can introduce regulator artifacts for cutoffs $\Lambda$ lower than the breakdown scale $\Lambda_b$. Several semi-local chiral potentials have been introduced to reduce regulator artifacts, such as the RKE N$^4$LO potential. Here, a local regulator function is applied for the long-range interactions in momentum-space, while a non-local regulator function is used for the short-range interactions. In some instances, non-local interactions are not suitable for $\textit{ab initio}$ approaches such as the quantum Monte Carlo (QMC) method motivating the need for fully local potentials. The Gezerlis et al.~N$^2$LO potential is an example of a local interaction where the long-range terms have a local regulator function in coordinate-space and the short-range terms have a local regulator function in momentum-space.
 \\
+% Connect back to motivation. Why are we looking at this figure? Takeaways in this paragraph too.
 -- Takeaways from Fig.~\ref{fig:potential_contours_3S1_Wegner}: completely different at $\lambda=6$ fm$^{-1}$ but low-momentum matrix elements are similar at $\lambda=1$ fm$^{-1}$. Decoupled, low-momentum matrix elements are necessarily the same since the pion-exchange terms are calculated explicitly. (Cutoff dependence can play a role though for lower cutoffs.)
 %
 \begin{figure}[H]
@@ -184,10 +185,12 @@ Here, we analyze SRG evolution of various chiral potentials with the Wegner band
 	\label{fig:potential_contours_3S1_Wegner}
 \end{figure}
 %
+% Transition to SRG-decoupling in next paragraph.
 \noindent{%
 -- Fig.~\ref{fig:potential_contours_1P1_RKE} shows the SRG-evolved RKE N$^4$LO (450 MeV cutoff) potential in the $^1$P$_1$ channel for two SRG generators: the Wegner and block-diagonal generators which drive the potential to band- and block-diagonal form, respectively. We continue to evolve to band-diagonal form with respect to the parameter $\lambda$, but for the block-diagonal generator, we label sub-plots with the parameter $\Lambda$ which characterizes the sharp cutoff in decoupling the low- and high-momentum matrix elements.
 }
 \\
+% Can completely different chiral potentials be driven to the same potential?
 -- Takeaways from Fig.~\ref{fig:potential_contours_1P1_RKE}: smooth decoupling for Wegner and sharp for block-diagonal, each unique generator should have its own type of universality. Check this more quantitatively by comparing matrix element ``slices''.
 %
 \begin{figure}[H]
@@ -310,7 +313,7 @@ Here, we analyze SRG evolution of various chiral potentials with the Wegner band
 \\
 -- Relevant equations: operator in coordinate-space and Hankel transformation.
 \\
--- Add continuum state momentum distributions and how to understand operator evolution. If 
+-- Add continuum state momentum distributions and how to understand operator evolution.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
