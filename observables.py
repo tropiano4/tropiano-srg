@@ -123,7 +123,7 @@ def energies(H_matrix, bound_states_only=True):
         
     Returns
     -------
-    energies : 1-D ndarray
+    output : 1-D ndarray
         Array of energies in units MeV.
         
     """
@@ -134,20 +134,12 @@ def energies(H_matrix, bound_states_only=True):
     # Return only the bound state energies
     if bound_states_only:
             
-        # Store energies in this list 
-        energies = np.empty(0)
-            
-        i = 0
-        while eigenvalues[i] < 0.0:
-            energies = np.append(energies, eigenvalues[i])
-            i += 1
+        return eigenvalues[ eigenvalues < 0.0 ]
         
     # Otherwise return all energies
     else:
             
-        energies = eigenvalues
-            
-    return energies
+        return eigenvalues
 
 
 def phase_shifts(e_array, V_matrix, k_array, k_weights):
@@ -172,7 +164,6 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     -------
     phase_shifts : 1-D ndarray
         Array of phase shifts in degrees for each lab energy in e_array.
-    
     
     Notes
     -----
@@ -273,7 +264,6 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
         in e_array. For example, phase_shifts[i, 0] returns delta_a at the ith
         lab energy in e_array. For an entire array of one type of phase shift,
         take phase_shifts[:, i] where i = 0, 1, or 2.
-    
     
     Notes
     -----
