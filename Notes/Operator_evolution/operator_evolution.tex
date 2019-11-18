@@ -293,8 +293,8 @@ In each of these figures, we show the diagonal matrix elements on the top row an
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-\subsection{The Magnus expansion}
-\label{sec:magnus_expansion}
+\subsection{The Magnus expansion: Formalism}
+\label{sec:magnus_expansion_formalism}
 
 % What was said in the introduction: The Magnus expansion gives the SRG the capability to solve for the unitary transformation explicitly which can then be applied to any other operator of interest. This offers a huge numerical simplification in Fock-space where the matrix size of operators can become very large. The Magnus expansion is often used in in-medium SRG (IMSRG) calculations to solve the nuclear many-body problem directly.
 \noindent{%
@@ -375,18 +375,25 @@ where $B_k$ are the Bernoulli numbers, $ad_{\Omega}^{0}(\eta)=\eta(s)$, and $ad_
 -- Implications for IMSRG.
 \\
 -- Transition to operator evolution.
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{The Magnus expansion: Results}
+\label{sec:magnus_expansion_results}
+
+
 %
 \begin{figure}[H]
 	\centering
 	\includegraphics[clip,width=0.7\columnwidth]{Magnus/potential_diagonals_offdiags_kvnn901_Wegner}%
-	%\caption{Caption.}
+	\caption{Caption.}
 	\label{fig:potential_slices_high_cutoffs_Wegner}
 \end{figure}
 %
 \begin{figure}[H]
 	\centering
 	\includegraphics[clip,width=0.7\columnwidth]{Magnus/potential_diagonals_offdiags_kvnn901_T}%
-	%\caption{Caption.}
+	\caption{Caption.}
 	\label{fig:potential_slices_high_cutoffs_T}
 \end{figure}
 %
