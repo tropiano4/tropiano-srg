@@ -422,7 +422,7 @@ def phase_corrector(phase_array):
     return None
 
 
-def rms_radius_from_rspace(psi, r2_operator):
+def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
     """
     Description.
     
@@ -434,7 +434,11 @@ def rms_radius_from_rspace(psi, r2_operator):
     
     """
     
-    # psi should be unitless
+    # Two integrations over dk and dk': need to include extra factor of momenta
+    # and weights
+    factor_array = np.concatenate( (k_array*np.sqrt(k_weights), 
+                                    k_array*np.sqrt(k_weights)) )
+    psi *= factor_array
     r2 = psi.T @ r2_operator @ psi
     
     return 0.5 * np.sqrt(r2)
