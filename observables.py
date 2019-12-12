@@ -428,6 +428,8 @@ def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
     
     Parameters
     ----------
+    Note, set r_max > 25 fm in defining the r^2 operator for mesh-independent
+    result.
     
     Returns
     -------
