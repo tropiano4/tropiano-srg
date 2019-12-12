@@ -438,8 +438,8 @@ def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
     # and weights
     factor_array = np.concatenate( (k_array*np.sqrt(k_weights), 
                                     k_array*np.sqrt(k_weights)) )
-    psi *= factor_array
-    r2 = psi.T @ r2_operator @ psi
+    psi_with_weights = psi * factor_array
+    r2 = psi_with_weights.T @ r2_operator @ psi_with_weights
     
     return 0.5 * np.sqrt(r2)
 
