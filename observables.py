@@ -20,6 +20,7 @@
 #   08/29/19 --- Merged phase_shifts.py code to this script.
 #   09/06/19 --- Split phase_shifts function into coupled-channel and normal
 #                functions, coupled_channel_phase_shifts and phase_shifts.
+#   12/13/19 --- Finished quadrupole_moment_from_kspace function. 
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -32,7 +33,7 @@ import numpy as np
 import numpy.linalg as la
 from scipy.interpolate import RectBivariateSpline
 #from scipy.special import spherical_jn
-#from scipy.interpolate import CubicSpline
+from scipy.interpolate import CubicSpline
 # Scripts made by A.T.
 
 
@@ -424,15 +425,28 @@ def phase_corrector(phase_array):
 
 def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
     """
-    Description.
+    Calculates the RMS half-radius of deuteron using momentum-space wave
+    functions and a Fourier transformed r^2 operator (does not involve
+    derivatives in k!) Note, set r_max > 25 fm in defining the r^2 operator for 
+    mesh-independent result.
     
     Parameters
     ----------
-    Note, set r_max > 25 fm in defining the r^2 operator for mesh-independent
-    result.
-    
+    psi : 1-D ndarray
+        Full deuteron wave function in momentum-space (unitless). Should be 
+        twice the length of k_array and k_weights since it includes the 3S1 
+        and 3D1 components.
+    r2_operator : 2-D ndarray
+        r^2 operator in momentum-space in units fm^4.
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights: 1-D ndarray
+        Momentum weights.
+      
     Returns
     -------
+    output : float
+        RMS half-radius of deuteron in units fm.
     
     """
     
@@ -461,16 +475,54 @@ def rms_radius_from_kspace(psi):
     return None
 
 
-def quadrupole_moment_from_kspace(psi):
+def quadrupole_moment_from_kspace(psi, k_array, k_weights):
     """
-    Description.
+    Calculates the quadrupole moment of deuteron fully in momentum-space.
     
     Parameters
     ----------
+    psi : 1-D ndarray
+        Full deuteron wave function in momentum-space (unitless). Should be 
+        twice the length of k_array and k_weights since it includes the 3S1 
+        and 3D1 components.
+    k_array : 1-D ndarray
+        Momentum array.
+    k_weights: 1-D ndarray
+        Momentum weights.
     
     Returns
     -------
+    output : float
+        Quadrupole moment of deuteron in units fm^2.
     
     """
+        
+    # Split psi into 3S1 and 3D1 components
+    n = int( len(psi) / 2 )
+    u_unitless = psi[:n]
+    w_unitless = psi[n:]
     
-    return None
+    # Divide out momenta and weights
+    u = u_unitless / ( k_array * np.sqrt(k_weights) ) # fm^3/2
+    w = w_unitless / ( k_array * np.sqrt(k_weights) ) # fm^3/2
+    
+    # Interpolate with CubicSpline (these are functions of k)
+    u_func = CubicSpline(k_array, u)
+    w_func = CubicSpline(k_array, w)
+        
+    # Calculate derivatives of u(k) and w(k) using original k_array
+    # This is a function
+    u_deriv_func = u_func.derivative()
+    # This is an array with as many points as k_array and k_weights
+    u_deriv = u_deriv_func(k_array)
+    w_deriv_func = w_func.derivative()
+    w_deriv = w_deriv_func(k_array)
+        
+    # Quadrupole moment integrand in momentum-space
+    integrand = np.sqrt(8) * ( k_array**2 * u_deriv * w_deriv + \
+                3 * k_array * w * u_deriv ) + ( k_array * w_deriv )**2 + \
+                6 * w**2
+        
+    # The sum over the integrand (which is weighted by k_weights) gives the 
+    # value of <Q>
+    return -1/20 * np.sum( k_weights * integrand )
