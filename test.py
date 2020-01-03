@@ -32,6 +32,7 @@
 #                wave functions squared. Possible connection between V_low-k
 #                and block-diagonal SRG.
 #   10/29/19 --- Testing r^2 operator and RMS half-radius of deuteron.
+#   01/03/20 --- Looking at block-diagonal unitary transformations.
 #
 #------------------------------------------------------------------------------
 
@@ -40,63 +41,51 @@ import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
 from Potentials.vsrg_macos import load_save_potentials as lp
-import observables as ob
-import operators as op
-#from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
+#import operators as op
+from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
-# Set-up
-kvnn = 111 # RKE N4LO (450 MeV)
-channel = '3S1'
+kvnn = 111
+channel = '1P1'
 kmax = 8.0
 kmid = 2.0
 ntot = 120
 
-k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
-
-# Initial Hamiltonian and wave function
+k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
 H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-psi_initial = ob.wave_function(H_initial)
 
-# SRG-evolved
-#generator = 'Wegner'
-#lamb = 1.5
-#H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg', 
-                                #generator, lamb)
-#U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-#psi_evolved = ob.wave_function(H_initial, U=U_matrix)
-# Should work the same way
-#psi_evolved = ob.wave_function(H_evolved)
+generator = 'Block-diag'
+lamb = 1.0
+lambda_bd = 2.0
 
-# Loop over r-dependent stuff for various r_max values
+H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg', 
+                                generator, lamb, lambda_bd)
+U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
 
-r_min = 0.005
-r_max_array = np.arange(10.0, 32.0, 2.0)
-N = len(r_max_array)
-dr = 0.005
+I = np.eye(ntot, ntot)
+delta_U = U_matrix - I
 
-rms_radius_array = np.zeros(N)
+x_label = "k' [fm" + r'$^{-1}$' + ']'
+y_label = 'k [fm' + r'$^{-1}$' + ']'
+mx = 1e-2
+mn = -1e-2
+color_style = 'jet'
 
-for i in range(N):
-    
-    r_max = r_max_array[i]
-    r_array = np.arange(r_min, r_max + dr, dr)
-    
-    # r^2 operator
-    r2_operator_init = op.r2_operator(k_array, k_weights, r_array, dr)
-    #r2_operator_evolved = op.r2_operator(k_array, k_weights, r_array, dr,
-                                        #U=U_matrix)
-    
-    rms_radius_array[i] = ob.rms_radius_from_rspace(psi_initial,
-                                                    r2_operator_init, k_array,
-                                                    k_weights)    
-    
-# Compare to exact value
-rms_radius_exact_array = np.repeat(1.966, N)
-    
-# Plot figure
-plt.plot(r_max_array, rms_radius_exact_array, 'r-')
-plt.plot(r_max_array, rms_radius_array, 'k:o')
-plt.ylabel(r'$r_d$'+' [fm]')
-plt.xlabel(r'$r_{max}$'+' [fm]')
+f, ax = plt.subplots(1, 1, figsize=(4, 3.5))
+c = ax.pcolormesh(k_array, k_array, delta_U, cmap=color_style, vmin=mn, vmax=mx)
+
+ax.xaxis.set_label_position('top')
+ax.xaxis.tick_top()
+ax.tick_params(labeltop=True)
+ax.set_xlabel(x_label)
+ax.set_ylabel(y_label)
+plt.gca().invert_yaxis()
+
+f.subplots_adjust(right=0.8)
+cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+cbar = f.colorbar(c, cax=cbar_ax)
+# Set colorbar label
+cbar.ax.set_title(r"$\delta U(k,k')$")
+
 plt.show()
+
