@@ -37,16 +37,21 @@
 #------------------------------------------------------------------------------
 
 
+from matplotlib.offsetbox import AnchoredText
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
+from Figures import figures_functions as ff
 from Potentials.vsrg_macos import load_save_potentials as lp
 #import operators as op
 from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
 kvnn = 111
-channel = '1P1'
+#channel = '1P1'
+#channel = '3S1'
+channel = '1S0'
 kmax = 8.0
 kmid = 2.0
 ntot = 120
@@ -62,7 +67,11 @@ H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
                                 generator, lamb, lambda_bd)
 U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
 
-I = np.eye(ntot, ntot)
+if channel == '1P1' or channel == '1S0':
+    I = np.eye(ntot, ntot)
+elif channel == '3S1':
+    I = np.eye(2*ntot, 2*ntot)
+
 delta_U = U_matrix - I
 
 x_label = "k' [fm" + r'$^{-1}$' + ']'
@@ -72,13 +81,20 @@ mn = -1e-2
 color_style = 'jet'
 
 f, ax = plt.subplots(1, 1, figsize=(4, 3.5))
-c = ax.pcolormesh(k_array, k_array, delta_U, cmap=color_style, vmin=mn, vmax=mx)
-
+if channel == '1P1' or channel == '1S0':
+    c = ax.pcolormesh(k_array, k_array, delta_U, cmap=color_style, vmin=mn, 
+                      vmax=mx)
+elif channel == '3S1':
+    c = ax.pcolormesh(k_array, k_array, delta_U[:ntot,:ntot], cmap=color_style, 
+                      vmin=mn, vmax=mx)
 ax.xaxis.set_label_position('top')
 ax.xaxis.tick_top()
 ax.tick_params(labeltop=True)
 ax.set_xlabel(x_label)
 ax.set_ylabel(y_label)
+channel_anchored_text = AnchoredText(ff.channel_label_conversion(channel),
+                                     loc='lower right')
+ax.add_artist(channel_anchored_text)
 plt.gca().invert_yaxis()
 
 f.subplots_adjust(right=0.8)
@@ -89,3 +105,33 @@ cbar.ax.set_title(r"$\delta U(k,k')$")
 
 plt.show()
 
+# Do log-scale
+
+mxx = 1e-2
+mnn = 1e-5
+color_style_log = 'Blues'
+
+f, ax = plt.subplots(1, 1, figsize=(4, 3.5))
+if channel == '1P1' or channel == '1S0':
+    c = ax.pcolormesh(k_array, k_array, abs(delta_U), cmap=color_style_log, 
+                      norm=colors.LogNorm(vmin=mnn, vmax=mxx))
+elif channel == '3S1':
+    c = ax.pcolormesh(k_array, k_array, abs(delta_U[:ntot,:ntot]), cmap=color_style_log, 
+                      norm=colors.LogNorm(vmin=mnn, vmax=mxx))
+ax.xaxis.set_label_position('top')
+ax.xaxis.tick_top()
+ax.tick_params(labeltop=True)
+ax.set_xlabel(x_label)
+ax.set_ylabel(y_label)
+channel_anchored_text = AnchoredText(ff.channel_label_conversion(channel),
+                                     loc='lower right')
+ax.add_artist(channel_anchored_text)
+plt.gca().invert_yaxis()
+
+f.subplots_adjust(right=0.8)
+cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+cbar = f.colorbar(c, cax=cbar_ax)
+# Set colorbar label
+cbar.ax.set_title(r"$\delta U(k,k')$")
+
+plt.show()
