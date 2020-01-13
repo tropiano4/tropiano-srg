@@ -44,23 +44,28 @@ import numpy as np
 # Scripts made by A.T.
 from Figures import figures_functions as ff
 from Potentials.vsrg_macos import load_save_potentials as lp
+import observables as ob
 #import operators as op
 from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
 kvnn = 111
 #channel = '1P1'
-#channel = '3S1'
-channel = '1S0'
+channel = '3S1'
+#channel = '1S0'
 kmax = 8.0
 kmid = 2.0
 ntot = 120
 
-k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
 H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 
 generator = 'Block-diag'
+#generator = 'Wegner'
 lamb = 1.0
+#lamb = 1.2
+#lamb = 1.5
+#lamb = 2.0
 lambda_bd = 2.0
 
 H_evolved = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg', 
@@ -72,12 +77,21 @@ if channel == '1P1' or channel == '1S0':
 elif channel == '3S1':
     I = np.eye(2*ntot, 2*ntot)
 
-delta_U = U_matrix - I
+if channel == '3S1':
+    factor_array = np.concatenate((np.sqrt(k_weights), np.sqrt(k_weights)))
+    #factor_array = np.concatenate((k_array*np.sqrt(k_weights), 
+                                   #k_array*np.sqrt(k_weights)))
+else:
+    factor_array = k_array*np.sqrt(k_weights)
+
+row, col = np.meshgrid(factor_array, factor_array)
+
+delta_U = (U_matrix - I) / row / col
 
 x_label = "k' [fm" + r'$^{-1}$' + ']'
 y_label = 'k [fm' + r'$^{-1}$' + ']'
-mx = 1e-2
-mn = -1e-2
+mx = 1e-1
+mn = -1e-1
 color_style = 'jet'
 
 f, ax = plt.subplots(1, 1, figsize=(4, 3.5))
@@ -107,7 +121,7 @@ plt.show()
 
 # Do log-scale
 
-mxx = 1e-2
+mxx = 1e-1
 mnn = 1e-5
 color_style_log = 'Blues'
 
@@ -135,3 +149,8 @@ cbar = f.colorbar(c, cax=cbar_ax)
 cbar.ax.set_title(r"$\delta U(k,k')$")
 
 plt.show()
+
+# Load wave function
+psi = ob.wave_function(H_initial)
+#k_index = op.find_q_index(3.00, k_array)
+#print(psi[k_index])
