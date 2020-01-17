@@ -100,7 +100,8 @@ $kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
 #@kvnns = (32); # Epelbaum
 #@kvnns = (90,91,92,93,95,96,97,98,100,101,102,103,105,106,107,108,110,111,112,113,115,116,117,118); # RKE semi-local potentials
 #@kvnns = (90); # RKE semi-local potential at LO with specified cutoff (unless changed it's 400 MeV)
-@kvnns = (105,106,107,110,111,112); # RKE semi-local potential at N3LO and N4LO
+#@kvnns = (105,106,107,110,111,112); # RKE semi-local potential at N3LO and N4LO
+@kvnns = (74,79);
 
 # The following list is all of the semi-local EKM potentials
 #@kvnns = (40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64);
