@@ -72,10 +72,10 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     # h-bar^2 / M [MeV fm^2] for conversion from MeV to scattering units
     hbar_sq_over_M = 41.47
     
-    # Initial value of lambda in units fm^-1 (most potentials in 
-    # Potentials/vsrg_macos are generated at lambda = 12 fm^-1 but check 
-    # run_generate_vsrg_vlowk.pl to be sure)
-    lambda_initial = 12.0
+    # Initial value of lambda in units fm^-1
+    # Technically, this value should be infinity, but we can take 20 fm^-1
+    # which is reasonably large
+    lambda_initial = 20.0
 
     # Initialize SRG class
     if generator == 'Wegner':

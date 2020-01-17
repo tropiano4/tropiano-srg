@@ -31,11 +31,11 @@ class SRG(object):
         Parameters
         ----------
         H_initial : 2-D ndarray
-            Initial Hamiltonian matrix in units MeV.
+            Initial Hamiltonian matrix [MeV].
         lambda_bd : float
-            Cutoff for block-diagonal decoupling.
+            Cutoff for block-diagonal decoupling [fm^-1].
         k_array : 1-D ndarray
-            Momentum array (used for creating the projection matrices).
+            Momentum array (used for creating the projection matrices) [fm^-1].
         coupled_channel : bool
             True if the channel is coupled channel and false otherwise.
         
@@ -182,16 +182,16 @@ class SRG(object):
         Parameters
         ----------
         lamb : float
-            Evolution parameter lambda in units fm^-1.
+            Evolution parameter lambda [fm^-1].
         H_evolved : 1-D ndarray
-            Evolving Hamiltonian which is a vector and function of lambda. 
-            Units are fm^-2.
+            Evolving Hamiltonian which is a vector and function of lambda 
+            [fm^-2].
         
         Returns
         -------
         dH_vector : 1-D ndarray
             Derivative with respect to lambda of the evolving Hamiltonian which 
-            is a vector. Units are fm^-2.
+            is a vector [fm^-2].
 
         """
         
@@ -218,11 +218,9 @@ class SRG(object):
         Parameters
         ----------
         lambda_initial : float
-            Initial value of lambda in units fm^-1. (Most potentials in
-            Potentials/vsrg_macos are generated at lambda = 12 fm^-1 but check
-            run_generate_vsrg_vlowk.pl to be sure.)
+            Initial value of lambda [fm^-1].
         lambda_array : 1-D ndarray
-            Lambda evolution values in units fm^-1.
+            Lambda evolution values [fm^-1].
             
         Returns
         -------
