@@ -174,6 +174,10 @@ def kvnn_label_conversion(kvnn, full_label=True):
     elif kvnn == 10:
         label = 'EM N' + r'$^3$' + 'LO'
         
+    # EMN N4LO (450, 500, 550 MeV cutoffs)
+    elif kvnn in [74, 79, 84]:
+        label = 'EMN N' + r'$^4$' + 'LO'
+        
     # RKE N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         label = 'RKE N' + r'$^3$' + 'LO'
