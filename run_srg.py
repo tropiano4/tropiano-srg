@@ -138,6 +138,8 @@ if __name__ == '__main__':
     
     #kvnn = 6 # AV18
     #kvnn = 10 # EM N3LO
+    #kvnn = 74 # EM N4LO at Lambda = 450 MeV
+    kvnn = 79 # EM N4LO at Lambda = 500 MeV
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
@@ -171,8 +173,8 @@ if __name__ == '__main__':
     
     # Specify evolution
     
-    #generator = 'Wegner'
-    generator = 'T'
+    generator = 'Wegner'
+    #generator = 'T'
     #generator = 'Block-diag'
     
     lambda_bd = 1.00 # This won't affect the band-diagonal generators
