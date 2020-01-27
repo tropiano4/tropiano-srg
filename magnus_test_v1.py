@@ -49,8 +49,11 @@ class Magnus_test(object):
         self.magnus_factors = magnus_factors
         
         if k_array.any():
-            Lamb = 500.0 / 197.0 # 500 MeV cutoff
-            regulator_func = np.exp( - (k_array/Lamb)**2 )
+            Lamb = 400.0 / 197.0 # 500 MeV cutoff
+            #Lamb = 500.0 / 197.0 # 500 MeV cutoff
+            #n = 1
+            n = 2
+            regulator_func = np.exp( - (k_array/Lamb)**(2*n) )
             self.regulator = np.concatenate( (regulator_func, regulator_func) )
         else:
             self.regulator = 1
@@ -178,9 +181,11 @@ if __name__ == '__main__':
     kvnn = 10
     #kvnn = 79
     #kvnn = 111
+    #kvnn_list = [10, 111, 222]
     channel = '3S1'
     ntot = 120
-    generator = 'Wegner'
+    #generator = 'Wegner'
+    generator = 'Block-diag'
     lamb = 1.5
     k_magnus = 6
     
@@ -189,8 +194,13 @@ if __name__ == '__main__':
     spec_2 = (30.0, 4.0, 1e-4)
     spec_3 = (10.0, 2.0, 1e-5)
     spec_4 = (30.0, 4.0, 1e-5)
-    spec_5 = (30.0, 4.0, 1e-4)
-    specs = [spec_1, spec_2, spec_3, spec_4, spec_5]
+    #spec_5 = (30.0, 4.0, 1e-4)
+    #spec_5 = (30.0, 4.0, 1e-5)
+    specs = [spec_1, spec_2, spec_3, spec_4]
+    #specs = [spec_1, spec_2, spec_3, spec_4, spec_5]
+    #kmax = 10.0
+    #kmid = 2.0
+    #ds = 1e-4
     
     # --- Evolve and plot relevant figures --- #
     
@@ -205,10 +215,11 @@ if __name__ == '__main__':
     y_label_1 = r'$||\eta(s)||$'
     y_label_2 = r'$||\Omega(s)||$'
     y_label_size = 20
-    legend_label_size = 10
+    legend_label_size = 8
     
     i = 0
     for spec in specs:
+    #for kvnn in kvnn_list:
         
         kmax = spec[0]
         kmid = spec[1]
@@ -216,11 +227,12 @@ if __name__ == '__main__':
     
         H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 
-        if spec == spec_5:
-            k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
-            magnus = Magnus_test(H_initial, k_magnus, ds, k_array)
-        else:
-            magnus = Magnus_test(H_initial, k_magnus, ds)
+        #if spec == spec_5:
+            #k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+            #magnus = Magnus_test(H_initial, k_magnus, ds, k_array)
+        #else:
+            #magnus = Magnus_test(H_initial, k_magnus, ds)
+        magnus = Magnus_test(H_initial, k_magnus, ds)
         d = magnus.euler_method(lamb)
         
         if kmax < 15.0:
@@ -231,43 +243,51 @@ if __name__ == '__main__':
             curve_style = ff.line_styles(0)
         else:
             curve_style = ff.line_styles(1)
+        
         kmax_label = r'$k_{\rm max}=%.1f$' % kmax + ' fm'+r'$^{-1}$'
         ds_label = 'ds=%.1e'%ds
-                      
         
+        #curve_color = ff.xkcd_colors(i)
+        #curve_style = ff.line_styles(i)
+        #kvnn_label = ff.kvnn_label_conversion(kvnn)
+                      
         # Plot
-        if i == 0: # Black-solid
+        if i == 0: # Black solid
             ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
                        linestyle=curve_style, label=kmax_label)
             ax2.loglog(d['s_array'], d['omega_array'], color=curve_color,
                        linestyle=curve_style, label=ds_label)
-        elif i == 1: # Red-solid
+        elif i == 1: # Red solid
             ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
                        linestyle=curve_style, label=kmax_label)
             ax2.loglog(d['s_array'], d['omega_array'], color=curve_color,
                        linestyle=curve_style, label='')
-        elif i == 2: # Black-dashed
+        elif i == 2: # Black dash-dotted
             ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
                        linestyle=curve_style, label='')
             ax2.loglog(d['s_array'], d['omega_array'], color=curve_color,
                        linestyle=curve_style, label=ds_label)
-        elif i == 4:
+        elif i == 4: # Blue dashed
             ax1.loglog(d['s_array'], d['eta_array'], color=ff.xkcd_colors(2),
                        linestyle=ff.line_styles(2), label=kmax_label+' reg.')
             ax2.loglog(d['s_array'], d['omega_array'], color=ff.xkcd_colors(2),
                        linestyle=ff.line_styles(2), label=ds_label+' reg.')
-        else: # Red-dashed
+        else: # Red dash-dotted
             ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
                        linestyle=curve_style, label='')
             ax2.loglog(d['s_array'], d['omega_array'], color=curve_color,
                        linestyle=curve_style, label='')
+        #ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
+                   #linestyle=curve_style, label=kvnn_label)
+        #ax2.loglog(d['s_array'], d['omega_array'], color=curve_color, 
+                   #linestyle=curve_style, label=kvnn_label)
             
         i += 1
     
     # Axes limits
     ax1.set_xlim([1e-5, 1e0])
     ax2.set_xlim([1e-5, 1e0])
-    ax1.set_ylim([1e-1, 1e6])
+    ax1.set_ylim([1e-2, 1e5])
     ax2.set_ylim([1e-4, 1e4])
     # Axes labels
     ax1.set_xlabel(x_label, fontsize=x_label_size)
@@ -277,12 +297,16 @@ if __name__ == '__main__':
     # Add legend
     ax1.legend(loc='lower left', frameon=False,
                fontsize=legend_label_size)
-    ax2.legend(loc='upper right', frameon=False,
+    ax2.legend(loc='lower right', frameon=False,
                fontsize=legend_label_size)
     f.tight_layout()
 
-    file_name = 'eta_omega_norms_kvnn_%d_%s_%s_k_magnus_%d'%(kvnn, channel, 
-                                                           generator, k_magnus)
+    file_name = 'eta_omega_norms_kvnn_%d_%s_%s_k_magnus_%d' % \
+                (kvnn, channel, generator, k_magnus)
+    #file_name = 'eta_omega_norms_kvnns_%d_%d_%d_%s_%s_k_magnus_%d' % \
+                #(kvnn_list[0], kvnn_list[1], kvnn_list[2], channel, generator, 
+                # k_magnus)
+                
     # Save figure
     chdir('Figures/Operator_evolution')
     f.savefig(file_name+'.pdf', bbox_inches='tight')
