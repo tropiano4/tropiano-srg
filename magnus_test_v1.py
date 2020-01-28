@@ -29,7 +29,7 @@ from Potentials.vsrg_macos import load_save_potentials as lp
 class Magnus_test(object):
     
     
-    def __init__(self, H_initial, k_magnus, ds, k_array=np.empty(0)):
+    def __init__(self, H_initial, k_magnus, ds, k_array):
         
         # Convert Hamiltonian and relative kinetic energy to scattering units
         hbar_sq_over_M = 41.47
