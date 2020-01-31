@@ -7,7 +7,7 @@
 # Date:     January 24, 2019
 # 
 # Test how the Magnus expansion converges looking at the norm of \eta(s) and
-# \Omega(s).
+# \Omega(s) for various momentum-meshes.
 #
 #------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ from Potentials.vsrg_macos import load_save_potentials as lp
 class Magnus_test(object):
     
     
-    def __init__(self, H_initial, k_magnus, ds, k_array):
+    def __init__(self, H_initial, k_magnus, ds, k_array=np.empty(0)):
         
         # Convert Hamiltonian and relative kinetic energy to scattering units
         hbar_sq_over_M = 41.47
@@ -184,8 +184,8 @@ if __name__ == '__main__':
     #kvnn_list = [10, 111, 222]
     channel = '3S1'
     ntot = 120
-    #generator = 'Wegner'
-    generator = 'Block-diag'
+    generator = 'Wegner'
+    #generator = 'Block-diag'
     lamb = 1.5
     k_magnus = 6
     

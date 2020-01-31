@@ -7,7 +7,7 @@
 # Date:     January 24, 2019
 # 
 # Test how the Magnus expansion converges looking at the norm of \eta(s) and
-# \Omega(s).
+# \Omega(s) for various SRG generators.
 #
 #------------------------------------------------------------------------------
 
