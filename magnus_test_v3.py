@@ -181,9 +181,6 @@ if __name__ == '__main__':
     #kmax = 10.0
     kmid = 4.0
     #kmid = 2.0
-    ds = 1e-6
-    #ds = 1e-5
-    #ds = 1e-4
     
     # --- Evolve and plot relevant figures --- #
     
@@ -193,9 +190,9 @@ if __name__ == '__main__':
     f, (ax1, ax2) = plt.subplots(row, col, figsize=(4*col, 4*row))
     
     # Labels, fontsize, and location
-    x_label = 's'
+    x_label = 's' + ' [fm' + r'$^4$' + ']'
     x_label_size = 18
-    y_label_1 = r'$||\eta(s)||$'
+    y_label_1 = r'$||\eta(s)||$' + ' [fm' + r'$^{-4}$' + ']'
     y_label_2 = r'$||\Omega(s)||$'
     y_label_size = 20
     legend_label_size = 12
@@ -205,17 +202,26 @@ if __name__ == '__main__':
     
         H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 
-        magnus = Magnus_test(H_initial, k_magnus, ds)
+        if kvnn == 900:
+            magnus = Magnus_test(H_initial, k_magnus, 1e-5)
+            curve_color = ff.xkcd_colors(0)
+            curve_style = ff.line_styles(2)
+        elif kvnn == 901:
+            magnus = Magnus_test(H_initial, k_magnus, 1e-6)
+            curve_color = ff.xkcd_colors(1)
+            curve_style = ff.line_styles(1)
+        elif kvnn == 902:
+            magnus = Magnus_test(H_initial, k_magnus, 1e-5)
+            curve_color = ff.xkcd_colors(2)
+            curve_style = ff.line_styles(0)
         d = magnus.euler_method(lamb)
 
-        curve_color = ff.xkcd_colors(i)
-        curve_style = ff.line_styles(i)
         kvnn_label = ff.kvnn_label_conversion(kvnn)
                       
         # Plot
 
         ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
-                   linestyle=curve_style)
+                   linestyle=curve_style, label=kvnn_label)
         ax2.loglog(d['s_array'], d['omega_array'], color=curve_color, 
                    linestyle=curve_style, label=kvnn_label)
             
@@ -226,18 +232,23 @@ if __name__ == '__main__':
     ax2.set_xlim([1e-5, 1e0])
     ax1.set_ylim([1e0, 1e7])
     ax2.set_ylim([1e-3, 1e4])
+    # Enlarge axes tick marks
+    ax1.tick_params(labelsize=14)
+    ax2.tick_params(labelsize=14)
     # Axes labels
     ax1.set_xlabel(x_label, fontsize=x_label_size)
     ax1.set_ylabel(y_label_1, fontsize=y_label_size)
     ax2.set_xlabel(x_label, fontsize=x_label_size)
     ax2.set_ylabel(y_label_2, fontsize=y_label_size)
     # Add legend
-    ax2.legend(loc='lower right', frameon=False, fontsize=legend_label_size)
+    ax1.legend(loc='upper right', frameon=False, fontsize=legend_label_size)
+    f.tight_layout()
+    ax2.legend(loc='upper right', frameon=False, fontsize=legend_label_size)
     f.tight_layout()
 
     file_name = 'eta_omega_norms_kvnns_%d_%d_%d_%s_%s_k_magnus_%d_ds%.1e' % \
                  (kvnn_list[0], kvnn_list[1], kvnn_list[2], channel, 
-                  generator, k_magnus, ds)
+                  generator, k_magnus, 1e-5)
     # Replace '.' with ',' in file name since LaTeX doesn't like periods
     file_name = ff.replace_periods_with_commas(file_name)
                 
