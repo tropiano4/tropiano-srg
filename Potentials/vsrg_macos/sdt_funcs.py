@@ -4,7 +4,7 @@
 # File: sdt_functions.py
 #
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
-# Date:     January 28, 2019
+# Date:     January 28, 2020
 # 
 # Functions for comparing two Hamiltonians or potentials based off spectral
 # distribution theory (SDT). See https://arxiv.org/pdf/1308.5963.pdf and
