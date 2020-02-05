@@ -50,10 +50,11 @@ from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
 kvnn = 111
+#kvnn = 79
 #channel = '1P1'
-channel = '3S1'
-#channel = '1S0'
-kmax = 8.0
+#channel = '3S1'
+channel = '1S0'
+kmax = 10.0
 kmid = 2.0
 ntot = 120
 
@@ -82,7 +83,7 @@ if channel == '3S1':
     #factor_array = np.concatenate((k_array*np.sqrt(k_weights), 
                                    #k_array*np.sqrt(k_weights)))
 else:
-    factor_array = k_array*np.sqrt(k_weights)
+    factor_array = np.sqrt(k_weights)
 
 row, col = np.meshgrid(factor_array, factor_array)
 
