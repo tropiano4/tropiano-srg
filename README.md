@@ -13,7 +13,7 @@ Description of each folder:
 
 * __Old_codes__ stores all out-dated codes. See the README stored in this folder for documentation.
 
-* __Papers__ contains all relevant papers.
+* __Papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
 
 * __Potentials/vsrg_macos__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving potentials called load_save_potentials.py. 
 
