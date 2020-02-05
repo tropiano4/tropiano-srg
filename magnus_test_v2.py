@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 #------------------------------------------------------------------------------
-# File: magnus_test_v1.py
+# File: magnus_test_v2.py
 #
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
-# Date:     January 24, 2019
+# Date:     January 24, 2020
 # 
 # Test how the Magnus expansion converges looking at the norm of \eta(s) and
 # \Omega(s) for various SRG generators.
