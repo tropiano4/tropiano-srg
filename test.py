@@ -14,44 +14,30 @@
 # document when and why these files are created.
 #
 # Revision history:
-#   08/28/19 --- Testing the deuteron momentum distribution using projection
-#                operators from operators.py
 #   08/30/19 --- Testing how to use *args in Python functions. This may be
 #                useful for plotting codes. Created
 #                momentum_projection_operator_testv1.py in Old_codes based off
 #                last tests in this script.
-#   09/10/19 --- Using this script to run SRG evolution on several potentials.
-#   09/24/19 --- Comparing wave functions from different SRG-evolved potentials
-#                by looking at momentum distribution functions.
 #   10/01/19 --- Testing SRG-evolution of an operator which is a constant at
 #                all values of k and k' (this is a delta function in
 #                coordinate-space). Created toy_operator_srg_evolution_v1.py in
 #                Old_codes.
 #   10/14/19 --- Making a couple of plots for DNP 2019 meeting.
-#   10/22/19 --- Comparing the initial and SRG block-diagonal evolved deuteron
-#                wave functions squared. Possible connection between V_low-k
-#                and block-diagonal SRG.
-#   10/29/19 --- Testing r^2 operator and RMS half-radius of deuteron.
-#   01/03/20 --- Looking at block-diagonal unitary transformations.
-#   02/11/20 --- Trying to understand SRG induced terms in momentum projection
-#                operator by plotting some terms.
 #
 #------------------------------------------------------------------------------
 
 
-from matplotlib.offsetbox import AnchoredText
 import matplotlib.pyplot as plt
 import numpy as np
-# Scripts made by A.T.
-from Figures import figures_functions as ff
-from Potentials.vsrg_macos import load_save_potentials as lp
 import operators as op
+from Potentials.vsrg_macos import load_save_potentials as lsp
+from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
-
-# --- Set-up --- #
 
 # Potential specifications
-kvnn = 111
+#kvnn = 79
+#kvnn = 111
+kvnn = 222
 channel = '3S1'
 kmax = 10.0
 kmid = 2.0
@@ -59,111 +45,45 @@ ntot = 120
 
 # SRG specifications
 generator = 'Wegner'
-lamb = 1.5
-
-# Load momentum and potential
-k_array, _ = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
-V_matrix = lp.load_potential(kvnn, channel, kmax, kmid, ntot, 'srg', 
-                             generator, lamb)
-
-# --- Main calculation --- #
-
-# Set q-value and take slices of potential correspondin
-#q = 0.3
-q = 3.0
-q_index = op.find_q_index(q, k_array)
-
-# Calculate induced contribution
-if q == 3.0:
-    row, col = np.meshgrid( V_matrix[:ntot, q_index], V_matrix[q_index, :ntot] )
-    induced_cont = 2 * q**4 * row * col
-else:
-    row, col = np.meshgrid( k_array**2 * V_matrix[:ntot, q_index], 
-                            k_array**2 * V_matrix[q_index, :ntot] )
-    induced_cont = 2 * row * col
-
-# Interpolate
-k_array_int, induced_cont_int = ff.interpolate_matrix(k_array, induced_cont, 
-                                                      4.0)
+#generator = 'Block-diag'
+lambda_bd = 2.00
+lamb = 2.0
 
 
-# --- Plot figure --- #
+# Load momentum
+k_array, _ = lsp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+# Load initial and evolved Hamiltonians
+H_initial = lsp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+H_evolved = lsp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg', 
+                                 generator, lamb, lambda_bd)
+# Unitary transformation
+U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
 
-# Size of figure
-row_number = 1
-col_number = 1
-figure_size = (4*col_number, 3.5*row_number) # extra width for colorbar
+# k_0, k_i values
+k_0 = 0.1
+k_0_index = op.find_q_index(k_0, k_array)
+k_values = np.array([0.5, 1.0, 1.5, 3.0])
 
-# Limits of x and y axes
-axes_max = 4.0
-        
-# Specifications of axes
-# Step-size in labeling tick marks
-axes_stepsize = 1.0
-# x and y axes ticks
-axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
-        
-# Labels and fontsize
-x_label = "k' [fm" + r'$^{-1}$' + ']'
-y_label = 'k [fm' + r'$^{-1}$' + ']'
-axes_label_size = 18
-anchored_text_label = r'$\lambda=%.1f$' % lamb + '\nq=%.1f' % q
-anchored_text_size = 17
-axes_tick_size = 18
-colorbar_tick_size = 18
+# Initialize dictonary to store ratios
+d = {}
+
+# Loop over k_i values and add to ratio arrays
+for k_i in k_values:
     
-# Color scheme for contour plots
-color_style = 'jet'
+    k_i_index = op.find_q_index(k_i, k_array)
+    numerator_array = U_matrix[k_i_index, :ntot]
+    denominator_array = U_matrix[k_0_index, :ntot]
+    d[k_i] = abs( numerator_array / denominator_array )
 
-# Location of labels
 
-
-# Things which depend on the q value: limits of colorbar and label location
-if q < axes_max/2:
-    mx = 5.0
-    mn = -5.0
-    anchored_text_location = 'lower right'
-else:
-    mx = 1.2
-    mn = -1.2
-    anchored_text_location = 'upper left'
-    
-levels = np.linspace(mn, mx, 41)
-    
-
-plt.close('all')
-f, ax = plt.subplots(row_number, col_number, figsize=figure_size)
-
-c = ax.contourf(k_array_int, k_array_int, induced_cont_int, levels, 
-                cmap=color_style)
-# Specify axes limits
-ax.set_xlim( (0, axes_max) )
-ax.set_ylim( (0, axes_max) )
-# Specify axes tick marks
-ax.xaxis.set_ticks(axes_ticks)
-ax.xaxis.set_ticklabels(axes_ticks)
-ax.yaxis.set_ticks(axes_ticks)
-ax.yaxis.set_ticklabels(axes_ticks)
-# Position of x-axis label and tick marks
-ax.xaxis.set_label_position('top')
-ax.xaxis.tick_top()
-ax.tick_params(labeltop=True, labelsize=axes_tick_size)
-# Set axes labels
-ax.set_xlabel(x_label, fontsize=axes_label_size)
-ax.set_ylabel(y_label, fontsize=axes_label_size)
-# Add lambda label as anchored text
-anchored_text = AnchoredText(anchored_text_label, 
-                             prop=dict(size=anchored_text_size),
-                             loc=anchored_text_location)
-ax.add_artist(anchored_text)
-
-# Invert y-axis
-plt.gca().invert_yaxis()
-# Adjust for colorbar space
-f.subplots_adjust(right=0.8)
-cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
-# Add colorbar and set tick size
-cbar = f.colorbar(c, cax=cbar_ax)
-cbar.ax.tick_params(labelsize=colorbar_tick_size)
-
+# Plot figures
+plt.plot(k_array, d[k_values[0]], label=r'$k_i=%.1f$'%k_values[0])
+plt.plot(k_array, d[k_values[1]], label=r'$k_i=%.1f$'%k_values[1])
+plt.plot(k_array, d[k_values[2]], label=r'$k_i=%.1f$'%k_values[2])
+plt.plot(k_array, d[k_values[3]], label=r'$k_i=%.1f$'%k_values[3])
+plt.xlim([0.0, 5.0])
+plt.ylim([0.0, 60.0])
+plt.xlabel('q')
+plt.ylabel(r'$|U(k_i,q)/U(k_0,q)|$')
+plt.legend(loc='upper right')
 plt.show()
