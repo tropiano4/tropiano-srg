@@ -32,9 +32,7 @@
 import numpy as np
 import numpy.linalg as la
 from scipy.interpolate import RectBivariateSpline
-#from scipy.special import spherical_jn
 from scipy.interpolate import CubicSpline
-# Scripts made by A.T.
 
 
 def find_eps_index(eps, e_array):
@@ -451,7 +449,8 @@ def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
     """
     
     # Two integrations over dk and dk': need to include extra factor of momenta
-    # and weights
+    # and weights (the unitless wave functions psi already have a factor of
+    # k Sqrt(dk) built-in)
     factor_array = np.concatenate( (k_array*np.sqrt(k_weights), 
                                     k_array*np.sqrt(k_weights)) )
     psi_with_weights = psi * factor_array

@@ -106,6 +106,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     operator[q_index, q_index] = 1 / ( q**2 * q_weight )
     #operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
     #operator[q_index, q_index] = 1
+    #operator[q_index, q_index] = np.pi / ( 2* q**4 * q_weight**2 )
     
     # Build coupled channel operator 
     if lp.coupled_channel(channel):
