@@ -39,15 +39,18 @@ from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 # Potential specifications
 #kvnn = 6
+#kvnn = 222
 kvnn = 901
 channel = '3S1'
 kmax = 30.0
 kmid = 4.0
+#kmax = 10.0
+#kmid = 2.0
 ntot = 120
 
 # SRG spefications
-#generator = 'Wegner'
-generator = 'Block-diag'
+generator = 'Wegner'
+#generator = 'Block-diag'
 lamb = 1.2
 lambda_bd = 2.00
 
