@@ -21,6 +21,8 @@
 #                functions.
 #   09/17/19 --- Changed kvnn label for kvnn = 900-902 from Lambda = ... fm^-1
 #                to just ... fm^-1.
+#   02/26/20 --- Added lambda_label_conversion function to label \lambda or
+#                block-diagonal \Lambda_BD.
 #
 #------------------------------------------------------------------------------
 
@@ -209,6 +211,45 @@ def kvnn_label_conversion(kvnn, full_label=True):
     return label
 
 
+def lambda_label_conversion(lamb, block_diag_bool=False):
+    """
+    Converts a lambda evolution parameter to a label for plotting purposes 
+    (e.g. lamb = 2 gives r'$\lambda=2.0 fm^-1$').
+    
+    Parameters
+    ----------
+    lamb : float
+        Evolution parameter lambda [fm^-1].
+    block_diag_bool : bool, optional
+        Determines whether lambda is referring to \lambda or \Lambda_BD.
+        
+    Returns
+    -------
+    label : str
+        Label for the lambda.
+        
+    """
+    
+    # Case for lamb = infinity
+    if lamb == np.inf:
+        # Label \lambda_bd
+        if block_diag_bool:
+            label = r'$\Lambda_{BD}=\infty$' + ' fm' + r'$^{-1}$'
+        # Label \lambda
+        else:
+            label = r'$\lambda=\infty$' + ' fm' + r'$^{-1}$'
+    # Case for finite lamb
+    else:
+        # Label \lambda_bd
+        if block_diag_bool:
+            label = r'$\Lambda_{BD}=%.1f$' % lamb + ' fm' + r'$^{-1}$'
+        # Label \lambda
+        else:
+            label = r'$\lambda=%.1f$' % lamb + ' fm' + r'$^{-1}$'
+            
+    return label
+        
+
 def line_styles(curve_number):
     """
     Default curve line style for plotting. Styles are ordered by the ordering
@@ -284,7 +325,7 @@ def replace_periods_with_commas(file_name):
         new_file_name += letter
         
     return new_file_name
-
+    
 
 def xkcd_colors(curve_number):
     """
