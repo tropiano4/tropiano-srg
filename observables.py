@@ -262,7 +262,7 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
         Array of phase shifts delta_a, delta_b, and epsilon for each lab energy
         in e_array. For example, phase_shifts[i, 0] returns delta_a at the ith
         lab energy in e_array. For an entire array of one type of phase shift,
-        take phase_shifts[:, i] where i = 0, 1, or 2.
+        take phase_shifts[:, j] where j = 0, 1, or 2.
     
     Notes
     -----
