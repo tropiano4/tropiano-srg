@@ -196,7 +196,10 @@ if __name__ == '__main__':
     y_label_1 = r'$||\eta(s)||$' + ' [fm' + r'$^{-4}$' + ']'
     y_label_2 = r'$||\Omega(s)||$'
     y_label_size = 20
-    legend_label_size = 12
+    legend_label_size = 14
+    
+    # Width of curves
+    curve_width = 2.0
     
     i = 0
     for kvnn in kvnn_list:
@@ -222,15 +225,17 @@ if __name__ == '__main__':
         # Plot
 
         ax1.loglog(d['s_array'], d['eta_array'], color=curve_color, 
-                   linestyle=curve_style, label=kvnn_label)
+                   linestyle=curve_style, linewidth=curve_width, 
+                   label=kvnn_label)
         ax2.loglog(d['s_array'], d['omega_array'], color=curve_color, 
-                   linestyle=curve_style, label=kvnn_label)
+                   linestyle=curve_style, linewidth=curve_width,
+                   label=kvnn_label)
             
         i += 1
     
     # Axes limits
-    ax1.set_xlim([1e-5, 1e0])
-    ax2.set_xlim([1e-5, 1e0])
+    ax1.set_xlim([1e-5, 1.0 / lamb**4.0])
+    ax2.set_xlim([1e-5, 1.0 / lamb**4.0])
     ax1.set_ylim([1e0, 1e7])
     ax2.set_ylim([1e-3, 1e4])
     # Enlarge axes tick marks
@@ -248,8 +253,8 @@ if __name__ == '__main__':
     f.tight_layout()
 
     file_name = 'eta_omega_norms_kvnns_%d_%d_%d_%s_%s_k_magnus_%d_ds%.1e' % \
-                 (kvnn_list[0], kvnn_list[1], kvnn_list[2], channel, 
-                  generator, k_magnus, 1e-5)
+                (kvnn_list[0], kvnn_list[1], kvnn_list[2], channel, generator,
+                 k_magnus, 1e-5)
     # Replace '.' with ',' in file name since LaTeX doesn't like periods
     file_name = ff.replace_periods_with_commas(file_name)
                 
