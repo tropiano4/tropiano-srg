@@ -103,8 +103,8 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
         
     # Build momentum projection operator 
     operator = np.zeros( (m, m) )
-    operator[q_index, q_index] = 1 / ( q**2 * q_weight )
-    #operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
+    #operator[q_index, q_index] = 1 / ( q**2 * q_weight )
+    operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
     #operator[q_index, q_index] = 1
     #operator[q_index, q_index] = np.pi / ( 2* q**4 * q_weight**2 )
     
@@ -125,7 +125,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     return operator
 
 
-def hankel_transformation(channel, k_array, r_array):
+def hankel_transformation(channel, k_array, k_weights, r_array, dr):
     """
     <r|k;channel> matrix for given partial wave channel. If len(k_array) = m
     and len(r_array) = n, then this function returns an n x m matrix in units
@@ -147,8 +147,9 @@ def hankel_transformation(channel, k_array, r_array):
 
     """
     
-    # Grids of k (col), and r (row) values   
+    # Grids of k (col), r (row), and dk (col) values   
     k_cols, r_rows = np.meshgrid(k_array, r_array)
+    k_weights, _ = np.meshgrid(k_weights, r_array)
         
     # L = 0 (0th spherical Bessel function)
     if channel[1] == 'S':
@@ -165,8 +166,10 @@ def hankel_transformation(channel, k_array, r_array):
         L = 2
         
     #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
-    M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2/np.pi) * k_cols**2 * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(2/np.pi) * k_cols * np.sqrt(k_weights) * r_rows * \
+        np.sqrt(dr) * spherical_jn(L, k_cols*r_rows)
 
     return M
 
@@ -201,16 +204,18 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     """
         
     # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
-    r2_coordinate_space = np.diag(r_array**2)
+    r2_coordinate_space = np.diag(r_array**2) * np.pi / 2
         
     # Transform operator to momentum-space
-    s_wave_trans = hankel_transformation('3S1', k_array, r_array)
-    d_wave_trans = hankel_transformation('3D1', k_array, r_array)
+    s_wave_trans = hankel_transformation('3S1', k_array, k_weights, r_array,
+                                         dr)
+    d_wave_trans = hankel_transformation('3D1', k_array, k_weights, r_array,
+                                         dr)
     
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
-    ss_block = s_wave_trans.T @ r2_coordinate_space @ s_wave_trans * dr
-    dd_block = d_wave_trans.T @ r2_coordinate_space @ d_wave_trans * dr
+    ss_block = s_wave_trans.T @ r2_coordinate_space @ s_wave_trans
+    dd_block = d_wave_trans.T @ r2_coordinate_space @ d_wave_trans
         
     # Length of k_array
     m = len(k_array)
