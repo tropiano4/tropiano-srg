@@ -21,6 +21,9 @@
 #   09/06/19 --- Split phase_shifts function into coupled-channel and normal
 #                functions, coupled_channel_phase_shifts and phase_shifts.
 #   12/13/19 --- Finished quadrupole_moment_from_kspace function. 
+#   03/16/20 --- Updated functions involving observables and their associated 
+#                operators to follow the conventions in the notes
+#                "NN operator conventions".
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -73,9 +76,9 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     Parameters
     ----------
     H_matrix : 2-D ndarray
-        Hamiltonian matrix in units MeV.
+        Hamiltonian matrix [MeV].
     eps : float, optional
-        Energy of the desired state in MeV. Default is the deuteron state.
+        Energy of the desired state [MeV]. Default is the deuteron state.
     U : 2-D ndarray, optional
         Unitary transformation matrix. If no unitary transformation is 
         provided, the function will skip the line where it evolves the wave
@@ -421,9 +424,9 @@ def phase_corrector(phase_array):
     return None
 
 
-def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
+def rms_radius_from_rspace(psi, r2_operator):
     """
-    Calculates the RMS radius of deuteron using momentum-space wavenfunctions
+    Calculates the RMS radius of deuteron using momentum-space wave functions
     and a Fourier transformed r^2 operator (does not involve derivatives in k!)
     Note, set r_max > 25 fm in defining the r^2 operator for mesh-independent
     result.
@@ -435,27 +438,18 @@ def rms_radius_from_rspace(psi, r2_operator, k_array, k_weights):
         twice the length of k_array and k_weights since it includes the 3S1 
         and 3D1 components.
     r2_operator : 2-D ndarray
-        r^2 operator in momentum-space in units fm^4.
-    k_array : 1-D ndarray
-        Momentum array.
-    k_weights: 1-D ndarray
-        Momentum weights.
+        r^2 operator in momentum-space with momenta and weights factored in 
+        [fm^2].
       
     Returns
     -------
     output : float
-        RMS radius of deuteron in units fm.
+        RMS radius of deuteron [fm].
     
     """
     
-    # Two integrations over dk and dk': need to include extra factor of momenta
-    # and weights (the unitless wave functions psi already have a factor of
-    # k Sqrt(dk) built-in)
-    factor_array = np.concatenate( (k_array*np.sqrt(k_weights), 
-                                    k_array*np.sqrt(k_weights)) )
-    psi_with_weights = psi * factor_array
-    r2 = psi_with_weights.T @ r2_operator @ psi_with_weights
-    #r2 = psi.T @ r2_operator @ psi
+    
+    r2 = psi.T @ r2_operator @ psi
     
     return 0.5 * np.sqrt(r2)
 

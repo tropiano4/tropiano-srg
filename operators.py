@@ -17,6 +17,8 @@
 #   08/22/19 --- Changed find_q_index function to use np.fabs() and .argmin()
 #   09/23/19 --- Generalized momentum_projection_operator to any channel, not
 #                just coupled-channels.
+#   03/16/20 --- Updated operators to follow the conventions in the notes
+#                "NN operator conventions".
 #
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
@@ -98,13 +100,14 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     # Find index of q in k_array
     q_index = find_q_index(q, k_array)
         
-    # Weight for q value
+    # Exact q value in the mesh and corresponding weight
+    q_value = k_array[q_index]
     q_weight = k_weights[q_index]
         
     # Build momentum projection operator 
     operator = np.zeros( (m, m) )
     #operator[q_index, q_index] = 1 / ( q**2 * q_weight )
-    operator[q_index, q_index] = np.pi / ( 2 * q**2 * q_weight )
+    operator[q_index, q_index] = np.pi / ( 2 * q_value**2 * q_weight )
     #operator[q_index, q_index] = 1
     #operator[q_index, q_index] = np.pi / ( 2* q**4 * q_weight**2 )
     
@@ -125,51 +128,50 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     return operator
 
 
-def hankel_transformation(channel, k_array, k_weights, r_array, dr):
+def hankel_transformation(channel, k_array, r_array, dr):
     """
-    <r|k;channel> matrix for given partial wave channel. If len(k_array) = m
-    and len(r_array) = n, then this function returns an n x m matrix in units
-    UNITS.
+    <klm|r> matrix for given partial wave channel. If len(r_array) = m
+    and len(k_array) = n, then this function returns an n x m matrix.
     
     Parameters
     ----------
     channel : str
-        The partial wave channel ('3S1' or '3D1').
+        The partial wave channel (e.g. '1S0').
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     r_array : 1-D ndarray
-        Coordinates array.
+        Coordinates array [fm].
+    dr : float
+        Coordinates step-size (weight) [fm].
         
     Returns
     -------
     M : 2-D ndarray
-        Hankel transformation matrix.
+        Hankel transformation matrix [fm^3\2].
 
     """
-    
-    # Grids of k (col), r (row), and dk (col) values   
-    k_cols, r_rows = np.meshgrid(k_array, r_array)
-    k_weights, _ = np.meshgrid(k_weights, r_array)
         
+    
     # L = 0 (0th spherical Bessel function)
     if channel[1] == 'S':
-        
         L = 0
-        
+    # L = 1
     elif channel[1] == 'P':
-        
         L = 1
-            
-    # L = 2 (2nd spherical Bessel function)
+    # L = 2
     elif channel[1] == 'D':
-        
         L = 2
         
+    # r_array column vectors and k_array row vectors where both grids are
+    # n x m matrices
+    r_cols, k_rows = np.meshgrid(r_array, k_array)
+        
     #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
-    M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
+    #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2/np.pi) * k_cols**2 * spherical_jn(L, k_cols*r_rows)
     #M = np.sqrt(2/np.pi) * k_cols * np.sqrt(k_weights) * r_rows * \
         #np.sqrt(dr) * spherical_jn(L, k_cols*r_rows)
+    M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows * r_cols)
 
     return M
 
@@ -178,19 +180,22 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     """
     r^2 operator in momentum-space. For an evolved operator, enter in a unitary 
     transformation U. For presentation, one should divide out the momenta and 
-    weights by dividing by k_i * k_j * Sqrt( w_i * w_j). This gives a mesh 
-    independent result.
+    weights by dividing by 2/pi * k_i * k_j * Sqrt( w_i * w_j ). This gives a
+    mesh-independent result. To calculate the expectation value <r^2>, use this
+    operator with the unitless wave functions.
 
     Parameters
     ----------
+    channel : str
+        The partial wave channel (e.g. '1S0').
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     k_weights: 1-D ndarray
-        Momentum weights.
+        Momentum weights [fm^-1].
     r_array : 1-D ndarray
-        Coordinates array.
+        Coordinates array [fm].
     dr : float
-        Coordinates step-size (weight).
+        Coordinates step-size (weight) [fm].
     U : 2-D ndarray, optional
         Unitary transformation matrix. If no unitary transformation is
         provided, the function will skip the line where it evolves the
@@ -199,30 +204,37 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     Returns
     -------
     r2_momentum_space : 2-D ndarray
-        r2 operator in units XXXXX.
+        r2 operator [fm^2].
+        
+    * Note, update this function for coupled-channels that aren't 3S1-3D1.
         
     """
         
     # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
-    #r2_coordinate_space = np.diag(r_array**2) * np.pi / 2
     r2_coordinate_space = np.diag(r_array**2)
-        
+     
     # Transform operator to momentum-space
-    s_wave_trans = hankel_transformation('3S1', k_array, k_weights, r_array,
-                                         dr)
-    d_wave_trans = hankel_transformation('3D1', k_array, k_weights, r_array,
-                                         dr)
+    s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
+    d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
     
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
-    ss_block = s_wave_trans.T @ r2_coordinate_space @ s_wave_trans * dr
-    dd_block = d_wave_trans.T @ r2_coordinate_space @ d_wave_trans * dr
+    ss_block = s_wave_trans @ r2_coordinate_space @ s_wave_trans.T
+    dd_block = d_wave_trans @ r2_coordinate_space @ d_wave_trans.T
+    
+    # Grids of momenta and weights
+    factor_array = np.sqrt( (2 * k_weights) / np.pi ) * k_array
+    row, col = np.meshgrid(factor_array, factor_array)
+    
+    # Multiply momenta and weights
+    ss_block *= row * col
+    dd_block *= row * col
         
     # Length of k_array
-    m = len(k_array)
+    n = len(k_array)
         
     # Matrix of zeros (m x m) for coupled-channel operator
-    o = np.zeros( (m, m) )
+    o = np.zeros( (n, n) )
         
     # Build coupled channel operator
     r2_momentum_space = np.vstack( ( np.hstack( (ss_block, o) ),
@@ -232,8 +244,4 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     if U.any():
         r2_momentum_space = U @ r2_momentum_space @ U.T
         
-    # Factor of dr for one integration over dr (the other dr' integration is 
-    # killed by delta function) - not sure what the weights should be???
-    #return r2_momentum_space * dr
     return r2_momentum_space
-    #return r2_momentum_space / dr
