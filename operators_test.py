@@ -54,26 +54,33 @@ cwd = getcwd()
 kvnn = 10
 channel = '3S1'
 # Test two different meshes
-kmax_1 = 10.0
+#kmax_1 = 10.0
+kmax_1 = 6.0
 kmid_1 = 2.0
-kmax_2 = 30.0
-kmid_2 = 4.0
-ntot = 120
+#ntot_1 = 120
+ntot_1 = 121
+#kmax_2 = 30.0
+kmax_2 = 6.0
+#kmid_2 = 4.0
+kmid_2 = 2.0
+#ntot_2 = 120
+ntot_2 = 141
 method = 'srg'
 generator = 'Wegner'
 lamb = 1.5
 
 # Legend label
-legend_label = r'$k_{\rm max}=%.1f$' + ' fm' + r'$^{-1}$'
+#legend_label = r'$k_{\rm max}=%.1f$' + ' fm' + r'$^{-1}$'
+legend_label = r'$n_{\rm tot}=%d$'
 
 # Load momentum and weights, and define factor_array
 k_array_1, k_weights_1 = lsp.load_momentum(kvnn, channel, kmax=kmax_1, 
-                                           kmid=kmid_1, ntot=ntot)
+                                           kmid=kmid_1, ntot=ntot_1)
 factor_array_1 = np.sqrt(2/np.pi) * k_array_1 * np.sqrt(k_weights_1)
 factor_array_long_1 = np.concatenate( (factor_array_1, factor_array_1) )
 row_1, col_1 = np.meshgrid(factor_array_long_1, factor_array_long_1)
 k_array_2, k_weights_2 = lsp.load_momentum(kvnn, channel, kmax=kmax_2, 
-                                           kmid=kmid_2, ntot=ntot)
+                                           kmid=kmid_2, ntot=ntot_2)
 factor_array_2 = np.sqrt(2/np.pi) * k_array_2 * np.sqrt(k_weights_2)
 factor_array_long_2 = np.concatenate( (factor_array_2, factor_array_2) )
 row_2, col_2 = np.meshgrid(factor_array_long_2, factor_array_long_2)
@@ -86,15 +93,15 @@ r_array = np.arange(r_min, r_max + dr, dr)
 
 # Load Hamiltonians and unitary transformations
 H_initial_1 = lsp.load_hamiltonian(kvnn, channel, kmax=kmax_1, kmid=kmid_1, 
-                                   ntot=ntot)
+                                   ntot=ntot_1)
 H_evolved_1 = lsp.load_hamiltonian(kvnn, channel, kmax=kmax_1, kmid=kmid_1,
-                                   ntot=ntot, method='srg', 
+                                   ntot=ntot_1, method='srg', 
                                    generator=generator, lamb=lamb)
 U_matrix_1 = SRG_unitary_transformation(H_initial_1, H_evolved_1)
 H_initial_2 = lsp.load_hamiltonian(kvnn, channel, kmax=kmax_2, kmid=kmid_2, 
-                                   ntot=ntot)
+                                   ntot=ntot_2)
 H_evolved_2 = lsp.load_hamiltonian(kvnn, channel, kmax=kmax_2, kmid=kmid_2,
-                                   ntot=ntot, method='srg',
+                                   ntot=ntot_2, method='srg',
                                    generator=generator, lamb=lamb)
 U_matrix_2 = SRG_unitary_transformation(H_initial_2, H_evolved_2)
 
@@ -103,7 +110,8 @@ psi_tilde_1 = ob.wave_function(H_initial_1)
 psi_tilde_2 = ob.wave_function(H_initial_2)
 
 # Load evolved momentum projection operators
-q = 3.00
+#q = 3.00
+q = 1.999
 momentum_proj_op_tilde_1 = op.momentum_projection_operator(q, k_array_1, 
                                                            k_weights_1, 
                                                            channel, U=U_matrix_1)
@@ -125,9 +133,9 @@ print('kmax=%.1f normalization = %.3f' % (kmax_2, normalization_2))
 
 # Convert to fm^3/2 and split in 3S1 and 3D1 components
 psi_1 = psi_tilde_1 / factor_array_long_1
-phi_squared_1 = psi_1[:ntot]**2 + psi_1[ntot:]**2
+phi_squared_1 = psi_1[:ntot_1]**2 + psi_1[ntot_1:]**2
 psi_2 = psi_tilde_2 / factor_array_long_2
-phi_squared_2 = psi_2[:ntot]**2 + psi_2[ntot:]**2
+phi_squared_2 = psi_2[:ntot_2]**2 + psi_2[ntot_2:]**2
 
 # Plot momentum distributions
 plt.close('all')
@@ -151,7 +159,7 @@ ax.set_ylabel(r'$\phi_d^2$' + ' [fm' + r'$^3$' + ']', fontsize=20)
 ax.tick_params(labelsize=14)
 
 chdir('Figures/Operator_evolution')
-f.savefig('momentum_distribution_test.png', bbox_inches='tight')
+#f.savefig('momentum_distribution_test.png', bbox_inches='tight')
 chdir(cwd)
 plt.show()
 
@@ -160,8 +168,8 @@ plt.show()
 
 # Convert momentum projection operator to units fm^6
 # Load operator
-momentum_proj_op_1 = ( momentum_proj_op_tilde_1 / row_1 / col_1 )[:ntot, :ntot]
-momentum_proj_op_2 = ( momentum_proj_op_tilde_2 / row_2 / col_2 )[:ntot, :ntot]
+momentum_proj_op_1 = ( momentum_proj_op_tilde_1 / row_1 / col_1 )[:ntot_1, :ntot_1]
+momentum_proj_op_2 = ( momentum_proj_op_tilde_2 / row_2 / col_2 )[:ntot_2, :ntot_2]
 
 # Interpolate
 k_array_int_1, momentum_proj_int_1 = ff.interpolate_matrix(k_array_1, 
@@ -182,8 +190,10 @@ f, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True,
                              figsize=(8, 3.5))
 
 # Settings for contour
-mx = 0.01
-mn = -0.01
+# mx = 0.01
+# mn = -0.01
+mx = 0.1
+mn = -0.1
 levels_number = 61
 levels = np.linspace(mn, mx, levels_number)
 levels_ticks = np.linspace(mn, mx, 9)
@@ -219,10 +229,14 @@ ax1.set_ylabel('k [fm' + r'$^{-1}$' + ']', fontsize=18)
 ax2.set_xlabel("k' [fm" + r'$^{-1}$' + ']', fontsize=18)
 
 # Add kmax labels
-anchored_text_1 = AnchoredText(legend_label % kmax_1, loc='lower left', 
+#anchored_text_1 = AnchoredText(legend_label % kmax_1, loc='lower left', 
+                               #prop=dict(size=13))
+anchored_text_1 = AnchoredText(legend_label % ntot_1, loc='lower right', 
                                prop=dict(size=13))
 ax1.add_artist(anchored_text_1)
-anchored_text_2 = AnchoredText(legend_label % kmax_2, loc='lower left', 
+#anchored_text_2 = AnchoredText(legend_label % kmax_2, loc='lower left', 
+                               #prop=dict(size=13))
+anchored_text_2 = AnchoredText(legend_label % ntot_2, loc='lower right', 
                                prop=dict(size=13))
 ax2.add_artist(anchored_text_2)
                                          
@@ -247,8 +261,8 @@ plt.show()
 
 # Convert r^2 operator to units fm^5
 # Load operator
-r2_op_1 = ( r2_op_tilde_1 / row_1 / col_1 )[:ntot, :ntot]
-r2_op_2 = ( r2_op_tilde_2 / row_2 / col_2 )[:ntot, :ntot]
+r2_op_1 = ( r2_op_tilde_1 / row_1 / col_1 )[:ntot_1, :ntot_1]
+r2_op_2 = ( r2_op_tilde_2 / row_2 / col_2 )[:ntot_2, :ntot_2]
 
 # Interpolate
 k_array_int_1, r2_op_int_1 = ff.interpolate_matrix(k_array_1, r2_op_1, 0.4)
@@ -321,6 +335,6 @@ cbar.ax.set_yticklabels(levels_ticks_strings)
 cbar.ax.set_title('[fm' + r'$^5$' + ']', fontsize=14)
 
 chdir('Figures/Operator_evolution')
-f.savefig('r2_operator_test.png', bbox_inches='tight')
+#f.savefig('r2_operator_test.png', bbox_inches='tight')
 chdir(cwd)
 plt.show()

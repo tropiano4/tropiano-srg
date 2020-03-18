@@ -223,12 +223,10 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     dd_block = d_wave_trans @ r2_coordinate_space @ d_wave_trans.T
     
     # Grids of momenta and weights
-    factor_array = np.sqrt( (2 * k_weights) / np.pi ) * k_array
+    factor_array = np.concatenate( (np.sqrt(k_weights) * k_array, 
+                                    np.sqrt(k_weights) * k_array) ) * \
+                   np.sqrt(2/np.pi)
     row, col = np.meshgrid(factor_array, factor_array)
-    
-    # Multiply momenta and weights
-    ss_block *= row * col
-    dd_block *= row * col
         
     # Length of k_array
     n = len(k_array)
@@ -236,9 +234,9 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     # Matrix of zeros (m x m) for coupled-channel operator
     o = np.zeros( (n, n) )
         
-    # Build coupled channel operator
+    # Build coupled channel operator with momenta/weights
     r2_momentum_space = np.vstack( ( np.hstack( (ss_block, o) ),
-                                     np.hstack( (o, dd_block) ) ) )
+                                     np.hstack( (o, dd_block) ) ) ) * row * col
     
     # Evolve operator by applying unitary transformation U
     if U.any():

@@ -78,22 +78,31 @@ r_array = np.arange(r_min, r_max + dr, dr)
 hank_trans_1 = op.hankel_transformation('3S1', k_array_1, r_array, dr)
 hank_trans_2 = op.hankel_transformation('3S1', k_array_2, r_array, dr)
 
-# Fix r value
-#r = 0.0
-#r = 2.0
-r = 10.0
-r_index = op.find_q_index(r, r_array)
+# # Fix r value
+# #r = 0.0
+# r = 2.0
+# #r = 10.0
+# r_index = op.find_q_index(r, r_array)
 
-# Take off diagonal elements
-hank_trans_od_1 = hank_trans_1[:,r_index]
-hank_trans_od_2 = hank_trans_2[:,r_index]
+r2_operator = np.diag(r_array**2)
+
+operator_1 = hank_trans_1 @ r2_operator @ hank_trans_1.T
+operator_2 = hank_trans_2 @ r2_operator @ hank_trans_2.T
+
+# Take off diagonal elements and square them
+# hank_trans_od_1 = hank_trans_1[:,r_index]**2
+# hank_trans_od_2 = hank_trans_2[:,r_index]**2
+operator_diag_1 = np.diag(operator_1)
+operator_diag_2 = np.diag(operator_2)
 
 # Divide by factor_array_1? -> THIS IS NOT MESH-INDEPENDENT
 #opt = True
 opt = False
 if opt:
-    hank_trans_od_1 /= factor_array_1
-    hank_trans_od_2 /= factor_array_2
+    # hank_trans_od_1 /= factor_array_1
+    # hank_trans_od_2 /= factor_array_2
+    operator_diag_1 /= factor_array_1
+    operator_diag_2 /= factor_array_2
 
 
 # Plot momentum distributions
@@ -101,27 +110,34 @@ plt.close('all')
 f, ax = plt.subplots(figsize=(4, 4))
     
 # This will raise an error if you aren't plotting with respect to k
-ax.plot(k_array_1, hank_trans_od_1, color=ff.xkcd_colors(0),
+# ax.plot(k_array_1, hank_trans_od_1, color=ff.xkcd_colors(0),
+#         label=legend_label % kmax_1, linestyle='solid', linewidth=2.0)
+# ax.plot(k_array_2, hank_trans_od_2, color=ff.xkcd_colors(1),
+#         label=legend_label % kmax_2, linestyle='dashdot', linewidth=2.0)
+ax.plot(k_array_1, operator_diag_1, color=ff.xkcd_colors(0),
         label=legend_label % kmax_1, linestyle='solid', linewidth=2.0)
-ax.plot(k_array_2, hank_trans_od_2, color=ff.xkcd_colors(1),
+ax.plot(k_array_2, operator_diag_2, color=ff.xkcd_colors(1),
         label=legend_label % kmax_2, linestyle='dashdot', linewidth=2.0)
 
 # Specify axes limits
-ax.set_xlim([0.0, 4.0])
-if opt:
-    ax.set_ylim([-5, 5])
-else:
-    ax.set_ylim([-0.2, 0.8])
+#ax.set_xlim([0.0, 4.0])
+ax.set_xlim([0.0, 0.1])
+# if opt:
+#     ax.set_ylim([-5, 5])
+# else:
+#     #ax.set_ylim([-0.2, 0.8])
+#     ax.set_ylim([-0.001, 0.03])
 ax.legend(loc='upper right', fontsize=13, frameon=False)
 
 # Set axes labels
 ax.set_xlabel('k [fm' + r'$^{-1}$' + ']', fontsize=18)
-ax.set_ylabel(r'$\sqrt{dr} r j_0(kr)$', fontsize=20)
+# ax.set_ylabel(r'$\sqrt{dr} r j_0(kr)$', fontsize=20)
+ax.set_ylabel(r'$r^2(k,k)$')
 
-anchored_text = AnchoredText(r'$r=%.2f$' % r_array[r_index] + ' fm',
-                             loc='lower right', prop=dict(size=14), 
-                             frameon=False)
-ax.add_artist(anchored_text)
+# anchored_text = AnchoredText(r'$r=%.2f$' % r_array[r_index] + ' fm',
+#                              loc='lower right', prop=dict(size=14), 
+#                              frameon=False)
+# ax.add_artist(anchored_text)
 
 # Enlarge axes tick marks
 ax.tick_params(labelsize=14)
