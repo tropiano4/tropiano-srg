@@ -19,11 +19,11 @@
 #  32     Epelbaum et al N3LO (550/600 MeV cutoff)
 #  79     Entem-Machleidt-Nosyk N4LO (500 MeV cutoff)
 #  90     Reinert-Krebs-Epelbaum LO (400 MeV cutoff)
-# 222     Gezerlis et al N2LO local potential at R_0 = 1.0 fm cutoff
-# 224     Gezerlis et al N2LO local potential at R_0 = 1.2 fm cutoff
-# 900     Wendt LO non-local potential at 4 fm^-1 cutoff
-# 901     Wendt LO non-local potential at 9 fm^-1 cutoff
-# 902     Wendt LO non-local potential at 20 fm^-1 cutoff
+# 222     Gezerlis et al N2LO local potential (1.0 fm cutoff)
+# 224     Gezerlis et al N2LO local potential (1.2 fm cutoff)
+# 900     Wendt LO non-local potential (4 fm^-1 cutoff)
+# 901     Wendt LO non-local potential (9 fm^-1 cutoff)
+# 902     Wendt LO non-local potential (20 fm^-1 cutoff)
 #
 # Also saves SRG or Magnus evolved potentials in the same directory.
 #
