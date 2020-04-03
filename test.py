@@ -30,44 +30,30 @@
 
 
 # Description of this test:
-#   Looking at mesh-dependence in spherical bessel functions.
+#   Generating a few figures relevant to r^2 operator evolution to understand
+#   how r^2 evolves for different potentials and SRG generators.
 
 
-#from os import chdir, getcwd
+from os import chdir, getcwd
 from matplotlib.offsetbox import AnchoredText
 import matplotlib.pyplot as plt
 import numpy as np
 from Figures import figures_functions as ff
-#import observables as ob
+import observables as ob
 import operators as op
 from Potentials.vsrg_macos import load_save_potentials as lsp
-#from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
+from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
 # --- Set up --- #
 
 # Specify potential and SRG-evolution here
-kvnn = 10
-channel = '3S1'
-# Test two different meshes
-kmax_1 = 10.0
-kmid_1 = 2.0
-kmax_2 = 30.0
-kmid_2 = 4.0
-ntot = 120
 
-# Legend label
-legend_label = r'$k_{\rm max}=%.1f$' + ' fm' + r'$^{-1}$'
 
-# Load momentum and weights, and define factor_array
-k_array_1, k_weights_1 = lsp.load_momentum(kvnn, channel, kmax=kmax_1, 
-                                           kmid=kmid_1, ntot=ntot)
-factor_array_1 = np.sqrt(2/np.pi) * k_array_1 * np.sqrt(k_weights_1)
-row_1, col_1 = np.meshgrid(factor_array_1, factor_array_1)
-k_array_2, k_weights_2 = lsp.load_momentum(kvnn, channel, kmax=kmax_2, 
-                                           kmid=kmid_2, ntot=ntot)
-factor_array_2 = np.sqrt(2/np.pi) * k_array_2 * np.sqrt(k_weights_2)
-row_2, col_2 = np.meshgrid(factor_array_2, factor_array_2)
+# Plotting specifications that are dependent on the settings above
+
+
+# --- Main calculations --- #
 
 # Specify coordinates array
 r_min = 0.005
@@ -75,71 +61,11 @@ r_max = 30.2
 dr = 0.005
 r_array = np.arange(r_min, r_max + dr, dr)
 
-hank_trans_1 = op.hankel_transformation('3S1', k_array_1, r_array, dr)
-hank_trans_2 = op.hankel_transformation('3S1', k_array_2, r_array, dr)
 
-# # Fix r value
-# #r = 0.0
-# r = 2.0
-# #r = 10.0
-# r_index = op.find_q_index(r, r_array)
-
-r2_operator = np.diag(r_array**2)
-
-operator_1 = hank_trans_1 @ r2_operator @ hank_trans_1.T
-operator_2 = hank_trans_2 @ r2_operator @ hank_trans_2.T
-
-# Take off diagonal elements and square them
-# hank_trans_od_1 = hank_trans_1[:,r_index]**2
-# hank_trans_od_2 = hank_trans_2[:,r_index]**2
-operator_diag_1 = np.diag(operator_1)
-operator_diag_2 = np.diag(operator_2)
-
-# Divide by factor_array_1? -> THIS IS NOT MESH-INDEPENDENT
-#opt = True
-opt = False
-if opt:
-    # hank_trans_od_1 /= factor_array_1
-    # hank_trans_od_2 /= factor_array_2
-    operator_diag_1 /= factor_array_1
-    operator_diag_2 /= factor_array_2
+# --- Plot momentum distribution --- #
 
 
-# Plot momentum distributions
-plt.close('all')
-f, ax = plt.subplots(figsize=(4, 4))
-    
-# This will raise an error if you aren't plotting with respect to k
-# ax.plot(k_array_1, hank_trans_od_1, color=ff.xkcd_colors(0),
-#         label=legend_label % kmax_1, linestyle='solid', linewidth=2.0)
-# ax.plot(k_array_2, hank_trans_od_2, color=ff.xkcd_colors(1),
-#         label=legend_label % kmax_2, linestyle='dashdot', linewidth=2.0)
-ax.plot(k_array_1, operator_diag_1, color=ff.xkcd_colors(0),
-        label=legend_label % kmax_1, linestyle='solid', linewidth=2.0)
-ax.plot(k_array_2, operator_diag_2, color=ff.xkcd_colors(1),
-        label=legend_label % kmax_2, linestyle='dashdot', linewidth=2.0)
+# --- Plot r^2 operator --- #
 
-# Specify axes limits
-#ax.set_xlim([0.0, 4.0])
-ax.set_xlim([0.0, 0.1])
-# if opt:
-#     ax.set_ylim([-5, 5])
-# else:
-#     #ax.set_ylim([-0.2, 0.8])
-#     ax.set_ylim([-0.001, 0.03])
-ax.legend(loc='upper right', fontsize=13, frameon=False)
 
-# Set axes labels
-ax.set_xlabel('k [fm' + r'$^{-1}$' + ']', fontsize=18)
-# ax.set_ylabel(r'$\sqrt{dr} r j_0(kr)$', fontsize=20)
-ax.set_ylabel(r'$r^2(k,k)$')
-
-# anchored_text = AnchoredText(r'$r=%.2f$' % r_array[r_index] + ' fm',
-#                              loc='lower right', prop=dict(size=14), 
-#                              frameon=False)
-# ax.add_artist(anchored_text)
-
-# Enlarge axes tick marks
-ax.tick_params(labelsize=14)
-
-plt.show()
+# --- Plot matrix elements of expectation value --- #
