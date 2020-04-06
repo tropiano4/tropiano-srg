@@ -23,7 +23,7 @@
 #                coordinate-space). Created toy_operator_srg_evolution_v1.py in
 #                Old_codes.
 #   10/14/19 --- Making a couple of plots for DNP 2019 meeting.
-#   03/16/19 --- Tested generalized NN operator conventions and mesh-
+#   03/16/20 --- Tested generalized NN operator conventions and mesh-
 #                dependence. Created operators_test.py in Old_codes.
 #
 #------------------------------------------------------------------------------
