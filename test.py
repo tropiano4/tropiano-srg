@@ -34,12 +34,10 @@
 #   how r^2 evolves for different potentials and SRG generators.
 
 
-from os import chdir, getcwd
-from matplotlib.offsetbox import AnchoredText
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 from Figures import figures_functions as ff
-from Figures import register_colormap
 import observables as ob
 import operators as op
 from Potentials.vsrg_macos import load_save_potentials as lsp
@@ -51,27 +49,23 @@ from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 # Specify potential and SRG-evolution here
 # RKE N4LO 450 MeV potential
 kvnn = 111
+# AV18
+#kvnn = 6
 channel = '3S1'
 # Block-diagonal evolution
 generator = 'Block-diag'
-lamb = 1.0
+if kvnn == 111:
+    lamb = 1.0
+elif kvnn == 6:
+    lamb = 1.5
 lambda_bd = 2.0
 
 # Plotting specifications that are dependent on the settings above
 # Momentum settings
 k_label = 'k [fm' + r'$^{-1}$' + ']'
 kp_label = "k' [fm" + r'$^{-1}$' + ']'
-#k_max = 0.4
-k_max = 4.0
-k_lim = [0.0, k_max]
-# r^2 settings
-if k_max < 3.0:
-    mx = 8e2
-    mn = -8e2
-else:
-    mx = 5e1
-    mn = -5e1
-
+k_max_1 = 0.4
+k_max_2 = 4.0
 
 
 # --- Main calculations --- #
@@ -107,6 +101,11 @@ psi_evolved = ob.wave_function(H_initial, U=U_matrix) / factor_array
 phi2_initial = psi_initial[:ntot]**2 + psi_initial[ntot:]**2
 phi2_evolved = psi_evolved[:ntot]**2 + psi_evolved[ntot:]**2
 
+# Print relative difference in (evolved - initial) / initial (percent) at
+# k = 0 fm^-1
+rel_diff = abs(phi2_evolved[0] - phi2_initial[0]) / phi2_initial[0] * 100.0
+print(rel_diff)
+
 # Calculate r^2 operators
 r2_initial = op.r2_operator(k_array, k_weights, r_array, dr) / row / col
 r2_evolved = op.r2_operator(k_array, k_weights, r_array, dr, U=U_matrix) \
@@ -114,6 +113,10 @@ r2_evolved = op.r2_operator(k_array, k_weights, r_array, dr, U=U_matrix) \
         
 # Take r^2 difference and re-size to 3S1 - 3S1 sub-block
 r2_diff = (r2_evolved - r2_initial)[:ntot, :ntot]
+
+# Matrix elements of <\psi|r^2|\psi>
+psi_row, psi_col = np.meshgrid(psi_evolved, psi_evolved)
+integrand = abs( psi_row * r2_evolved * psi_col )
 
 
 # --- Plot momentum distributions --- #
@@ -157,7 +160,10 @@ ax.set_ylabel(r'$\Delta \phi_d^2(k)$' + ' [fm' + r'$^3$' + ']')
 
 # Set axes limits
 ax.set_xlim([0.0, 0.4])
-ax.set_ylim([0.0, 0.8])
+if kvnn == 111:
+    ax.set_ylim([0.0, 0.8])
+elif kvnn == 6:
+    ax.set_ylim([0.0, 1.5])
 
 # Save figure
 file_name = 'momentum_distributions_difference_test.pdf'
@@ -165,34 +171,93 @@ f.savefig(file_name, bbox_inches='tight')
 plt.show()
 
 
-
 # --- Plot r^2 operator --- #
 
+for k_max in [k_max_1, k_max_2]:
+
+    levels_number = 61
+    if k_max < 3.0:
+        mx = 8e2
+        mn = -8e2
+    else:
+        mx = 5e1
+        mn = -5e1
+        
+    levels = np.linspace(mn, mx, levels_number)
+    levels_ticks = np.linspace(mn, mx, 9)
+    
+    if k_max < 3.0:
+        levels_ticks_strings = ['%.0f' % tick for tick in levels_ticks]
+    else:
+        levels_ticks_strings = ['%.1f' % tick for tick in levels_ticks]
+
+    # Interpolate for better looking figure
+    k_array_int, r2_diff_int = ff.interpolate_matrix(k_array, r2_diff, k_max)
+
+    # Plot the difference of the r^2 operator
+    plt.close('all')
+    f, ax = plt.subplots(figsize=(4, 3.5))
+    
+    c = ax.contourf(k_array_int, k_array_int, r2_diff_int, levels, 
+                    cmap='turbo', extend='both')
+
+    # Set axes label
+    ax.set_xlabel(kp_label)
+    ax.set_ylabel(k_label)
+                        
+    # Specify axes limits
+    ax.set_xlim( [0.0, k_max] )
+    ax.set_ylim( [0.0, k_max] )
+                     
+    # Switch from bottom to top
+    ax.xaxis.set_label_position('top')
+    ax.xaxis.tick_top()
+    ax.tick_params(labeltop=True)
+
+    # Invert y-axis
+    plt.gca().invert_yaxis()
+                                                                        
+    # Set colorbar axe
+    f.subplots_adjust(right=0.8) # Adjust for colorbar space
+    cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+                                         
+    # Set colorbar
+    cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
+    cbar.ax.set_yticklabels(levels_ticks_strings)
+
+    # Save figure
+    file_name = 'r2_operator_difference_test_kmax_%.1f.pdf' % k_max
+    f.savefig(file_name, bbox_inches='tight')
+    plt.show()
+
+
+# --- Plot matrix elements of expectation value --- #
+
+mx = 8
+mn = -3
 levels_number = 61
-levels = np.linspace(mn, mx, levels_number)
-levels_ticks = np.linspace(mn, mx, 9)
-if k_max < 3.0:
-    levels_ticks_strings = ['%.0f' % tick for tick in levels_ticks]
-else:
-    levels_ticks_strings = ['%.1f' % tick for tick in levels_ticks]
+levels = np.logspace(mn, mx, levels_number)
+levels_ticks = np.logspace(mn, mx, 12)
+levels_ticks_strings = [r'$10^{%d}$' % step for step in range(mn, mx+1)]
+colorbar_norm = colors.LogNorm(vmin=mn, vmax=mx)
 
 # Interpolate for better looking figure
-k_array_int, r2_diff_int = ff.interpolate_matrix(k_array, r2_diff, k_max)
+k_array_int, integrand_int = ff.interpolate_matrix(k_array, integrand, k_max)
 
 # Plot the difference of the r^2 operator
 plt.close('all')
 f, ax = plt.subplots(figsize=(4, 3.5))
     
-c = ax.contourf(k_array_int, k_array_int, r2_diff_int, levels, 
-                cmap='turbo', extend='both')
+c = ax.contourf(k_array_int, k_array_int, integrand_int, levels, cmap='Blues', 
+                norm=colors.LogNorm(), extend='both')
 
 # Set axes label
 ax.set_xlabel(kp_label)
 ax.set_ylabel(k_label)
                         
 # Specify axes limits
-ax.set_xlim(k_lim)
-ax.set_ylim(k_lim)
+ax.set_xlim( [0.0, k_max] )
+ax.set_ylim( [0.0, k_max] )
                      
 # Switch from bottom to top
 ax.xaxis.set_label_position('top')
@@ -211,9 +276,6 @@ cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
 cbar.ax.set_yticklabels(levels_ticks_strings)
 
 # Save figure
-file_name = 'r2_operator_difference_test.pdf'
+file_name = 'r2_integrand_test_kmax_%.1f.pdf' % k_max
 f.savefig(file_name, bbox_inches='tight')
 plt.show()
-
-
-# --- Plot matrix elements of expectation value --- #
