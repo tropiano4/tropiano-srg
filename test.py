@@ -25,6 +25,7 @@
 #   10/14/19 --- Making a couple of plots for DNP 2019 meeting.
 #   03/16/20 --- Tested generalized NN operator conventions and mesh-
 #                dependence. Created operators_test.py in Old_codes.
+#   04/08/20 --- Tested SRG changes in r^2 operator.
 #
 #------------------------------------------------------------------------------
 
