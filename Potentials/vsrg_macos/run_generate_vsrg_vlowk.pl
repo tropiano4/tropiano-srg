@@ -102,7 +102,8 @@ $kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
 #@kvnns = (90); # RKE semi-local potential at LO with specified cutoff (unless changed it's 400 MeV)
 #@kvnns = (105,106,107,110,111,112); # RKE semi-local potential at N3LO and N4LO
 #@kvnns = (74,79);
-@kvnns = (79, 111, 222); # Potentials used for A.T. operator evolution paper
+#@kvnns = (79, 111, 222); # Potentials used for A.T. operator evolution paper
+@kvnns = (113); # RKE semi-local potential at N4LO (550 MeV)
 
 # The following list is all of the semi-local EKM potentials
 #@kvnns = (40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64);
@@ -153,10 +154,10 @@ $J_max = 13;  # highest J value
         "3Q12","1Q12","3Q13"
         );
 #@pws = ("1S0","3S1");
-#@pws = ("1S0","3S1","1P1","3P0");
+@pws = ("1S0","3S1","1P1","3P0");
 #@pws = ("3P0");
 #@pws = ("3N12","1M10","1O12");
-@pws = ("1F3","1G4");
+#@pws = ("1F3","1G4");
 
 #-------------------------- end setup -------------------------------------
 
