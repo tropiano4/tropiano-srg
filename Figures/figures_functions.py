@@ -184,7 +184,7 @@ def kvnn_label_conversion(kvnn, full_label=True):
     elif kvnn in [105, 106, 107]:
         label = 'RKE N' + r'$^3$' + 'LO'
     # RKE N4LO (400, 450, 500 MeV cutoffs)
-    elif kvnn in [110, 111, 112]:
+    elif kvnn in [110, 111, 112, 113]:
         label = 'RKE N' + r'$^4$' + 'LO'
         
     # Gezrelis N2LO (1 and 1.2 fm cutoff)
