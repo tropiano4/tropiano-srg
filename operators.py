@@ -89,7 +89,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
         
     Returns
     -------
-    coupled_channel_operator : 2-D ndarray
+    operator : 2-D ndarray
         Momentum projection operator in units fm^3.
         
     """
