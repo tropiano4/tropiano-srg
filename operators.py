@@ -67,30 +67,29 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     applied to a wave function, returns the wave function at momentum value q.
     For an evolved operator, enter in a unitary transformation U. The initial
     operator is zero everywhere except where k, k' = q. For presentation, one
-    should divide out the momenta and weights by dividing by k_i * k_j *
-    Sqrt( w_i * w_j). This gives a mesh independent result.
+    should divide out the momenta and weights by dividing by 2/pi * k_i * k_j 
+    * Sqrt( w_i * w_j) which gives a mesh independent result.
 
     Parameters
     ----------
     q : float
-        Momentum value in units fm^-1.
+        Momentum value [fm^-1].
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     k_weights: 1-D ndarray
-        Momentum weights.
+        Momentum weights [fm^-1].
     channel : str
-        The partial wave channel ('1S0', '3S1', etc.) This allows the function
-        to distinguish whether the operator should work for coupled-channels or
-        not.
+        The partial wave channel (e.g. '1S0'). This allows the function to 
+        distinguish whether the operator should work for coupled-channels.
     U : 2-D ndarray, optional
-        Unitary transformation matrix. If no unitary transformation is
-        provided, the function will skip the line where it evolves the
-        operator.
+        Unitary transformation matrix with momenta/weights factored in, that 
+        is, the matrix is unitless. If no unitary transformation is provided, 
+        the function will skip the line where it evolves the operator.
         
     Returns
     -------
     operator : 2-D ndarray
-        Momentum projection operator in units fm^3.
+        Momentum projection operator [fm^3].
         
     """
         
@@ -106,10 +105,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
         
     # Build momentum projection operator 
     operator = np.zeros( (m, m) )
-    #operator[q_index, q_index] = 1 / ( q**2 * q_weight )
     operator[q_index, q_index] = np.pi / ( 2 * q_value**2 * q_weight )
-    #operator[q_index, q_index] = 1
-    #operator[q_index, q_index] = np.pi / ( 2* q**4 * q_weight**2 )
     
     # Build coupled channel operator 
     if lp.coupled_channel(channel):
@@ -166,11 +162,6 @@ def hankel_transformation(channel, k_array, r_array, dr):
     # n x m matrices
     r_cols, k_rows = np.meshgrid(r_array, k_array)
         
-    #M = np.sqrt(2/np.pi) * k_cols**2 * r_rows * spherical_jn(L, k_cols*r_rows)
-    #M = np.sqrt(2/np.pi) * r_rows * spherical_jn(L, k_cols*r_rows)
-    #M = np.sqrt(2/np.pi) * k_cols**2 * spherical_jn(L, k_cols*r_rows)
-    #M = np.sqrt(2/np.pi) * k_cols * np.sqrt(k_weights) * r_rows * \
-        #np.sqrt(dr) * spherical_jn(L, k_cols*r_rows)
     M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows * r_cols)
 
     return M
@@ -197,9 +188,9 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     dr : float
         Coordinates step-size (weight) [fm].
     U : 2-D ndarray, optional
-        Unitary transformation matrix. If no unitary transformation is
-        provided, the function will skip the line where it evolves the
-        operator.
+        Unitary transformation matrix with momenta/weights factored in, that 
+        is, the matrix is unitless. If no unitary transformation is provided, 
+        the function will skip the line where it evolves the operator.
         
     Returns
     -------

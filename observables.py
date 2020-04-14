@@ -49,9 +49,9 @@ def find_eps_index(eps, e_array):
     Parameters
     ----------
     eps : float
-        Energy value in units MeV.
+        Energy value (can take any units).
     e_array : 1-D ndarray
-        Energies array.
+        Energies array (units should match units of eps).
         
     Returns
     -------
@@ -80,9 +80,9 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     eps : float, optional
         Energy of the desired state [MeV]. Default is the deuteron state.
     U : 2-D ndarray, optional
-        Unitary transformation matrix. If no unitary transformation is 
-        provided, the function will skip the line where it evolves the wave
-        function.
+        Unitary transformation matrix with momenta/weights factored in, that 
+        is, the matrix is unitless. If no unitary transformation is provided, 
+        the function will skip the line where it evolves the operator.
     
     Returns
     -------
@@ -113,20 +113,19 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
 
 def energies(H_matrix, bound_states_only=True):
     """
-    Energies of a given Hamiltonian in units MeV. Option to return only bound
-    state energies.
+    Energies of a given Hamiltonian.
     
     Parameters
     ----------
     H_matrix : 2-D ndarray
-        Hamiltonian matrix in units MeV.
+        Hamiltonian matrix [MeV].
     bound_states_only : bool, optional
         If true, returns only bound state energies.
         
     Returns
     -------
     output : 1-D ndarray
-        Array of energies in units MeV.
+        Array of energies [MeV].
         
     """
         
@@ -154,24 +153,24 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     Parameters
     ----------
     e_array : 1-D ndarray
-        Array of lab energies in MeV.
+        Array of lab energies [MeV].
     V_matrix : 2-D ndarray
-        Potential matrix in units fm.
+        Potential matrix [fm].
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     k_weights : 1-D ndarray
-        Momentum weights.
+        Momentum weights [fm^-1].
     
     Returns
     -------
     phase_shifts : 1-D ndarray
-        Array of phase shifts in degrees for each lab energy in e_array.
+        Array of phase shifts [deg] for each lab energy in e_array.
     
     Notes
     -----
-    * Difficult to understand what causes shifts in pi. At the moment, manually
-      correcting these shifts is a sloppy fix. Is there a more elegant
-      solution?
+    * Difficult to understand what causes shifts in pi. At the moment, 
+      manually correcting these shifts is a sloppy fix. Is there a more 
+      elegant solution?
     
     """
     
@@ -249,23 +248,23 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
     Parameters
     ----------
     e_array : 1-D ndarray
-        Array of lab energies in MeV.
+        Array of lab energies [MeV].
     V_matrix : 2-D ndarray
-        Potential matrix in units fm.
+        Potential matrix [fm].
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     k_weights : 1-D ndarray
-        Momentum weights.
+        Momentum weights [fm^-1].
     convention : str, optional
         Phase shift calculation convention 'Stapp' or 'Blatt'.
     
     Returns
     -------
     phase_shifts : 2-D ndarray
-        Array of phase shifts delta_a, delta_b, and epsilon for each lab energy
-        in e_array. For example, phase_shifts[i, 0] returns delta_a at the ith
-        lab energy in e_array. For an entire array of one type of phase shift,
-        take phase_shifts[:, j] where j = 0, 1, or 2.
+        Array of phase shifts delta_a, delta_b, and epsilon (all units [deg])
+        for each lab energy in e_array. For example, phase_shifts[i, 0] returns 
+        delta_a at the ith lab energy in e_array. For an entire array of one
+        type of phase shift, take phase_shifts[:, j] where j = 0, 1, or 2.
     
     Notes
     -----
