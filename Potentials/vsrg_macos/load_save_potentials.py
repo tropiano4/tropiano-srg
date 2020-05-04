@@ -766,14 +766,16 @@ def mesh_specifications(kvnn):
     return kmax, kmid, ntot
 
 
-def convert_to_new_mesh(V, old_mesh, new_mesh):
+def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     """
     Description.
 
     Parameters
     ----------
-    V : TYPE
-        DESCRIPTION.
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel (e.g. '1S0')
     old_mesh : TYPE
         DESCRIPTION.
     new_mesh : TYPE
@@ -784,5 +786,17 @@ def convert_to_new_mesh(V, old_mesh, new_mesh):
     None.
 
     """
+    
+    # Load old mesh here
+    
+    # Interpolate V to old mesh - this should give a function V_func
+    
+    # Generate new potential V_matrix_new (still units fm)
+    
+    # Save to file using save_potential function (this reads V in unit fm^-2!)
+    # Make sure the momenta/weights are factored in
+    
+    # Using hbar^2/M factor, test that the new potential gets correct bound
+    # state energies
     
     return None
