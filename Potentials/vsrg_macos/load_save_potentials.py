@@ -728,6 +728,7 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     
     return V_MeV
 
+
 def mesh_specifications(kvnn):
     """
     Returns the default mesh specifications for a particular potential.
@@ -763,3 +764,25 @@ def mesh_specifications(kvnn):
         kmid = 2.0
 
     return kmax, kmid, ntot
+
+
+def convert_to_new_mesh(V, old_mesh, new_mesh):
+    """
+    Description.
+
+    Parameters
+    ----------
+    V : TYPE
+        DESCRIPTION.
+    old_mesh : TYPE
+        DESCRIPTION.
+    new_mesh : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    return None
