@@ -31,29 +31,33 @@
 
 
 # Description of this test:
-#   Testing mesh converting function.
+#   Compute <p^2> for the spurious state for kvnn=901
 
 
-from run_srg import run_srg
 import numpy as np
+import observables as ob
+from Potentials.vsrg_macos import load_save_potentials as lsp
 
 
-kvnns = [900, 901, 902]
+# Potential specifications
+kvnn = 901
 channel = '3S1'
-kmax = 10.0
-kmid = 2.0
-ntot = 120
 
-generators = ['Wegner', 'Block-diag']
-lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
+# Load momentum
+k_array, _ = lsp.momentum(kvnn, channel)
+k_array_long = np.concatenate( (k_array, k_array) )
 
-for kvnn in kvnns:
-    for generator in generators:
-        if generator == 'Block-diag':
-            for lamb in lambda_array:
-                d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
-                            np.array( [lambda_array[-1]] ), lambda_bd=lamb,
-                            save=True)
-        else:
-            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
-                        lambda_array, save=True)
+# Build p^2 operator in momentum-space
+p2_operator = np.diag( k_array_long**2 )
+
+# Spurious bound state energy
+eps = -2000
+
+# Load initial Hamiltonian
+H_matrix = lsp.load_hamiltonian(kvnn, channel)
+
+# Spurious bound state wave function (unitless)
+psi_s = ob.wave_function(H_matrix, eps)
+
+p2_value = psi_s.T @ p2_operator @ psi_s # Units should be fm^-2
+print(p2_value)
