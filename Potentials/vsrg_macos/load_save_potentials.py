@@ -30,12 +30,15 @@
 # Revision history:
 #   05/07/19 --- Save and load Magnus evolved potentials and omega matrices.
 #   02/26/20 --- Updated to include default momentum mesh specifications.
+#   05/05/20 --- Updated to include function that converts potential to a new
+#                momentum mesh.
 #
 #------------------------------------------------------------------------------
 
 
 from os import getcwd, chdir
 import numpy as np
+from scipy.interpolate import interp2d
 
 
 def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
@@ -483,6 +486,11 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
         vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out' % (channel, 
                     kvnn_string, method, generator, lamb, k_magnus, ds)
     
+    else:
+        
+        vnn_file = 'vnn_%s_kvnn_%s_lam12.0_reg_0_3_0.out' % (channel, 
+                                                             kvnn_string)
+    
     f = open(vnn_file,'w')
     
     # Length of momentum array
@@ -768,7 +776,7 @@ def mesh_specifications(kvnn):
 
 def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     """
-    Description.
+    Change a potential's momentum mesh and saves to new folder.
 
     Parameters
     ----------
@@ -776,27 +784,63 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
         This number specifies the potential.
     channel : str
         The partial wave channel (e.g. '1S0')
-    old_mesh : TYPE
-        DESCRIPTION.
-    new_mesh : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
+    old_mesh : tuple
+        Values which specify the old momentum mesh (kmax, kmid, ntot) where
+        kmax and kmid are floats and ntot is an int.
+    new_mesh : tuple
+        Values which specify the new momentum mesh (kmax, kmid, ntot) where
+        kmax and kmid are floats and ntot is an int.
 
     """
     
     # Load old mesh here
+    kmax_old, kmid_old, ntot_old = old_mesh
+    k_array_old, _ = load_momentum(kvnn, channel, kmax=kmax_old,
+                                   kmid=kmid_old, ntot=ntot_old)
     
-    # Interpolate V to old mesh - this should give a function V_func
+    # Interpolate V to old mesh
+    # Start by loading V_matrix_old in units fm
+    V_matrix_old = load_potential(kvnn, channel, kmax=kmax_old, kmid=kmid_old,
+                                  ntot=ntot_old)
+    # If coupled-channel, do one sub-block at a time
+    if coupled_channel(channel):
+        V_11_func = interp2d( k_array_old, k_array_old, 
+                              V_matrix_old[:ntot_old, :ntot_old] )
+        V_12_func = interp2d( k_array_old, k_array_old, 
+                              V_matrix_old[:ntot_old, ntot_old:] )
+        V_21_func = interp2d( k_array_old, k_array_old, 
+                              V_matrix_old[ntot_old:, :ntot_old] )
+        V_22_func = interp2d( k_array_old, k_array_old, 
+                              V_matrix_old[ntot_old:, ntot_old:] )
+    else:
+        V_func = interp2d(k_array_old, k_array_old, V_matrix_old)
+    
+    # Load new mesh here
+    kmax_new, kmid_new, ntot_new = new_mesh
+    k_array_new, k_weights = load_momentum(kvnn, channel, kmax=kmax_new,
+                                           kmid=kmid_new, ntot=ntot_new)
     
     # Generate new potential V_matrix_new (still units fm)
+    # If coupled-channel, do one-sub-block at a time
+    if coupled_channel(channel):
+        V11 = V_11_func(k_array_new, k_array_new)
+        V12 = V_12_func(k_array_new, k_array_new)
+        V21 = V_21_func(k_array_new, k_array_new)
+        V22 = V_22_func(k_array_new, k_array_new)
+        V_matrix_new = np.vstack( ( np.hstack( (V11, V12) ), 
+                                    np.hstack( (V21, V22) ) ) )
+    else:
+        V_matrix_new = V_func(k_array_new, k_array_new)
     
-    # Save to file using save_potential function (this reads V in unit fm^-2!)
-    # Make sure the momenta/weights are factored in
+    # Convert to units fm^-2
+    factor_array = np.sqrt(2 * k_weights / np.pi) * k_array_new
+    # Double the length of factor_array if coupled-channel
+    if coupled_channel(channel):
+        factor_array = np.concatenate( (factor_array, factor_array) )
+    row, col = np.meshgrid(factor_array, factor_array)
+    V_matrix_new *= row * col
     
-    # Using hbar^2/M factor, test that the new potential gets correct bound
-    # state energies
-    
-    return None
+    # Save to file (this reads V in unit fm^-2!)
+    save_potential(k_array_new, k_weights, V_matrix_new, kvnn, channel,
+                   kmax=kmax_new, kmid=kmid_new, ntot=ntot_new,
+                   method='initial')
