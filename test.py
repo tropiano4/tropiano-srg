@@ -34,15 +34,26 @@
 #   Testing mesh converting function.
 
 
-from Potentials.vsrg_macos import load_save_potentials as lsp
+from run_srg import run_srg
+import numpy as np
 
 
-kvnn = 901
+kvnns = [900, 901, 902]
 channel = '3S1'
+kmax = 10.0
+kmid = 2.0
+ntot = 120
 
-old_mesh = (30.0, 4.0, 120)
-new_mesh = (10.0, 2.0, 120)
+generators = ['Wegner', 'Block-diag']
+lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
 
-eigenvalues, V_matrix_new = lsp.convert_potential_to_new_mesh(kvnn, channel, 
-                                                              old_mesh, 
-                                                              new_mesh)
+for kvnn in kvnns:
+    for generator in generators:
+        if generator == 'Block-diag':
+            for lamb in lambda_array:
+                d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
+                            np.array( [lambda_array[-1]] ), lambda_bd=lamb,
+                            save=True)
+        else:
+            d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
+                        lambda_array, save=True)
