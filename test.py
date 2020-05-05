@@ -44,14 +44,15 @@ kvnn = 901
 channel = '3S1'
 
 # Load momentum
-k_array, _ = lsp.momentum(kvnn, channel)
+k_array, _ = lsp.load_momentum(kvnn, channel)
 k_array_long = np.concatenate( (k_array, k_array) )
 
 # Build p^2 operator in momentum-space
 p2_operator = np.diag( k_array_long**2 )
 
 # Spurious bound state energy
-eps = -2000
+#eps = -2000
+eps = -2.22
 
 # Load initial Hamiltonian
 H_matrix = lsp.load_hamiltonian(kvnn, channel)
