@@ -51,8 +51,9 @@ k_array_long = np.concatenate( (k_array, k_array) )
 p2_operator = np.diag( k_array_long**2 )
 
 # Spurious bound state energy
-#eps = -2000
-eps = -2.22
+eps = -2000
+#eps = -2.22
+#eps = -34491
 
 # Load initial Hamiltonian
 H_matrix = lsp.load_hamiltonian(kvnn, channel)
