@@ -116,7 +116,6 @@ def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
     # Convert HHp back to mesh-independent quantity (units fm)
     HHp = HHp_with_factors / row / col
     
-    
     return expectation_value(HHp) - \
            expectation_value(H.T) * expectation_value(Hp)
 
