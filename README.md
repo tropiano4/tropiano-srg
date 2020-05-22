@@ -19,7 +19,7 @@ Description of each folder:
 
 * __Presentations__ contains all the files used for presentations for conferences or meetings.
 
-* __SRG_codes__ contains codes for SRG evolving a Hamiltonian via the Wegner, relative kinetic energy, or block-diagonal generator. Also contains a unitary transformation function within srg_unitary_transformation.py.
+* __SRG_codes__ contains codes for SRG evolving a Hamiltonian via the Wegner, relative kinetic energy, or block-diagonal generator. Also contains a U(k,k') transformation function within srg_unitary_transformation.py.
 
 
 Description of major codes:
