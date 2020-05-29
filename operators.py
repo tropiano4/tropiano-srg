@@ -30,7 +30,7 @@
 import numpy as np
 from scipy.special import spherical_jn
 # Scripts made by A.T.
-from Potentials.vsrg_macos import load_save_potentials as lp
+from Potentials.vsrg_macos import load_save_potentials as lsp
 
 
 def find_q_index(q, k_array):
@@ -108,7 +108,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     operator[q_index, q_index] = np.pi / ( 2 * q_value**2 * q_weight )
     
     # Build coupled channel operator 
-    if lp.coupled_channel(channel):
+    if lsp.coupled_channel(channel):
     
         # Matrix of zeros (m x m) for coupled-channel operator
         o = np.zeros( (m, m) )
