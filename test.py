@@ -536,7 +536,8 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
 
     # Axes limits
     #axes_max = 0.4
-    axes_max = 1.0
+    #axes_max = 1.0
+    axes_max = 10.0
     axes_lim = [0.0, axes_max]
         
     # Axes ticks, labels, and fontsizes
@@ -544,22 +545,23 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     y_label = 'k [fm' + r'$^{-1}$' + ']'
     axes_label_size = 18
     #axes_stepsize = 0.1 # Step-size in labeling tick marks
-    axes_stepsize = 0.2 # Step-size in labeling tick marks
+    #axes_stepsize = 0.2 # Step-size in labeling tick marks
+    axes_stepsize = 2.0 # Step-size in labeling tick marks
     axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
     axes_ticks_strings = ['%.1f' % tick for tick in axes_ticks]
     axes_tick_size = 18
     
     # Colorbar ticks, label, and fontsize
-    # mx = 8e2
-    # mn = -8e2
-    # mx = 2e1
-    # mn = -2e1
     mx = 5e2
-    #mx = 1e5
-    #mx = 5e3
     mn = -5e2
+    # mx = 5e3
+    # mn = -5e3
+    #mx = 1e5
+    #mx = 1e6
+    #mx = 1e4
     #mn = -1e5
-    #mn = -5e3
+    #mn = -1e6
+    #mn = -1e4
     levels_number = 61
     levels = np.linspace(mn, mx, levels_number)
     levels_ticks = np.linspace(mn, mx, 9)
@@ -711,7 +713,8 @@ kvnns_default = [79, 111, 222]
 kvnn_default = 111
 channel_default = '3S1'
 generators = ['Wegner', 'Block-diag']
-q = 3.0
+#q = 3.0
+q = 0.3
 
 
 # --- Test regulated operators --- #
@@ -745,6 +748,8 @@ q = 3.0
 #         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
 #         axs[i, j].add_artist(anchored_text)
         
+# plt.show()
+        
         
 # # Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
 # # (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
@@ -753,8 +758,10 @@ q = 3.0
 #                                     generators, lambda_array)
 
 # # Set the y-axis limit and tickmarks (this will vary based on q value)
-# ylim = [-0.003, 0.012]
-# y_stepsize = 0.003
+# #ylim = [-0.003, 0.012]
+# ylim = [-0.03, 0.12]
+# #y_stepsize = 0.003
+# y_stepsize = 0.03
 # y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
 # y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
 # for i in range(2):
@@ -766,18 +773,21 @@ q = 3.0
 
 # # Add legend for generators to upper left sub-plot
 # legend_size = 18
-# legend_location = 'upper left'
+# #legend_location = 'upper left'
+# legend_location = 'upper right'
 # axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
 
 # # Add legend for kvnns to lower left sub-plot
 # legend_size = 18
-# legend_location = 'upper left'
+# #legend_location = 'upper left'
+# legend_location = 'upper right'
 # axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
 
 # # Add \lambda and \Lambda_BD labels to each sub-plot
 # lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
 # lambda_label_size = 16
-# lambda_label_location = 'lower left'
+# #lambda_label_location = 'lower left'
+# lambda_label_location = 'lower right'
 # for i in range(2):
 #     for j, lamb in enumerate(lambda_array):
 #         anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
@@ -791,7 +801,8 @@ f, axs = r2_diff_contours(kvnn_default, generators, lambda_array)
 
 # Add generator label to each subplot on the 1st column
 generator_label_size = 17
-generator_label_location = 'center right'
+#generator_label_location = 'center right'
+generator_label_location = 'upper right'
 for i, generator in enumerate(generators):
     generator_label = ff.generator_label_conversion(generator)
     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
@@ -800,7 +811,8 @@ for i, generator in enumerate(generators):
 
 # Add \lambda label to each sub-plot
 lambda_label_size = 17
-lambda_label_location = 'lower right'
+#lambda_label_location = 'lower right'
+lambda_label_location = 'lower left'
 for i, generator in enumerate(generators):
     for j, lamb in enumerate(lambda_array):
         if generator == 'Block-diag':
