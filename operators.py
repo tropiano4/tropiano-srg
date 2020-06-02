@@ -19,6 +19,8 @@
 #                just coupled-channels.
 #   03/16/20 --- Updated operators to follow the conventions in the notes
 #                "NN operator conventions".
+#   06/02/20 --- Added option to use smeared delta functions in the momentum
+#                projection operator.
 #
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
@@ -61,14 +63,14 @@ def find_q_index(q, k_array):
 
 
 def momentum_projection_operator(q, k_array, k_weights, channel,
-                                 U=np.empty(0)):
+                                 U=np.empty(0), smeared=False):
     """
     ( a_q^dagger a_q ) momentum projection operator in momentum-space. When
     applied to a wave function, returns the wave function at momentum value q.
     For an evolved operator, enter in a unitary transformation U. The initial
     operator is zero everywhere except where k, k' = q. For presentation, one
     should divide out the momenta and weights by dividing by 2/pi * k_i * k_j 
-    * Sqrt( w_i * w_j) which gives a mesh independent result.
+    * Sqrt( w_i * w_j) which gives a mesh-independent result.
 
     Parameters
     ----------
@@ -85,6 +87,11 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
         Unitary transformation matrix with momenta/weights factored in, that 
         is, the matrix is unitless. If no unitary transformation is provided, 
         the function will skip the line where it evolves the operator.
+    smeared : bool, optional
+        Option on whether the discretized delta function is a smeared delta
+        function. Default is to assume \delta(k-q) = \delta_{k_i, q}, that is,
+        a Kronecker delta function. The smeared version is the sum of weighted
+        Kronecker delta functions.
         
     Returns
     -------
@@ -99,14 +106,31 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     # Find index of q in k_array
     q_index = find_q_index(q, k_array)
         
-    # Exact q value in the mesh and corresponding weight
-    q_value = k_array[q_index]
-    q_weight = k_weights[q_index]
-        
-    # Build momentum projection operator 
-    operator = np.zeros( (m, m) )
-    operator[q_index, q_index] = np.pi / ( 2 * q_value**2 * q_weight )
+    # Construct delta function
+    delta_function_array = np.zeros(m)
+
+    # Assume \delta(k-q) = \delta_{k_i, q} / 2 + \delta_{k_(i-1), q} / 4 + 
+    # \delta_{k_(i+1), q} / 4
+    # Note, the weighting here is arbitrary
+    if smeared:
     
+        delta_function_array[q_index] = 1/2
+        delta_function_array[q_index-1] = 1/4
+        delta_function_array[q_index+1] = 1/4
+
+    else: # Assume \delta(k-q) = \delta_{k_i, q}
+        
+        delta_function_array[q_index, q_index] = 1
+    
+    # Divide by momenta/weights (see "NN operator conventions" LaTeX file for
+    # more details on this step)
+    factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
+    delta_function_array /= factor_array
+    
+    # Build momentum projection operator
+    row, col = np.meshgrid(delta_function_array, delta_function_array)
+    operator = row * col
+
     # Build coupled channel operator 
     if lsp.coupled_channel(channel):
     
