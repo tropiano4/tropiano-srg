@@ -44,61 +44,12 @@ from scipy.special import spherical_jn
 from Figures import figures_functions as ff
 from Figures import register_colormap
 import observables as ob
+import operators as op
 from Potentials.vsrg_macos import load_save_potentials as lsp
 from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
 # --- Operator functions --- #
-
-def find_q_index(q, k_array):
-    
-    k_difference_array = np.fabs(k_array - q)
-    q_index = k_difference_array.argmin()
-    
-    return q_index
-
-
-def momentum_projection_operator(q, k_array, k_weights, channel,
-                                 U=np.empty(0)):
-    
-    # Length of k_array
-    m = len(k_array)
-        
-    # Find index of q in k_array
-    q_index = find_q_index(q, k_array)
-        
-    # Build momentum projection operator 
-    operator = np.zeros( (m, m) )
-    operator[q_index, q_index] = 1/4
-    operator[q_index+1, q_index] = 1/8
-    operator[q_index, q_index+1] = 1/8
-    operator[q_index-1, q_index] = 1/8
-    operator[q_index, q_index-1] = 1/8
-    operator[q_index+1, q_index+1] = 1/16
-    operator[q_index-1, q_index+1] = 1/16
-    operator[q_index+1, q_index-1] = 1/16
-    operator[q_index-1, q_index-1] = 1/16
-    
-    # Divide by momenta/weights
-    factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
-    row, col = np.meshgrid(factor_array, factor_array)
-    operator = operator / row / col
-    
-    # Build coupled channel operator 
-    if lsp.coupled_channel(channel):
-    
-        # Matrix of zeros (m x m) for coupled-channel operator
-        o = np.zeros( (m, m) )
-    
-        # Build coupled channel operator
-        operator = np.vstack( ( np.hstack( (operator, o) ),
-                                np.hstack( (o, operator) ) ) )
-            
-    # Evolve operator by applying unitary transformation U
-    if U.any():
-        operator = U @ operator @ U.T
-
-    return operator
 
 
 def hankel_transformation(channel, k_array, r_array, dr):
@@ -246,7 +197,9 @@ def momentum_projection_contours(q, kvnn, channel, generators, lambda_array,
             U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
             
             # Evolved momentum projection operator
-            operator = momentum_projection_operator(q, k_array, k_weights, channel, U_matrix)
+            operator = op.momentum_projection_operator(q, k_array, k_weights, 
+                                                       channel, U_matrix,
+                                                       smeared=True)
             # Take only the upper sub-block if coupled-channel 
             if lsp.coupled_channel(channel):
                 operator = operator[:ntot, :ntot]
@@ -419,7 +372,8 @@ def momentum_projection_slices(q, channel, kvnns, generators, lambda_array):
                 U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
                 
                 # Evolved momentum projection operator
-                operator = momentum_projection_operator(q, k_array, k_weights, channel, U_matrix)
+                operator = op.momentum_projection_operator(q, k_array, 
+                           k_weights, channel, U_matrix, smeared=True)
                 # Take only the upper sub-block if coupled-channel 
                 if lsp.coupled_channel(channel):
                     operator = operator[:ntot, :ntot]
@@ -713,104 +667,21 @@ kvnns_default = [79, 111, 222]
 kvnn_default = 111
 channel_default = '3S1'
 generators = ['Wegner', 'Block-diag']
-#q = 3.0
-q = 0.3
+q = 3.0
+#q = 0.3
 
 
 # --- Test regulated operators --- #
 
 
-# # Contours of evolved momentum projection operator under RKE N4LO (450 MeV) transformations where q = 3 fm^-1
-# lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
-# f, axs = momentum_projection_contours(q, kvnn_default, channel_default, 
-#                                       generators, lambda_array)
-
-# # Add generator label to each subplot on the 1st column
-# generator_label_size = 17
-# generator_label_location = 'upper left'
-# for i, generator in enumerate(generators):
-#     generator_label = ff.generator_label_conversion(generator)
-#     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
-#                                   prop=dict(size=generator_label_size))
-#     axs[i, 0].add_artist(anchored_text)
-
-# # Add \lambda label to each sub-plot
-# lambda_label_size = 17
-# lambda_label_location = 'lower left'
-# for i, generator in enumerate(generators):
-#     for j, lamb in enumerate(lambda_array):
-#         if generator == 'Block-diag':
-#             # Labels the block-diagonal cutoff \Lambda_BD
-#             lambda_label = ff.lambda_label_conversion(lamb, block_diag_bool=True)
-#         else:
-#             # Labels the evolution parameter \lambda
-#             lambda_label = ff.lambda_label_conversion(lamb)
-#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
-#         axs[i, j].add_artist(anchored_text)
-        
-# plt.show()
-        
-        
-# Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
-# (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
+# Contours of evolved momentum projection operator under RKE N4LO (450 MeV) transformations where q = 3 fm^-1
 lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
-f, axs = momentum_projection_slices(q, channel_default, kvnns_default, 
-                                    generators, lambda_array)
-
-# Set the y-axis limit and tickmarks (this will vary based on q value)
-if q > 1.0:
-    ylim = [-0.003, 0.012]
-    y_stepsize = 0.003
-else:
-    ylim = [-0.03, 0.12]
-    y_stepsize = 0.03
-y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
-y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
-for i in range(2):
-    for j in range(len(lambda_array)):
-        axs[i, j].set_ylim(ylim)
-        if j == 0:
-            axs[i, j].yaxis.set_ticks(y_ticks)
-            axs[i, j].yaxis.set_ticklabels(y_ticks_labels)
-
-# Add legend for generators to upper left sub-plot
-legend_size = 18
-if q > 1.0:
-    legend_location = 'upper left'
-else:
-    legend_location = 'upper right'
-axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
-
-# Add legend for kvnns to lower left sub-plot
-legend_size = 18
-if q > 1.0:
-    legend_location = 'upper left'
-else:
-    legend_location = 'upper right'
-axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
-
-# Add \lambda and \Lambda_BD labels to each sub-plot
-lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
-lambda_label_size = 16
-if q > 1.0:
-    lambda_label_location = 'lower left'
-else:
-    lambda_label_location = 'lower right'
-for i in range(2):
-    for j, lamb in enumerate(lambda_array):
-        anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
-                                      prop=dict(size=lambda_label_size), frameon=False)
-        axs[i, j].add_artist(anchored_text)
-    
-    
-# Contours of r^2 operator under RKE N4LO (450 MeV) transformations
-lambda_array = np.array([3.0, 2.0, 1.5])
-f, axs = r2_diff_contours(kvnn_default, generators, lambda_array)
+f, axs = momentum_projection_contours(q, kvnn_default, channel_default, 
+                                      generators, lambda_array)
 
 # Add generator label to each subplot on the 1st column
 generator_label_size = 17
-#generator_label_location = 'center right'
-generator_label_location = 'upper right'
+generator_label_location = 'upper left'
 for i, generator in enumerate(generators):
     generator_label = ff.generator_label_conversion(generator)
     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
@@ -819,7 +690,6 @@ for i, generator in enumerate(generators):
 
 # Add \lambda label to each sub-plot
 lambda_label_size = 17
-#lambda_label_location = 'lower right'
 lambda_label_location = 'lower left'
 for i, generator in enumerate(generators):
     for j, lamb in enumerate(lambda_array):
@@ -832,16 +702,100 @@ for i, generator in enumerate(generators):
         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
         axs[i, j].add_artist(anchored_text)
         
-# Calculate RMS radius of deuteron
-H_matrix = lsp.load_hamiltonian(kvnn_default, channel_default)
-k_array, k_weights = lsp.load_momentum(kvnn_default, channel_default)
-r_min = 0.005
-r_max = 30.2
-dr = 0.005
-r_array = np.arange(r_min, r_max + dr, dr)
-psi = ob.wave_function(H_matrix)
-r2_op = r2_operator(k_array, k_weights, r_array, dr)
-deuteron_radius = ob.rms_radius_from_rspace(psi, r2_op)
-print('r = %.5f fm' % deuteron_radius) # Should give 1.96574 fm
+plt.show()
+        
+        
+# # Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
+# # (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
+# lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
+# f, axs = momentum_projection_slices(q, channel_default, kvnns_default, 
+#                                     generators, lambda_array)
+
+# # Set the y-axis limit and tickmarks (this will vary based on q value)
+# if q > 1.0:
+#     ylim = [-0.003, 0.012]
+#     y_stepsize = 0.003
+# else:
+#     ylim = [-0.03, 0.12]
+#     y_stepsize = 0.03
+# y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
+# y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
+# for i in range(2):
+#     for j in range(len(lambda_array)):
+#         axs[i, j].set_ylim(ylim)
+#         if j == 0:
+#             axs[i, j].yaxis.set_ticks(y_ticks)
+#             axs[i, j].yaxis.set_ticklabels(y_ticks_labels)
+
+# # Add legend for generators to upper left sub-plot
+# legend_size = 18
+# if q > 1.0:
+#     legend_location = 'upper left'
+# else:
+#     legend_location = 'upper right'
+# axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
+
+# # Add legend for kvnns to lower left sub-plot
+# legend_size = 18
+# if q > 1.0:
+#     legend_location = 'upper left'
+# else:
+#     legend_location = 'upper right'
+# axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
+
+# # Add \lambda and \Lambda_BD labels to each sub-plot
+# lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
+# lambda_label_size = 16
+# if q > 1.0:
+#     lambda_label_location = 'lower left'
+# else:
+#     lambda_label_location = 'lower right'
+# for i in range(2):
+#     for j, lamb in enumerate(lambda_array):
+#         anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
+#                                       prop=dict(size=lambda_label_size), frameon=False)
+#         axs[i, j].add_artist(anchored_text)
+    
+    
+# # Contours of r^2 operator under RKE N4LO (450 MeV) transformations
+# lambda_array = np.array([3.0, 2.0, 1.5])
+# f, axs = r2_diff_contours(kvnn_default, generators, lambda_array)
+
+# # Add generator label to each subplot on the 1st column
+# generator_label_size = 17
+# #generator_label_location = 'center right'
+# generator_label_location = 'upper right'
+# for i, generator in enumerate(generators):
+#     generator_label = ff.generator_label_conversion(generator)
+#     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
+#                                   prop=dict(size=generator_label_size))
+#     axs[i, 0].add_artist(anchored_text)
+
+# # Add \lambda label to each sub-plot
+# lambda_label_size = 17
+# #lambda_label_location = 'lower right'
+# lambda_label_location = 'lower left'
+# for i, generator in enumerate(generators):
+#     for j, lamb in enumerate(lambda_array):
+#         if generator == 'Block-diag':
+#             # Labels the block-diagonal cutoff \Lambda_BD
+#             lambda_label = ff.lambda_label_conversion(lamb, block_diag_bool=True)
+#         else:
+#             # Labels the evolution parameter \lambda
+#             lambda_label = ff.lambda_label_conversion(lamb)
+#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
+#         axs[i, j].add_artist(anchored_text)
+        
+# # Calculate RMS radius of deuteron
+# H_matrix = lsp.load_hamiltonian(kvnn_default, channel_default)
+# k_array, k_weights = lsp.load_momentum(kvnn_default, channel_default)
+# r_min = 0.005
+# r_max = 30.2
+# dr = 0.005
+# r_array = np.arange(r_min, r_max + dr, dr)
+# psi = ob.wave_function(H_matrix)
+# r2_op = r2_operator(k_array, k_weights, r_array, dr)
+# deuteron_radius = ob.rms_radius_from_rspace(psi, r2_op)
+# print('r = %.5f fm' % deuteron_radius) # Should give 1.96574 fm
 
 
