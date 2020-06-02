@@ -63,7 +63,7 @@ def find_q_index(q, k_array):
 
 
 def momentum_projection_operator(q, k_array, k_weights, channel,
-                                 U=np.empty(0), smeared=False):
+                                 U=np.empty(0), smeared=True):
     """
     ( a_q^dagger a_q ) momentum projection operator in momentum-space. When
     applied to a wave function, returns the wave function at momentum value q.
@@ -89,9 +89,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
         the function will skip the line where it evolves the operator.
     smeared : bool, optional
         Option on whether the discretized delta function is a smeared delta
-        function. Default is to assume \delta(k-q) = \delta_{k_i, q}, that is,
-        a Kronecker delta function. The smeared version is the sum of weighted
-        Kronecker delta functions.
+        function. Default is smeared version.
         
     Returns
     -------
