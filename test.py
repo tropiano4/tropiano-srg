@@ -751,48 +751,56 @@ q = 0.3
 # plt.show()
         
         
-# # Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
-# # (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
-# lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
-# f, axs = momentum_projection_slices(q, channel_default, kvnns_default, 
-#                                     generators, lambda_array)
+# Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
+# (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
+lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
+f, axs = momentum_projection_slices(q, channel_default, kvnns_default, 
+                                    generators, lambda_array)
 
-# # Set the y-axis limit and tickmarks (this will vary based on q value)
-# #ylim = [-0.003, 0.012]
-# ylim = [-0.03, 0.12]
-# #y_stepsize = 0.003
-# y_stepsize = 0.03
-# y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
-# y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
-# for i in range(2):
-#     for j in range(len(lambda_array)):
-#         axs[i, j].set_ylim(ylim)
-#         if j == 0:
-#             axs[i, j].yaxis.set_ticks(y_ticks)
-#             axs[i, j].yaxis.set_ticklabels(y_ticks_labels)
+# Set the y-axis limit and tickmarks (this will vary based on q value)
+if q > 1.0:
+    ylim = [-0.003, 0.012]
+    y_stepsize = 0.003
+else:
+    ylim = [-0.03, 0.12]
+    y_stepsize = 0.03
+y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
+y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
+for i in range(2):
+    for j in range(len(lambda_array)):
+        axs[i, j].set_ylim(ylim)
+        if j == 0:
+            axs[i, j].yaxis.set_ticks(y_ticks)
+            axs[i, j].yaxis.set_ticklabels(y_ticks_labels)
 
-# # Add legend for generators to upper left sub-plot
-# legend_size = 18
-# #legend_location = 'upper left'
-# legend_location = 'upper right'
-# axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
+# Add legend for generators to upper left sub-plot
+legend_size = 18
+if q > 1.0:
+    legend_location = 'upper left'
+else:
+    legend_location = 'upper right'
+axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
 
-# # Add legend for kvnns to lower left sub-plot
-# legend_size = 18
-# #legend_location = 'upper left'
-# legend_location = 'upper right'
-# axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
+# Add legend for kvnns to lower left sub-plot
+legend_size = 18
+if q > 1.0:
+    legend_location = 'upper left'
+else:
+    legend_location = 'upper right'
+axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
 
-# # Add \lambda and \Lambda_BD labels to each sub-plot
-# lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
-# lambda_label_size = 16
-# #lambda_label_location = 'lower left'
-# lambda_label_location = 'lower right'
-# for i in range(2):
-#     for j, lamb in enumerate(lambda_array):
-#         anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
-#                                       prop=dict(size=lambda_label_size), frameon=False)
-#         axs[i, j].add_artist(anchored_text)
+# Add \lambda and \Lambda_BD labels to each sub-plot
+lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
+lambda_label_size = 16
+if q > 1.0:
+    lambda_label_location = 'lower left'
+else:
+    lambda_label_location = 'lower right'
+for i in range(2):
+    for j, lamb in enumerate(lambda_array):
+        anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
+                                      prop=dict(size=lambda_label_size), frameon=False)
+        axs[i, j].add_artist(anchored_text)
     
     
 # Contours of r^2 operator under RKE N4LO (450 MeV) transformations
