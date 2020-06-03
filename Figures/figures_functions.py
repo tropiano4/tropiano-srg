@@ -136,10 +136,10 @@ def interpolate_vector(x_array, y_array, x_max, ntot=500):
     y_func = interp1d(x_array, y_array)
 
     # New x array for interpolation (dimension ntot x 1)
-    x_array_new = np.linspace(0.0, x_max, ntot)
+    x_array_new = np.linspace(x_array[0], x_array[-1], ntot)
     
     # New y array (dimension ntot x 1)
-    y_array_new = y_func(x_array_new, x_array_new) 
+    y_array_new = y_func(x_array_new) 
     
     return x_array_new, y_array_new
 
@@ -186,7 +186,7 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
     M_func = interp2d(x_array, x_array, M)
 
     # New x array for interpolation (dimension ntot x 1)
-    x_array_new = np.linspace(0.0, x_max, ntot)
+    x_array_new = np.linspace(x_array[0], x_array[-1], ntot)
     
     # New matrix (dimension ntot x ntot)
     M_new = M_func(x_array_new, x_array_new) 
