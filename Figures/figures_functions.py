@@ -23,12 +23,14 @@
 #                to just ... fm^-1.
 #   02/26/20 --- Added lambda_label_conversion function to label \lambda or
 #                block-diagonal \Lambda_BD.
+#   06/03/20 --- Made vector interpolation function analogous to
+#                interpolate_matrix function.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
-from scipy.interpolate import interp2d
+from scipy.interpolate import interp1d, interp2d
 
 
 def channel_label_conversion(channel):
@@ -90,6 +92,56 @@ def generator_label_conversion(generator, lambda_bd=0.00):
         label = r'$G=T_{rel}$'
 
     return label
+
+
+def interpolate_vector(x_array, y_array, x_max, ntot=500):
+    """
+    Interpolate vector given array for plots. Also adds more points to given
+    x_array.
+    
+    Parameters
+    ----------
+    x_array : 1-D ndarray
+        Array of x points where the matrix M = M(x, x).
+    y_array : 1-D ndarray
+        Vector to be interpolated.
+    x_max : float
+        Maximum value of x. This functions interpolates y_array up to this value.
+    ntot : int, optional
+        Desired length of the interpolated vector and new x array.
+        
+    Returns
+    -------
+    x_array_new : 1-D ndarray
+        Array of ntot x points.
+    y_array_new : 1-D ndarray
+        Interpolated vector.
+        
+    """
+    
+    # This is a tricky way to select all the x points in the given array that 
+    # are within the specified range of 0 to x_max
+    
+    # List of boolean values (True or False)
+    bool_list = x_array <= x_max 
+    
+    # The number of points in the given momentum array less than k_max
+    n = len( list( filter(None, bool_list) ) )
+    
+    # Resize x_array and M to size that you want to plot
+    x_array = x_array[:n]
+    y_array = y_array[:n]
+    
+    # Use interp2d to interpolate the truncated matrix
+    y_func = interp1d(x_array, y_array)
+
+    # New x array for interpolation (dimension ntot x 1)
+    x_array_new = np.linspace(0.0, x_max, ntot)
+    
+    # New y array (dimension ntot x 1)
+    y_array_new = y_func(x_array_new, x_array_new) 
+    
+    return x_array_new, y_array_new
 
 
 def interpolate_matrix(x_array, M, x_max, ntot=500):
