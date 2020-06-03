@@ -761,13 +761,13 @@ def mesh_specifications(kvnn):
     ntot = 120
     
     # Argonne v18 and Wendt LO (4, 9, 20 fm^-1)
-    if kvnn in [6, 900, 901, 902]:
+    if kvnn in [6, 10, 900, 901, 902]:
     # if kvnn == 6:
         kmax = 30.0
         kmid = 4.0
     # EM N3LO (500 MeV), EMN N4LO (450, 500, 550 MeV), RKE N3LO (400, 450, 500
     # MeV), RKE N4LO (400, 450, 500 MeV), Gezerlis N2LO (1, 1.2 fm)
-    elif kvnn in [10, 74, 79, 84, 105, 106, 107, 110, 111, 112, 113, 222, 
+    elif kvnn in [74, 79, 84, 105, 106, 107, 110, 111, 112, 113, 222, 
                   224]:
         kmax = 10.0
         kmid = 2.0
