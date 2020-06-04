@@ -11,7 +11,7 @@
  
 ! Mesh parameters 
 120   ! ntot   ==> momentum mesh size for P+Q = full = bare space
-54    ! nmod  ==> momentum mesh size for low-k = P space
- 8.0  ! kmax ==> maximum momentum for bare potential
+60    ! nmod  ==> momentum mesh size for low-k = P space
+10.0  ! kmax ==> maximum momentum for bare potential
 
 ! End of input file 
