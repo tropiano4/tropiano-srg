@@ -33,7 +33,7 @@
 
 
 # Description of this test:
-#   Testing regulated operators.
+#   Testing relative strength of the r^2 operator.
 
 
 from matplotlib.offsetbox import AnchoredText
@@ -73,13 +73,14 @@ def hankel_transformation(channel, k_array, r_array, dr):
     return M
 
 
-def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
+def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
     
     # Cutoff parameter a
-    #a = 4.0
-    a = 10.0
-    regulator = np.exp( -r_array**2 / a**2 )
-    #regulator = 1
+    a = 6.0
+    if reg:
+        regulator = np.exp( -r_array**2 / a**2 )
+    else:
+        regulator = 1
         
     # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
     r2_coordinate_space = np.diag(r_array**2) * regulator
@@ -116,349 +117,17 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     return r2_momentum_space
 
 
+def rms_radius_from_rspace(psi, r2_operator):
+    
+    r2 = psi.T @ r2_operator @ psi
+    
+    return 0.5 * np.sqrt(r2)
+
+
 # --- Plotting functions --- #
 
-def momentum_projection_contours(q, kvnn, channel, generators, lambda_array,
-                                 contour_type='contourf'):
 
-    # --- Set-up --- #
-    
-    # Load momentum, weights, and initial Hamiltonian
-    k_array, k_weights = lsp.load_momentum(kvnn, channel)
-    # Length of k_array
-    ntot = len(k_array)
-    H_initial = lsp.load_hamiltonian(kvnn, channel)
-    # Divide out these factors to present mesh-independent result
-    factor_array = k_array * np.sqrt(k_weights) * np.sqrt(2/np.pi)
-    row, col = np.meshgrid(factor_array, factor_array)
-    
-    # Size of figure
-    row_number = len(generators)
-    col_number = len(lambda_array)
-    figure_size = (4*col_number, 3.5*row_number) # Extra width for colorbar
-
-    # Axes limits
-    axes_max = 4.0
-    axes_lim = [0.0, axes_max]
-        
-    # Axes ticks, labels, and fontsizes
-    x_label = "k' [fm" + r'$^{-1}$' + ']'
-    y_label = 'k [fm' + r'$^{-1}$' + ']'
-    axes_label_size = 18
-    axes_stepsize = 1.0 # Step-size in labeling tick marks
-    axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
-    axes_tick_size = 18
-    
-    # Colorbar ticks, label, and fontsize
-    if q < axes_max / 2:
-        mx = 0.1
-        mn = -0.1
-    else:
-        mx = 0.01
-        mn = -0.01
-    levels_number = 61
-    levels = np.linspace(mn, mx, levels_number)
-    levels_ticks = np.linspace(mn, mx, 9)
-    if q < axes_max / 2:
-        levels_ticks_strings = ['%.3f' % tick for tick in levels_ticks]
-    else:
-        levels_ticks_strings = ['%.4f' % tick for tick in levels_ticks]
-    colorbar_label = '[fm' + r'$^6$' + ']'
-    colorbar_label_size = 22
-    colorbar_tick_size = 20
-    
-    # Color scheme for contour plots
-    #color_style = 'jet'
-    color_style = 'turbo'
-        
-
-    # --- Load operators --- #
-    
-    # Initialize dictionary to store evolved potentials
-    d = {}
-    
-    # Loop over generators
-    for generator in generators:
-        
-        # Store momentum and operator in here
-        d[generator] = {}
-        
-        # Loop over lambda values
-        for lamb in lambda_array:
-            
-            # Load unitary transformation
-            # SRG calls function which builds U(s) out of un-evolved and evolved eigenvectors
-            if generator == 'Block-diag':
-                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=1.0,
-                                                 lambda_bd=lamb)
-            else:
-                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=lamb)
-                
-            U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-            
-            # Evolved momentum projection operator
-            operator = op.momentum_projection_operator(q, k_array, k_weights, 
-                                                       channel, U_matrix,
-                                                       smeared=True)
-            # Take only the upper sub-block if coupled-channel 
-            if lsp.coupled_channel(channel):
-                operator = operator[:ntot, :ntot]
-            # Divide by k_i * k_j * sqrt( w_i * w_j ) for mesh-independent result
-            operator = operator / row / col
-                
-            # Interpolate the operator through 0 to axes_max for smoother looking figure (the extension _int means 
-            # interpolated)
-            k_array_int, operator_int = ff.interpolate_matrix(k_array, operator, axes_max)
-            
-            # Store in dictionary with generator and lamb as keys
-            d[generator][lamb] = operator_int
-
-        
-    # --- Plot data --- #
-    
-    # Initialize figure
-    plt.close('all')
-    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True, figsize=figure_size)
-    
-    # Loop over generators and lambda's keeping track of indices
-    for i, generator in enumerate(generators):
-        for j, lamb in enumerate(lambda_array):
-            
-            # Use contourf
-            if contour_type == 'contourf':
-                c = axs[i, j].contourf(k_array_int, k_array_int, d[generator][lamb], levels, cmap=color_style, 
-                                       extend='both')
-            # Otherwise use pcolormesh
-            else:
-                c = axs[i, j].pcolormesh(k_array_int, k_array_int, d[generator][lamb], cmap=color_style, vmin=mn, 
-                                         vmax=mx, rasterized=True)
-                                         
-            # Specify axes limits
-            axs[i, j].set_xlim( axes_lim )
-            axs[i, j].set_ylim( axes_lim )
-                     
-            # On the top row, set and label x-axis
-            if i == 0:
-                                         
-                # Specify axes tick marks
-                axs[i, j].xaxis.set_ticks(axes_ticks)
-                axs[i, j].xaxis.set_ticklabels(axes_ticks)
-                # Switch from bottom to top
-                axs[i, j].xaxis.set_label_position('top')
-                axs[i, j].xaxis.tick_top()
-                axs[i, j].tick_params(labeltop=True, labelsize=axes_tick_size)
-                                         
-                # Prevent overlapping x-axis tick marks
-                if j < col_number - 1:
-                    xticks = axs[i, j].xaxis.get_major_ticks()
-                    xticks[-1].set_visible(False)
-
-                # Set x-axis label
-                axs[i, j].set_xlabel(x_label, fontsize=axes_label_size)
-                                         
-            # On the left column, set and label y-axis
-            if j == 0:
-                                         
-                # Specify axes tick marks
-                axs[i, j].yaxis.set_ticks(axes_ticks)
-                axs[i, j].yaxis.set_ticklabels(axes_ticks)
-                axs[i, j].tick_params(labelsize=axes_tick_size)
-                                      
-                # Prevent overlapping y-axis tick marks
-                if i < row_number - 1:
-                    yticks = axs[i, j].yaxis.get_major_ticks()
-                    yticks[-1].set_visible(False)
-                                         
-                # Set y-axis label
-                axs[i, j].set_ylabel(y_label, fontsize=axes_label_size)
-                                         
-            # On the bottom row, switch x-axis from bottom to top
-            if i == row_number - 1:
-                                         
-                axs[i, j].xaxis.tick_top()
-                axs[i, j].tick_params(labeltop=False, labelsize=axes_tick_size)
-
-    # Invert y-axis
-    plt.gca().invert_yaxis()
-                                         
-    # Amount of white space in-between sub-plots
-    f.subplots_adjust(hspace=0.0, wspace=0.0)
-                                         
-    # Set colorbar axe
-    f.subplots_adjust(right=0.8) # Adjust for colorbar space
-    cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
-                                         
-    # Set colorbar
-    cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
-    cbar.ax.tick_params(labelsize=colorbar_tick_size)
-    cbar.ax.set_yticklabels(levels_ticks_strings)
-                                         
-    # Set colorbar label
-    cbar.ax.set_title(colorbar_label, fontsize=colorbar_label_size)
-
-    return f, axs
-
-
-def momentum_projection_slices(q, channel, kvnns, generators, lambda_array):
-
-    # --- Set-up --- #
-
-    # Size of figure
-    row_number = 2 # For diagonal (top) and far off-diagonal (bottom)
-    col_number = len(lambda_array)
-    figure_size = (4*col_number, 4*row_number)
-    
-    # Limits of x axis
-    xlim = [0.0, 4.0]
-    
-    # Axes ticks, labels, and fontsizes
-    # x-axis
-    x_label = 'k [fm' + r'$^{-1}$' + ']'
-    x_label_size = 18
-    x_stepsize = 1.0 # Step-size in labeling tick marks
-    x_ticks = np.arange(0.0, xlim[1] + x_stepsize, x_stepsize)
-    # y-axis
-    y_diag_label = r'$a^{\dagger}_q a_q$' + '(k,k) [fm' + r'$^6$' + ']'
-    y_off_diag_label = r'$a^{\dagger}_q a_q$' + '(k,0) [fm' + r'$^6$' + ']'
-    y_label_size = 20
-    axes_tick_size = 16
-    
-    # Curve width
-    curve_width = 2.0
-
-
-    # --- Load operators --- #
-    
-    # Initialize dictionary to store evolved operators and momentum arrays
-    d = {}
-    
-    # Loop over kvnns
-    for kvnn in kvnns:
-    
-        d[kvnn] = {}
-        
-        # Load initial Hamiltonian
-        H_initial = lsp.load_hamiltonian(kvnn, channel)
-        
-        # Load momentum and weights
-        k_array, k_weights = lsp.load_momentum(kvnn, channel)
-        # Length of momentum array
-        ntot = len(k_array)
-        # Build factor_array to divide out weights/momenta
-        factor_array = k_array * np.sqrt( (2 * k_weights) / np.pi )
-        row, col = np.meshgrid(factor_array, factor_array)
-        
-        # Store in dictionary with kvnn as key
-        d[kvnn]['k_array'] = k_array
-        
-        for generator in generators:
-            
-            d[kvnn][generator] = {}
-        
-            # Loop over lambda values
-            for lamb in lambda_array:
-            
-                # Split dictionary further at lamb key for diagonal and far off-diagonal elements
-                d[kvnn][generator][lamb] = {}
-            
-                # Load evolved Hamiltonian
-                if generator == 'Block-diag':
-                    H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=1.0, 
-                                                     lambda_bd=lamb)
-                else:
-                    H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=lamb)
-                
-                # SRG calls function which builds U(s) out of un-evolved and evolved eigenvectors
-                U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-                
-                # Evolved momentum projection operator
-                operator = op.momentum_projection_operator(q, k_array, 
-                           k_weights, channel, U_matrix, smeared=True)
-                # Take only the upper sub-block if coupled-channel 
-                if lsp.coupled_channel(channel):
-                    operator = operator[:ntot, :ntot]
-                # Divide by 2/pi * k_i * k_j * sqrt( w_i * w_j ) for mesh-independent result
-                operator = operator / row / col
-                
-                # Save diagonal and far off-diagonal elements to dictionary
-                d[kvnn][generator][lamb]['diag'] = np.diag( operator )[:ntot]
-                d[kvnn][generator][lamb]['off-diag'] = operator[:ntot, 0]
-
-
-    # --- Plot data --- #
-    
-    # Initialize figure
-    plt.close('all')
-    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True, figsize=figure_size)
-    
-    # Loop for diagonal and off-diagonals
-    for i in range(2):
-        # Loop over lambda's, kvnns, and generators keeping track of lambda indices
-        for j, lamb in enumerate(lambda_array):
-            for m, kvnn in enumerate(kvnns):
-                curve_color = ff.xkcd_colors(m) # Vary the curve color for kvnn
-                for n, generator in enumerate(generators):
-                
-                    curve_style = ff.line_styles(n) # Vary the curve style for generator
-                    # Legend labels (kvnn for top row and generator for bottom row) and slice key for dictionary
-                    if i == 0:
-                        if m == 0: # Don't repeat labels for each generator
-                            curve_label = ff.generator_label_conversion(generator)
-                        else:
-                            curve_label = ''
-                        slice_key = 'diag'
-                    else:
-                        if n == 0: # Don't repeat labels for each kvnn
-                            curve_label = ff.kvnn_label_conversion(kvnn)
-                        else:
-                            curve_label = ''
-                        slice_key = 'off-diag'
-
-                    # Plot slice
-                    axs[i, j].plot(d[kvnn]['k_array'], d[kvnn][generator][lamb][slice_key], color=curve_color, 
-                                   label=curve_label, linestyle=curve_style, linewidth=curve_width)
-                                         
-            # Specify x-axis limits
-            axs[i, j].set_xlim( xlim )
-        
-            # On the left column, label y-axis
-            if j == 0:
-                                      
-                # Set y-axis label
-                if i == 0:         
-                    axs[i, j].set_ylabel(y_diag_label, fontsize=y_label_size)
-                else:
-                    axs[i, j].set_ylabel(y_off_diag_label, fontsize=y_label_size)
-                                         
-            # On the bottom row,  set and label x-axis
-            if i == 1:
-                                         
-                # Specify axes tick marks
-                axs[i, j].xaxis.set_ticks(x_ticks)
-                axs[i, j].xaxis.set_ticklabels(x_ticks)
-                                         
-                # Prevent overlapping x-axis tick marks
-                if j < col_number - 1:
-                    xticks = axs[i, j].xaxis.get_major_ticks()
-                    xticks[-1].set_visible(False)
-                    
-                # Set x-axis label
-                axs[i, j].set_xlabel(x_label, fontsize=x_label_size)
-                
-            # Prevent overlapping y-axis tick marks
-            yticks = axs[0, 0].yaxis.get_major_ticks()
-            yticks[0].set_visible(False)     
-                    
-            # Enlarge axes tick marks
-            axs[i, j].tick_params(labelsize=axes_tick_size)
-            
-    # Amount of white space in-between sub-plots
-    f.subplots_adjust(hspace=0.0, wspace=0.0)
-                    
-    return f, axs
-
-
-def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
+def r2_contours(kvnn, generators, lambda_array, reg=False):
    
     # --- Set-up --- #
     
@@ -481,7 +150,7 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     r_array = np.arange(r_min, r_max + dr, dr)
     
     # Calculate initial operator
-    #initial_operator = r2_operator(k_array, k_weights, r_array, dr)
+    #initial_operator = r2_operator(k_array, k_weights, r_array, dr, reg)
     
     # Size of figure
     row_number = len(generators)
@@ -493,14 +162,14 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     #axes_max = 1.0
     axes_max = 10.0
     axes_lim = [0.0, axes_max]
+    #axes_stepsize = 0.1 # Step-size in labeling tick marks
+    #axes_stepsize = 0.2 # Step-size in labeling tick marks
+    axes_stepsize = 2.0 # Step-size in labeling tick marks
         
     # Axes ticks, labels, and fontsizes
     x_label = "k' [fm" + r'$^{-1}$' + ']'
     y_label = 'k [fm' + r'$^{-1}$' + ']'
     axes_label_size = 18
-    #axes_stepsize = 0.1 # Step-size in labeling tick marks
-    #axes_stepsize = 0.2 # Step-size in labeling tick marks
-    axes_stepsize = 2.0 # Step-size in labeling tick marks
     axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
     axes_ticks_strings = ['%.1f' % tick for tick in axes_ticks]
     axes_tick_size = 18
@@ -510,12 +179,12 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     mn = -5e2
     # mx = 5e3
     # mn = -5e3
-    #mx = 1e5
-    #mx = 1e6
     #mx = 1e4
-    #mn = -1e5
-    #mn = -1e6
     #mn = -1e4
+    #mx = 1e5
+    #mn = -1e5
+    #mx = 1e6
+    #mn = -1e6
     levels_number = 61
     levels = np.linspace(mn, mx, levels_number)
     levels_ticks = np.linspace(mn, mx, 9)
@@ -525,7 +194,6 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     colorbar_tick_size = 20
     
     # Color scheme for contour plots
-#     color_style = 'jet'
     color_style = 'turbo'
     
     
@@ -544,33 +212,32 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
         for lamb in lambda_array:
             
             # Load unitary transformation
-            # SRG calls function which builds U(s) out of un-evolved and evolved eigenvectors
+            # SRG calls function which builds U(s) out of un-evolved and
+            # evolved eigenvectors
             if generator == 'Block-diag':
-#                 H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=1.0,
-#                                                  lambda_bd=lamb)
-                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=1.5,
-                                                 lambda_bd=lamb)
+                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg',
+                            generator=generator, lamb=1.0, lambda_bd=lamb)
             else:
-                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg', generator=generator, lamb=lamb)
+                H_evolved = lsp.load_hamiltonian(kvnn, channel, method='srg',
+                            generator=generator, lamb=lamb)
                 
             U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
             
             # Evolved momentum projection operator
-            evolved_operator = r2_operator(k_array, k_weights, r_array, dr, U_matrix)
+            evolved_operator = r2_operator(k_array, k_weights, r_array, dr,
+                                           U_matrix, reg)
         
             # Calculate difference from evolved and initial operators
             #operator_diff = (evolved_operator - initial_operator)
             # Take only the upper sub-block if coupled-channel 
-            if lsp.coupled_channel(channel):
-                #operator_diff = operator_diff[:ntot, :ntot]
-                evolved_operator = evolved_operator[:ntot, :ntot] / row / col
-            # Divide by k_i * k_j * sqrt( w_i * w_j ) for mesh-independent result
-            #operator_diff = operator_diff / row / col
+            evolved_operator = evolved_operator[:ntot, :ntot] / row / col
         
-            # Interpolate the operator through 0 to axes_max for smoother looking figure (the extension _int means 
-            # interpolated)
-            #k_array_int, operator_diff_int = ff.interpolate_matrix(k_array, operator_diff, axes_max)
-            k_array_int, evolved_operator_int = ff.interpolate_matrix(k_array, evolved_operator, axes_max)
+            # Interpolate the operator through 0 to axes_max for smoother 
+            # looking figure (the extension _int means interpolated)
+            #k_array_int, operator_diff_int = ff.interpolate_matrix(k_array,
+            #                                 operator_diff, axes_max)
+            k_array_int, evolved_operator_int = ff.interpolate_matrix(k_array, 
+                                                evolved_operator, axes_max)
         
             # Store in dictionary with generator and lamb as keys
             d[generator][lamb] = evolved_operator_int
@@ -580,20 +247,18 @@ def r2_diff_contours(kvnn, generators, lambda_array, contour_type='contourf'):
     
     # Initialize figure
     plt.close('all')
-    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True, figsize=figure_size)
+    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True,
+                          figsize=figure_size)
     
     # Loop over generators and lambda's keeping track of indices
     for i, generator in enumerate(generators):
         for j, lamb in enumerate(lambda_array):
             
             # Use contourf
-            if contour_type == 'contourf':
-                c = axs[i, j].contourf(k_array_int, k_array_int, d[generator][lamb], levels, cmap=color_style, 
-                                       extend='both')
-            # Otherwise use pcolormesh
-            else:
-                c = axs[i, j].pcolormesh(k_array_int, k_array_int, d[generator][lamb], cmap=color_style, vmin=mn, 
-                                         vmax=mx, rasterized=True)
+            c = axs[i, j].contourf(k_array_int, k_array_int,
+                                   d[generator][lamb], levels,
+                                   cmap=color_style, extend='both')
+
                                          
             # Specify axes limits
             axs[i, j].set_xlim( axes_lim )
@@ -667,99 +332,14 @@ kvnns_default = [79, 111, 222]
 kvnn_default = 111
 channel_default = '3S1'
 generators = ['Wegner', 'Block-diag']
-q = 3.0
-#q = 0.3
 
 
 # --- Test regulated operators --- #
 
 
-# Contours of evolved momentum projection operator under RKE N4LO (450 MeV) transformations where q = 3 fm^-1
-lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
-f, axs = momentum_projection_contours(q, kvnn_default, channel_default, 
-                                      generators, lambda_array)
-
-# Add generator label to each subplot on the 1st column
-generator_label_size = 17
-generator_label_location = 'upper left'
-for i, generator in enumerate(generators):
-    generator_label = ff.generator_label_conversion(generator)
-    anchored_text = AnchoredText(generator_label, loc=generator_label_location,
-                                  prop=dict(size=generator_label_size))
-    axs[i, 0].add_artist(anchored_text)
-
-# Add \lambda label to each sub-plot
-lambda_label_size = 17
-lambda_label_location = 'lower left'
-for i, generator in enumerate(generators):
-    for j, lamb in enumerate(lambda_array):
-        if generator == 'Block-diag':
-            # Labels the block-diagonal cutoff \Lambda_BD
-            lambda_label = ff.lambda_label_conversion(lamb, block_diag_bool=True)
-        else:
-            # Labels the evolution parameter \lambda
-            lambda_label = ff.lambda_label_conversion(lamb)
-        anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
-        axs[i, j].add_artist(anchored_text)
-        
-plt.show()
-        
-        
-# # Diagonal and far off-diagonal slices of momentum projection operator under EMN N4LO (500 MeV), RKE N4LO 
-# # (450 MeV), Gezerlis N2LO (1 fm) transformations with q = 3.0 fm^-1
-# lambda_array = np.array([6.0, 3.0, 2.0, 1.5])
-# f, axs = momentum_projection_slices(q, channel_default, kvnns_default, 
-#                                     generators, lambda_array)
-
-# # Set the y-axis limit and tickmarks (this will vary based on q value)
-# if q > 1.0:
-#     ylim = [-0.003, 0.012]
-#     y_stepsize = 0.003
-# else:
-#     ylim = [-0.03, 0.12]
-#     y_stepsize = 0.03
-# y_ticks = np.arange(ylim[0], ylim[1] + y_stepsize, y_stepsize)
-# y_ticks_labels = ['%.3f' % tick for tick in y_ticks]
-# for i in range(2):
-#     for j in range(len(lambda_array)):
-#         axs[i, j].set_ylim(ylim)
-#         if j == 0:
-#             axs[i, j].yaxis.set_ticks(y_ticks)
-#             axs[i, j].yaxis.set_ticklabels(y_ticks_labels)
-
-# # Add legend for generators to upper left sub-plot
-# legend_size = 18
-# if q > 1.0:
-#     legend_location = 'upper left'
-# else:
-#     legend_location = 'upper right'
-# axs[0, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
-
-# # Add legend for kvnns to lower left sub-plot
-# legend_size = 18
-# if q > 1.0:
-#     legend_location = 'upper left'
-# else:
-#     legend_location = 'upper right'
-# axs[1, 0].legend(loc=legend_location, frameon=False, fontsize=legend_size)
-
-# # Add \lambda and \Lambda_BD labels to each sub-plot
-# lambda_label = r'$\lambda$' + ', ' + r'$\Lambda_{BD}=%.1f$' + ' fm' + r'$^{-1}$'
-# lambda_label_size = 16
-# if q > 1.0:
-#     lambda_label_location = 'lower left'
-# else:
-#     lambda_label_location = 'lower right'
-# for i in range(2):
-#     for j, lamb in enumerate(lambda_array):
-#         anchored_text = AnchoredText(lambda_label % lamb, loc=lambda_label_location, 
-#                                       prop=dict(size=lambda_label_size), frameon=False)
-#         axs[i, j].add_artist(anchored_text)
-    
-    
 # # Contours of r^2 operator under RKE N4LO (450 MeV) transformations
 # lambda_array = np.array([3.0, 2.0, 1.5])
-# f, axs = r2_diff_contours(kvnn_default, generators, lambda_array)
+# f, axs = r2_contours(kvnn_default, generators, lambda_array)
 
 # # Add generator label to each subplot on the 1st column
 # generator_label_size = 17
@@ -779,23 +359,127 @@ plt.show()
 #     for j, lamb in enumerate(lambda_array):
 #         if generator == 'Block-diag':
 #             # Labels the block-diagonal cutoff \Lambda_BD
-#             lambda_label = ff.lambda_label_conversion(lamb, block_diag_bool=True)
+#             lambda_label = ff.lambda_label_conversion(lamb, 
+#                                                       block_diag_bool=True)
 #         else:
 #             # Labels the evolution parameter \lambda
 #             lambda_label = ff.lambda_label_conversion(lamb)
-#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
+#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location,
+#                                      prop=dict(size=lambda_label_size))
 #         axs[i, j].add_artist(anchored_text)
         
-# # Calculate RMS radius of deuteron
-# H_matrix = lsp.load_hamiltonian(kvnn_default, channel_default)
-# k_array, k_weights = lsp.load_momentum(kvnn_default, channel_default)
-# r_min = 0.005
-# r_max = 30.2
-# dr = 0.005
-# r_array = np.arange(r_min, r_max + dr, dr)
-# psi = ob.wave_function(H_matrix)
-# r2_op = r2_operator(k_array, k_weights, r_array, dr)
-# deuteron_radius = ob.rms_radius_from_rspace(psi, r2_op)
-# print('r = %.5f fm' % deuteron_radius) # Should give 1.96574 fm
+# Calculate RMS radius of deuteron
+#kvnn = 111
+kvnn = 6
+#evolve = False
+evolve = True
+reg = False
+#reg = True
+H_initial = lsp.load_hamiltonian(kvnn, channel_default)
+H_evolved = lsp.load_hamiltonian(kvnn, channel_default, method='srg',
+                                 generator='Wegner', lamb=2.0)
+U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
+k_array, k_weights = lsp.load_momentum(kvnn, channel_default)
+ntot = len(k_array)
+r_min = 0.005
+r_max = 30.2
+dr = 0.005
+r_array = np.arange(r_min, r_max + dr, dr)
+if evolve:
+    psi = ob.wave_function(H_initial, U=U_matrix)
+    r2_op = r2_operator(k_array, k_weights, r_array, dr, U=U_matrix, reg=reg)
+else:
+    psi = ob.wave_function(H_initial)
+    r2_op = r2_operator(k_array, k_weights, r_array, dr, reg=reg)
+deuteron_radius_exact = ob.rms_radius_from_rspace(psi, r2_op)
+print('r = %.5f fm' % deuteron_radius_exact) # Should give 1.96574 fm
 
 
+# Test strength of regions of r^2 by isolating integral to different
+# regions in k and k'
+
+k_points = np.zeros(11)
+k_points[0] = k_array[0]
+for i in range(1, 10):
+    k_points[i] = i
+k_points[10] = k_array[-1]
+m = len(k_points)
+rel_errors = np.zeros((m, m))
+
+for i, k_init in enumerate(k_points):
+    for j, k_final in enumerate(k_points):
+
+        k_init_index = op.find_q_index(k_init, k_array)
+        k_init_index_l2 = k_init_index+ntot
+        k_final_index = op.find_q_index(k_final, k_array)
+        k_final_index_l2 = k_final_index+ntot
+
+        psi_resized = np.concatenate( (psi[k_init_index:k_final_index], 
+                                       psi[k_init_index_l2:k_final_index_l2]) )
+        r2_ss = r2_op[k_init_index:k_final_index, k_init_index:k_final_index]
+        r2_sd = r2_op[k_init_index:k_final_index,
+                      k_init_index_l2:k_final_index_l2]
+        r2_ds = r2_op[k_init_index_l2:k_final_index_l2,
+                      k_init_index:k_final_index]
+        r2_dd = r2_op[k_init_index_l2:k_final_index_l2,
+                      k_init_index_l2:k_final_index_l2]
+        r2_resized = np.vstack( ( np.hstack( (r2_ss, r2_sd) ),
+                                  np.hstack( (r2_ds, r2_dd) ) ) )
+        deuteron_radius = ob.rms_radius_from_rspace(psi_resized, r2_resized)
+        rel_errors[i, j] = abs( (deuteron_radius-deuteron_radius_exact) / \
+                                 deuteron_radius_exact )
+            
+        # If k_init > k_final then the integral doesn't make any sense
+        # Set rel_error to 0 here
+        if k_init >= k_final:
+            rel_errors[i, j] =  100.0
+        else:
+            print('k_init=%.1f, k_final=%.1f, rel_err=%.3f'%(k_init,k_final,
+                                                             rel_errors[i,j]))
+            
+# Plot the relative errors as a contour
+
+plt.close('all')
+f, ax = plt.subplots(figsize=(4, 4))
+
+mx = 1.0
+mn = 0.0
+
+c = ax.pcolor(k_points, k_points, rel_errors, vmin=mn, vmax=mx, cmap='Blues')
+
+size = 16
+ax.set_ylabel(r'$\Lambda_{initial}$' + ' fm' + r'$^{-1}$', fontsize=size)
+ax.set_xlabel(r'$\Lambda_{final}$' + ' fm' + r'$^{-1}$', fontsize=size)
+                                         
+# Set colorbar axe
+f.subplots_adjust(right=0.8) # Adjust for colorbar space
+cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+                                         
+# Set colorbar
+cbar = f.colorbar(c, cax=cbar_ax)
+
+plt.show()
+
+
+# Plot the relative errors as a scatter plot holding \Lambda_init = 0.0
+
+plt.close('all')
+f, ax = plt.subplots(figsize=(4, 4))
+
+blue_label = r'$\Lambda_{initial}=0$' + ' fm' + r'$^{-1}$' + ', vary ' + \
+             r'$\Lambda_{final}$'
+red_label = r'$\Lambda_{final}=10$' + ' fm' + r'$^{-1}$' + ', vary ' + \
+            r'$\Lambda_{initial}$'           
+             
+ax.scatter(k_points, rel_errors[0, :], color='xkcd:blue', marker='o',
+           label=blue_label)
+ax.scatter(k_points, rel_errors[:, m-1], color='xkcd:red', marker='s',
+           label=red_label)
+ax.axhline(y=0.0, color='xkcd:black', linestyle='dotted')
+ax.legend()
+ax.set_xlim([-0.1, 10.1])
+ax.set_ylim([-0.1, 1.1])
+ax.set_ylabel('Relative error')
+ax.set_xlabel(r'$\Lambda$' + ' fm' + r'$^{-1}$')
+
+plt.show()
