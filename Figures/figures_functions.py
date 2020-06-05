@@ -94,7 +94,7 @@ def generator_label_conversion(generator, lambda_bd=0.00):
     return label
 
 
-def interpolate_vector(x_array, y_array, x_max, ntot=500):
+def interpolate_vector(x_array, y_array, x_max, ntot=500, order='linear'):
     """
     Interpolate vector given array for plots. Also adds more points to given
     x_array.
@@ -109,6 +109,8 @@ def interpolate_vector(x_array, y_array, x_max, ntot=500):
         Maximum value of x. This functions interpolates y_array up to this value.
     ntot : int, optional
         Desired length of the interpolated vector and new x array.
+    order : str, optional
+        Order for interpolation. Default is 'linear'.
         
     Returns
     -------
@@ -133,7 +135,7 @@ def interpolate_vector(x_array, y_array, x_max, ntot=500):
     y_array = y_array[:n]
     
     # Use interp2d to interpolate the truncated matrix
-    y_func = interp1d(x_array, y_array)
+    y_func = interp1d(x_array, y_array, kind=order)
 
     # New x array for interpolation (dimension ntot x 1)
     x_array_new = np.linspace(x_array[0], x_array[-1], ntot)
