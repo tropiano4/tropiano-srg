@@ -21,6 +21,8 @@
 #                "NN operator conventions".
 #   06/02/20 --- Added option to use smeared delta functions in the momentum
 #                projection operator.
+#   06/05/20 --- Added option to use exponential regulator function for r^2
+#                operator.
 #
 # Notes:
 #   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
@@ -189,7 +191,7 @@ def hankel_transformation(channel, k_array, r_array, dr):
     return M
 
 
-def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
+def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
     """
     r^2 operator in momentum-space. For an evolved operator, enter in a unitary 
     transformation U. For presentation, one should divide out the momenta and 
@@ -213,6 +215,9 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
         Unitary transformation matrix with momenta/weights factored in, that 
         is, the matrix is unitless. If no unitary transformation is provided, 
         the function will skip the line where it evolves the operator.
+    reg : bool, optional
+        Option to regulate the r^2 operator in momentum space with an
+        exponential function exp^[-r^2/a^2] where a = 5 fm.
         
     Returns
     -------
@@ -222,14 +227,25 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0)):
     * Note, update this function for coupled-channels that aren't 3S1-3D1.
         
     """
+    
+    # Set up regulator
+    if reg:
+        
+        # Cutoff in fm
+        a = 5.0
+        regulator = np.exp( -r_array**2 / a**2 )
+        
+    else:
+        
+        regulator = 1
         
     # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
-    r2_coordinate_space = np.diag(r_array**2)
+    r2_coordinate_space = np.diag(r_array**2) * regulator
      
     # Transform operator to momentum-space
     s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
     d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
-    
+
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
     ss_block = s_wave_trans @ r2_coordinate_space @ s_wave_trans.T
