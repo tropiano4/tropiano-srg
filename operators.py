@@ -232,7 +232,7 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
     if reg:
         
         # Cutoff in fm
-        a = 5.0
+        a = 6.0
         regulator = np.exp( -r_array**2 / a**2 )
         
     else:
