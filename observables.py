@@ -24,6 +24,7 @@
 #   03/16/20 --- Updated functions involving observables and their associated 
 #                operators to follow the conventions in the notes
 #                "NN operator conventions".
+#   06/05/20 --- Updated rms_radius_from_kspace function.
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -453,19 +454,42 @@ def rms_radius_from_rspace(psi, r2_operator):
     return 0.5 * np.sqrt(r2)
 
 
-def rms_radius_from_kspace(psi):
-    """
-    Description.
+def rms_radius_from_kspace(psi, k_array, k_weights):
+    '''Same as above function but calculates in momentum-space where r^2 
+    operator has derivative terms with respect to k. 
+    <r> = 1/2*\sqrt{ \integral{ dk * [ (k*u(k))^2+(k*w(k))^2+6*w(k)^2 ] } } 
+    here. Can check unitarily equivalent rms radius by entering in a
+    unitary transformation U.'''
     
-    Parameters
-    ----------
-    
-    Returns
-    -------
-    
-    """
-    
-    return None
+    ntot = len(k_array)
+    factor_array = np.sqrt(k_weights) * k_array
+        
+    # Load wave function in momentum-space
+    u = psi[:ntot] / factor_array
+    w = psi[ntot:] / factor_array
+        
+    # Interpolate with CubicSpline
+    # This is a function of k (float or array)
+    u_func = CubicSpline(k_array,u) 
+    w_func = CubicSpline(k_array,w)
+        
+    # Calculate derivatives of u(k) and w(k) using original k_array
+    # This is a function
+    u_deriv_func = u_func.derivative() 
+    # This is an array with as many points as k_array and k_weights
+    u_deriv_array = u_deriv_func(k_array) 
+    w_deriv_func = w_func.derivative()
+    w_deriv_array = w_deriv_func(k_array)
+        
+    # RMS radius integrand in momentum-space
+    integrand = (k_array*u_deriv_array)**2+(k_array*w_deriv_array)**2+6*w**2
+        
+    # The sum over the integrand (which is weighted by k_weights) gives the 
+    # value of <r^2>
+    r2 = np.sum(k_weights*integrand)
+        
+    # The RMS radius of deuteron is given by 1/2 * sqrt(r^2)
+    return 0.5*np.sqrt(r2)
 
 
 def quadrupole_moment_from_kspace(psi, k_array, k_weights):
