@@ -175,8 +175,10 @@ def r2_contours(kvnn, generators, lambda_array, reg=False):
     axes_tick_size = 18
     
     # Colorbar ticks, label, and fontsize
-    mx = 5e2
-    mn = -5e2
+    #mx = 5e2
+    #mn = -5e2
+    mx = 1e3
+    mn = -1e3
     # mx = 5e3
     # mn = -5e3
     #mx = 1e4
@@ -237,7 +239,7 @@ def r2_contours(kvnn, generators, lambda_array, reg=False):
             #k_array_int, operator_diff_int = ff.interpolate_matrix(k_array,
             #                                 operator_diff, axes_max)
             k_array_int, evolved_operator_int = ff.interpolate_matrix(k_array, 
-                                                evolved_operator, axes_max)
+                                                evolved_operator, axes_max+0.3)
         
             # Store in dictionary with generator and lamb as keys
             d[generator][lamb] = evolved_operator_int
@@ -329,7 +331,8 @@ def r2_contours(kvnn, generators, lambda_array, reg=False):
 # --- Fixed variables --- #
 
 kvnns_default = [79, 111, 222]
-kvnn_default = 111
+#kvnn_default = 111
+kvnn_default = 6
 channel_default = '3S1'
 generators = ['Wegner', 'Block-diag']
 
@@ -337,149 +340,149 @@ generators = ['Wegner', 'Block-diag']
 # --- Test regulated operators --- #
 
 
-# # Contours of r^2 operator under RKE N4LO (450 MeV) transformations
-# lambda_array = np.array([3.0, 2.0, 1.5])
-# f, axs = r2_contours(kvnn_default, generators, lambda_array)
+# Contours of r^2 operator under RKE N4LO (450 MeV) transformations
+lambda_array = np.array([3.0, 2.0, 1.5])
+f, axs = r2_contours(kvnn_default, generators, lambda_array)
 
-# # Add generator label to each subplot on the 1st column
-# generator_label_size = 17
-# #generator_label_location = 'center right'
-# generator_label_location = 'upper right'
-# for i, generator in enumerate(generators):
-#     generator_label = ff.generator_label_conversion(generator)
-#     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
-#                                   prop=dict(size=generator_label_size))
-#     axs[i, 0].add_artist(anchored_text)
+# Add generator label to each subplot on the 1st column
+generator_label_size = 17
+#generator_label_location = 'center right'
+generator_label_location = 'upper right'
+for i, generator in enumerate(generators):
+    generator_label = ff.generator_label_conversion(generator)
+    anchored_text = AnchoredText(generator_label, loc=generator_label_location,
+                                  prop=dict(size=generator_label_size))
+    axs[i, 0].add_artist(anchored_text)
 
-# # Add \lambda label to each sub-plot
-# lambda_label_size = 17
-# #lambda_label_location = 'lower right'
-# lambda_label_location = 'lower left'
-# for i, generator in enumerate(generators):
-#     for j, lamb in enumerate(lambda_array):
-#         if generator == 'Block-diag':
-#             # Labels the block-diagonal cutoff \Lambda_BD
-#             lambda_label = ff.lambda_label_conversion(lamb, 
-#                                                       block_diag_bool=True)
-#         else:
-#             # Labels the evolution parameter \lambda
-#             lambda_label = ff.lambda_label_conversion(lamb)
-#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location,
-#                                      prop=dict(size=lambda_label_size))
-#         axs[i, j].add_artist(anchored_text)
-        
-# Calculate RMS radius of deuteron
-#kvnn = 111
-kvnn = 6
-#evolve = False
-evolve = True
-reg = False
-#reg = True
-H_initial = lsp.load_hamiltonian(kvnn, channel_default)
-H_evolved = lsp.load_hamiltonian(kvnn, channel_default, method='srg',
-                                 generator='Wegner', lamb=2.0)
-U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-k_array, k_weights = lsp.load_momentum(kvnn, channel_default)
-ntot = len(k_array)
-r_min = 0.005
-r_max = 30.2
-dr = 0.005
-r_array = np.arange(r_min, r_max + dr, dr)
-if evolve:
-    psi = ob.wave_function(H_initial, U=U_matrix)
-    r2_op = r2_operator(k_array, k_weights, r_array, dr, U=U_matrix, reg=reg)
-else:
-    psi = ob.wave_function(H_initial)
-    r2_op = r2_operator(k_array, k_weights, r_array, dr, reg=reg)
-deuteron_radius_exact = ob.rms_radius_from_rspace(psi, r2_op)
-print('r = %.5f fm' % deuteron_radius_exact) # Should give 1.96574 fm
-
-
-# Test strength of regions of r^2 by isolating integral to different
-# regions in k and k'
-
-k_points = np.zeros(11)
-k_points[0] = k_array[0]
-for i in range(1, 10):
-    k_points[i] = i
-k_points[10] = k_array[-1]
-m = len(k_points)
-rel_errors = np.zeros((m, m))
-
-for i, k_init in enumerate(k_points):
-    for j, k_final in enumerate(k_points):
-
-        k_init_index = op.find_q_index(k_init, k_array)
-        k_init_index_l2 = k_init_index+ntot
-        k_final_index = op.find_q_index(k_final, k_array)
-        k_final_index_l2 = k_final_index+ntot
-
-        psi_resized = np.concatenate( (psi[k_init_index:k_final_index], 
-                                       psi[k_init_index_l2:k_final_index_l2]) )
-        r2_ss = r2_op[k_init_index:k_final_index, k_init_index:k_final_index]
-        r2_sd = r2_op[k_init_index:k_final_index,
-                      k_init_index_l2:k_final_index_l2]
-        r2_ds = r2_op[k_init_index_l2:k_final_index_l2,
-                      k_init_index:k_final_index]
-        r2_dd = r2_op[k_init_index_l2:k_final_index_l2,
-                      k_init_index_l2:k_final_index_l2]
-        r2_resized = np.vstack( ( np.hstack( (r2_ss, r2_sd) ),
-                                  np.hstack( (r2_ds, r2_dd) ) ) )
-        deuteron_radius = ob.rms_radius_from_rspace(psi_resized, r2_resized)
-        rel_errors[i, j] = abs( (deuteron_radius-deuteron_radius_exact) / \
-                                 deuteron_radius_exact )
-            
-        # If k_init > k_final then the integral doesn't make any sense
-        # Set rel_error to 0 here
-        if k_init >= k_final:
-            rel_errors[i, j] =  100.0
+# Add \lambda label to each sub-plot
+lambda_label_size = 17
+#lambda_label_location = 'lower right'
+lambda_label_location = 'lower left'
+for i, generator in enumerate(generators):
+    for j, lamb in enumerate(lambda_array):
+        if generator == 'Block-diag':
+            # Labels the block-diagonal cutoff \Lambda_BD
+            lambda_label = ff.lambda_label_conversion(lamb, 
+                                                      block_diag_bool=True)
         else:
-            print('k_init=%.1f, k_final=%.1f, rel_err=%.3f'%(k_init,k_final,
-                                                             rel_errors[i,j]))
+            # Labels the evolution parameter \lambda
+            lambda_label = ff.lambda_label_conversion(lamb)
+        anchored_text = AnchoredText(lambda_label, loc=lambda_label_location,
+                                      prop=dict(size=lambda_label_size))
+        axs[i, j].add_artist(anchored_text)
+        
+# # Calculate RMS radius of deuteron
+# #kvnn = 111
+# kvnn = 6
+# #evolve = False
+# evolve = True
+# reg = False
+# #reg = True
+# H_initial = lsp.load_hamiltonian(kvnn, channel_default)
+# H_evolved = lsp.load_hamiltonian(kvnn, channel_default, method='srg',
+#                                  generator='Wegner', lamb=2.0)
+# U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
+# k_array, k_weights = lsp.load_momentum(kvnn, channel_default)
+# ntot = len(k_array)
+# r_min = 0.005
+# r_max = 30.2
+# dr = 0.005
+# r_array = np.arange(r_min, r_max + dr, dr)
+# if evolve:
+#     psi = ob.wave_function(H_initial, U=U_matrix)
+#     r2_op = r2_operator(k_array, k_weights, r_array, dr, U=U_matrix, reg=reg)
+# else:
+#     psi = ob.wave_function(H_initial)
+#     r2_op = r2_operator(k_array, k_weights, r_array, dr, reg=reg)
+# deuteron_radius_exact = ob.rms_radius_from_rspace(psi, r2_op)
+# print('r = %.5f fm' % deuteron_radius_exact) # Should give 1.96574 fm
+
+
+# # Test strength of regions of r^2 by isolating integral to different
+# # regions in k and k'
+
+# k_points = np.zeros(11)
+# k_points[0] = k_array[0]
+# for i in range(1, 10):
+#     k_points[i] = i
+# k_points[10] = k_array[-1]
+# m = len(k_points)
+# rel_errors = np.zeros((m, m))
+
+# for i, k_init in enumerate(k_points):
+#     for j, k_final in enumerate(k_points):
+
+#         k_init_index = op.find_q_index(k_init, k_array)
+#         k_init_index_l2 = k_init_index+ntot
+#         k_final_index = op.find_q_index(k_final, k_array)
+#         k_final_index_l2 = k_final_index+ntot
+
+#         psi_resized = np.concatenate( (psi[k_init_index:k_final_index], 
+#                                        psi[k_init_index_l2:k_final_index_l2]) )
+#         r2_ss = r2_op[k_init_index:k_final_index, k_init_index:k_final_index]
+#         r2_sd = r2_op[k_init_index:k_final_index,
+#                       k_init_index_l2:k_final_index_l2]
+#         r2_ds = r2_op[k_init_index_l2:k_final_index_l2,
+#                       k_init_index:k_final_index]
+#         r2_dd = r2_op[k_init_index_l2:k_final_index_l2,
+#                       k_init_index_l2:k_final_index_l2]
+#         r2_resized = np.vstack( ( np.hstack( (r2_ss, r2_sd) ),
+#                                   np.hstack( (r2_ds, r2_dd) ) ) )
+#         deuteron_radius = ob.rms_radius_from_rspace(psi_resized, r2_resized)
+#         rel_errors[i, j] = abs( (deuteron_radius-deuteron_radius_exact) / \
+#                                  deuteron_radius_exact )
             
-# Plot the relative errors as a contour
+#         # If k_init > k_final then the integral doesn't make any sense
+#         # Set rel_error to 0 here
+#         if k_init >= k_final:
+#             rel_errors[i, j] =  100.0
+#         else:
+#             print('k_init=%.1f, k_final=%.1f, rel_err=%.3f'%(k_init,k_final,
+#                                                              rel_errors[i,j]))
+            
+# # Plot the relative errors as a contour
 
-plt.close('all')
-f, ax = plt.subplots(figsize=(4, 4))
+# plt.close('all')
+# f, ax = plt.subplots(figsize=(4, 4))
 
-mx = 1.0
-mn = 0.0
+# mx = 1.0
+# mn = 0.0
 
-c = ax.pcolor(k_points, k_points, rel_errors, vmin=mn, vmax=mx, cmap='Blues')
+# c = ax.pcolor(k_points, k_points, rel_errors, vmin=mn, vmax=mx, cmap='Blues')
 
-size = 16
-ax.set_ylabel(r'$\Lambda_{initial}$' + ' fm' + r'$^{-1}$', fontsize=size)
-ax.set_xlabel(r'$\Lambda_{final}$' + ' fm' + r'$^{-1}$', fontsize=size)
+# size = 16
+# ax.set_ylabel(r'$\Lambda_{initial}$' + ' fm' + r'$^{-1}$', fontsize=size)
+# ax.set_xlabel(r'$\Lambda_{final}$' + ' fm' + r'$^{-1}$', fontsize=size)
                                          
-# Set colorbar axe
-f.subplots_adjust(right=0.8) # Adjust for colorbar space
-cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+# # Set colorbar axe
+# f.subplots_adjust(right=0.8) # Adjust for colorbar space
+# cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
                                          
-# Set colorbar
-cbar = f.colorbar(c, cax=cbar_ax)
+# # Set colorbar
+# cbar = f.colorbar(c, cax=cbar_ax)
 
-plt.show()
+# plt.show()
 
 
-# Plot the relative errors as a scatter plot holding \Lambda_init = 0.0
+# # Plot the relative errors as a scatter plot holding \Lambda_init = 0.0
 
-plt.close('all')
-f, ax = plt.subplots(figsize=(4, 4))
+# plt.close('all')
+# f, ax = plt.subplots(figsize=(4, 4))
 
-blue_label = r'$\Lambda_{initial}=0$' + ' fm' + r'$^{-1}$' + ', vary ' + \
-             r'$\Lambda_{final}$'
-red_label = r'$\Lambda_{final}=10$' + ' fm' + r'$^{-1}$' + ', vary ' + \
-            r'$\Lambda_{initial}$'           
+# blue_label = r'$\Lambda_{initial}=0$' + ' fm' + r'$^{-1}$' + ', vary ' + \
+#              r'$\Lambda_{final}$'
+# red_label = r'$\Lambda_{final}=10$' + ' fm' + r'$^{-1}$' + ', vary ' + \
+#             r'$\Lambda_{initial}$'           
              
-ax.scatter(k_points, rel_errors[0, :], color='xkcd:blue', marker='o',
-           label=blue_label)
-ax.scatter(k_points, rel_errors[:, m-1], color='xkcd:red', marker='s',
-           label=red_label)
-ax.axhline(y=0.0, color='xkcd:black', linestyle='dotted')
-ax.legend()
-ax.set_xlim([-0.1, 10.1])
-ax.set_ylim([-0.1, 1.1])
-ax.set_ylabel('Relative error')
-ax.set_xlabel(r'$\Lambda$' + ' fm' + r'$^{-1}$')
+# ax.scatter(k_points, rel_errors[0, :], color='xkcd:blue', marker='o',
+#            label=blue_label)
+# ax.scatter(k_points, rel_errors[:, m-1], color='xkcd:red', marker='s',
+#            label=red_label)
+# ax.axhline(y=0.0, color='xkcd:black', linestyle='dotted')
+# ax.legend()
+# ax.set_xlim([-0.1, 10.1])
+# ax.set_ylim([-0.1, 1.1])
+# ax.set_ylabel('Relative error')
+# ax.set_xlabel(r'$\Lambda$' + ' fm' + r'$^{-1}$')
 
-plt.show()
+# plt.show()
