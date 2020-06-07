@@ -52,7 +52,8 @@ from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 # --- Operator functions --- #
 
 
-def hankel_transformation(channel, k_array, r_array, dr):
+#def hankel_transformation(channel, k_array, r_array, dr):
+def hankel_transformation(channel, k_array, k_weights, r_array):
         
     # L = 0 (0th spherical Bessel function)
     if channel[1] == 'S':
@@ -66,14 +67,17 @@ def hankel_transformation(channel, k_array, r_array, dr):
         
     # r_array column vectors and k_array row vectors where both grids are
     # n x m matrices
-    r_cols, k_rows = np.meshgrid(r_array, k_array)
+    k_cols, r_rows = np.meshgrid(k_array, r_array)
+    k_weights_cols, _ = np.meshgrid(k_weights, r_array)
+    
         
-    M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows * r_cols)
+    M = 2/np.pi * k_weights_cols * k_cols**2 * spherical_jn(L, k_cols * r_rows)
 
     return M
 
 
-def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
+#def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
+def r2_operator(r_array, dr, reg=False):
     
     # Cutoff parameter a
     a = 6.0
@@ -85,36 +89,42 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
     # Initialize r^2 in coordinate-space first where r^2 is a diagonal matrix
     r2_coordinate_space = np.diag(r_array**2) * regulator
      
-    # Transform operator to momentum-space
-    s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
-    d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
+    # # Transform operator to momentum-space
+    # s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
+    # d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
     
-    # Each variable here corresponds to a sub-block of the coupled channel 
-    # matrix
-    ss_block = s_wave_trans @ r2_coordinate_space @ s_wave_trans.T
-    dd_block = d_wave_trans @ r2_coordinate_space @ d_wave_trans.T
+    # # Each variable here corresponds to a sub-block of the coupled channel 
+    # # matrix
+    # ss_block = s_wave_trans @ r2_coordinate_space @ s_wave_trans.T
+    # dd_block = d_wave_trans @ r2_coordinate_space @ d_wave_trans.T
     
-    # Grids of momenta and weights
-    factor_array = np.concatenate( (np.sqrt(k_weights) * k_array, 
-                                    np.sqrt(k_weights) * k_array) ) * \
-                   np.sqrt(2/np.pi)
+    # # Grids of momenta and weights
+    # factor_array = np.concatenate( (np.sqrt(k_weights) * k_array, 
+    #                                 np.sqrt(k_weights) * k_array) ) * \
+    #                np.sqrt(2/np.pi)
+    # row, col = np.meshgrid(factor_array, factor_array)
+    
+    factor_array = r_array * np.sqrt(dr)
     row, col = np.meshgrid(factor_array, factor_array)
+    
+    r2_coordinate_space = r2_coordinate_space * row * col
         
     # Length of k_array
-    n = len(k_array)
+    #n = len(k_array)
         
-    # Matrix of zeros (m x m) for coupled-channel operator
-    o = np.zeros( (n, n) )
+    # # Matrix of zeros (m x m) for coupled-channel operator
+    # o = np.zeros( (n, n) )
         
-    # Build coupled channel operator with momenta/weights
-    r2_momentum_space = np.vstack( ( np.hstack( (ss_block, o) ),
-                                     np.hstack( (o, dd_block) ) ) ) * row * col
+    # # Build coupled channel operator with momenta/weights
+    # r2_momentum_space = np.vstack( ( np.hstack( (ss_block, o) ),
+    #                                  np.hstack( (o, dd_block) ) ) ) * row * col
     
-    # Evolve operator by applying unitary transformation U
-    if U.any():
-        r2_momentum_space = U @ r2_momentum_space @ U.T
+    # # Evolve operator by applying unitary transformation U
+    # if U.any():
+    #     r2_momentum_space = U @ r2_momentum_space @ U.T
         
-    return r2_momentum_space
+    # return r2_momentum_space
+    return r2_coordinate_space
 
 
 def rms_radius_from_rspace(psi, r2_operator):
@@ -330,72 +340,86 @@ def r2_contours(kvnn, generators, lambda_array, reg=False):
 
 # --- Fixed variables --- #
 
-kvnns_default = [79, 111, 222]
+#kvnns_default = [79, 111, 222]
 #kvnn_default = 111
 kvnn_default = 6
 channel_default = '3S1'
-generators = ['Wegner', 'Block-diag']
+#generators = ['Wegner', 'Block-diag']
 
 
 # --- Test regulated operators --- #
 
 
-# Contours of r^2 operator under RKE N4LO (450 MeV) transformations
-lambda_array = np.array([3.0, 2.0, 1.5])
-f, axs = r2_contours(kvnn_default, generators, lambda_array)
+# # Contours of r^2 operator under RKE N4LO (450 MeV) transformations
+# lambda_array = np.array([3.0, 2.0, 1.5])
+# f, axs = r2_contours(kvnn_default, generators, lambda_array)
 
-# Add generator label to each subplot on the 1st column
-generator_label_size = 17
-#generator_label_location = 'center right'
-generator_label_location = 'upper right'
-for i, generator in enumerate(generators):
-    generator_label = ff.generator_label_conversion(generator)
-    anchored_text = AnchoredText(generator_label, loc=generator_label_location,
-                                  prop=dict(size=generator_label_size))
-    axs[i, 0].add_artist(anchored_text)
+# # Add generator label to each subplot on the 1st column
+# generator_label_size = 17
+# #generator_label_location = 'center right'
+# generator_label_location = 'upper right'
+# for i, generator in enumerate(generators):
+#     generator_label = ff.generator_label_conversion(generator)
+#     anchored_text = AnchoredText(generator_label, loc=generator_label_location,
+#                                   prop=dict(size=generator_label_size))
+#     axs[i, 0].add_artist(anchored_text)
 
-# Add \lambda label to each sub-plot
-lambda_label_size = 17
-#lambda_label_location = 'lower right'
-lambda_label_location = 'lower left'
-for i, generator in enumerate(generators):
-    for j, lamb in enumerate(lambda_array):
-        if generator == 'Block-diag':
-            # Labels the block-diagonal cutoff \Lambda_BD
-            lambda_label = ff.lambda_label_conversion(lamb, 
-                                                      block_diag_bool=True)
-        else:
-            # Labels the evolution parameter \lambda
-            lambda_label = ff.lambda_label_conversion(lamb)
-        anchored_text = AnchoredText(lambda_label, loc=lambda_label_location,
-                                      prop=dict(size=lambda_label_size))
-        axs[i, j].add_artist(anchored_text)
+# # Add \lambda label to each sub-plot
+# lambda_label_size = 17
+# #lambda_label_location = 'lower right'
+# lambda_label_location = 'lower left'
+# for i, generator in enumerate(generators):
+#     for j, lamb in enumerate(lambda_array):
+#         if generator == 'Block-diag':
+#             # Labels the block-diagonal cutoff \Lambda_BD
+#             lambda_label = ff.lambda_label_conversion(lamb, 
+#                                                       block_diag_bool=True)
+#         else:
+#             # Labels the evolution parameter \lambda
+#             lambda_label = ff.lambda_label_conversion(lamb)
+#         anchored_text = AnchoredText(lambda_label, loc=lambda_label_location,
+#                                       prop=dict(size=lambda_label_size))
+#         axs[i, j].add_artist(anchored_text)
         
 # # Calculate RMS radius of deuteron
-# #kvnn = 111
-# kvnn = 6
-# #evolve = False
+# evolve = False
 # evolve = True
-# reg = False
-# #reg = True
-# H_initial = lsp.load_hamiltonian(kvnn, channel_default)
-# H_evolved = lsp.load_hamiltonian(kvnn, channel_default, method='srg',
+reg = False
+#reg = True
+H_initial = lsp.load_hamiltonian(kvnn_default, channel_default)
+# H_evolved = lsp.load_hamiltonian(kvnn_default, channel_default, method='srg',
 #                                  generator='Wegner', lamb=2.0)
 # U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
-# k_array, k_weights = lsp.load_momentum(kvnn, channel_default)
-# ntot = len(k_array)
-# r_min = 0.005
-# r_max = 30.2
-# dr = 0.005
-# r_array = np.arange(r_min, r_max + dr, dr)
+k_array, k_weights = lsp.load_momentum(kvnn_default, channel_default)
+factor_array = np.concatenate( (np.sqrt((2*k_weights)/np.pi)*k_array, 
+                               (np.sqrt((2*k_weights)/np.pi)*k_array)) )
+ntot = len(k_array)
+r_min = 0.005
+r_max = 30.2
+dr = 0.005
+r_array = np.arange(r_min, r_max + dr, dr)
+hank_trans_3s1 = hankel_transformation('3S1', k_array, k_weights, r_array)
+hank_trans_3d1 = hankel_transformation('3D1', k_array, k_weights, r_array)
 # if evolve:
 #     psi = ob.wave_function(H_initial, U=U_matrix)
 #     r2_op = r2_operator(k_array, k_weights, r_array, dr, U=U_matrix, reg=reg)
 # else:
 #     psi = ob.wave_function(H_initial)
 #     r2_op = r2_operator(k_array, k_weights, r_array, dr, reg=reg)
-# deuteron_radius_exact = ob.rms_radius_from_rspace(psi, r2_op)
-# print('r = %.5f fm' % deuteron_radius_exact) # Should give 1.96574 fm
+#psi = ob.wave_function(H_initial)
+psi = ob.wave_function(H_initial) / factor_array
+psi_coord_space_3s1 = hank_trans_3s1 @ psi[:ntot] 
+psi_coord_space_3d1 = hank_trans_3d1 @ psi[ntot:]
+
+plt.plot(r_array, psi_coord_space_3s1, 'b-')
+plt.plot(r_array, psi_coord_space_3d1, 'r--')
+plt.xlim([0,4])
+r2_op = r2_operator(r_array, dr, reg)
+#deuteron_radius_exact = ob.rms_radius_from_rspace(psi, r2_op)
+deuteron_radius_exact = 0.5 * np.sqrt(
+                        psi_coord_space_3s1.T @ r2_op @ psi_coord_space_3s1 + \
+                        psi_coord_space_3d1.T @ r2_op @ psi_coord_space_3d1 )
+print('r = %.5f fm' % deuteron_radius_exact) # Should give 1.96574 fm
 
 
 # # Test strength of regions of r^2 by isolating integral to different
