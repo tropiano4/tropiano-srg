@@ -191,7 +191,7 @@ def hankel_transformation(channel, k_array, r_array, dr):
     return M
 
 
-def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
+def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     """
     r^2 operator in momentum-space. For an evolved operator, enter in a unitary 
     transformation U. For presentation, one should divide out the momenta and 
@@ -215,9 +215,11 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
         Unitary transformation matrix with momenta/weights factored in, that 
         is, the matrix is unitless. If no unitary transformation is provided, 
         the function will skip the line where it evolves the operator.
-    reg : bool, optional
-        Option to regulate the r^2 operator in momentum space with an
-        exponential function exp^[-r^2/a^2] where a = 5 fm.
+    a : float, optional
+        Parameter in regulator function. Gives an option to regulate the r^2
+        operator in momentum space with an exponential function exp^[-r^2/a^2]
+        where a = 5 fm. If a > 100 fm, we assume the exponential function is
+        1 (and thus do not regulate the operator).
         
     Returns
     -------
@@ -229,10 +231,8 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), reg=False):
     """
     
     # Set up regulator
-    if reg:
-        
-        # Cutoff in fm
-        a = 6.0
+    if a < 100:
+    
         regulator = np.exp( -r_array**2 / a**2 )
         
     else:
