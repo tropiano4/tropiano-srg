@@ -21,17 +21,24 @@ from numpy.polynomial.legendre import leggauss
 from observables import phase_shifts
 
 
-# Define function and interval
+# Construct Gauss-Legendre quadrature momentum mesh (units are fm^-1)
+# Minimum momentum value
 k_min = 0.0
+# Maximum momentum value
 k_max = 10.0
+# Number of nodes
 ntot = 15
 x_array, k_weights = leggauss(ntot)
+# Convert from interval [-1, 1] to [k_min, k_max] (meaning x_array -> k_array)
 k_array = 0.5 * (x_array + 1) * (k_max - k_min) + k_min
 
-# Set up kinetic energy
+
+# Calculate relative kinetic energy (this should be a diagonal matrix)
 # h-bar^2 / M [MeV fm^2]
 hbar_sq_over_M = 41.47
-T_matrix = hbar_sq_over_M * np.diag( k_array**2 ) # MeV
+# Relative kinetic energy in units MeV
+T_matrix = hbar_sq_over_M * np.diag( k_array**2 )
+
 
 # Set up potential
 lamb = 4.0 # units fm^-1
