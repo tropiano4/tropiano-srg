@@ -21,6 +21,7 @@ from numpy.polynomial.legendre import leggauss
 from observables import phase_shifts
 
 
+# CONVERT THIS TO A JUPYTER NOTEBOOK #
 # Construct Gauss-Legendre quadrature momentum mesh (units are fm^-1)
 # Minimum momentum value
 k_min = 0.0
@@ -40,7 +41,8 @@ hbar_sq_over_M = 41.47
 T_matrix = hbar_sq_over_M * np.diag( k_array**2 )
 
 
-# Set up potential
+# Set up potential from PHY 989 project
+# 1S0 parameterization for NN scattering
 lamb = 4.0 # units fm^-1
 V_0 = 10.0 # units MeV fm^3
 k_row, k_col = np.meshgrid(k_array, k_array)
