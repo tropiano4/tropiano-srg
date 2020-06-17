@@ -196,7 +196,7 @@ if __name__ == '__main__':
     y_label_1 = r'$||\eta(s)||$' + ' [fm' + r'$^{-4}$' + ']'
     y_label_2 = r'$||\Omega(s)||$'
     y_label_size = 20
-    legend_label_size = 15
+    legend_label_size = 18
     
     # Width of curves
     curve_width = 2.0
