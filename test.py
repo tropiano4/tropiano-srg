@@ -36,3 +36,4 @@
 #   Test the approximation K(p) ~ \int_0_\LambdaBD[p'^2 U(p,p')].
 
 
+from Potentials.vsrg_macos import load_save_potentials as lsp 
