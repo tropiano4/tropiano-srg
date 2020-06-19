@@ -1,0 +1,5 @@
+-Calculating and extracting process-independent quantities
+-Factorization of structure and reactions: scale and scheme dependent
+-Use SRG for analysis
+-Optical potentials in 1-D: preliminary results
+-Optical potentials in 1-D: outlook: three-body problem addresses non-locality, effectiveness of common approximations, decoupling.
