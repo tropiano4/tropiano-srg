@@ -8,9 +8,8 @@
 # 
 # Contains several functions for momentum-space operators. These functions can
 # be used in conjunction with functions from observables.py to calculate 
-# observable quantities such as the RMS radius. Or the functions can be used to
-# look at SRG evolved operators by applying unitary transformations to the
-# operator matrices.
+# quantities such as the RMS radius, or the functions can be used to look at 
+# SRG evolved operators by applying transformations to the operator matrices.
 #
 # Revision history:
 #   08/07/19 --- Minor revisions to r^2 operator.
@@ -23,10 +22,6 @@
 #                projection operator.
 #   06/05/20 --- Added option to use exponential regulator function for r^2
 #                operator.
-#
-# Notes:
-#   * The operators here only work for the 3S1 - 3D1 coupled channel. This code
-#     still needs to be generalized.
 #
 #------------------------------------------------------------------------------
 
