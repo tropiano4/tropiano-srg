@@ -7,8 +7,8 @@
 # Date:     January 24, 2020
 # 
 # Test how the Magnus expansion converges looking at the norm of \eta(s) and
-# \Omega(s) for various potentials. This is what generates figure 4 in the
-# paper.
+# \Omega(s) for various potentials. This is what generates Fig. 4 in the
+# https://arxiv.org/pdf/2006.11186.pdf.
 #
 #------------------------------------------------------------------------------
 
