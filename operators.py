@@ -115,7 +115,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
 
     else: # Assume \delta(k-q) = \delta_{k_i, q}
         
-        delta_function_array[q_index, q_index] = 1
+        delta_function_array[q_index] = 1
     
     # Divide by momenta/weights (see "NN operator conventions" LaTeX file for
     # more details on this step)
