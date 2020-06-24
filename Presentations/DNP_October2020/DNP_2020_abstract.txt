@@ -1,5 +1,12 @@
--Calculating and extracting process-independent quantities
--Factorization of structure and reactions: scale and scheme dependent
--Use SRG for analysis
--Optical potentials in 1-D: preliminary results
--Optical potentials in 1-D: outlook: three-body problem addresses non-locality, effectiveness of common approximations, decoupling.
+title: Short-range correlation physics from operator evolution
+
+authors: A.J. Tropiano, R.J. Furnstahl, Ohio State U., S.K. Bogner, Michigan State U.
+
+In analyzing scattering observables, there is scale and scheme dependence in the factorization of structure and reaction components.
+The similarity renormalization group (SRG) is well-suited to analyze the structure and reaction components in the sense that one can apply SRG transformations to wave functions and corresponding operators evolving to low resolution, tuning the scale with the SRG decoupling parameter.
+Under two different SRG schemes, we evolve a high resolution nucleon-nucleon interaction to low resolution decoupling the low- and high-energy physics.
+We show that SRC physics is shifted from the wave functions to consistently evolved operators.
+We demonstrate that a high-resolution description of SRC physics can be equivalently described at low resolution by calculating the ratio of proton-neutron over proton-proton pairs in nuclei at various relative momenta.
+
+Supported in part by the NSF and the DOE.
+
