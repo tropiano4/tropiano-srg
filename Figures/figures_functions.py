@@ -25,6 +25,7 @@
 #                block-diagonal \Lambda_BD.
 #   06/03/20 --- Made vector interpolation function analogous to
 #                interpolate_matrix function.
+#   06/25/20 --- Added a couple more linestyles to line_styles function
 #
 #------------------------------------------------------------------------------
 
@@ -329,7 +330,9 @@ def line_styles(curve_number):
     
     """
     
-    line_styles = ['solid', 'dashdot', 'dashed', 'dotted']
+    # Note, the last two are 'densely dashed' and densely dashdotted'
+    line_styles = ['solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1)), 
+                   (0, (3, 1, 1, 1))]
     
     try:
         
