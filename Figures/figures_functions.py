@@ -25,7 +25,9 @@
 #                block-diagonal \Lambda_BD.
 #   06/03/20 --- Made vector interpolation function analogous to
 #                interpolate_matrix function.
-#   06/25/20 --- Added a couple more linestyles to line_styles function
+#   06/25/20 --- Added a couple more linestyles to line_styles function.
+#                Updated replace_periods_with_commas to
+#                replace_periods_with_p.
 #
 #------------------------------------------------------------------------------
 
@@ -349,12 +351,12 @@ def line_styles(curve_number):
         return 'solid'
 
 
-def replace_periods_with_commas(file_name):
+def replace_periods_with_p(file_name):
     """
-    Replaces all periods in a file name with commas. This is necessary for
-    adding figures to LaTeX files which doesn't like periods unless they
-    specify a file type. For this reason, do not include the file type 
-    extension in the file name (i.e. .jpg, .pdf, etc.)
+    Replaces all periods in a file name with the character 'p'. This is 
+    necessary for adding figures to LaTeX files which doesn't like periods 
+    unless they specify a file type. For this reason, do not include the file
+    type extension in the file name (i.e. .jpg, .pdf, etc.)
     
     Parameters
     ----------
@@ -364,7 +366,7 @@ def replace_periods_with_commas(file_name):
     Returns
     -------
     new_file_name : str
-        New file name replacing periods with commas.
+        New file name replacing periods with 'p'.
         
     """
     
@@ -377,7 +379,7 @@ def replace_periods_with_commas(file_name):
         
         if letter == '.':
             
-            letter = ','
+            letter = 'p'
             
         new_file_name += letter
         
