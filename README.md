@@ -11,7 +11,7 @@ Description of each folder:
 
 * __Notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the draft of the Magnus paper, candidacy paper, etc.)
 
-* __Old_codes__ stores all out-dated codes. See the README stored in this folder for documentation.
+* __Old_codes__ stores all out-dated codes.
 
 * __Papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
 
