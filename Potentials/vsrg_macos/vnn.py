@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #------------------------------------------------------------------------------
-# File: load_save_potentials.py
+# File: vnn.py
 #
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     March 22, 2019
@@ -25,13 +25,15 @@
 # 901     Wendt LO non-local potential (9 fm^-1 cutoff)
 # 902     Wendt LO non-local potential (20 fm^-1 cutoff)
 #
-# Also saves SRG or Magnus evolved potentials in the same directory.
+# Also saves SRG or Magnus evolved potentials in the same directory. This
+# script includes several other useful potential-oriented functions.
 #
 # Revision history:
 #   05/07/19 --- Save and load Magnus evolved potentials and omega matrices.
 #   02/26/20 --- Updated to include default momentum mesh specifications.
 #   05/05/20 --- Updated to include function that converts potential to a new
 #                momentum mesh.
+#   06/29/20 --- Renamed to 'vnn.py'.
 #
 #------------------------------------------------------------------------------
 
