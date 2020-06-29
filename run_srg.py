@@ -22,7 +22,7 @@
 import numpy as np
 import time
 # Scripts made by A.T.
-from Potentials.vsrg_macos import load_save_potentials as lp
+from Potentials.vsrg_macos import vnn
 from SRG_codes import srg_wegner
 from SRG_codes import srg_kinetic_energy
 from SRG_codes import srg_block_diagonal
@@ -65,9 +65,9 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     """
 
     # Load initial Hamiltonian, kinetic energy, and weights
-    H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-    T_rel = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
-    k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+    T_rel = vnn.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
+    k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # h-bar^2 / M [MeV fm^2] for conversion from MeV to scattering units
     hbar_sq_over_M = 41.47
@@ -89,7 +89,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     elif generator == 'Block-diag':
         
         # Whether Hamiltonian is coupled channel or not (cc = True or False)
-        cc = lp.coupled_channel(channel) 
+        cc = vnn.coupled_channel(channel) 
         evolve = srg_block_diagonal.SRG(H_initial, lambda_bd, k_array, cc)
         
     # Time the evolution and return dictionary d of evolved Hamiltonians where
@@ -122,7 +122,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
             # fm^-2)
             V_evolved = H_evolved - T_rel / hbar_sq_over_M
             # Save evolved potential
-            lp.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
+            vnn.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
                               kmax, kmid, ntot, 'srg', generator, lamb, 
                               lambda_bd)
                 

@@ -40,7 +40,7 @@ import numpy as np
 import numpy.linalg as la
 from scipy.integrate import ode
 import time
-from Potentials.vsrg_macos import load_save_potentials as lsp
+from Potentials.vsrg_macos import vnn
   
 
 class SRG(object):
@@ -271,7 +271,7 @@ kvnn = 901
 channel = '3S1'
 
 # Initial Hamiltonian, momentum, and weights
-H_initial = lsp.load_hamiltonian(kvnn, channel)
+H_initial = vnn.load_hamiltonian(kvnn, channel)
 
 # Calculate initial eigenvalues
 if kvnn == 901:

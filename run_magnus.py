@@ -17,7 +17,7 @@
 import numpy as np
 import time
 # Scripts made by A.T.
-from Potentials.vsrg_macos import load_save_potentials as lp
+from Potentials.vsrg_macos import vnn
 from Magnus_codes import magnus_wegner
 from Magnus_codes import magnus_kinetic_energy
 
@@ -63,9 +63,9 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     """
 
     # Load initial Hamiltonian, kinetic energy and weights
-    H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-    T_rel = lp.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
-    k_array, k_weights = lp.load_momentum(kvnn, channel, kmax, kmid, ntot)
+    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+    T_rel = vnn.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
+    k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # h-bar^2 / M [MeV fm^2] for conversion from MeV to scattering units
     hbar_sq_over_M = 41.47
@@ -124,13 +124,13 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
             V_evolved = H_evolved - T_rel / hbar_sq_over_M
             
             # Save evolved potential
-            lp.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
+            vnn.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
                               kmax, kmid, ntot, 'magnus', generator, lamb,
                               k_magnus=k_magnus, ds=ds)
             
             O_evolved = d['omega'][lamb]
             # Save evolved omega matrix
-            lp.save_omega(k_array, O_evolved, kvnn, channel, kmax, kmid, ntot,
+            vnn.save_omega(k_array, O_evolved, kvnn, channel, kmax, kmid, ntot,
                           generator, lamb, k_magnus, ds=ds)
                 
     # Otherwise, only return the dictionary d

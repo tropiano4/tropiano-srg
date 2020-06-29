@@ -24,7 +24,7 @@ from sympy import bernoulli
 import time
 # Scripts made by A.T.
 from Figures import figures_functions as ff
-from Potentials.vsrg_macos import load_save_potentials as lp
+from Potentials.vsrg_macos import vnn
 
 
 class Magnus_test(object):
@@ -204,7 +204,7 @@ if __name__ == '__main__':
     i = 0
     for kvnn in kvnn_list:
     
-        H_initial = lp.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+        H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
 
         if kvnn == 900:
             magnus = Magnus_test(H_initial, k_magnus, 1e-5)
