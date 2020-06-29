@@ -10,7 +10,7 @@
 # using the relative kinetic energy generator and the Magnus implementation.
 #
 # Revision history:
-#   June 5, 2019 --- Added an Euler method function.
+#   06/05/19 --- Added an Euler method function.
 #
 # Notes:
 #   * Tried to do lambda differential equation similar to SRG codes but kept

@@ -27,12 +27,12 @@
 # Notes:
 #   * For kvnn = 902 or 6 where this method is necessary, use ds = 10^-7. This
 #     will take a considerable amount of time to evolve but eventually works 
-#     (t ~ 8 days).
+#     (t ~ 8 days on a laptop).
 #   * Currently this script is not set-up in run_magnus.py. For split thing
 #     runs, must use this script manually.
 #   * For very small step-sizes, ds ~ 10^-7, the Wegner SRG generator matches
-#     the relative kinetic energy generator. For this reason, we only need this
-#     Wegner version of the split thing method.
+#     the relative kinetic energy generator. For this reason, we only need
+#     this Wegner version of the split thing method.
 #
 #------------------------------------------------------------------------------
 

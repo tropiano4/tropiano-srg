@@ -10,8 +10,8 @@
 # using the Wegner generator and the Magnus implementation.
 #
 # Revision history:
-#   June 5, 2019 --- Added an Euler method function.
-#   June 7, 2019 --- Adding SciPy's expm function as an option instead of BCH
+#   06/05/19 --- Added an Euler method function.
+#   06/07/19 --- Adding SciPy's expm function as an option instead of BCH
 #
 # Notes:
 #   * Tried to do lambda differential equation similar to SRG codes but kept
