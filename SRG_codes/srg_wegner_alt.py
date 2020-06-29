@@ -33,10 +33,10 @@ class SRG(object):
         """
         
         # h-bar^2 / M [MeV fm^2]
-        hbar_sq_over_M = 41.47
+        hbar_sq_over_m = 41.47
         
         # Save matrices in scattering units [fm^-2]
-        self.H_initial = H_initial / hbar_sq_over_M
+        self.H_initial = H_initial / hbar_sq_over_m
         
         # Save length of matrix
         self.N = len(H_initial)
@@ -133,7 +133,7 @@ class SRG(object):
         U_initial = np.eye(N).reshape(-1)
         
         # Convert from lambda values to s including initial value of 0
-        s_array = np.append( np.array([0.0]), 1.0 / lambda_array**4.0)
+        s_array = np.append( np.array( [0.0] ), 1.0 / lambda_array**4.0)
         
         # Use SciPy's odeint function to solve flow equation
         # Each index of sol (corresponding to an index of s_array) gives the

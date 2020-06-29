@@ -42,10 +42,10 @@ class SRG(object):
         """
         
         # h-bar^2 / M [MeV fm^2]
-        hbar_sq_over_M = 41.47
+        hbar_sq_over_m = 41.47
         
         # Save matrices in scattering units [fm^-2]
-        self.H_initial = H_initial / hbar_sq_over_M
+        self.H_initial = H_initial / hbar_sq_over_m
         
         # Save length of matrix
         self.N = len(H_initial)
@@ -67,11 +67,13 @@ class SRG(object):
         
         # Projection operators for coupled channel potentials
         if coupled_channel:
-            o = np.zeros((n,n))
+            
+            o = np.zeros( (n, n) )
             self.P = np.vstack( ( np.hstack( (p, o) ), np.hstack( (o, p) ) ) )
             self.Q = np.vstack( ( np.hstack( (q, o) ), np.hstack( (o, q) ) ) )
 
         else:
+            
             self.P = p
             self.Q = q
 
@@ -117,7 +119,7 @@ class SRG(object):
         # Length of matrix
         N = self.N
         # Length of vectorized matrix
-        n = int(N*(N+1)/2)
+        n = int( N * (N+1) / 2)
         
         # Initialize vectorized matrix
         B = np.zeros(n)
@@ -155,7 +157,7 @@ class SRG(object):
         N = self.N
     
         # Initialize matrix
-        A = np.zeros((N, N))
+        A = np.zeros( (N, N) )
     
         # Build upper half of A with diagonal
 
@@ -200,7 +202,7 @@ class SRG(object):
 
         # Block-diagonal SRG generator, eta = [G,H] where G = H_BD 
         H_bd = self.P @ H_matrix @ self.P + self.Q @ H_matrix @ self.Q
-        eta = self.commutator( H_bd, H_matrix)
+        eta = self.commutator(H_bd, H_matrix)
             
         # RHS of flow equation in matrix form
         dH_matrix = -4.0 / lamb**5 * self.commutator(eta, H_matrix)

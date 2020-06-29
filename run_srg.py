@@ -6,10 +6,10 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 1, 2019
 # 
-# SRG evolves a given Hamiltonian in units MeV. The run_srg function returns a 
-# dictionary of the evolved Hamiltonian (in scattering units [fm^-2]) at each 
-# point in lambda (which serves as the key). Includes an option to save the
-# evolved potentials.
+# SRG evolves a given potential. The run_srg function returns a dictionary of
+# the evolved Hamiltonian (in scattering units [fm^-2]) at each point in
+# lambda (which serves as the key). Includes an option to save the evolved
+# potentials.
 #
 # Revision history:
 #   05/28/19 --- Updated along with various updates to SRG codes. Split 
@@ -31,27 +31,27 @@ from SRG_codes import srg_block_diagonal
 def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
             lambda_bd=0.00, save=True):
     """
-    SRG evolves a specified Hamiltonian to several values of lambda [fm^-1] and 
-    has the option to save the evolved potentials.
+    SRG evolves a specified Hamiltonian to several values of lambda [fm^-1]
+    and has the option to save the evolved potentials.
     
     Parameters
     ----------
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel ('1S0', '3S1', etc.)
+        The partial wave channel (e.g. '1S0').
     kmax : float
-        Maximum value in the momentum mesh.
+        Maximum value in the momentum mesh [fm^-1].
     kmid : float
-        Mid-point value in the momentum mesh.
+        Mid-point value in the momentum mesh [fm^-1].
     ntot : int
         Number of momentum points in mesh.
     generator : str
         SRG generator 'Wegner', 'T', or 'Block-diag'.
     lambda_array : 1-D ndarray
-        Lambda evolution values in units fm^-1.
+        Lambda evolution values [fm^-1].
     lambda_bd : float, optional
-        Cutoff for block-diagonal decoupling.
+        Cutoff for block-diagonal decoupling [fm^-1].
     save : bool, optional
         If true, saves the evolved potentials within Potentials/vsrg_macos.
         
@@ -64,13 +64,13 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
         
     """
 
-    # Load initial Hamiltonian, kinetic energy, and weights
+    # Load initial Hamiltonian, kinetic energy, momentum, and weights
     H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
     T_rel = vnn.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
     k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # h-bar^2 / M [MeV fm^2] for conversion from MeV to scattering units
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
     
     # Initial value of lambda in units fm^-1
     # Technically, this value should be infinity, but we can take 20 fm^-1
@@ -120,7 +120,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
             H_evolved = d[lamb] # Scattering units here [fm^-2]
             # Subtract off kinetic energy (need to convert T_rel from MeV to 
             # fm^-2)
-            V_evolved = H_evolved - T_rel / hbar_sq_over_M
+            V_evolved = H_evolved - T_rel / hbar_sq_over_m
             # Save evolved potential
             vnn.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
                               kmax, kmid, ntot, 'srg', generator, lamb, 
@@ -138,8 +138,8 @@ if __name__ == '__main__':
     
     #kvnn = 6 # AV18
     #kvnn = 10 # EM N3LO
-    #kvnn = 74 # EM N4LO at Lambda = 450 MeV
-    kvnn = 79 # EM N4LO at Lambda = 500 MeV
+    #kvnn = 74 # EMN N4LO at Lambda = 450 MeV
+    kvnn = 79 # EMN N4LO at Lambda = 500 MeV
     #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
     #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
     #kvnn = 107 # RKE N3LO at Lambda = 500 MeV

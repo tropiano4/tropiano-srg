@@ -38,11 +38,11 @@ class SRG(object):
         """
         
         # h-bar^2 / M [MeV fm^2]
-        hbar_sq_over_M = 41.47
+        hbar_sq_over_m = 41.47
         
         # Save matrices in scattering units [fm^-2]
-        self.H_initial = H_initial / hbar_sq_over_M
-        self.T_rel = T_rel / hbar_sq_over_M
+        self.H_initial = H_initial / hbar_sq_over_m
+        self.T_rel = T_rel / hbar_sq_over_m
         
         # Save length of matrix
         self.N = len(H_initial)
@@ -89,7 +89,7 @@ class SRG(object):
         # Length of matrix
         N = self.N
         # Length of vectorized matrix
-        n = int(N*(N+1)/2)
+        n = int( N * (N+1) / 2 )
         
         # Initialize vectorized matrix
         B = np.zeros(n)
@@ -127,7 +127,7 @@ class SRG(object):
         N = self.N
     
         # Initialize matrix
-        A = np.zeros((N, N))
+        A = np.zeros( (N, N) )
     
         # Build upper half of A with diagonal
 
