@@ -6,9 +6,8 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 3, 2019
 # 
-# Contains several functions for calculation of NN observables given a
-# Hamiltonian. These functions can be used to look at wave functions or to 
-# calculate observable quantities with functions from operators.py
+# Contains several functions for calculation of NN observables or wave
+# functions given a Hamiltonian.
 #
 # Revision history:
 #   05/29/19 --- This file was renamed from deuteron.py to observables.py. The 
@@ -90,6 +89,14 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     psi : 1-D ndarray
         Wave function for the specified state (unitless).
         
+    Notes
+    -----
+    We use the following completeness relation:
+        
+        1 = 2/\pi \sum_{l} \int_0^{\infty} dk k^2 |k l m> <k l m|,
+        
+    which means the unitless wave functions include a factor of \sqrt[2/\pi].
+        
     """
     
     # Diagonalize Hamiltonian
@@ -106,13 +113,13 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
         psi = U @ psi
         
     # Check normalization in momentum-space
-    #normalization = np.sum( psi**2 )
-    #print('Normalization = %.4f (k-space)'%normalization)
+    # normalization = np.sum( psi**2 )
+    # print('Normalization = %.4f (k-space)'%normalization)
             
     return psi
 
 
-def energies(H_matrix, bound_states_only=True):
+def energies(H_matrix, bound_states_only=False):
     """
     Energies of a given Hamiltonian.
     
@@ -169,16 +176,15 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     
     Notes
     -----
-    * Difficult to understand what causes shifts in pi. At the moment, 
-      manually correcting these shifts is a sloppy fix. Is there a more 
-      elegant solution?
+    Difficult to understand what causes shifts in pi. At the moment, manually
+    correcting these shifts is a sloppy fix. Is there a more elegant solution?
     
     """
     
     # Set-up
     
     # h-bar^2 / M [MeV fm^2]
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
     
     # Length of the energy array
     M = len(e_array)
@@ -195,7 +201,6 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     # Initialize array for phase shifts
     phase_shifts = np.zeros(M)
 
-
     # Loop over each lab energy
     for i in range(M):
         
@@ -204,7 +209,7 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
         
         # Momentum corresponding to center of mass energy E_lab / 2 where the 
         # factor of 41.47 converts from MeV to fm^-1
-        k0 = np.sqrt( e / 2.0 / hbar_sq_over_M )
+        k0 = np.sqrt( e / 2.0 / hbar_sq_over_m )
         
         # Build D_vector
         
@@ -212,7 +217,7 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
         D_vector = 2.0/np.pi * ( k_weights * k_array**2 ) / \
                    ( k_array**2 - k0**2 )
         # N+1 element of D_vector
-        D_last = -2.0/np.pi * k0**2 *( np.sum( k_weights /
+        D_last = -2.0/np.pi * k0**2 * ( np.sum( k_weights /
                  ( k_array**2 - k0**2 ) ) + np.log( ( k_max + k0 ) / \
                  ( k_max - k0 ) ) / ( 2.0*k0 ) )
         # Append N+1 element to D_vector
@@ -269,16 +274,15 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
     
     Notes
     -----
-    * Difficult to understand what causes shifts in pi. At the moment, manually
-      correcting these shifts is a sloppy fix. Is there a more elegant
-      solution?
+    Difficult to understand what causes shifts in pi. At the moment, manually
+    correcting these shifts is a sloppy fix. Is there a more elegant solution?
     
     """
     
     # Set-up
     
     # h-bar^2 / M [MeV fm^2]
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
     
     # Length of the energy array
     M = len(e_array)
@@ -299,7 +303,6 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
     # Initialize array for phase shifts
     phase_shifts = np.zeros( (M, 3) )
 
-
     # Loop over each lab energy
     for i in range(M):
         
@@ -308,7 +311,7 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
         
         # Momentum corresponding to center of mass energy E_lab / 2 where the 
         # factor of 41.47 converts from MeV to fm^-1
-        k0 = np.sqrt( e / 2.0 / hbar_sq_over_M )
+        k0 = np.sqrt( e / 2.0 / hbar_sq_over_m )
         
         # Build D_vector
         
@@ -428,15 +431,13 @@ def rms_radius_from_rspace(psi, r2_operator):
     """
     Calculates the RMS radius of deuteron using momentum-space wave functions
     and a Fourier transformed r^2 operator (does not involve derivatives in k!)
-    Note, set r_max > 25 fm in defining the r^2 operator for mesh-independent
-    result.
+    Note, set r_max > 25 fm in defining the r^2 operator for effective IR
+    cutoff.
     
     Parameters
     ----------
     psi : 1-D ndarray
-        Full deuteron wave function in momentum-space (unitless). Should be 
-        twice the length of k_array and k_weights since it includes the 3S1 
-        and 3D1 components.
+        Wave function in momentum-space (unitless).
     r2_operator : 2-D ndarray
         r^2 operator in momentum-space with momenta and weights factored in 
         [fm^2].
@@ -444,22 +445,36 @@ def rms_radius_from_rspace(psi, r2_operator):
     Returns
     -------
     output : float
-        RMS radius of deuteron [fm].
+        RMS radius [fm].
     
     """
     
-    
+    # Calculate the expectation value <\psi|r^2|\psi>
     r2 = psi.T @ r2_operator @ psi
     
     return 0.5 * np.sqrt(r2)
 
 
 def rms_radius_from_kspace(psi, k_array, k_weights):
-    '''Same as above function but calculates in momentum-space where r^2 
-    operator has derivative terms with respect to k. 
-    <r> = 1/2*\sqrt{ \integral{ dk * [ (k*u(k))^2+(k*w(k))^2+6*w(k)^2 ] } } 
-    here. Can check unitarily equivalent rms radius by entering in a
-    unitary transformation U.'''
+    """
+    Same as above function but calculates fully in momentum-space where the 
+    r^2 operator has derivative terms with respect to k. 
+    <r> = 1/2 * \sqrt[ \int[ dk * ( (k*du/dk)^2 + (k*dw/dk)^2 + 6*w^2 ) ] ]
+
+    Parameters
+    ----------
+    psi : 1-D ndarray
+        Wave function in momentum-space (unitless).
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+        
+    Notes
+    -----
+    This function is specific to the 3S1-3D1 coupled-channel.
+        
+    """
     
     ntot = len(k_array)
     factor_array = np.sqrt(k_weights) * k_array
@@ -470,19 +485,21 @@ def rms_radius_from_kspace(psi, k_array, k_weights):
         
     # Interpolate with CubicSpline
     # This is a function of k (float or array)
-    u_func = CubicSpline(k_array,u) 
-    w_func = CubicSpline(k_array,w)
+    u_func = CubicSpline(k_array, u) 
+    w_func = CubicSpline(k_array, w)
         
     # Calculate derivatives of u(k) and w(k) using original k_array
-    # This is a function
-    u_deriv_func = u_func.derivative() 
+    u_deriv_func = u_func.derivative() # This is a function
     # This is an array with as many points as k_array and k_weights
-    u_deriv_array = u_deriv_func(k_array) 
+    u_deriv_array = u_deriv_func(k_array)
+    
+    # Same but for D-state
     w_deriv_func = w_func.derivative()
     w_deriv_array = w_deriv_func(k_array)
         
     # RMS radius integrand in momentum-space
-    integrand = (k_array*u_deriv_array)**2+(k_array*w_deriv_array)**2+6*w**2
+    integrand = (k_array*u_deriv_array)**2 + (k_array*w_deriv_array)**2 + \
+                6*w**2
         
     # The sum over the integrand (which is weighted by k_weights) gives the 
     # value of <r^2>
