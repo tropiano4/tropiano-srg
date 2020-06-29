@@ -15,7 +15,7 @@ Description of each folder:
 
 * __Papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
 
-* __Potentials/vsrg_macos__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving potentials called load_save_potentials.py. 
+* __Potentials/vsrg_macos__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README in this sub-directory for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving potentials called vnn.py. 
 
 * __Presentations__ contains all the files used for presentations for conferences or meetings.
 
@@ -26,9 +26,9 @@ Description of major codes:
 
 * Jupyter notebooks titled with an extension fig.ipynb are used to generate figures which go to the __Figures__ folder.
 
-* observables.py - Calculates NN observables. Work in progress.
+* observables.py - Calculates NN observables.
 
-* operators.py - Creates momentum-space operators for NN observables. Work in progress.
+* operators.py - Creates momentum-space operators.
 
 * run_magnus.py - Magnus-evolves a specified Hamiltonian using scripts from the __Magnus_codes__ folder.
 
