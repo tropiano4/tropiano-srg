@@ -15,7 +15,6 @@
 
 from os import chdir, getcwd
 from math import factorial
-#from matplotlib.offsetbox import AnchoredText
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import linalg as la
