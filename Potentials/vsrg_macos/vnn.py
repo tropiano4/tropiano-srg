@@ -33,7 +33,7 @@
 #   02/26/20 --- Updated to include default momentum mesh specifications.
 #   05/05/20 --- Updated to include function that converts potential to a new
 #                momentum mesh.
-#   06/29/20 --- Renamed to 'vnn.py'.
+#   06/29/20 --- Renamed to 'vnn.py' along with minor updates to functions.
 #
 #------------------------------------------------------------------------------
 
@@ -52,13 +52,13 @@ def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
         
     Returns
     -------
@@ -126,13 +126,13 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
     method : str, optional
         The evolution method 'srg' or 'magnus'. Choose 'initial' if unevolved.
     generator : str, optional
@@ -211,13 +211,16 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
     
     # Coupled channel potential
     if coupled_channel(channel):
-        v11 = np.reshape(data[:,2], (ntot, ntot))
-        v12 = np.reshape(data[:,3], (ntot, ntot))
-        v21 = np.reshape(data[:,4], (ntot, ntot))
-        v22 = np.reshape(data[:,5], (ntot, ntot))
+        
+        v11 = np.reshape( data[:, 2], (ntot, ntot) )
+        v12 = np.reshape( data[:, 3], (ntot, ntot) )
+        v21 = np.reshape( data[:, 4], (ntot, ntot) )
+        v22 = np.reshape( data[:, 5], (ntot, ntot) )
         V = np.vstack( ( np.hstack( (v11, v12) ), np.hstack( (v21, v22) ) ) )
+        
     else:
-        V = np.reshape(data[:,2], (ntot, ntot))
+        
+        V = np.reshape( data[:, 2], (ntot, ntot) )
 
     return V
 
@@ -231,13 +234,13 @@ def load_kinetic_energy(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
         
     Returns
     -------
@@ -247,7 +250,7 @@ def load_kinetic_energy(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     """
     
     # h-bar^2 / M [MeV fm^2]
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
     
     # Set default mesh specifications if necessary
     if kmax == 0.0:
@@ -257,15 +260,18 @@ def load_kinetic_energy(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     k_array = load_momentum(kvnn, channel, kmax, kmid, ntot)[0]
     
     # Matrix of (h-bar*k)^2 / M along diagonal (n x n)
-    T = np.diag(k_array**2) * hbar_sq_over_M
+    T = np.diag(k_array**2) * hbar_sq_over_m
     
     # Coupled channel potential
     if coupled_channel(channel):
         
         # Length of k_array
         n = len(k_array)
+        
         # Matrix of zeros (n x n)
         O = np.zeros( (n, n) )
+        
+        # Build coupled-channel T_rel matrix
         T = np.vstack( ( np.hstack( (T, O) ), np.hstack( (O, T) ) ) )
         
     return T
@@ -282,13 +288,13 @@ def load_hamiltonian(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
     method : str, optional
         The evolution method 'srg' or 'magnus'. Choose 'initial' if unevolved.
     generator : str, optional
@@ -318,14 +324,14 @@ def load_hamiltonian(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     T = load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)
     
     # Load potential in units fm
-    V = load_potential(kvnn, channel, kmax, kmid, ntot, method, generator,
-                       lamb, lambda_bd, k_magnus, ds)
+    V_fm = load_potential(kvnn, channel, kmax, kmid, ntot, method, generator,
+                          lamb, lambda_bd, k_magnus, ds)
     
     # Load momentum and weights
     k_array, k_weights = load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # Convert to units MeV
-    V = convert2MeV(k_array, k_weights, V, coupled_channel(channel))
+    V = convert2MeV(k_array, k_weights, V_fm, coupled_channel(channel))
     
     # Add T and V for Hamiltonian
     H = T + V
@@ -343,13 +349,13 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
     generator : str, optional
         SRG generator 'Wegner', 'T', or 'Block-diag'.
     lamb : float, optional
@@ -400,13 +406,16 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
     
     # Coupled channel potential
     if coupled_channel(channel):
-        o11 = np.reshape(data[:,2], (ntot, ntot))
-        o12 = np.reshape(data[:,3], (ntot, ntot))
-        o21 = np.reshape(data[:,4], (ntot, ntot))
-        o22 = np.reshape(data[:,5], (ntot, ntot))
+        
+        o11 = np.reshape( data[: ,2], (ntot, ntot) )
+        o12 = np.reshape( data[:, 3], (ntot, ntot) )
+        o21 = np.reshape( data[:, 4], (ntot, ntot) )
+        o22 = np.reshape( data[:, 5], (ntot, ntot) )
         O = np.vstack( ( np.hstack( (o11, o12) ), np.hstack( (o21, o22) ) ) )
+        
     else:
-        O = np.reshape(data[:,2], (ntot, ntot))
+        
+        O = np.reshape( data[:, 2], (ntot, ntot) )
 
     return O
 
@@ -420,21 +429,21 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
     Parameters
     ----------
     k_array : 1-D ndarray
-        Momentum array.
-    k_weights : 1-D ndarray
-        Momentum weights.
+        Momentum array [fm^-1].
+    k_weights: 1-D ndarray
+        Momentum weights [fm^-1].
     V : 2-D ndarray
-        Potential matrix in units fm^-2.
+        Potential matrix [fm^-2].
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
     method : str, optional
         The evolution method 'srg' or 'magnus'. Choose 'initial' if unevolved.
     generator : str, optional
@@ -503,7 +512,7 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
     if coupled_channel(channel):
         
         header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k',
-                  'kp', 'V11', 'V12', 'V21', 'V22')
+                 'kp', 'V11', 'V12', 'V21', 'V22')
         f.write('#' + header + '\n')
         
         for i in range(n):
@@ -565,19 +574,19 @@ def save_omega(k_array, O, kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     Parameters
     ----------
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
     O : 2-D ndarray
         Magnus evolved omega matrix.
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     kmax : float, optional
         Maximum value in the momentum mesh [fm^-1].
     kmid : float, optional
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int, optional
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
     generator : str, optional
         SRG generator 'Wegner', 'T', or 'Block-diag'.
     lamb : float, optional
@@ -671,12 +680,12 @@ def save_omega(k_array, O, kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
 
 def coupled_channel(channel):
     """
-    Truth value on whether the given channel is a coupled channel.
+    Boolean value on whether the given channel is a coupled channel.
     
     Parameters
     ----------
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     
     Returns
     -------
@@ -698,14 +707,15 @@ def coupled_channel(channel):
 def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     """
     Converts an NN potential from units fm to MeV with momentum array and 
-    weights.
+    weights. That is, the returned potential includes integration factors
+    along with hbar^2 / M.
     
     Parameters
     ----------
     k_array : 1-D ndarray
-        Momentum array [fm^-1.
+        Momentum array [fm^-1].
     k_weights : 1-D ndarray
-        Momentum weights [fm^-1.
+        Momentum weights [fm^-1].
     V_fm : 2-D ndarray
         Potential matrix [fm].
     coupled_channel : bool, optional
@@ -719,29 +729,28 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     """
     
     # h-bar^2 / M [MeV fm^2]
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
     
     # If coupled channel, double the length of the momentum and weights arrays
     if coupled_channel:
-        gp = np.concatenate( (k_array, k_array) )
-        gw = np.concatenate( (k_weights, k_weights) )
-    else:
-        gp = k_array
-        gw = k_weights
+        
+        k_array = np.concatenate( (k_array, k_array) )
+        k_weights = np.concatenate( (k_weights, k_weights) )
     
     # Build grids of momentum and weights factor
-    row, col = np.meshgrid(gp * np.sqrt(gw), gp * np.sqrt(gw))
+    row, col = np.meshgrid( k_array * np.sqrt(k_weights),
+                            k_array * np.sqrt(k_weights) )
     
-    # Multiply the potential by 2/pi*row*col gives fm^-2 conversion and 
-    # multiplying by hbar_sq_over_M gives the MeV conversion
-    V_MeV = V_fm * 2/np.pi * row * col * hbar_sq_over_M
+    # Multiply the potential by 2/pi * row * col gives fm^-2 conversion and 
+    # multiplying by hbar_sq_over_m gives the MeV conversion
+    V_MeV = V_fm * 2/np.pi * row * col * hbar_sq_over_m
     
     return V_MeV
 
 
 def mesh_specifications(kvnn):
     """
-    Returns the default mesh specifications for a particular potential.
+    Returns the default momentum mesh specifications for a potential.
 
     Parameters
     ----------
@@ -755,7 +764,7 @@ def mesh_specifications(kvnn):
     kmid : float
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int
-        Number of momentum points in mesh [fm^-1].
+        Number of momentum points in mesh.
 
     """
     
@@ -763,15 +772,11 @@ def mesh_specifications(kvnn):
     ntot = 120
     
     # Argonne v18 and Wendt LO (4, 9, 20 fm^-1)
-    if kvnn in [10, 900, 901, 902]:
+    if kvnn in [900, 901, 902]:
         kmax = 30.0
         kmid = 4.0
-    # EM N3LO (500 MeV), EMN N4LO (450, 500, 550 MeV), RKE N3LO (400, 450, 500
-    # MeV), RKE N4LO (400, 450, 500 MeV), Gezerlis N2LO (1, 1.2 fm)
-    elif kvnn in [6, 74, 79, 84, 105, 106, 107, 110, 111, 112, 113, 222, 
-                  224]:
-        kmax = 10.0
-        kmid = 2.0
+        
+    # All new chiral potentials are generated with the following mesh
     else:
         kmax = 10.0
         kmid = 2.0
@@ -788,13 +793,18 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel (e.g. '1S0')
+        The partial wave channel (e.g. '1S0').
     old_mesh : tuple
         Values which specify the old momentum mesh (kmax, kmid, ntot) where
-        kmax and kmid are floats and ntot is an int.
+        kmax and kmid are floats in units fm^-1 and ntot is an int.
     new_mesh : tuple
         Values which specify the new momentum mesh (kmax, kmid, ntot) where
-        kmax and kmid are floats and ntot is an int.
+        kmax and kmid are floats in units fm^-1 and ntot is an int.
+        
+    Notes
+    -----
+    It would probably be better if you created the new momentum mesh and
+    new directory within this function.
 
     """
     
@@ -807,8 +817,10 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     # Start by loading V_matrix_old in units fm
     V_matrix_old = load_potential(kvnn, channel, kmax=kmax_old, kmid=kmid_old,
                                   ntot=ntot_old)
+    
     # If coupled-channel, do one sub-block at a time
     if coupled_channel(channel):
+        
         V_11_func = interp2d( k_array_old, k_array_old, 
                               V_matrix_old[:ntot_old, :ntot_old] )
         V_12_func = interp2d( k_array_old, k_array_old, 
@@ -817,7 +829,9 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
                               V_matrix_old[ntot_old:, :ntot_old] )
         V_22_func = interp2d( k_array_old, k_array_old, 
                               V_matrix_old[ntot_old:, ntot_old:] )
+        
     else:
+        
         V_func = interp2d(k_array_old, k_array_old, V_matrix_old)
     
     # Load new mesh here
@@ -828,21 +842,27 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     # Generate new potential V_matrix_new (still units fm)
     # If coupled-channel, do one-sub-block at a time
     if coupled_channel(channel):
+        
         V11 = V_11_func(k_array_new, k_array_new)
         V12 = V_12_func(k_array_new, k_array_new)
         V21 = V_21_func(k_array_new, k_array_new)
         V22 = V_22_func(k_array_new, k_array_new)
         V_matrix_new = np.vstack( ( np.hstack( (V11, V12) ), 
                                     np.hstack( (V21, V22) ) ) )
+        
     else:
+        
         V_matrix_new = V_func(k_array_new, k_array_new)
     
     # Convert to units fm^-2
     factor_array = np.sqrt(2 * k_weights / np.pi) * k_array_new
+    
     # Double the length of factor_array if coupled-channel
     if coupled_channel(channel):
         factor_array = np.concatenate( (factor_array, factor_array) )
+        
     row, col = np.meshgrid(factor_array, factor_array)
+    
     V_matrix_new *= row * col
     
     # Save to file (this reads V in unit fm^-2!)
