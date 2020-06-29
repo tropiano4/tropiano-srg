@@ -33,22 +33,22 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     kvnn : int
         This number specifies the potential.
     channel : str
-        The partial wave channel ('1S0', '3S1', etc.)
+        The partial wave channel (e.g. '1S0').
     kmax : float
-        Maximum value in the momentum mesh.
+        Maximum value in the momentum mesh [fm^-1].
     kmid : float
-        Mid-point value in the momentum mesh.
+        Mid-point value in the momentum mesh [fm^-1].
     ntot : int
         Number of momentum points in mesh.
     generator : str
         SRG generator 'Wegner' or 'T'.
     lambda_array : 1-D ndarray
-        Lambda evolution values in units fm^-1.
+        Lambda evolution values [fm^-1].
     k_magnus : int, optional
         Number of terms to include in Magnus sum (that is,
         dOmega / ds ~ \sum_0^k_magnus ... )
     ds : float, optional
-        Step-size in the flow parameter s.
+        Step-size in the flow parameter s [fm^4].
     save : bool, optional
         If true, saves the evolved potentials within Potentials/vsrg_macos.
         
@@ -62,13 +62,13 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
         
     """
 
-    # Load initial Hamiltonian, kinetic energy and weights
+    # Load initial Hamiltonian, kinetic energy, momentum, and weights
     H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
     T_rel = vnn.load_kinetic_energy(kvnn, channel, kmax, kmid, ntot)     
     k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # h-bar^2 / M [MeV fm^2] for conversion from MeV to scattering units
-    hbar_sq_over_M = 41.47
+    hbar_sq_over_m = 41.47
 
     # Initialize SRG class
     if generator == 'Wegner':
@@ -85,13 +85,18 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     
     # Check for OverflowError (this occurs when omega grows to infinity)
     try:
+    
         d = evolve.evolve_hamiltonian(lambda_array)
+        
     except OverflowError:
+        
         print('_'*85)
         print('Infinities or NaNs encountered in omega matrix.')
         print('Try using a smaller step-size or running magnus_split.py.')
         return None
+    
     except ValueError:
+        
         print('_'*85)
         print('Infinities or NaNs encountered in omega matrix.')
         print('Try using a smaller step-size or running magnus_split.py.')
@@ -121,17 +126,17 @@ def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
             H_evolved = d['hamiltonian'][lamb]
             # Subtract off kinetic energy (need to convert T_rel from MeV to
             # fm^-2)
-            V_evolved = H_evolved - T_rel / hbar_sq_over_M
+            V_evolved = H_evolved - T_rel / hbar_sq_over_m
             
             # Save evolved potential
             vnn.save_potential(k_array, k_weights, V_evolved, kvnn, channel, 
-                              kmax, kmid, ntot, 'magnus', generator, lamb,
-                              k_magnus=k_magnus, ds=ds)
+                               kmax, kmid, ntot, 'magnus', generator, lamb,
+                               k_magnus=k_magnus, ds=ds)
             
             O_evolved = d['omega'][lamb]
             # Save evolved omega matrix
             vnn.save_omega(k_array, O_evolved, kvnn, channel, kmax, kmid, ntot,
-                          generator, lamb, k_magnus, ds=ds)
+                           generator, lamb, k_magnus, ds=ds)
                 
     # Otherwise, only return the dictionary d
     return d
