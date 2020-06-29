@@ -63,11 +63,13 @@ def sigma(H, k_array, k_weights, coupled_channel=False):
     
     # Create factor_array to calculate mesh-independent quantity
     factor_array = np.sqrt( 2/np.pi * k_weights ) * k_array
-    if coupled_channel: # Double length of factor_array for coupled channels
-        factor_array_long = np.concatenate( (factor_array, factor_array) )
-        row, col = np.meshgrid(factor_array_long, factor_array_long)
-    else:
-        row, col = np.meshgrid(factor_array, factor_array)
+    
+    # Double length of factor_array for coupled channels
+    if coupled_channel: 
+        
+        factor_array = np.concatenate( (factor_array, factor_array) )
+        
+    row, col = np.meshgrid(factor_array, factor_array)
         
     # Compute squared Hamiltonian with factors
     H2_with_factors = ( H * col ) @ ( H * row )
@@ -104,11 +106,13 @@ def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
     
     # Create factor_array to calculate mesh-independent quantity
     factor_array = np.sqrt( 2/np.pi * k_weights ) * k_array
-    if coupled_channel: # Double length of factor_array for coupled channels
-        factor_array_long = np.concatenate( (factor_array, factor_array) )
-        row, col = np.meshgrid(factor_array_long, factor_array_long)
-    else:
-        row, col = np.meshgrid(factor_array, factor_array)
+
+    # Double length of factor_array for coupled channels
+    if coupled_channel: 
+        
+        factor_array = np.concatenate( (factor_array, factor_array) )
+        
+    row, col = np.meshgrid(factor_array, factor_array)
     
     # HHp is the matrix product of H^{\dagger} H (we're assuming H is real)
     HHp_with_factors = ( H.T * col ) @ ( Hp * row )
