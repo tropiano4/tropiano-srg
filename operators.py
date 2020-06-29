@@ -42,9 +42,9 @@ def find_q_index(q, k_array):
     Parameters
     ----------
     q : float
-        Momentum value in units fm^-1.
+        Momentum value [fm^-1].
     k_array : 1-D ndarray
-        Momentum array.
+        Momentum array [fm^-1].
         
     Returns
     -------
@@ -64,10 +64,9 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     """
     ( a_q^dagger a_q ) momentum projection operator in momentum-space. When
     applied to a wave function, returns the wave function at momentum value q.
-    For an evolved operator, enter in a unitary transformation U. The initial
-    operator is zero everywhere except where k, k' = q. For presentation, one
-    should divide out the momenta and weights by dividing by 2/pi * k_i * k_j 
-    * Sqrt( w_i * w_j) which gives a mesh-independent result.
+    For an evolved operator, enter in a unitary transformation U. For
+    presentation, one should divide out the momenta and weights by dividing by
+    2/pi * k_i * k_j * Sqrt( w_i * w_j) which gives a mesh-independent result.
 
     Parameters
     ----------
@@ -145,8 +144,9 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
 
 def hankel_transformation(channel, k_array, r_array, dr):
     """
-    <klm|r> matrix for given partial wave channel. If len(r_array) = m
-    and len(k_array) = n, then this function returns an n x m matrix.
+    <klm|r> transformation matrix for given partial wave channel. If
+    len(r_array) = m and len(k_array) = n, then this function returns an 
+    n x m matrix.
     
     Parameters
     ----------
@@ -166,7 +166,6 @@ def hankel_transformation(channel, k_array, r_array, dr):
 
     """
         
-    
     # L = 0 (0th spherical Bessel function)
     if channel[1] == 'S':
         L = 0
@@ -176,6 +175,10 @@ def hankel_transformation(channel, k_array, r_array, dr):
     # L = 2
     elif channel[1] == 'D':
         L = 2
+    elif channel[1] == 'F':
+        L = 3
+    elif channel[1] == 'G':
+        L = 4
         
     # r_array column vectors and k_array row vectors where both grids are
     # n x m matrices
@@ -220,12 +223,14 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     -------
     r2_momentum_space : 2-D ndarray
         r2 operator [fm^2].
-        
-    * Note, update this function for coupled-channels that aren't 3S1-3D1.
+    
+    Notes
+    -----
+    This operator is specific to the 3S1-3D1 coupled-channel.
         
     """
     
-    # Set up regulator
+    # Set up regulator function
     if a < 100:
     
         regulator = np.exp( -r_array**2 / a**2 )
@@ -238,13 +243,13 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     r2_coordinate_space = np.diag(r_array**2) * regulator
      
     # Transform operator to momentum-space
-    s_wave_trans = hankel_transformation('3S1', k_array, r_array, dr)
-    d_wave_trans = hankel_transformation('3D1', k_array, r_array, dr)
+    s_transformation = hankel_transformation('3S1', k_array, r_array, dr)
+    d_transformation = hankel_transformation('3D1', k_array, r_array, dr)
 
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
-    ss_block = s_wave_trans @ r2_coordinate_space @ s_wave_trans.T
-    dd_block = d_wave_trans @ r2_coordinate_space @ d_wave_trans.T
+    ss_block = s_transformation @ r2_coordinate_space @ s_transformation.T
+    dd_block = d_transformation @ r2_coordinate_space @ d_transformation.T
     
     # Grids of momenta and weights
     factor_array = np.concatenate( (np.sqrt(k_weights) * k_array, 
