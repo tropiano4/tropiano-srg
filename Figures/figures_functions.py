@@ -85,7 +85,7 @@ def convert_ticks_to_labels(ticks):
     
     # Figure out many digits to display for the tick labels
     i = 0
-    while round(stepsize, i) != stepsize:
+    while abs( round(stepsize, i) - stepsize ) > 1e-5:
         i += 1
     
     # If i = 0, then display integers
