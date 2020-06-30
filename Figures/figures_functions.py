@@ -56,6 +56,54 @@ def channel_label_conversion(channel):
     label = r'$^%s$' % channel[0] + channel[1] + r'$_%s$' % channel[2]
     
     return label
+
+
+def convert_ticks_to_labels(ticks):
+    """
+    Converts axes or colorbar ticks to string formatted labels displaying the
+    correct number of digits.
+    
+    Parameters
+    ----------
+    ticks : 1-D ndarray
+        Array of tick values for given axis or colorbar.
+        
+    Returns
+    -------
+    tick_labels : list
+        List of tick labels which are strings.
+        
+    Notes
+    -----
+    This function assumes a linearly-spaced array of ticks. Needs further
+    generalization for log-spacing.
+        
+    """
+    
+    # Find the spacing between ticks assuming linearly-spaced ticks
+    stepsize = ticks[1] - ticks[0]
+    
+    # Figure out many digits to display for the tick labels
+    i = 0
+    while round(stepsize, i) != stepsize:
+        i += 1
+    
+    # If i = 0, then display integers
+    if i == 0:
+        tick_labels = ['%d' % tick for tick in ticks]
+    # Otherwise, display floats with the correct number of digits
+    elif i == 1:
+        tick_labels = ['%.1f' % tick for tick in ticks]
+    elif i == 2:
+        tick_labels = ['%.2f' % tick for tick in ticks]
+    elif i == 3:
+        tick_labels = ['%.3f' % tick for tick in ticks]
+    elif i == 4:
+        tick_labels = ['%.4f' % tick for tick in ticks]
+    else:
+        tick_labels = ['%.f' % tick for tick in ticks]
+        
+    return tick_labels
         
 
 def generator_label_conversion(generator, lambda_bd=0.00):
@@ -399,54 +447,6 @@ def replace_periods(file_name):
         new_file_name += letter
         
     return new_file_name
-
-
-def convert_ticks_to_labels(ticks):
-    """
-    Converts axes or colorbar ticks to string formatted labels displaying the
-    correct number of digits.
-    
-    Parameters
-    ----------
-    ticks : 1-D ndarray
-        Array of tick values for given axis or colorbar.
-        
-    Returns
-    -------
-    tick_labels : list
-        List of tick labels which are strings.
-        
-    Notes
-    -----
-    This function assumes a linearly-spaced array of ticks. Needs further
-    generalization for log-spacing.
-        
-    """
-    
-    # Find the spacing between ticks assuming linearly-spaced ticks
-    stepsize = ticks[1] - ticks[0]
-    
-    # Figure out many digits to display for the tick labels
-    i = 0
-    while round(stepsize, i) != stepsize:
-        i += 1
-    
-    # If i = 0, then display integers
-    if i == 0:
-        tick_labels = ['%d' % tick for tick in ticks]
-    # Otherwise, display floats with the correct number of digits
-    elif i == 1:
-        tick_labels = ['%.1f' % tick for tick in ticks]
-    elif i == 2:
-        tick_labels = ['%.2f' % tick for tick in ticks]
-    elif i == 3:
-        tick_labels = ['%.3f' % tick for tick in ticks]
-    elif i == 4:
-        tick_labels = ['%.4f' % tick for tick in ticks]
-    else:
-        tick_labels = ['%.f' % tick for tick in ticks]
-        
-    return tick_labels
     
 
 def xkcd_colors(curve_number):
