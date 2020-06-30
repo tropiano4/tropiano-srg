@@ -10,7 +10,7 @@
 #
 # Revision history:
 #   09/03/19 --- Updated kvnn_label_conversion function to include more
-#                potentials (e.g. RKE, Gezrelis potentials). Added a function
+#                potentials (e.g. RKE, Gezerlis potentials). Added a function
 #                that returns color arguments for plotting which is useful for
 #                putting several curves on the same figure. Also, added a line
 #                styles function that works in the same way as xkcd_colors.
