@@ -80,31 +80,34 @@ def convert_ticks_to_labels(ticks):
         
     """
     
-    # Find the spacing between ticks assuming linearly-spaced ticks
-    stepsize = ticks[1] - ticks[0]
+    # Initialize tick_labels list
+    tick_labels = []
     
-    # Figure out many digits to display for the tick labels
-    i = 0
-    while abs( round(stepsize, i) - stepsize ) > 1e-5:
-        i += 1
+    # Keep track of the maximum number of digits to be displayed i
     
-    # If i = 0, then display integers
-    if i == 0:
-        tick_labels = ['%d' % tick for tick in ticks]
-    # Otherwise, display floats with the correct number of digits
-    elif i == 1:
-        tick_labels = ['%.1f' % tick for tick in ticks]
-    elif i == 2:
-        tick_labels = ['%.2f' % tick for tick in ticks]
-    elif i == 3:
-        tick_labels = ['%.3f' % tick for tick in ticks]
-    elif i == 4:
-        tick_labels = ['%.4f' % tick for tick in ticks]
-    else:
-        tick_labels = ['%.f' % tick for tick in ticks]
+    for tick in ticks:
+        
+        i = 0
+        while abs( round(tick, i) - tick ) > 1e-5:
+            i += 1
+            
+        # If digits = 0, then display integers
+        if i == 0:
+            tick_labels.append('%d' % tick)
+        # Otherwise, display floats with the correct number of digits
+        elif i == 1:
+            tick_labels.append('%.1f' % tick)
+        elif i == 2:
+            tick_labels.append('%.2f' % tick)
+        elif i == 3:
+            tick_labels.append('%.3f' % tick)
+        elif i == 4:
+            tick_labels.append('%.4f' % tick)
+        else:
+            tick_labels.append('%.f' % tick)
         
     return tick_labels
-        
+
 
 def generator_label_conversion(generator, lambda_bd=0.00):
     """
