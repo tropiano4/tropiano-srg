@@ -252,8 +252,8 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     dd_block = d_transformation @ r2_coordinate_space @ d_transformation.T
     
     # Grids of momenta and weights
-    factor_array = np.concatenate( (np.sqrt(k_weights) * k_array, 
-                                    np.sqrt(k_weights) * k_array) ) * \
+    factor_array = np.concatenate( ( np.sqrt(k_weights) * k_array, 
+                                     np.sqrt(k_weights) * k_array ) ) * \
                    np.sqrt(2/np.pi)
     row, col = np.meshgrid(factor_array, factor_array)
         
