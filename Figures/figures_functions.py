@@ -419,7 +419,7 @@ def line_styles(curve_number):
 
 def replace_periods(file_name):
     """
-    Replaces all periods in a file name with a '_'. This is necessary for 
+    Replaces all periods in a file name with a 'p'. This is necessary for 
     adding figures to LaTeX files which don't like periods unless they specify
     a file type. For this reason, do not include the file type extension in 
     the file name (i.e. .jpg, .pdf, etc.)
@@ -432,7 +432,7 @@ def replace_periods(file_name):
     Returns
     -------
     new_file_name : str
-        New file name replacing periods with '_'.
+        New file name replacing periods with 'p'.
         
     """
     
@@ -440,12 +440,12 @@ def replace_periods(file_name):
     new_file_name = ''
     
     # Loop over each character in the original file name and append to the new
-    # file name replacing periods with '_'
+    # file name replacing periods with 'p'
     for letter in file_name:
         
         if letter == '.':
             
-            letter = '_'
+            letter = 'p'
             
         new_file_name += letter
         
