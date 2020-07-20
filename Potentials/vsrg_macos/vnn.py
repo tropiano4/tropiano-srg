@@ -184,10 +184,20 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
             
             vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out' % (channel, 
                         kvnn_string, method, generator, lambda_bd, lamb)
-        else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel,
-                        kvnn_string, method, generator, lamb)
+        else:
+            
+            # Added this bit to load potentials that were evolved to \lambda
+            # values that specify two decimal places (e.g. lamb = 1.35)
+            if lamb == round(lamb, 1): # Standard is one decimal place
+                
+                vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out' % (channel,
+                            kvnn_string, method, generator, lamb)
+                
+            else:
+            
+                vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel,
+                            kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
         
@@ -485,12 +495,22 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
     
         if generator == 'Block-diag':
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out' % (channel,
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s%.2f_lambda%.1f.out' % (channel, 
                         kvnn_string, method, generator, lambda_bd, lamb)
-        else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel, 
-                        kvnn_string, method, generator, lamb)
+        else:
+            
+            # Added this bit to load potentials that were evolved to \lambda
+            # values that specify two decimal places (e.g. lamb = 1.35)
+            if lamb == round(lamb, 1): # Standard is one decimal place
+                
+                vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out' % (channel,
+                            kvnn_string, method, generator, lamb)
+                
+            else:
+            
+                vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel,
+                            kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
 
