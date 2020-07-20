@@ -101,7 +101,7 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     # Print details
     mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
     print('_'*85)
-    print( 'H(s) done evolving to final lambda = %.1f fm^-1 after %f minutes'
+    print( 'H(s) done evolving to final lambda = %.2f fm^-1 after %f minutes'
           % (lambda_array[-1], mins) )
     print('_'*85)
     print('\nSpecifications:\n')
@@ -134,68 +134,32 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
 if __name__ == '__main__':
     
     
-    # Specify potential
+    # Specifications
     
-    #kvnn = 6 # AV18
-    #kvnn = 10 # EM N3LO
-    #kvnn = 74 # EMN N4LO at Lambda = 450 MeV
-    kvnn = 79 # EMN N4LO at Lambda = 500 MeV
-    #kvnn = 105 # RKE N3LO at Lambda = 400 MeV
-    #kvnn = 106 # RKE N3LO at Lambda = 450 MeV
-    #kvnn = 107 # RKE N3LO at Lambda = 500 MeV
-    kvnn = 111 # RKE N4LO at Lambda = 450 MeV
-    #kvnn = 112 # RKE N4LO at Lambda = 500 MeV
-    #kvnn = 222 # Gezerlis et al N2LO local potential at R_0 = 1.0 fm
-    #kvnn = 224 # Gezerlis et al N2LO local potential at R_0 = 1.2 fm
-    #kvnn = 900 # Wendt at Lambda = 4 fm^-1
-    #kvnn = 901 # Wendt at Lambda = 9 fm^-1
-    #kvnn = 902 # Wendt at Lambda = 20 fm^-1
+    # Potentials
+    kvnns = (6, 79, 111, 222)
     
-    #channel = '1S0'
-    channel = '3S1'
-    #channel = '1P1'
-    #channel = '3P0'
+    # Channels
+    channels = ('3S1', '1S0')
     
-    #kmax = 30.0
-    #kmax = 8.0
+    # Momentum mesh
     kmax = 10.0
-    #kmax = 6.0
-    
-    #kmid = 4.0
     kmid = 2.0
-    #kmid = 3.0
+    ntot = 120
     
-    ntot = 120 # Default
-    #ntot = 100
-    #ntot = 121
-    #ntot = 140
-    #ntot = 141
+    # Generators
+    generators = ('Wegner', 'Block-diag')
     
-    # Specify evolution
-    
-    generator = 'Wegner'
-    #generator = 'T'
-    #generator = 'Block-diag'
-    
-    lambda_bd = 1.00 # This won't affect the band-diagonal generators
-    #lambda_bd = 1.50
-    #lambda_bd = 2.00 # Default
-    #lambda_bd = 3.00
-    #lambda_bd = 4.00
-    #lambda_bd = 6.00
-    
-    #lambda_array = np.array( [10.0, 2.8, 2.0, 1.2] )
-    lambda_array = np.array( [6.0, 3.0, 2.0, 1.5] ) # Default
-    #lambda_array = np.array( [6.0, 3.0, 2.0, 1.5, 1.0] )
-    #lambda_array = np.array( [2.8] )
-    #lambda_array = np.array( [1.2] )
-    #lambda_array = np.array( [10.0] )
-    #lambda_array = np.array( [1.0] )
-    
-    # Save the evolved Hamiltonian?
-    save = True
-    #save = False
-    
-    # Evolve Hamiltonian
-    d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
-                lambda_bd, save)
+    # \lambda or \Lambda_BD value in fm^-1
+    lamb = 1.35 # Approximately the Fermi momentum
+
+    # Loop over each evolution
+    for kvnn in kvnns:
+        for channel in channels:
+            for generator in generators:
+                if generator == 'Block-diag':
+                    d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
+                                np.array( [1.0] ), lambda_bd=lamb, save=True)
+                else:
+                    d = run_srg(kvnn, channel, kmax, kmid, ntot, generator,
+                                np.array( [lamb] ), save=True)
