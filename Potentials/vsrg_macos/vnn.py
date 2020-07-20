@@ -186,7 +186,7 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
                         kvnn_string, method, generator, lambda_bd, lamb)
         else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out' % (channel,
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel,
                         kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
@@ -489,7 +489,7 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
                         kvnn_string, method, generator, lambda_bd, lamb)
         else: 
             
-            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f.out' % (channel, 
+            vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.2f.out' % (channel, 
                         kvnn_string, method, generator, lamb)
             
     elif method == 'magnus': 
