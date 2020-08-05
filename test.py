@@ -39,8 +39,6 @@
 import numpy as np
 from Figures import figures_functions as ff
 
-a = 5
-
 x_max = 4.0
 x_stepsize = 1.0 # Step-size in labeling tick marks
 x_ticks = np.arange(0.0, x_max + x_stepsize, x_stepsize)
