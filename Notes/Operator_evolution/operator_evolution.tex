@@ -348,6 +348,7 @@ To guard against this, one must use a high-order ODE solver, which can become pr
 In the Magnus implementation, unitarity is guaranteed by the form of $U(s)$.
 One can solve Eq.~\eqref{eq:magnus_omega} with a low-order stepping method with a substantially lower memory footprint, which nevertheless preserves the eigenvalues exactly while still decoupling as desired.
 Here we demonstrate this advantage by applying the Magnus implementation using the first-order Euler step-method.
+Note that the execution time for Magnus applied to free-space SRG is roughly the same as for conventional SRG evolution, because the more complicated evaluations in Eq.~\eqref{eq:magnus_omega} are offset by the fewer evaluations needed with a low-order ODE solver.
 
 
 The second major advantage involves the evolution of multiple operators.
@@ -415,7 +416,8 @@ Next we extend our analysis of the SRG evolution of high-cutoff LO potentials to
 In Ref.~\cite{Dainton:2013axa}, the conditions under which different potentials are driven to universal low-momentum matrix elements were studied.
 Here we apply both band- and block-diagonal transformations to several newer chiral potentials, also focusing on universality.
 For band-diagonal evolution, we use the Wegner generator, $G=H_D$, instead of \Trel, which was used in \cite{Dainton:2013axa}.
-For these interactions with cutoffs of order 2--3\,fm$^{-1}$,  the two band-diagonal choices are essentially equivalent, unlike for the potentials considered in the previous section when the cutoff was above 4\,fm$^{-1}$.
+For these interactions with cutoffs of order 2--3\,fm$^{-1}$, the two band-diagonal choices are essentially equivalent, unlike for the potentials considered in the previous section when the cutoff was above 4\,fm$^{-1}$.
+We restrict our analysis in this section and the following section to the typical SRG approach as results with the Magnus implementation and standard SRG are indistinguishable for soft potentials.
 
 
 We will consider three representative potentials: the N$^4$LO potential with 500\,MeV cutoff from Ref.~\cite{Entem:2017gor} (denoted EMN N$^4$LO), the N$^4$LO potential with 450\,MeV cutoff from Ref.~\cite{Reinert:2017usi} (denoted RKE N$^4$LO), and the N$^2$LO potential with 1\,fm cutoff from Ref.~\cite{Gezerlis:2014zia} (denoted Gezerlis N$^2$LO).
@@ -683,7 +685,7 @@ The band-diagonal SRG transformation induces low-momentum contributions where th
 A similar change happens for the block-diagonal transformation except the induced contributions at low momentum sharply drop to zero at the block-diagonal cutoff $\LambdaBD$.
 The smooth low-momentum contributions are what is expected from an EFT perspective, as they can be expanded as regulated (smeared) contact operators that absorb the high-momentum contributions to low-energy states that are decoupled by the evolution.
 These features are independent of the mesh and the discretization of the delta functions.
-This is an example of an operator product expansion factorization~\cite{Anderson:2010aq,Bogner:2012zm}, which is reviewed in Sect.~\ref{subsec:factorization}.
+This is an example of an operator product expansion factorization~\cite{Anderson:2010aq,Bogner:2012zm}, which is reviewed in Sec.~\ref{subsec:factorization}.
 
 %
 \begin{figure}[t!]
@@ -701,15 +703,14 @@ This is an example of an operator product expansion factorization~\cite{Anderson
 %
 \begin{figure*}[htb]
     \includegraphics[clip,width=0.9\textwidth]{r2_srg_changes_kvnn_111_Block-diag.png}%
-    \caption{SRG contributions to $P r^2 P$ in momentum space, splitting $PU(\LambdaBD)r^2(\infty)U^{\dagger}(\LambdaBD)P$ into four components as in Eq.~\eqref{eq:r2_PP_contributions}. We apply a block-diagonal transformation from RKE N$^4$LO 450 MeV in the $^3$S$_1$ channel with $\LambdaBD=2$\,fm$^{-1}$.}
+    \caption{SRG contributions to $P r^2 P$ in momentum space, splitting $PU(\LambdaBD)r^2(\infty)U^{\dagger}(\LambdaBD)P$ into four components as in Eq.~\eqref{eq:r2_PP_contributions}. For the $\PP$ contribution, the unevolved operator $P r^2 P$ is subtracted out. We apply a block-diagonal transformation from RKE N$^4$LO 450 MeV in the $^3$S$_1$ channel with $\LambdaBD=2$\,fm$^{-1}$.}
     \label{fig:r2_srg_changes}
 \end{figure*}
 %
 
 Next, we consider the $r^2$ operator, relying on Ref.~\cite{Anderson:2010aq} for formulas and some basic results.
 In the absence of an explicit regulator for large $r$, the meshes used to create the $r^2$ matrix in coordinate space and then Fourier transform to momentum will act as regulators. 
-Visualizations of the bare $r^2$ operator will then be highly mesh dependent, even though 
-expectation values of $r^2$ will be stable for sufficiently large cutoff in $r$ or small mesh spacing in $k$.
+Visualizations of the bare $r^2$ operator will then be highly mesh dependent, even though expectation values of $r^2$ will be stable for sufficiently large cutoff in $r$ or small mesh spacing in $k$.
 With this in mind, we show visualizations of $\langle k | r^2 | k'\rangle$ in Figs.~\ref{fig:r2_unregulated} and \ref{fig:r2_regulated}, where the latter has an added regularization to illustrate the strong regulator dependence.
 (The $r^2$ operator in Figs.~\ref{fig:r2_unregulated} and \ref{fig:r2_regulated} include integration factors $k$ and $k'$ such that evaluating $\mel{\psi}{r^2}{\psi}$ in momentum space with wave functions equipped with additional factors $k$ or $k'$ will give the correct integration.)
 As evident in both figures, there is strength near the diagonal for all $k$, so the contribution to the $r^2$ expectation value for a particular state will be dictated by its momentum wave function.
@@ -744,9 +745,10 @@ In Fig.~\ref{fig:r2_srg_changes} we show a representative set of these contribut
 
 
 The $\QQ$ panel in Fig.~\ref{fig:r2_srg_changes} is very similar to the corresponding $\PP$ block for the evolved high-momentum $\ataq$ shown in Fig.~\ref{fig:momentum_projection_contours_q3,00_3S1_RKE}.
-This is not a coincidence: these smooth low-momentum contributions have the same origin and same understanding from EFT and OPE factorization (see Sect.~\ref{subsec:factorization}).
-The $\PQ$ block is roughly constant in $k'$ for the same reason, while the $k$ dependence is dependent on the mesh, as is the full contribution in the $\PP$ block (likewise for the $\QP$ block, swapping $k'$ and $k$).
+This is not a coincidence: these smooth low-momentum contributions have the same origin and same understanding from EFT and OPE factorization.
+The $\PQ$ block is roughly constant in $k'$ for the same reason, while the $k$ dependence is associated with the bare operator, and therefore with the regularization (here as in Fig.~\ref{fig:r2_unregulated}), as is the full contribution in the $\PP$ block (likewise for the $\QP$ block, swapping $k'$ and $k$).
 The implications for matrix elements in the deuteron are given in the next section.
+We discuss how the behavior in each panel of Fig.~\ref{fig:r2_srg_changes} follows from factorization in Sec.~\ref{subsec:factorization}.
 The decomposition for other potentials or other choices for $\LambdaBD$ is qualitatively similar, with the $\QQ$ contribution scaling with the hardness of the interaction, which reflects the extent of initial high-momentum components (i.e., the short-range correlations).
 
 
@@ -901,8 +903,14 @@ or, for $k,k'$ in the $\PP$ block,
 \end{align}
 %
 where $d\tilde{k} \equiv \frac{2}{\pi} k^2 dk$.
-As all of the $k,k'$ dependence comes from the smooth functions $\Klo(k)\Klo(k')$, this universal result directly explains the particular cases of the $\PP$ block behavior in Fig.~\ref{fig:momentum_projection_contours_q3,00_3S1_RKE} and the $\QQ$ panel of Fig.~\ref{fig:r2_srg_changes}. 
+As all of the $k,k'$ dependence comes from the smooth functions $\Klo(k)\Klo(k')$, this universal result directly explains the particular cases of the $\PP$ block behavior in Fig.~\ref{fig:momentum_projection_contours_q3,00_3S1_RKE} and the $\QQ$ panel of Fig.~\ref{fig:r2_srg_changes}.
 The same analysis goes through with the band-diagonal SRG, but with $\LambdaBD \rightarrow \lambda$ and the boundaries not so sharply defined.
+
+
+Note that in the non-$\QQ$ panels of Fig.~\ref{fig:r2_srg_changes} at least one of the two SRG transformations does not factorize and is fully in the low-momentum $P$ sub-space.
+For instance, in the $\PQ$ panel, we have one integral over low momentum and another over high momentum.
+This yields oscillatory behavior in $k$ from the form of the bare $r^2$ operator (which is scheme dependent) and little variation in $k'$ because the factorized function $\Klo(k')$ is constant at leading order.
+
 
 %
 \begin{figure*}[tbh]
@@ -1007,12 +1015,19 @@ This piece of the transformation decouples the spurious bound state along the di
 Otherwise, the low-momentum matrix elements are quite similar to the softer transformations in Fig.~\ref{fig:delta_U_default_potentials}, with larger contributions at high momentum due to the high momentum-space cutoffs.
 
 
-In this section, we examined the characteristics of SRG evolution for representative operators $\ataq$ and $r^2$.
+In this section, we examined the characteristics of SRG evolution for representative operators $\ataq$ and $r^2$, extending the treatment in Ref.~\cite{Anderson:2010aq}.
 The SRG changes in the operator do not lead to any complications that would offset the desired features in the decoupled NN potential.
 Corresponding wave functions are decoupled in momentum space, either collapsing locally to one region with band-diagonal evolution, or cleanly cut off from low- or high-momentum sub-spaces with block-diagonal evolution (depending on the energy of the state).
 The matrix elements of expectation values using the evolved operators and states show how one can take advantage of scale and scheme dependence to calculate consistent observable quantities at lower resolution.
-Lastly, we used factorization to show that high momentum operators exhibit universal scaling dependent on the high-momentum physics of the underlying NN potential.
+We used factorization to show that high-momentum operators exhibit universal scaling dependent only on the high-momentum physics of the underlying NN potential.
 That is, the high-momentum (short-distance) physics in the initial wave function appears in the evolved operator.
+
+
+While the results of operator evolution generally have the same behavior for different potentials, the underlying scheme dependence is apparent.
+The induced high-momentum (short-distance) contributions in non-Hamiltonian operators are dependent on the UV scheme of the NN potential.
+Furthermore, the remaining SRG components of non-Hamiltonian operators reflect the scheme dependence of the bare operator.
+For example, contrasting smeared delta functions to the single-point delta functions in $\ataq$ from \cite{Anderson:2010aq} gives differing behavior in the SRG-evolved matrix elements at $k,k'=q$.
+Lastly, we demonstrated that the characteristics of operator evolution are the same for band- and block-diagonal SRG schemes, but the evolved matrix elements are different and reflect the SRG decoupling scheme.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1069,7 +1084,7 @@ In momentum space, this operator has strength at all momentum scales and its vis
 The two-body induced contributions from this operator to a low-energy state like the deuteron are small (see Ref.~\cite{Schuster:2014lga} for results on induced three-body contribution).
 We isolated four types of contribution to the induced operator (see Fig.~\ref{fig:r2_srg_changes}).
 The part originating fully from the high-momentum sector takes the same smooth form as the induced two-body operator for the high-$q$ momentum projection operator, and is explained in the same way by factorization.
-However the other pieces are not so clearly characterized (see Table~\ref{tab:evolved_r2_contributions}).
+However while the qualitative behavior of the other pieces is still explained by factorization, the numerical contributions are scheme dependent (see Table~\ref{tab:evolved_r2_contributions}).
 This implies that even roughly estimating the net contribution, as in Ref.~\cite{Miller:2018mfb}, may be difficult.
 
 
