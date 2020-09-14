@@ -1,0 +1,20 @@
+--- Research tasks ---
+
+SRC physics
+ * Study 2nd quantization
+   -Look at contributions to \ataq for l=0, 1, 2, …
+   -LDA calculation
+   -Run through SRC notes and edit: add notes to figures
+ * Read about eikonal approximation
+ * Read about Glauber approximation
+	
+SRG
+ * Open questions
+   -High lambda (10 fm^-1) potential evolution
+ * SRG solver options
+   -ode or solve_ivp, evolve w.r.t. s or \lambda
+ * Try solving for U(s) or \delta U(s) instead
+
+Misc.
+ * Phase shift corrector function
+ * Implement Gez. local potential codes to Potentials/vsrg_macos
