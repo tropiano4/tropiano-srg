@@ -1,3 +1,4 @@
 --- Questions on many-body physics ---
 
+* Why are there different pictures in quantum mechanics? Is this really just a different way to solve for the time-dependence in the Schrodinger equation?
 * Why are wave functions present in the definition of the field operators \psi (2.1) and (3.1)? How is this connected to building up Lagrangians defined by fields not variables like position, momentum, etc.?
