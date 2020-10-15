@@ -1,0 +1,28 @@
+OUTLINE FOR DNP PRESENTATION:
+
+Short-range correlation physics from operator evolution
+
+* Motivation
+
+* SRG formalism
+
+* AV18 example with deuteron wave function and potential matrix elements
+
+* Connection to experiments, scheme and scale dependence
+	* Alternative picture: tune the scale with SRG transformations making a potential with SRC physics like AV18 much softer
+	* Can use low-energy structure to calculate high-energy reactions by consistently evolving the reactions part
+        * Example: electron scattering at high and low resolution (Breit frame picture or one-body current with SRC pair vs two-body current diagram?)
+        * Mismatch of scales leads to incorrect observable
+
+* Visual demonstration of short distance physics in operator
+	* Short distance physics appears in \ataq (can show a few different things here)
+
+* Factorization of SRG transformation (set up for major result)
+        * Do you want a picture to show this? Is it necessary?
+
+* Dominance of pn pairs over pp pairs can be understood from looking at these evolved operators
+        * Show ratio of U(k_0, q)^2 (3S1 / 1S0) for AV18, maybe N2LO
+        * Point out all the features of this picture: 1S0 node, scalar limit, etc.
+
+7. Conclusion
+        * Try calculating pair distribution in nuclei
