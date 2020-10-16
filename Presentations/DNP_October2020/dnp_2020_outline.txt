@@ -23,6 +23,7 @@ Short-range correlation physics from operator evolution
 * Dominance of pn pairs over pp pairs can be understood from looking at these evolved operators
         * Show ratio of U(k_0, q)^2 (3S1 / 1S0) for AV18, maybe N2LO
         * Point out all the features of this picture: 1S0 node, scalar limit, etc.
+        * Compare intuition between low and high resolution
 
 7. Conclusion
         * Try calculating pair distribution in nuclei
