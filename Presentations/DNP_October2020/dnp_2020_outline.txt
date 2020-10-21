@@ -1,3 +1,5 @@
+TO DO: identify figures or cartoons for every slide
+
 OUTLINE FOR DNP PRESENTATION:
 
 Short-range correlation physics from operator evolution
@@ -10,15 +12,19 @@ Short-range correlation physics from operator evolution
   * Description of high-resolution SRC physics: SRC pairs are components in the nuclear wave function with relative momenta above the Fermi momentum.
   * Alternative viewpoint: Using RG methods we can tune the scale to lower resolution (we refer to this as low RG resolution)
     The SRC physics is shifted into the reaction operators from the nuclear wave function.
-  * Why low resolution? Success of chiral EFT, ab initio methods, things that rely on soft interactions. Figure?
+  * Why low resolution? Success of chiral EFT, ab initio methods, things that rely on soft interactions. Figure? [The cartoon of high and low-resolution electron scattering would work.]
+  * Would be good to mention that RG evolution of hard potential *does not* make the reaction operator hard.
+  FIGURES: Cartoon of high and low-resolution electron scattering.
 
 3. SRG formalism
   * Unitarily evolve to low RG resolution keeping the same observables.
   * SRG formalism.
+  FIGURES: None.
 
 4. AV18 example with deuteron wave function and potential matrix elements
   * Do band- and block-diagonal decoupling for AV18 in 3S1-3S1.
   * Show a few examples of deuteron wave function in coordinate space.
+  FIGURES: Band- and block-diagonal decoupled AV18 in 3S1-3S1, initial and evolved deuteron wave functions.
 
 5. Connection to experiments, scheme and scale dependence
   * Same first bullet as before.
@@ -26,25 +32,29 @@ Short-range correlation physics from operator evolution
   * AV18 -> soft potential like chiral potentials.
   * By evolving the operator, we can do high-energy reactions at low RG resolution.
   * Mismatch of scales leads to incorrect observable
-  * Cartoons to help people understand.
+  FIGURES: Cartoons to help people understand?
 
 6. Example: momentum distribution of the deuteron wave function
   * Short distance physics appears in the momentum projection operator \ataq
   * Describe evolution of the operator.
   * Show the "where does the short-distance physics go?" slide from NUCLEI 2020.
   * Do the expectation value of <\psi_d|\ataq|\psi_d> evolving. Matrix element is the same but the calculation is done at low momentum now!
+  FIGURES: Evolving \ataq, momentum distribution of deuteron, evolving integrand of <\psi_d|\ataq|\psi_d>
 
 7. Factorization of SRG transformation (set up for major result)
   * Show ratio of U(k_i, q) / U(k_0, q) -> U(k, q) ~ K_hi(q) K_lo(k) for k < \lambda << q
   * Can understand the momentum distribution by utilizing factorization of the unitary transformations, which reduces the inner part of the matrix element to a simple form.
+  FIGURES: Ratio of U(k_i, q) / U(k_0, q)
 
 8. Dominance of pn pairs over pp pairs in the tensor region
   * Show figure of pn/p vs pp/p pointing out key features.
   * Now show ratio of U(k_0, q)^2 (3S1 / 1S0) for AV18, maybe N2LO.
   * Point out all the features of this picture that are reproduced: 1S0 node, scalar limit, etc.
   * Compare intuition between low and high resolution.
+  FIGURES: Figure of pn/p and pp/p ratios, ratio of U(k_0,q)^2_3S1 / U(k_0,q)^2_1S0
 
 9. Conclusion
   * Summary
   * Try calculating pair distribution in nuclei (N=Z, N>Z).
   * Apply this to knock-out reactions for which SRC physics is not cleanly isolated.
+
