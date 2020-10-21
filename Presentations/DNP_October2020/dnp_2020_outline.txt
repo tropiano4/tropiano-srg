@@ -14,6 +14,7 @@ Short-range correlation physics from operator evolution
     The SRC physics is shifted into the reaction operators from the nuclear wave function.
   * Why low resolution? Success of chiral EFT, ab initio methods, things that rely on soft interactions. Figure? [The cartoon of high and low-resolution electron scattering would work.]
   * Would be good to mention that RG evolution of hard potential *does not* make the reaction operator hard.
+  * Emphasis that experiments use low resolution structure. (mismatch of high and low resolution)
   FIGURES: Cartoon of high and low-resolution electron scattering.
 
 3. SRG formalism
@@ -37,11 +38,13 @@ Short-range correlation physics from operator evolution
 6. Example: momentum distribution of the deuteron wave function
   * Short distance physics appears in the momentum projection operator \ataq
   * Describe evolution of the operator.
+  * Note the operator does not get hard!
   * Show the "where does the short-distance physics go?" slide from NUCLEI 2020.
   * Do the expectation value of <\psi_d|\ataq|\psi_d> evolving. Matrix element is the same but the calculation is done at low momentum now!
+  * Use table from SRC notes and overlay on slide circling the numbers you're referencing.
   FIGURES: Evolving \ataq, momentum distribution of deuteron, evolving integrand of <\psi_d|\ataq|\psi_d>
 
-7. Factorization of SRG transformation (set up for major result)
+7. Factorization of SRG transformation (set up for major result) (can use for back up if it's too much)
   * Show ratio of U(k_i, q) / U(k_0, q) -> U(k, q) ~ K_hi(q) K_lo(k) for k < \lambda << q
   * Can understand the momentum distribution by utilizing factorization of the unitary transformations, which reduces the inner part of the matrix element to a simple form.
   FIGURES: Ratio of U(k_i, q) / U(k_0, q)
@@ -51,10 +54,11 @@ Short-range correlation physics from operator evolution
   * Now show ratio of U(k_0, q)^2 (3S1 / 1S0) for AV18, maybe N2LO.
   * Point out all the features of this picture that are reproduced: 1S0 node, scalar limit, etc.
   * Compare intuition between low and high resolution.
-  FIGURES: Figure of pn/p and pp/p ratios, ratio of U(k_0,q)^2_3S1 / U(k_0,q)^2_1S0
+  FIGURES: Figure of pn/p and pp/p ratios, ratio of U(k_0,q)^2_3S1 / U(k_0,q)^2_1S0 (AV18 and Gezerlis only)
 
 9. Conclusion
   * Summary
-  * Try calculating pair distribution in nuclei (N=Z, N>Z).
+  * Calculating pair distributions in nuclei (N=Z, N>Z) using LDA.
   * Apply this to knock-out reactions for which SRC physics is not cleanly isolated.
+  * Can add cartoons for other processes at low and high resolution.
 
