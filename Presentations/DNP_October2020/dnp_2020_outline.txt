@@ -12,7 +12,6 @@ Short-range correlation physics from operator evolution
   * Description of high-resolution SRC physics: SRC pairs are components in the nuclear wave function with relative momenta above the Fermi momentum.
   * Alternative viewpoint: Using RG methods we can tune the scale to lower resolution (we refer to this as low RG resolution)
     The SRC physics is shifted into the reaction operators from the nuclear wave function.
-  * Why low resolution? Success of chiral EFT, ab initio methods, things that rely on soft interactions. Figure? [The cartoon of high and low-resolution electron scattering would work.]
   * Would be good to mention that RG evolution of hard potential *does not* make the reaction operator hard.
   * Emphasis that experiments use low resolution structure. (mismatch of high and low resolution)
   FIGURES: Cartoon of high and low-resolution electron scattering.
