@@ -1,5 +1,9 @@
 --- Research tasks ---
 
+Optical potentials
+ * Plot real and imaginary parts of optical potential with SRG evolution
+ * Plot ImJ/A?, J = \d3r d3r' V_opt(r,r')
+
 SRG
  * Open questions
    -High lambda (10 fm^-1) potential evolution
