@@ -14,3 +14,4 @@ SRG
 Misc.
  * Phase shift corrector function
  * Implement Gez. local potential codes to Potentials/vsrg_macos
+ * Study complex analysis, integration tricks
