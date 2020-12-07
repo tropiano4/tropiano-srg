@@ -33,191 +33,288 @@
 
 
 # Description of this test:
-#   Compare times on Magnus v. SRG evolution for a couple potentials.
+#   Test solve_ivp vs ode with SRG code.
 
 
 import numpy as np
-from scipy.integrate import solve_ivp
+import numpy.linalg as la
+from scipy.integrate import ode, solve_ivp
 import time
 # Scripts made by A.T.
 from Potentials.vsrg_macos import vnn
-from run_magnus import run_magnus
 
 
-class SRG(object):
-    
-    
-    def __init__(self, H_initial):
-        
-        # h-bar^2 / M [MeV fm^2]
-        hbar_sq_over_m = 41.47
-        
-        # Save matrices in scattering units [fm^-2]
-        self.H_initial = H_initial / hbar_sq_over_m
-        
-        # Save length of matrix
-        self.N = len(H_initial)
+# --- Load Hamiltonian --- #
 
-    
-    def commutator(self, A, B):
-        
-        return A @ B - B @ A
-    
-    
-    def matrix2vector(self, A):
-    
-        # Length of matrix
-        N = self.N
-        # Length of vectorized matrix
-        n = int( N * (N+1) / 2 )
-        
-        # Initialize vectorized matrix
-        B = np.zeros(n)
-    
-        a = 0
-        b = N
-    
-        for i in range(N):
-        
-            B[a:b] = A[i][i:]
-            a = b
-            b += N-i-1
+# h-bar^2 / M [MeV fm^2]
+hbar_sq_over_m = 41.47
 
-        return B
+# Set potential
+kvnn = 111
+channel = '3S1'
+kmax = 10.0
+kmid = 2.0
+ntot = 120
+N = 2 * ntot
+H_matrix_MeV = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot) # MeV
+H_matrix = H_matrix_MeV / hbar_sq_over_m # fm^-2
 
+
+# --- Functions --- #
+
+def commutator(A, B):
+    """
+    Commutator of A and B, [A,B] where A and B are square matrices.
+    
+    Parameters
+    ----------
+    A : 2-D ndarray
+        First input square matrix.
+    B : 2-D ndarray
+        Second input square matrix.
+            
+    Returns
+    -------
+    out : 2-D ndarray
+        Commutator of the two input matrices.
+            
+    """
+        
+    return A @ B - B @ A
+
+def matrix2vector(A):
+    """
+    Takes the upper triangle of the matrix A (including the diagonal) 
+    and reshapes it into a vector B of length N*(N+1)/2.
+        
+    Parameters
+    ----------
+    A : 2-D ndarray
+        Input matrix.
+            
+    Returns
+    -------
+    B : 1-D ndarray
+        Output vector.
+            
+    """
+    
+    # Length of vectorized matrix
+    n = int( N * (N+1) / 2 )
+        
+    # Initialize vectorized matrix
+    B = np.zeros(n)
+    
+    a = 0
+    b = N
+    
+    for i in range(N):
+        
+        B[a:b] = A[i][i:]
+        a = b
+        b += N-i-1
+
+    return B
+
+def vector2matrix(B):
+    """
+    Takes the vector of a upper triangle matrix and returns the full 
+    matrix. Use only for symmetric matrices.
+        
+    Parameters
+    ----------
+    B : 1-D ndarray
+        Input vector.
+        
+    Returns
+    -------
+    A : 2-D ndarray
+        Output matrix.
+            
+    """
+        
+    # Initialize matrix
+    A = np.zeros( (N, N) )
+    
+    # Build upper half of A with diagonal
+    a = 0
+    b = N
+
+    for i in range(N):
+
+        A[i, i:] = B[a:b]
+        a = b
+        b += N-i-1
+
+    # Reflect upper half to lower half to build full matrix
+    # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A 
+    # excluding the diagonal
+    return A + ( np.transpose(A) - np.diag( np.diag(A) ) )
+
+def derivative_method_1(lamb, H_evolved):
+    """
+    Right-hand side of the SRG flow equation using the Wegner generator.
+        
+    Parameters
+    ----------
+    lamb : float
+        Evolution parameter lambda [fm^-1].
+    H_evolved : 1-D ndarray
+        Evolving Hamiltonian which is a vector and function of lambda [fm^-2].
+        
+    Returns
+    -------
+    dH_vector : 1-D ndarray
+        Derivative with respect to lambda of the evolving Hamiltonian which 
+        is a vector [fm^-2].
+
+    """
+        
+    # Matrix form of the evolving Hamiltonian
+    H_evolved_matrix = vector2matrix(H_evolved)
+
+    # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
+    # evolving Hamiltonian)
+    eta = commutator( np.diag( np.diag(H_evolved_matrix) ), H_evolved_matrix)
+            
+    # RHS of flow equation in matrix form
+    dH_matrix = -4.0 / lamb**5 * commutator(eta, H_evolved_matrix)
+        
+    # Returns vector form of RHS of flow equation
+    dH_vector = matrix2vector(dH_matrix)
+        
+    return dH_vector
+
+def derivative_method_2(s, H_evolved):
+    """
+    Right-hand side of the SRG flow equation using the Wegner generator.
+        
+    Parameters
+    ----------
+    s : float
+        Evolution parameter s [fm^4].
+    H_evolved : 1-D ndarray
+        Evolving Hamiltonian which is a vector and function of s [fm^-2].
+        
+    Returns
+    -------
+    dH_vector : 1-D ndarray
+        Derivative with respect to s of the evolving Hamiltonian which 
+        is a vector [fm^-2].
+
+    """
+        
+    # Matrix form of the evolving Hamiltonian
+    H_evolved_matrix = vector2matrix(H_evolved)
+
+    # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
+    # evolving Hamiltonian)
+    eta = commutator( np.diag( np.diag(H_evolved_matrix) ), H_evolved_matrix)
+            
+    # RHS of flow equation in matrix form
+    dH_matrix = commutator(eta, H_evolved_matrix)
+        
+    # Returns vector form of RHS of flow equation
+    dH_vector = matrix2vector(dH_matrix)
+        
+    return dH_vector
+
+
+# --- Evolve and compare methods --- #
+
+# Set final \lambda value
+lambda_final = 6.0
+
+# Method 1: Use ode and flow parameter \lambda
+
+# Set-up ODE
+
+# Initial Hamiltonian as a vector and dictionary
+H_initial = matrix2vector(H_matrix)
+
+# # Use SciPy's ode function to solve flow equation
+# solver = ode(derivative_method_1)
+# # Following the example in Hergert:2016iju with modifications to nsteps
+# # and error tolerances
+# solver.set_integrator('vode', method='bdf', order=5)
+# # Set initial value of Hamiltonian at lambda = lambda_initial
+# solver.set_initial_value(H_initial, 20.0)
+    
+# t0 = time.time() # Start time
+# # Solve ODE up to lamb and store in dictionary
+# while solver.successful() and solver.t > lambda_final:
+            
+#     # Select step-size depending on extent of evolution
+#     if solver.t >= 6.0:
+#         dlamb = 1.0
+#     elif solver.t < 6.0 and solver.t >= 2.5:
+#         dlamb = 0.5
+#     elif solver.t < 2.5 and solver.t >= lambda_final:
+#         dlamb = 0.1
+                
+#     # This if statement prevents the solver from over-shooting 
+#     # lambda and takes a step in lambda equal to the exact amount
+#     # necessary to reach the specified lambda value
+#     if solver.t - dlamb < lambda_final:
+                
+#         dlamb = solver.t - lambda_final
+                
+#     # Integrate to next step in lambda
+#     H_evolved_vec = solver.integrate(solver.t - dlamb)
+
+# t1 = time.time() # End time            
+
+# # Print time method 1 took
+# mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
+# print('_'*85)
+# print( 'Method 1 complete after %f minutes' % mins )
+# print('_'*85)
  
-    def vector2matrix(self, B):
-        
-        # Length of matrix (given by solving N*(N+1)/2 = n)
-        N = self.N
-    
-        # Initialize matrix
-        A = np.zeros( (N, N) )
-    
-        # Build upper half of A with diagonal
-
-        a = 0
-        b = N
-
-        for i in range(N):
-
-            A[i, i:] = B[a:b]
-            a = b
-            b += N-i-1
-
-        # Reflect upper half to lower half to build full matrix
-        # [np.transpose(A)-np.diag(np.diag(A))] is the lower half of A 
-        # excluding the diagonal
-        return A + ( np.transpose(A) - np.diag( np.diag(A) ) )
-    
-    
-    def derivative(self, s, H_evolved):
-        
-        # Matrix form of the evolving Hamiltonian
-        H_matrix = self.vector2matrix(H_evolved)
-
-        # Wegner SRG generator, eta = [G,H] where G = H_D (diagonal of the 
-        # evolving Hamiltonian)
-        eta = self.commutator( np.diag( np.diag(H_matrix) ), H_matrix)
-            
-        # RHS of flow equation in matrix form
-        dH_matrix = self.commutator(eta, H_matrix)
-        
-        # Returns vector form of RHS of flow equation
-        dH_vector = self.matrix2vector(dH_matrix)
-        
-        return dH_vector
+# # Calculate eigenvalues
+# H_final = vector2matrix(H_evolved_vec)
+# eigenvalues_1 = la.eig(H_final * hbar_sq_over_m)[0]
 
 
-    def evolve_hamiltonian(self, lambda_array):
-        
-        N = self.N
+# # Method 2: Use solve_ivp and flow parameter s
 
-        # Set-up ODE
-        
-        # Initial Hamiltonian as a vector and dictionary
-        H_initial = self.matrix2vector(self.H_initial)
-        d = {}
-        
-        s_array = np.append( np.array( [0.0] ), 1.0 / lambda_array**4.0)
-        
-        sol = solve_ivp(self.derivative, s_array, H_initial, method='BDF')
+# # Set final s value
+# s_final = 1.0 / lambda_final**4.0
+# s_span = (0.0, s_final)
 
-        # # Store transformation matrix in dictionary for each lambda
-        # i = 1 # Start at 1 to skip s = 0 transformation
-        # for lamb in lambda_array:
-            
-        #     Hs_vector = sol[i]
-        #     d[lamb] = np.reshape(Hs_vector, (N, N))
-        #     i += 1
+# t0 = time.time() # Start time
+# solution = solve_ivp(derivative_method_2, s_span, H_initial, method='BDF',
+#                       t_eval=np.array( [s_final] ))
+# t1 = time.time() # End time 
 
-        # return d
-        return sol
-    
-    
-def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array):
+# # Print time method 2 took
+# mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
+# print('_'*85)
+# print( 'Method 2 complete after %f minutes' % mins )
+# print('_'*85)
 
-    # Load initial Hamiltonian, kinetic energy, momentum, and weights
-    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-
-    # Initialize SRG class
-    evolve = SRG(H_initial)
-        
-    # Time the evolution and return dictionary d of evolved Hamiltonians where
-    # the keys are lambda values
-    t0 = time.time() # Start time
-    d = evolve.evolve_hamiltonian(lambda_array)
-    t1 = time.time() # End time
-    
-    # Print details
-    mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
-    print('_'*85)
-    print( 'H(s) done evolving to final lambda = %.2f fm^-1 after %f minutes'
-          % (lambda_array[-1], mins) )
-    print('_'*85)
-    print('\nSpecifications:\n')
-    print( 'kvnn = %d, channel = %s' % (kvnn, channel) )
-    print( 'kmax = %.1f, kmid = %.1f, ntot = %d' % (kmax, kmid, ntot) )
-    print( 'method = srg, generator = %s' % generator )
-
-    # Otherwise, only return the dictionary d
-    return d
+# # Calculate eigenvalues
+# H_evolved_vec = solution.y[:, -1]
+# H_final = vector2matrix(H_evolved_vec)
+# eigenvalues_2 = la.eig(H_final * hbar_sq_over_m)[0]
 
 
-if __name__ == '__main__':
-    
-    #kvnns = (111, 900)
-    kvnns = [901]
-    channel = '3S1'
-    ntot = 120
-    generator = 'Wegner'
-    lambda_array = np.array( [6.0, 3.0, 2.0, 1.2] )
-    methods = ['SRG', 'Magnus']
-    k_magnus_values = (2, 10)
-    
-    for kvnn in kvnns:
-        
-        if kvnn == 111:
-            
-            kmax = 10.0
-            kmid = 2.0
-            
-        else:
-            
-            kmax = 30.0
-            kmid = 4.0
-            
-        for method in methods:
-            
-            if method == 'SRG':
-                
-                d = run_srg(kvnn, channel, kmax, kmid, ntot, generator, 
-                            lambda_array)
-                
-            else:
-                
-                for k_m in k_magnus_values:
-                
-                    d = run_magnus(kvnn, channel, kmax, kmid, ntot, generator, 
-                                   lambda_array, k_magnus=k_m, ds=1e-6, 
-                                   save=False)
+# Method 3: Use solve_ivp and flow parameter \lambda
+
+# Set final \lambda value
+lambda_span = (20.0, lambda_final)
+
+t0 = time.time() # Start time
+solution = solve_ivp(derivative_method_1, lambda_span, H_initial,
+                     method='BDF', t_eval=np.array( [lambda_final] ))
+t1 = time.time() # End time 
+
+# Print time method 3 took
+mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
+print('_'*85)
+print( 'Method 3 complete after %f minutes' % mins )
+print('_'*85)
+
+# Calculate eigenvalues
+H_evolved_vec = solution.y[:, -1]
+H_final = vector2matrix(H_evolved_vec)
+eigenvalues_3 = la.eig(H_final * hbar_sq_over_m)[0]
