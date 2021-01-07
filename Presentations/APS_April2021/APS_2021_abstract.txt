@@ -2,16 +2,6 @@ title: Short-range correlation physics at low RG resolution
 
 authors : A.J. Tropiano, R.J. Furnstahl, Ohio State U., S.K. Bogner, Michigan State U.
 
-In analyzing scattering observables, there is scale and scheme dependence in the factorization of structure and reaction components. The similarity renormalization group (SRG) is well-suited to analyze these components by applying SRG transformations to wave functions and the corresponding operators to evolve to low resolution, tuning the scale with the SRG decoupling parameter.
-
-* Make this part more about SRC physics focusing on the alternate picture which is low RG resolution.
-
-Under two different SRG schemes, we evolve a high-resolution nucleon-nucleon interaction to low resolution, decoupling the low- and high-energy physics. We show that short-range correlation (SRC) physics is shifted from the wave functions to consistently evolved operators.
-
-* Say this while also introducing the SRG and its key feature (unitary continuous transformation).
-
-We demonstrate that a high-resolution description of SRC physics such as the ratio of proton-neutron over proton-proton pairs in nuclei at various relative momenta can be equivalently described with simple calculations at low resolution.
-
-* This is probably fine.
+Recent experiments have succeeded in isolating processes where short-range correlation (SRC) physics is dominant and well accounted for by SRC phenomenology. But an alternative and compelling picture emerges from renormalization group (RG) evolution to low RG resolution. At high RG resolution, SRCs are identified as components in the nuclear wave function with relative momenta above the Fermi momentum. Evolution to lower resolution shifts SRC physics from nuclear structure to the reaction operators without changing the measured observables. We show how the features of SRC phenomenology manifested at high RG resolution are cleanly identified in factorized form with simple two-body operators and local-density calculations using simple structure. We verify that the experimental consequences follow directly from well-established properties of nucleon-nucleon interactions such as the tensor force.
 
 Supported in part by the NSF and the DOE.
