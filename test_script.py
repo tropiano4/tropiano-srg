@@ -118,7 +118,7 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         factor = isospin_factor * spin_factor * total_ang_momentum_factor * \
                  k_expansion_factor * q_expansion_factor
         
-        # Load Hamiltonian and calculate \delta U(k, q)
+        # Load initial and evolved Hamiltonians with momentum mesh
         k_array, k_weights = vnn.load_momentum(kvnn, channel)
         # Length of k_array
         ntot = len(k_array)
@@ -126,7 +126,7 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         row, col = np.meshgrid(factor_array, factor_array)
         
         H_initial = vnn.load_hamiltonian(kvnn, channel) # MeV
-        # Load band-diagonal-evolved Hamiltonian
+        # Use band-diagonal evolution as default
         H_evolved = vnn.load_hamiltonian(kvnn, channel, method='srg', 
                                          generator='Wegner', lamb=lamb) # MeV
         
