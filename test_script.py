@@ -38,6 +38,7 @@
 #   pp, pn, nn, np contributions as in Ryckebusch_2019oya.
 
 
+from os import getcwd, chdir
 import numpy as np
 # Scripts made by A.T.
 from operators import find_q_index
@@ -184,11 +185,52 @@ def n_lambda_pair(pair, q, kvnn, lamb, k_F):
     return pair_contribution
 
 
-# Figure out how k_F varies with \rho_A
-# Then make a vector of k_F values
-# Interpolate n_lambda_pair(pair, q, kvnn, lamb, k_F) over k_F
-# Evaluate < n > = \int dr r^2 n(q, Q=0; k_F~\rho_A(r)) * \rho_A(r) \ \int dr r^2 \rho_A(r)
+# Perhaps this function should go in a script within Densities/HFBRAD_SLY4
+def load_density(nucleus, nucleon, Z, N):
+    """
+    Loads a nucleonic density for the given nucleus.
+    
+    Parameters
+    ----------
+    nucleus : str
+        Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+    nucleon : str
+        Specify 'proton' or 'neutron'.
+    Z : int
+        Proton number of the nucleus.
+    N : int
+        Neutron number of the nucleus.
+        
+    Returns
+    -------
+    r_array : 1-D ndarray
+        Coordinates array [fm].
+    rho_array : 1-D ndarray
+        Nucleonic density as a function of r [# of protons or neutrons / vol].
+    
+    """
 
+
+    cwd = getcwd()
+    
+    # Go to directory corresponding to specified nucleus
+    densities_directory = 'Densities/HFBRAD_SLY4/%s' % nucleus
+    chdir(densities_directory)
+
+    # Load .dens file
+    file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
+    table = np.loadtxt(file_name)
+    
+    chdir(cwd) # Go back to current working directory
+    
+    r_array = table[:, 0]
+    rho_array = table[:, 1]
+    
+    return r_array, rho_array
+
+
+# Check normalization of \int dr r^2 \rho_N(r) = ???
+# 4*\pi \int dr r^2 \rho_Z(r) = Z (likewise for N)
 
 
 def local_density_approximation():
