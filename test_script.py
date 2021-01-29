@@ -45,7 +45,7 @@ from Potentials.vsrg_macos import vnn
 from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
 
 
-def n_lambda_pair(pair, q, kvnn, lamb):
+def n_lambda_pair(pair, q, kvnn, lamb, k_F):
     """
     Gives the N,Np contribution to the SRG-evolved pair momentum distribution
     under the following approximations:
@@ -63,6 +63,8 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         This number specifies the potential.
     lamb : float
         Evolution parameter lambda [fm^-1].
+    k_F : float
+        Fermi momentum [fm^-1].
 
     Returns
     -------
@@ -84,7 +86,7 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         # M_T = 1 or M_T = -1 (doesn't matter!)
         # Make function that takes T, M_T as argument?
         # Clebsch-Gordan coefficients for isospin are 1 here
-        # < 1/2 1/2 | 1 1 > = 1 or < -1/2 -1/2 | 1 1 > = 1
+        # < 1/2 1/2 | 1 1 > = 1 or < -1/2 -1/2 | 1 -1 > = 1
         isospin_factor = 1
         
         # Select the allowed value of S and M_S
@@ -148,11 +150,15 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         pair_contribution_k = delta_U_vector * delta_U_dag_vector * factor
         # 1/(2*\pi^2)^2 * \delta U_1S0(k,q) * \delta U_1S0^{\dagger}(q,k)
                               
-
-        # should have a vector that depends on k values
-
-
-
+        # Sum over k up to k_F (this should probably be an intergral?)
+        # \sum_k k_i^2 w_i -> \int dk k^2
+        # I have \sum_k... But the weights and k factors should have come from
+        # U O U^t (two integrals over k and k')
+        # One of the k' is done by \delta function
+        # There is one more. So yes, do 2 / \pi \sum_k k_i^2 w_i
+        integrand = factor_array * pair_contribution_k
+        
+        pair_contribution = 1/8 * np.sum(integrand)
 
     # Worry about this later   
     elif pair == 'pn' or pair == 'np':
@@ -175,7 +181,16 @@ def n_lambda_pair(pair, q, kvnn, lamb):
         print("Enter a valid pair: 'pp', 'pn', 'nn', or 'np'.")
         return None
 
-    # Sum over k up to k_F
-    # This is where nuclear averaging is done (read on LDA)
+    return pair_contribution
+
+
+# Figure out how k_F varies with \rho_A
+# Then make a vector of k_F values
+# Interpolate n_lambda_pair(pair, q, kvnn, lamb, k_F) over k_F
+# Evaluate < n > = \int dr r^2 n(q, Q=0; k_F~\rho_A(r)) * \rho_A(r) \ \int dr r^2 \rho_A(r)
+
+
+
+def local_density_approximation():
     
     return None
