@@ -76,6 +76,8 @@ def n_lambda_pair(pair, q, kvnn, lamb, k_F):
     1. Make functions for each factor with arguments T, M_T, etc.
     2. Should lamb be replaced by k_F as an argument instead?
     3. Should it be (U_matrix - I) / row / col or U_matrix / row / col - I?
+    4. Check the normalization of this function. Integrating over d3q and d3Q
+       should give 1, correct?
     
 
     """
