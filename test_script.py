@@ -42,7 +42,7 @@ import numpy as np
 # Scripts made by A.T.
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
-from SRG_codes.srg_unitary_transformation import SRG_unitary_transformation
+from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
 def n_lambda_pair(pair, q, kvnn, lamb, k_F):

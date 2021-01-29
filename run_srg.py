@@ -23,9 +23,9 @@ import numpy as np
 import time
 # Scripts made by A.T.
 from Potentials.vsrg_macos import vnn
-from SRG_codes import srg_wegner
-from SRG_codes import srg_kinetic_energy
-from SRG_codes import srg_block_diagonal
+from SRG import srg_wegner
+from SRG import srg_kinetic_energy
+from SRG import srg_block_diagonal
 
 
 def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
