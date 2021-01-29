@@ -5,6 +5,8 @@ This repository contains codes and files relevant to SRG work done by A.T.
 
 Description of each folder:
 
+* __Densities__ contains codes for computing the nucleonic densities of different nuclei.
+
 * __Figures__ contains research/results figures and a Python script figures_functions.py that has useful plotting oriented functions.
 
 * __Magnus_codes__ contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See magnus_split.py for details.
