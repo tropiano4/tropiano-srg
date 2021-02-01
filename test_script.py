@@ -39,6 +39,7 @@
 
 
 from os import getcwd, chdir
+import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
 from operators import find_q_index
@@ -230,10 +231,6 @@ def load_density(nucleus, nucleon, Z, N):
     return r_array, rho_array
 
 
-# Check normalization of \int dr r^2 \rho_N(r) = ???
-# 4*\pi \int dr r^2 \rho_Z(r) = Z (likewise for N)
-
-
 def local_density_approximation():
     
     # k_F = something dependent on \rho(r)
@@ -244,3 +241,50 @@ def local_density_approximation():
     #   4 \pi \int r^2 dr \rho(r))
     
     return None
+
+if __name__ == '__main__':
+    
+    # Confused by the N and Z for Pb208?
+    
+    # Details of example nuclei (format is [nuclei, Z, N])
+    nuclei_details = [ ['O16', 8, 8], ['Ca40', 20, 20], ['Ca48', 20, 28] ]
+    
+    # Plot densities as a function of r
+    plt.clf()
+    for nuclei_list in nuclei_details:
+        
+        # Plot density for some nuclei here
+        nucleus = nuclei_list[0]
+        nucleon = 'proton'
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+    
+        plt.plot(r_array, rho_array, label=nucleus)
+        
+    plt.xlim( [0.0, 20.0] )
+    plt.legend(loc='upper right', frameon=False)
+    plt.xlabel('r [fm]')
+    plt.ylabel(r'$\rho_p(r)$' + ' [fm' + r'$^{-3}$' + ']')
+    plt.show()
+    
+    # Plot k_F for some nuclei as function of r
+    # rho = 2 / (3*\pi^2) k_F^3
+    plt.clf()
+    for nuclei_list in nuclei_details:
+        
+        # Plot density for some nuclei here
+        nucleus = nuclei_list[0]
+        nucleon = 'proton'
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        kF_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
+    
+        plt.plot(r_array, kF_array, label=nucleus)
+        
+    plt.xlim( [0.0, 20.0] )
+    plt.legend(loc='upper right', frameon=False)
+    plt.xlabel('r [fm]')
+    plt.ylabel(r'$k_F(r)$' + ' [fm' + r'$^{-1}$' + ']')
+    plt.show()
