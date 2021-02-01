@@ -79,7 +79,6 @@ def n_lambda_pair(pair, q, kvnn, lamb, k_F):
     4. Check the normalization of this function. Integrating over d3q and d3Q
        should give 1, correct?
     
-
     """
     
     # Set T, M_T, S, etc. based on the entered pair ('pp', 'pn', etc.)'
@@ -236,5 +235,12 @@ def load_density(nucleus, nucleon, Z, N):
 
 
 def local_density_approximation():
+    
+    # k_F = something dependent on \rho(r)
+    # Derive this
+    # Evaluate k_F at each r_i plugging this into n_lambda_pair as well
+    #   So you have an array n_lambda_pair_i(k_F_i) \rho_i
+    #   Then sum the array and weight with 4 \pi r^2 dr (and divide by
+    #   4 \pi \int r^2 dr \rho(r))
     
     return None
