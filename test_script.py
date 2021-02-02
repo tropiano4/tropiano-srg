@@ -49,8 +49,9 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
 #### TO DO ####
-# 1. 1S0 (pn) 3S1-3S1 (pn) and 3S1-3D1 (pn) contributions
-# 2. Make separate folder for tables
+# 1. Add in low-momentum part
+# 2. 1S0 (pn) 3S1-3S1 (pn) and 3S1-3D1 (pn) contributions
+# 3. Make separate folder for tables
 
 
 # Perhaps this function should go in a script within Densities/HFBRAD_SLY4
