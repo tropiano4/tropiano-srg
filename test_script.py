@@ -50,7 +50,7 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 #### TO DO ####
 # 1. Add in low-momentum part
-# 2. 1S0 (pn) 3S1-3S1 (pn) and 3S1-3D1 (pn) contributions
+# 2. 1S0 (pn) 3S1-3S1 (pn) and 3S1-3D1 (pn) 1S0 (nn) contributions next
 # 3. Make separate folder for tables
 
 
@@ -144,8 +144,10 @@ class LDA(object):
             ntot = len(k_array)
             self.ntot = ntot
             factor_array = k_array * np.sqrt( 2*k_weights / np.pi )
-            self.factor_array = factor_array
+            self.factor_array = factor_array # [fm^-3/2]
             row, col = np.meshgrid(factor_array, factor_array)
+            self.row = row
+            self.col = col
         
             # Units are MeV
             H_initial = vnn.load_hamiltonian(kvnn, channel) # MeV
@@ -200,9 +202,10 @@ class LDA(object):
            U_matrix / row / col - I?
         4. Check the normalization of this function. Integrating over d3q and 
            d3Q should give 1, correct?
+        5. Should factor of 1/8 be 1/4 in term four?
     
         """
-    
+        
         # T = 1
         # M_T = 1 or M_T = -1 (doesn't matter!)
         # Make function that takes T, M_T as argument?
@@ -237,23 +240,54 @@ class LDA(object):
         k_expansion_factor = 1 / (2*np.pi**2) # ( \sqrt(2/\pi)*Y00 )^2
         q_expansion_factor = 1 / (2*np.pi**2) # ( \sqrt(2/\pi)*Y00 )^2
         
-        # Let's combine all the relevant factors here to be concise
-        factor = isospin_factor * spin_factor * total_ang_momentum_factor * \
-                 k_expansion_factor * q_expansion_factor
-                 
         # Load delta_U and momentum mesh
         k_array = self.k_array
         delta_U_matrix = self.delta_U_matrix
         
-        # Find the matrix element of delta_U(k, q)
+        # Index of q in k_array
         q_index = find_q_index(q, k_array)
+        
+        # Do first three terms if q < k_F
+        if q < k_F:
+            
+            # First term in Overleaf notes
+            # Sum is over m_t, m_t', then m_s, m_s'
+            # Factor of 2 for m_s and m_s' combinations
+            factor_1 = 2
+            I = np.eye(self.ntot, self.ntot) / self.row / self.col # [fm^3]
+            # pair_contribution_1 = 1/2 * I[q_index, q_index] * factor_1
+            pair_contribution_1 = 0
+            
+            # Second and third term in Overleaf notes
+            factor_2 = isospin_factor * spin_factor * \
+                       total_ang_momentum_factor * q_expansion_factor
+                       
+            delta_U_qq = delta_U_matrix[q_index, q_index] # [fm^3]
+            delta_U_dag_qq = delta_U_matrix.T[q_index, q_index] # [fm^3]
+            
+            # Minus sign???
+            # pair_contribution_2 = -1/4 * (delta_U_qq + delta_U_dag_qq) * \
+            #                       factor_2 # [fm^3]
+            pair_contribution_2 = 0
+                                  
+        else:
+            # \theta functions give 0 here
+            pair_contribution_1 = 0
+            pair_contribution_2 = 0
+    
+        # Fourth term in Overleaf notes
+        # Let's combine all the relevant factors here to be concise
+        factor_3 = isospin_factor * spin_factor * total_ang_momentum_factor * \
+                   k_expansion_factor * q_expansion_factor
+                 
+        # Find the matrix element of delta_U(k, q)
         delta_U_vector = delta_U_matrix[:self.ntot, q_index]
         # Do the same for delta_U^{\dagger}
         delta_U_dag_vector = delta_U_matrix.T[q_index, :self.ntot]
         
         # The overall contribution to the evolved pair momentum distribution
-        # as a function of k (which is summed to k_F later)
-        pair_contribution_k = delta_U_vector * delta_U_dag_vector * factor
+        # as a function of k (which is summed to k_F later) [fm^6]
+        pair_contribution_k = delta_U_vector * delta_U_dag_vector * factor_3
         # 1/(2*\pi^2)^2 * \delta U_1S0(k,q) * \delta U_1S0^{\dagger}(q,k)
                               
         # Sum over k up to k_F (this should probably be an intergral?)
@@ -262,7 +296,7 @@ class LDA(object):
         # U O U^t (two integrals over k and k')
         # One of the k' is done by \delta function
         # There is one more. So yes, do 2 / \pi \sum_k k_i^2 w_i
-        integrand = self.factor_array * pair_contribution_k
+        integrand = self.factor_array * pair_contribution_k # [fm^3]
         
         # Set k_F cutoff in integration limit where we prevent undershooting
         # k_F (meaning \Lambda will never be less than k_F)
@@ -271,7 +305,12 @@ class LDA(object):
             cutoff_index += 1
         integrand_resized = integrand[:cutoff_index+1]
 
-        pair_contribution = 1/8 * np.sum(integrand_resized) # [fm^3]
+        pair_contribution_3 = 1/8 * np.sum(integrand_resized) # [fm^3]
+        # pair_contribution_3 = 0
+        
+        # Sum all the terms for the total contribution
+        pair_contribution = pair_contribution_1 + pair_contribution_2 + \
+                            pair_contribution_3
 
         return pair_contribution
     
@@ -285,9 +324,10 @@ class LDA(object):
         # Set q_array and k_F_array values for table
         # Do momentum values from 1-6 fm^-1 and k_F values from 0-1.5 fm^-1
         k_array = self.k_array
-        k_min_index = find_q_index(0.9, k_array)
-        k_max_index = find_q_index(6.1, k_array)
-        q_array = k_array[k_min_index:k_max_index+1]
+        # k_min_index = find_q_index(0.9, k_array)
+        # k_max_index = find_q_index(6.1, k_array)
+        # q_array = k_array[k_min_index:k_max_index+1]
+        q_array = k_array
         k_F_array = np.linspace(0.0, 1.5, 30)
         
         # Write table in txt file
@@ -435,23 +475,23 @@ if __name__ == '__main__':
     plt.show()
     
     
-    # # --- Write the relevant tables --- #
-    # # Comment this out when you're done
+    # --- Write the relevant tables --- #
+    # Comment this out when you're done
     
-    # for nuclei_list in nuclei_details:
+    for nuclei_list in nuclei_details:
         
-    #     # Plot density for some nuclei here
-    #     nucleus = nuclei_list[0]
-    #     nucleon = 'proton'
-    #     Z = nuclei_list[1]
-    #     N = nuclei_list[2]
-    #     r_array, rho_array = load_density(nucleus, nucleon, Z, N)
-    #     lda = LDA(pair, kvnn, lamb, r_array, rho_array, create_table=True)
+        # Plot density for some nuclei here
+        nucleus = nuclei_list[0]
+        nucleon = 'proton'
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        lda = LDA(pair, kvnn, lamb, r_array, rho_array, create_table=True)
 
 
     # --- Plot n_lambda_pair_exp for pp pairs --- #
     
-    q_array = np.linspace(2.0, 6.0, 100)
+    q_array = np.linspace(0.3, 6.0, 100)
     
     plt.clf()
     for nuclei_list in nuclei_details:
@@ -466,7 +506,8 @@ if __name__ == '__main__':
 
         n_lambda_pair_exp_array = lda.local_density_approximation(q_array)
     
-        plt.plot(q_array, n_lambda_pair_exp_array, label=nucleus)
+        # plt.plot(q_array, n_lambda_pair_exp_array, label=nucleus)
+        plt.semilogy(q_array, n_lambda_pair_exp_array, label=nucleus)
         
     plt.xlim( [min(q_array), max(q_array)] )
     plt.legend(loc='upper right', frameon=False)
