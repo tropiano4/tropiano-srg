@@ -197,7 +197,7 @@ class LDA(object):
         1. Make functions for each factor with arguments T, M_T, etc.
         2. Should lamb be replaced by k_F as an argument instead? Or should 
            lamb vary as k_F does (that would require many more evolution 
-           snapshots)?
+           snapshots)? Fixing k_F ~ 1.35 fm^-1 is fine!
         3. Should it be (U_matrix - I) / row / col or 
            U_matrix / row / col - I?
         4. Check the normalization of this function. Integrating over d3q and 
