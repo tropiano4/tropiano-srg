@@ -274,7 +274,7 @@ if __name__ == '__main__':
     kvnn = 6
     lamb = 1.35
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax=10.0, kmid=2.0, ntot=120)
-    #q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax=30.0, kmid=4.0, ntot=120)
+    # q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax=30.0, kmid=4.0, ntot=120)
     factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     
     # Details of example nuclei (format is [nuclei, Z, N])
     nuclei_list = ['O16', 8, 8]
-    #nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Ca48', 20, 28]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
     N = nuclei_list[2]
@@ -323,11 +323,11 @@ if __name__ == '__main__':
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
-    plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
-                  label=nucleus+' (pp)')  
-    plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
-                  linestyle='dashed', label=nucleus+' (nn)')  
-    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
+    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
+    #               label=nucleus+' (pp)')  
+    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
+    #               linestyle='dashed', label=nucleus+' (nn)')  
+    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
     
     # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, color='blue', 
     #               label=nucleus+' (pp)')
@@ -335,11 +335,11 @@ if __name__ == '__main__':
     #               linestyle='dashed', label=nucleus+' (nn)')
     # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>q^2 dq$')
     
-    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array**2, color='blue', 
-    #               label=nucleus+' (pp)')  
-    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array**2, color='red', 
-    #               linestyle='dashed', label=nucleus+' (nn)')  
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>(q^2 dq)^2$' + ' [fm' + r'$^{-3}$' + ']')
+    plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array**2, color='blue', 
+                  label=nucleus+' (pp)')  
+    plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array**2, color='red', 
+                  linestyle='dashed', label=nucleus+' (nn)')  
+    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>(q^2 dq)^2$' + ' [fm' + r'$^{-3}$' + ']')
         
     # BUG TESTING 
     plt.xlim( [min(q_array_fine), 6] )
