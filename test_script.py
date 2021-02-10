@@ -109,8 +109,12 @@ class pair_momentum_distributions(object):
             # Converting to units [fm^3]
             U_matrix = U_matrix_unitless / row / col
             I_matrix = np.eye( len(factor_array), len(factor_array) ) \
-                       / row / col
+                        / row / col
             delta_U_matrix = U_matrix - I_matrix
+            
+            # # BUG CHECK (unitless matrices)
+            # I_matrix = np.eye( len(factor_array), len(factor_array) )
+            # delta_U_matrix = U_matrix_unitless - I_matrix
             
             # Store both matrices in the dictionary
             d[channel]['I'] = I_matrix # [fm^3]
@@ -178,6 +182,8 @@ class pair_momentum_distributions(object):
         
         # Bare operator: \pi / (2 w_q q^2) [fm^3]
         bare_operator = np.pi / (2*k_weights[q_index]*k_array[q_index]**2)
+        # # Bug checking
+        # bare_operator = 1
         
         # First terms where q must be low-momentum
         if q <= 2*k_F:
@@ -217,6 +223,8 @@ class pair_momentum_distributions(object):
         
         # Do the k-integration
         integration_measure = 2/np.pi * k_weights * k_array**2 # [fm^-3]
+        # Bug test
+        # integration_measure = 1
         integrand = integration_measure * n_lambda_k_vector # [fm^3]
             
         # Set 2*k_F cutoff in integration limit where we prevent overshooting
@@ -305,21 +313,27 @@ if __name__ == '__main__':
     n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
                                                               pmd.n_lambda_1S0)
     
+    # BUG TEST
+    # n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
+    #                         pmd.n_lambda_1S0) / factor_array
+    # n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
+    #                         pmd.n_lambda_1S0) / factor_array
+    
     plt.clf()
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
-    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
-    #               label=nucleus+' (pp)')  
-    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
-    #               linestyle='dashed', label=nucleus+' (nn)')  
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
+    plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
+                  label=nucleus+' (pp)')  
+    plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
+                  linestyle='dashed', label=nucleus+' (nn)')  
+    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
     
-    plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, color='blue', 
-                  label=nucleus+' (pp)')
-    plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array, color='red', 
-                  linestyle='dashed', label=nucleus+' (nn)')
-    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>q^2 dq$')
+    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, color='blue', 
+    #               label=nucleus+' (pp)')
+    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array, color='red', 
+    #               linestyle='dashed', label=nucleus+' (nn)')
+    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>q^2 dq$')
     
     # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array**2, color='blue', 
     #               label=nucleus+' (pp)')  
