@@ -181,9 +181,9 @@ class pair_momentum_distributions(object):
         q_index = find_q_index(q, k_array)
         
         # Bare operator: \pi / (2 w_q q^2) [fm^3]
-        bare_operator = np.pi / (2*k_weights[q_index]*k_array[q_index]**2)
-        # # Bug checking
-        # bare_operator = 1
+        # bare_operator = np.pi / (2*k_weights[q_index]*k_array[q_index]**2)
+        # Bug checking
+        bare_operator = 1
         
         # First terms where q must be low-momentum
         if q <= 2*k_F:
@@ -243,6 +243,23 @@ class pair_momentum_distributions(object):
         n_lambda = n_lambda_low_q + n_lambda_high_q
 
         return n_lambda
+    
+
+# ### Here's what's in your notebook from before ###
+# # Calculate SRG transformation with eigenvectors of initial and evolved Hamiltonians dividing out 
+# # integration factors
+# U_matrix_1s0 = SRG_unitary_transformation(H_initial_1s0, H_evolved_1s0) / row / col
+# U_matrix_3s1 = SRG_unitary_transformation(H_initial_3s1, H_evolved_3s1) / row_cc / col_cc
+    
+# # Index of k_0 in k_array
+# k_0_index = op.find_q_index(k_0, k_array)
+        
+# # Calculate |U(k_0, q)_{3S1}|^2 [fm^3] (divide 2/\pi k_i k_j \sqrt(w_i w_j))
+# # after calculation
+# numerator_array = U_matrix_3s1[k_0_index, :ntot] * U_matrix_3s1.T[:ntot, k_0_index] + \
+#                   U_matrix_3s1[k_0_index, ntot:] * U_matrix_3s1.T[ntot:, k_0_index]
+
+# NO BARE OPERATOR!
     
     
     def n_lambda_3S1_3S1(self, q, k_F):
@@ -314,20 +331,20 @@ if __name__ == '__main__':
                                                               pmd.n_lambda_1S0)
     
     # BUG TEST
-    # n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
-    #                         pmd.n_lambda_1S0) / factor_array
-    # n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
-    #                         pmd.n_lambda_1S0) / factor_array
+    n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
+                            pmd.n_lambda_1S0) / factor_array
+    n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
+                            pmd.n_lambda_1S0) / factor_array
     
     plt.clf()
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
-    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
-    #               label=nucleus+' (pp)')  
-    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
-    #               linestyle='dashed', label=nucleus+' (nn)')  
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
+    plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
+                  label=nucleus+' (pp)')  
+    plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
+                  linestyle='dashed', label=nucleus+' (nn)')  
+    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
     
     # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, color='blue', 
     #               label=nucleus+' (pp)')
@@ -335,11 +352,11 @@ if __name__ == '__main__':
     #               linestyle='dashed', label=nucleus+' (nn)')
     # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>q^2 dq$')
     
-    plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array**2, color='blue', 
-                  label=nucleus+' (pp)')  
-    plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array**2, color='red', 
-                  linestyle='dashed', label=nucleus+' (nn)')  
-    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>(q^2 dq)^2$' + ' [fm' + r'$^{-3}$' + ']')
+    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array**2, color='blue', 
+    #               label=nucleus+' (pp)')  
+    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array*factor_array**2, color='red', 
+    #               linestyle='dashed', label=nucleus+' (nn)')  
+    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>(q^2 dq)^2$' + ' [fm' + r'$^{-3}$' + ']')
         
     # BUG TESTING 
     plt.xlim( [min(q_array_fine), 6] )
