@@ -327,8 +327,33 @@ class pair_momentum_distributions(object):
         I_matrix = self.d['3S1']['I'] # [fm^3]
         delta_U_matrix = self.d['3S1']['delta_U'] # [fm^3]
         
+        # Create bare operator here
+        # n(q, Q) = \pi / (2 w_q q^2) *  1 / (4 \pi w_Q Q^2) [fm^6]
+        
+        # Find index of q in k_array
+        deltas_array = np.zeros(ntot)
+        q_index = find_q_index(q, k_array)
+        deltas_array[q_index] = 1 
+        # factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array * \
+        #                np.sqrt(4*np.pi*k_weights) * k_array # [fm^-3]
+        factor_array = 1
+        deltas_array /= factor_array
+        operator_row, operator_col = np.meshgrid(deltas_array, deltas_array)
+        operator = operator_row * operator_col # [fm^6]
+        
+        # Matrix of zeros (m x m) for coupled-channel operator
+        o = np.zeros( (ntot, ntot) )
+    
+        # Build coupled channel operator
+        operator = np.vstack( ( np.hstack( (operator, o) ),
+                                np.hstack( (o, operator) ) ) )
+        
         # Factors in front of everything
-        overall_factor = 0.5 * (2/np.pi) * (4*np.pi/3*k_F**3) # [fm^-3]
+        # overall_factor = 0.5 * (2/np.pi) * (4*np.pi/3*k_F**3) # [fm^-3]
+        # Techinically you should get rid of this factor of 2 for the true
+        # pp or nn pair distribution because you haven't summed over \tau and
+        # \tau' in this code
+        overall_factor = (2/np.pi) * (4*np.pi/3*k_F**3) # [fm^-3]
         
         # Spin and isospin factors appear in even powers. We can calculate
         # the squared value here.
@@ -337,8 +362,8 @@ class pair_momentum_distributions(object):
         # M_T = 0
         # Make function that takes T, M_T as argument?
         # Clebsch-Gordan coefficients for isospin are 1/\sqrt(2) here
-        # < 1/2 -1/2 | 0 0 > = 1/\sqrt(2) or < -1/2 1/2 | 0 0 > = -1/\sqrt(2)
-        isospin_factor_squared = 1
+        # < 1/2 -1/2 | 1 0 > = 1/\sqrt(2) or < -1/2 1/2 | 1 0 > = 1/\sqrt(2)
+        # isospin_factor_squared = 1/2
         
         # Select the allowed value of S and M_S
         # S = 1
@@ -347,38 +372,43 @@ class pair_momentum_distributions(object):
         # Each time we get factors of 1/\sqrt(2) or -1/\sqrt(2) but
         # appearing in even powers - thus, it's always a factor of 1/2.
         # But we sum over \sigma and \sigma' so the factor of two cancels!
-        spin_factor_squared = 1/2
+        # spin_factor_squared = 1/2
         
         # Select the associated partial wave channel
         # channel = '1S0'
         # This means L=0, M_L=0, J=0, M_J=0
         # < M_L M_S | J M_J> factors are always 1 in this case
-        total_J_factor = 1
+        # total_J_factor = 1
         # Is this ever not 1?
         
-        # Find index of q in k_array
-        q_index = find_q_index(q, k_array)
-        
-        # Bare operator: \pi / (2 w_q q^2) [fm^3]
-        # bare_operator = np.pi / (2*k_weights[q_index]*k_array[q_index]**2)
-        # Bug checking
-        # bare_operator = 1
-        
         # First terms where q must be low-momentum
-        if q <= 2*k_F:
+        #if q <= 2*k_F:
+        if q <= k_F:
             
-            matrix_element = ( I_matrix[q_index, q_index] + \
-                                delta_U_matrix[q_index, q_index] + \
-                                delta_U_matrix.T[q_index, q_index] ) * \
-                              bare_operator # [fm^6]
+            # matrix_element = ( I_matrix[q_index, q_index] + \
+            #                     delta_U_matrix[q_index, q_index] + \
+            #                     delta_U_matrix.T[q_index, q_index] ) * \
+            #                   bare_operator # [fm^6]
+            
+            # matrix_element = ( I_matrix[q_index, q_index] + \
+            #                     delta_U_matrix[q_index, q_index] + \
+            #                     delta_U_matrix.T[q_index, q_index] ) / \
+            #                   bare_operator # [fm^6]
+            
+            matrix_element = I_matrix @ operator @ I_matrix + \
+                             delta_U_matrix @ operator @ I_matrix + \
+                             I_matrix @ operator @ delta_U_matrix.T # [fm^6]
                              
             # Define x variable for d3Q integration
-            x = q / (2*k_F)
-            Q_integration_factor_low = 1 - 3/2*x + x**3/2
+            # x = q / (2*k_F)
+            # Q_integration_factor_low = 1 - 3/2*x + x**3/2
+            x = q / k_F
+            Q_integration_factor_low = 8*(1 - 3/2*x + x**3/2)
             
-            n_lambda_low_q = overall_factor * isospin_factor_squared * \
-                              (2*spin_factor_squared) * total_J_factor * \
-                              matrix_element * Q_integration_factor_low # [fm^3]
+            n_lambda_low_q = overall_factor * \
+                             matrix_element[q_index, q_index] * \
+                             Q_integration_factor_low # [fm^3]
+            # 02/16/21: currently [fm^-3]
             
             # n_lambda_low_q = 0          
         # q > 2*k_F
@@ -388,33 +418,44 @@ class pair_momentum_distributions(object):
 
         # Now do the last term with two \delta_U's (should be an array over
         # k)
+        
         # matrix_element_vector = delta_U_matrix[:ntot, q_index] * \
         #                         delta_U_matrix.T[q_index, :ntot] * \
         #                         bare_operator # [fm^9]
+        # matrix_element_vector = delta_U_matrix[:ntot, q_index] * \
+        #                         delta_U_matrix.T[q_index, :ntot] / \
+        #                         bare_operator # [fm^9]
         
         matrix_element_vector = delta_U_matrix[:ntot, q_index] * \
-                                delta_U_matrix.T[q_index, :ntot] / \
-                                bare_operator # [fm^9]
+                                operator[q_index, q_index] * \
+                                delta_U_matrix.T[q_index, :ntot] + \
+                                delta_U_matrix[ntot:, ntot+q_index] * \
+                                operator[ntot+q_index, ntot+q_index] * \
+                                delta_U_matrix.T[ntot+q_index, ntot:] # [fm^6]
+                                # 02/16/21: currently [unitless]
                                 
         # Define y variable for d3Q integration (function of k)
-        y_array = k_array / (2*k_F)
-        Q_integration_factor_high = 1 - 3/2*y_array + y_array**3/2
+        # y_array = k_array / (2*k_F)
+        # Q_integration_factor_high = 1 - 3/2*y_array + y_array**3/2
+        y_array = k_array / k_F
+        Q_integration_factor_high = 8*(1 - 3/2*y_array + y_array**3/2)
 
-        # n_\lambda_high_q before k-integration [fm^6]
-        n_lambda_k_vector = 0.5*overall_factor * isospin_factor_squared**2 * \
-                            (4*spin_factor_squared**2) * total_J_factor**2 * \
+        # n_\lambda_high_q before k-integration [fm^3]
+        n_lambda_k_vector = 0.5*overall_factor * \
                             matrix_element_vector * Q_integration_factor_high
+                            # 02/16/21: currently [fm^-3]
         
         # Do the k-integration
-        integration_measure = 2/np.pi * k_weights * k_array**2 # [fm^-3]
+        # integration_measure = 2/np.pi * k_weights * k_array**2 # [fm^-3]
         # Bug test
-        # integration_measure = 1
+        integration_measure = 1
         integrand = integration_measure * n_lambda_k_vector # [fm^3]
+        # 02/16/21: currently [fm^-3]
             
         # Set 2*k_F cutoff in integration limit where we prevent overshooting
         # 2*k_F (meaning \Lambda will never be more than 2*k_F)
         # DO THIS LATER
-        cutoff_index = find_q_index(2*k_F, k_array)
+        cutoff_index = find_q_index(k_F, k_array)
         # while k_array[cutoff_index] > 2*k_F:
         #     cutoff_index -= 1
             
@@ -426,6 +467,7 @@ class pair_momentum_distributions(object):
         
         # Combine for full contribution
         n_lambda = n_lambda_low_q + n_lambda_high_q
+        # 02/16/21: currently [fm^-3]
 
         return n_lambda
     
@@ -475,12 +517,13 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax=10.0, kmid=2.0, ntot=120)
-    # q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax=30.0, kmid=4.0, ntot=120)
+    kmax, kmid, ntot = 10.0, 2.0, 120
+    # kmax, kmid, ntot = 30.0, 4.0, 120
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
-    pmd = pair_momentum_distributions(kvnn, lamb)
+    pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
     nuclei_list = ['O16', 8, 8]
@@ -512,6 +555,8 @@ if __name__ == '__main__':
     # BUG TESTING
     n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
                                                               pmd.n_lambda_1S0)
+    n_lambda_pn_exp_array = lda_p.local_density_approximation(q_array_fine, 
+                                                              pmd.n_lambda_3S1_3S1)
     # n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
     #                                                           pmd.n_lambda_1S0)
     # n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array, 
@@ -535,6 +580,8 @@ if __name__ == '__main__':
     #               linestyle='dashed', label=nucleus+' (nn)') 
     plt.semilogy(q_array_fine, n_infty_pp_exp_array, color='red', 
                   linestyle='dashed', label='Bare operator')  
+    plt.semilogy(q_array_fine, n_lambda_pn_exp_array, color='black', 
+                 linestyle='dashdot', label=nucleus+' (pp)')  
     # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
     plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^{-3}$' + ']')
     
@@ -573,10 +620,10 @@ if __name__ == '__main__':
               ' [fm' + r'$^{-1}$' + ']')
     plt.show()
     
-    # BUG TESTING
-    n_infty_array = np.zeros(120)
-    for i in range(120):
-        n_infty_array[i] = pmd.n_infty(q_array[i], 1)
-    print(np.sum(n_infty_array))
-    print(np.sum(n_infty_array*factor_array))
-    print(np.sum(n_infty_array*4*np.pi*q_array**2*q_weights))
+    # # BUG TESTING
+    # n_infty_array = np.zeros(120)
+    # for i in range(120):
+    #     n_infty_array[i] = pmd.n_infty(q_array[i], 1)
+    # print(np.sum(n_infty_array))
+    # print(np.sum(n_infty_array*factor_array))
+    # print(np.sum(n_infty_array*4*np.pi*q_array**2*q_weights))
