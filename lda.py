@@ -204,7 +204,8 @@ class LDA(object):
     
         # \rho(r) = ( 2*k_F(r)^3 ) / ( 3 \pi^2 ) for nucleons (g=4)
         # Evaluate k_F at each point in r_array
-        k_F_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
+        # k_F_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
+        k_F_array = ( 3*np.pi**2 * rho_array )**(1/3)
         
         expectation_values = np.zeros(M)
         for i, q in enumerate(q_array):
@@ -264,7 +265,8 @@ if __name__ == '__main__':
         Z = nuclei_list[1]
         N = nuclei_list[2]
         r_array, rho_array = load_density(nucleus, nucleon, Z, N)
-        kF_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
+        # kF_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
+        kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
     
         plt.plot(r_array, kF_array, label=nucleus)
         
