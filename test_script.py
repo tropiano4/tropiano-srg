@@ -532,8 +532,8 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    kmax, kmid, ntot = 10.0, 2.0, 120
-    # kmax, kmid, ntot = 30.0, 4.0, 120
+    # kmax, kmid, ntot = 10.0, 2.0, 120
+    kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     factor_array = 2/np.pi * q_weights * q_array**2
     
@@ -582,16 +582,16 @@ if __name__ == '__main__':
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
-    plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
-                  linestyle='dashdot', label=nucleus+' (pp)')  
-    plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
-                  linestyle='dashed', label=nucleus+' (nn)') 
-    plt.semilogy(q_array_fine, n_infty_pp_exp_array, color='green', 
-                  linestyle='dotted', label=nucleus+' (pp), unevolved')  
-    plt.semilogy(q_array_fine, n_lambda_pn_exp_array, color='black', 
-                  linestyle='solid', label=nucleus+' (pn)')  
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
-    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^{-3}$' + ']')
+    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
+    #               linestyle='dashdot', label=nucleus+' (pp)')  
+    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
+    #               linestyle='dashed', label=nucleus+' (nn)') 
+    # plt.semilogy(q_array_fine, n_infty_pp_exp_array, color='green', 
+    #               linestyle='dotted', label=nucleus+' (pp), unevolved')  
+    # plt.semilogy(q_array_fine, n_lambda_pn_exp_array, color='black', 
+    #               linestyle='solid', label=nucleus+' (pn)')  
+    # # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
+    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^{-3}$' + ']')
     
     # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, 
     #              color='blue', linestyle='dashdot', label=nucleus+' (pp)')  
@@ -603,15 +603,15 @@ if __name__ == '__main__':
     #              color='black', linestyle='solid', label=nucleus+' (pn)') 
     # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>q^2 dq$' + ' [fm' + r'$^{-6}$' + ']')
     
-    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array/factor_array, 
-    #               color='blue', linestyle='dashdot', label=nucleus+' (pp)')  
-    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array/factor_array, 
-    #               color='red', linestyle='dashed', label=nucleus+' (nn)') 
-    # plt.semilogy(q_array_fine, n_infty_pp_exp_array/factor_array, 
-    #               color='green', linestyle='dotted', label=nucleus+' (pp), unevolved')  
-    # plt.semilogy(q_array_fine, n_lambda_pn_exp_array/factor_array,
-    #               color='black', linestyle='solid', label=nucleus+' (pn)') 
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>/(q^2 dq)$' + ' [unitless]')
+    plt.semilogy(q_array_fine, n_lambda_pp_exp_array/factor_array, 
+                  color='blue', linestyle='dashdot', label=nucleus+' (pp)')  
+    plt.semilogy(q_array_fine, n_lambda_nn_exp_array/factor_array, 
+                  color='red', linestyle='dashed', label=nucleus+' (nn)') 
+    plt.semilogy(q_array_fine, n_infty_pp_exp_array/factor_array, 
+                  color='green', linestyle='dotted', label=nucleus+' (pp), unevolved')  
+    plt.semilogy(q_array_fine, n_lambda_pn_exp_array/factor_array,
+                  color='black', linestyle='solid', label=nucleus+' (pn)') 
+    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>/(q^2 dq)$' + ' [unitless]')
         
     # BUG TESTING 
     plt.xlim( [min(q_array_fine), 5] )
