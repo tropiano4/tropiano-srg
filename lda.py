@@ -112,13 +112,13 @@ class LDA(object):
         self.r_array = r_array
         self.rho_array = rho_array
         
-        # Create the relevant tables for interpolation
-        if create_table:
+        # # Create the relevant tables for interpolation
+        # if create_table:
             
-            self.create_table(q_array, k_F_array)
+        #     self.create_table(q_array, k_F_array)
             
-        # Load interpolated function for LDA calculation
-        self.load_table()
+        # # Load interpolated function for LDA calculation
+        # self.load_table()
 
     
     def create_table(self, q_array, k_F_array):
