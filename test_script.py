@@ -557,7 +557,8 @@ if __name__ == '__main__':
     # Details of example nuclei (format is [nuclei, Z, N])
     # nuclei_list = ['O16', 8, 8]
     # nuclei_list = ['Ca40', 20, 20]
-    nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Ca48', 20, 28]
+    nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
     N = nuclei_list[2]
@@ -582,7 +583,7 @@ if __name__ == '__main__':
     
     # --- Plot n_lambda_pair_exp for pp pairs --- #
     
-    # q_array_fine = np.linspace(0.1, 6.0, 100)
+    # q_array_fine = np.linspace(0.01, 6.0, 1000)
     q_array_fine = q_array
 
     # BUG TESTING
