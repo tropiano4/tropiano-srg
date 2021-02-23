@@ -200,7 +200,7 @@ class LDA(object):
         
         r2_array = r_array**2
         dr = 0.1 # Spacing between r-points
-        denominator = 4*np.pi * np.sum( dr * r2_array * rho_array )
+        # denominator = 4*np.pi * np.sum( dr * r2_array * rho_array )
     
         # \rho(r) = ( 2*k_F(r)^3 ) / ( 3 \pi^2 ) for nucleons (g=4)
         # Evaluate k_F at each point in r_array
@@ -218,10 +218,14 @@ class LDA(object):
                 function_array[j] = func_q_k_F(q, k_F)
         
             # Integrate over r
-            integrand = dr * r2_array * function_array * rho_array
-            numerator = 4*np.pi * np.sum(integrand)
-            # Factor of 4*\pi cancels out
-            expectation_values[i] = numerator / denominator
+            # integrand = dr * r2_array * function_array * rho_array
+            # numerator = 4*np.pi * np.sum(integrand)
+            # # Factor of 4*\pi cancels out
+            # expectation_values[i] = numerator / denominator
+            
+            # expectation_values[i] = 4*np.pi * np.sum( dr * r2_array * \
+            #                         function_array * rho_array )
+            expectation_values[i] = 4*np.pi * np.sum( dr * r2_array * function_array )
                 
         return expectation_values
     
@@ -247,6 +251,8 @@ if __name__ == '__main__':
         r_array, rho_array = load_density(nucleus, nucleon, Z, N)
 
         plt.plot(r_array, rho_array, label=nucleus)
+        
+        print(4*np.pi*np.sum(0.1*r_array**2*rho_array))
         
     plt.xlim( [0.0, 20.0] )
     plt.legend(loc='upper right', frameon=False)
