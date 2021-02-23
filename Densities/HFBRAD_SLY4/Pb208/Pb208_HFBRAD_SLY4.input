@@ -5,5 +5,5 @@ eps_energy = 1.e-9,        max_delta = 1.e-7,
 boundary_condition = 0,    xmu = 0.65,
 bogolyubov = F, F,         pairing_force = 3,   regularization = F /
 
-&nucleus  neutron = 128, proton = 92, j_max = 13, 13, densities = T,
+&nucleus  neutron = 128, proton = 82, j_max = 13, 13, densities = T,
   quasiparticles = F /
