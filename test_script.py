@@ -525,6 +525,20 @@ class pair_momentum_distributions(object):
         else:
             
             return 0
+        
+    def n_single_particle(self, p, k_F):
+        
+        # This should just be \theta(k_F-p)
+        
+        if p <= k_F:
+        # if True:
+            
+            return 1
+        
+        else:
+            
+            return 0
+
 
 if __name__ == '__main__':
 
@@ -541,15 +555,17 @@ if __name__ == '__main__':
     pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
-    nuclei_list = ['O16', 8, 8]
-    # nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['O16', 8, 8]
+    # nuclei_list = ['Ca40', 20, 20]
+    nuclei_list = ['Ca48', 20, 28]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
     N = nuclei_list[2]
+    A = N + Z
     r_array, rho_array_p = load_density(nucleus, 'proton', Z, N)
     r_array, rho_array_n = load_density(nucleus, 'neutron', Z, N)
     
-    k_F_array = np.linspace(0.001, 1.8, 100)
+    # k_F_array = np.linspace(0.001, 1.8, 100)
     
     # --- Write the relevant tables --- #
     # Comment this out when you're done
@@ -559,6 +575,7 @@ if __name__ == '__main__':
     # GET RID OF INTERPOLATION
     
     # No interpolation here
+    # THIS WILL LIKELY CAUSE BUGS LATER: FIX!
     lda_p = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_p)
     lda_n = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_n)
     
@@ -569,29 +586,51 @@ if __name__ == '__main__':
     q_array_fine = q_array
 
     # BUG TESTING
-    n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
-                                                              pmd.n_lambda_1S0)
-    n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
-                                                              pmd.n_lambda_1S0)
-    n_lambda_pn_exp_array = lda_p.local_density_approximation(q_array_fine, 
-                                                              pmd.n_lambda_3S1_3S1)
-    n_infty_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
-                                                             pmd.n_infty)
+    # n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
+    #                                                           pmd.n_lambda_1S0)
+    # n_lambda_nn_exp_array = lda_n.local_density_approximation(q_array_fine, 
+    #                                                           pmd.n_lambda_1S0)
+    # n_lambda_pn_exp_array = lda_p.local_density_approximation(q_array_fine, 
+    #                                                           pmd.n_lambda_3S1_3S1)
+    # n_infty_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
+    #                                                          pmd.n_infty)
+    n_infty_p_exp_array = lda_p.local_density_approximation(q_array_fine, 
+                                                            pmd.n_single_particle)
+    n_infty_n_exp_array = lda_n.local_density_approximation(q_array_fine, 
+                                                            pmd.n_single_particle)
+    overall_factor = 4*np.pi * 2 * 1/(2*np.pi)**3
+    p_a_ipm_p = q_array_fine**2 * n_infty_p_exp_array / A * overall_factor
+    p_a_ipm_n = q_array_fine**2 * n_infty_n_exp_array / A * overall_factor
+    
+    # p_a_ipm = p_a_ipm_p + p_a_ipm_n
+    
+    # Split into four pp, pn, nn, np pieces
+    p_a_ipm_pp = p_a_ipm_p * (Z-1)/(A-1)
+    p_a_ipm_pn = p_a_ipm_p * N/(A-1)
+    p_a_ipm_np = p_a_ipm_n * Z/(A-1)
+    p_a_ipm_nn = p_a_ipm_n * (N-1)/(A-1)
+    
+    p_a_ipm = p_a_ipm_pp + p_a_ipm_pn + p_a_ipm_np + p_a_ipm_nn
+    
+    
+    # This is 4 \pi for d3p, 2 for spin sum, and 1/(2*\pi)^3 for converting
+    # from sums to integrals
+    print(np.sum(p_a_ipm*q_weights))
     
     plt.clf()
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
-    plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
-                  linestyle='dashdot', label=nucleus+' (pp)')  
-    plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
-                  linestyle='dashed', label=nucleus+' (nn)') 
-    plt.semilogy(q_array_fine, n_infty_pp_exp_array, color='green', 
-                  linestyle='dotted', label=nucleus+' (pp), unevolved')  
-    plt.semilogy(q_array_fine, n_lambda_pn_exp_array, color='black', 
-                  linestyle='solid', label=nucleus+' (pn)')  
-    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
-    plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^{-3}$' + ']')
+    # plt.semilogy(q_array_fine, n_lambda_pp_exp_array, color='blue', 
+    #               linestyle='dashdot', label=nucleus+' (pp)')  
+    # plt.semilogy(q_array_fine, n_lambda_nn_exp_array, color='red', 
+    #               linestyle='dashed', label=nucleus+' (nn)') 
+    # plt.semilogy(q_array_fine, n_infty_pp_exp_array, color='green', 
+    #               linestyle='dotted', label=nucleus+' (pp), unevolved')  
+    # plt.semilogy(q_array_fine, n_lambda_pn_exp_array, color='black', 
+    #               linestyle='solid', label=nucleus+' (pn)')  
+    # # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^3$' + ']')
+    # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>$' + ' [fm' + r'$^{-3}$' + ']')
     
     # plt.semilogy(q_array_fine, n_lambda_pp_exp_array*factor_array, 
     #              color='blue', linestyle='dashdot', label=nucleus+' (pp)')  
@@ -612,17 +651,32 @@ if __name__ == '__main__':
     # plt.semilogy(q_array_fine, n_lambda_pn_exp_array/factor_array,
     #               color='black', linestyle='solid', label=nucleus+' (pn)') 
     # plt.ylabel(r'$<n_{\lambda}^{NN}(q)>/(q^2 dq)$' + ' [unitless]')
+    
+    # plt.semilogy(q_array_fine, p_a_ipm_p, color='red', linestyle='dashdot', 
+    #              label=nucleus+' (p)')
+    # plt.semilogy(q_array_fine, p_a_ipm_n, color='blue', linestyle='dashed', 
+    #              label=nucleus+' (n)') 
+    plt.semilogy(q_array_fine, p_a_ipm_pp, color='red', linestyle='dashdot', 
+                 label=nucleus+' (pp)')
+    plt.semilogy(q_array_fine, p_a_ipm_nn, color='blue', linestyle='dashed', 
+                 label=nucleus+' (nn)')
+    plt.semilogy(q_array_fine, p_a_ipm_pn+p_a_ipm_np, color='green', linestyle='dotted', 
+                 label=nucleus+' (pn+np)') 
+    plt.semilogy(q_array_fine, p_a_ipm, color='black', label=nucleus+' (total)')
+    plt.ylabel(r'$P^A(p)$')
         
     # BUG TESTING 
     plt.xlim( [min(q_array_fine), 5] )
+    plt.ylim( [1e-3, 2e0])
     # plt.ylim( [1e-6, 1e1])
     # plt.xlim( [2, 5] )
-    plt.ylim( [1e-7, 1e2])
+    # plt.ylim( [1e-7, 1e2])
     plt.legend(loc=0, frameon=False)
-    plt.xlabel('q [fm' + r'$^{-1}$' + ']')
+    # plt.xlabel('q [fm' + r'$^{-1}$' + ']')
+    plt.xlabel('p [fm' + r'$^{-1}$' + ']')
     
-    plt.title('kvnn = %d, ' % kvnn + r'$\lambda=%.2f$' % lamb + 
-              ' [fm' + r'$^{-1}$' + ']')
+    # plt.title('kvnn = %d, ' % kvnn + r'$\lambda=%.2f$' % lamb + 
+    #           ' [fm' + r'$^{-1}$' + ']')
     plt.show()
     
     # # BUG TESTING
