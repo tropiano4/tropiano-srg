@@ -11,7 +11,7 @@ Description of each folder:
 
 * __Magnus__ contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See magnus_split.py for details.
 
-* __Notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the arXiv version of the operator evolution paper, candidacy paper, etc.)
+* __Notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the arXiv version of the operator evolution paper, candidacy paper, etc.) and notes taken on iPad.
 
 * __Old_codes__ stores all out-dated codes.
 
