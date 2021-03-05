@@ -44,6 +44,7 @@ import numpy as np
 from scipy.interpolate import RectBivariateSpline
 # Scripts made by A.T.
 from lda import load_density, LDA
+import observables as ob
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
@@ -538,6 +539,48 @@ class pair_momentum_distributions(object):
         else:
             
             return 0
+        
+    def n_deuteron(self, q, psi_vector_unitless):
+        
+        # Load momentum mesh, I, and delta_U from dictionary
+        k_array = self.d['3S1']['k_array']
+        k_weights = self.d['3S1']['k_weights']
+        ntot = self.d['3S1']['ntot']
+        I_matrix = self.d['3S1']['I']
+        delta_U_matrix = self.d['3S1']['delta_U']
+        
+        factor_array = np.sqrt(2/np.pi*k_weights) * k_array # fm^-3/2
+        
+        # Convert wave function to fm^3/2 and take only 3S1 part
+        psi_vector = psi_vector_unitless[:ntot] / factor_array
+        
+        # Find index of q
+        q_index = find_q_index(q, k_array)
+        
+        
+        # (in iPad): [ 1 + 1/2 2/\pi 1/(4*\pi) ( \delta U(q,q) +
+        # \delta U^\dagger(q,q) ) ] |\psi^\lambda_00(q)|^2 + 3/4 (2/\pi)^2 *
+        # 1/(4*\pi) \sum_L'=0,2 \int dk k^2 \delta U_0L'(k,q) *
+        # \delta U^\dagger_L'0(q,k) |\psi^\lambda_00(k)|^2
+        
+        # Low-q term
+        low_q_part = ( 1 + 0.5 * 2/np.pi * 1/(4*np.pi) * ( \
+                     delta_U_matrix[q_index, q_index] + \
+                     delta_U_matrix.T[q_index, q_index] ) ) * \
+                     psi_vector[q_index]**2
+        
+        # High-q term
+        high_q_part_factor = 3/4 * 2/np.pi * 1/(4*np.pi)
+        
+        # integration_measure = 2/np.pi * k_array**2 * k_weights
+        integration_measure = 1
+        
+        high_q_part_k = integration_measure * delta_U_matrix[:ntot, q_index] * \
+                        delta_U_matrix.T[q_index, :ntot] * psi_vector[:ntot]**2
+                        
+        high_q_part = high_q_part_factor * np.sum(high_q_part_k)
+        
+        return low_q_part, high_q_part
 
 
 if __name__ == '__main__':
@@ -546,8 +589,8 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    kmax, kmid, ntot = 10.0, 2.0, 120
-    # kmax, kmid, ntot = 30.0, 4.0, 120
+    # kmax, kmid, ntot = 10.0, 2.0, 120
+    kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     factor_array = 2/np.pi * q_weights * q_array**2
     
@@ -558,13 +601,13 @@ if __name__ == '__main__':
     # nuclei_list = ['O16', 8, 8]
     # nuclei_list = ['Ca40', 20, 20]
     # nuclei_list = ['Ca48', 20, 28]
-    nuclei_list = ['Pb208', 82, 126]
-    nucleus = nuclei_list[0]
-    Z = nuclei_list[1]
-    N = nuclei_list[2]
-    A = N + Z
-    r_array, rho_array_p = load_density(nucleus, 'proton', Z, N)
-    r_array, rho_array_n = load_density(nucleus, 'neutron', Z, N)
+    # nuclei_list = ['Pb208', 82, 126]
+    # nucleus = nuclei_list[0]
+    # Z = nuclei_list[1]
+    # N = nuclei_list[2]
+    # A = N + Z
+    # r_array, rho_array_p = load_density(nucleus, 'proton', Z, N)
+    # r_array, rho_array_n = load_density(nucleus, 'neutron', Z, N)
     
     # k_F_array = np.linspace(0.001, 1.8, 100)
     
@@ -577,8 +620,8 @@ if __name__ == '__main__':
     
     # No interpolation here
     # THIS WILL LIKELY CAUSE BUGS LATER: FIX!
-    lda_p = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_p)
-    lda_n = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_n)
+    # lda_p = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_p)
+    # lda_n = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_n)
     
     
     # --- Plot n_lambda_pair_exp for pp pairs --- #
@@ -595,28 +638,28 @@ if __name__ == '__main__':
     #                                                           pmd.n_lambda_3S1_3S1)
     # n_infty_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
     #                                                          pmd.n_infty)
-    n_infty_p_exp_array = lda_p.local_density_approximation(q_array_fine, 
-                                                            pmd.n_single_particle)
-    n_infty_n_exp_array = lda_n.local_density_approximation(q_array_fine, 
-                                                            pmd.n_single_particle)
-    overall_factor = 4*np.pi * 2 * 1/(2*np.pi)**3
-    p_a_ipm_p = q_array_fine**2 * n_infty_p_exp_array / A * overall_factor
-    p_a_ipm_n = q_array_fine**2 * n_infty_n_exp_array / A * overall_factor
+    # n_infty_p_exp_array = lda_p.local_density_approximation(q_array_fine, 
+    #                                                         pmd.n_single_particle)
+    # n_infty_n_exp_array = lda_n.local_density_approximation(q_array_fine, 
+    #                                                         pmd.n_single_particle)
+    # overall_factor = 4*np.pi * 2 * 1/(2*np.pi)**3
+    # p_a_ipm_p = q_array_fine**2 * n_infty_p_exp_array / A * overall_factor
+    # p_a_ipm_n = q_array_fine**2 * n_infty_n_exp_array / A * overall_factor
     
     # p_a_ipm = p_a_ipm_p + p_a_ipm_n
     
     # Split into four pp, pn, nn, np pieces
-    p_a_ipm_pp = p_a_ipm_p * (Z-1)/(A-1)
-    p_a_ipm_pn = p_a_ipm_p * N/(A-1)
-    p_a_ipm_np = p_a_ipm_n * Z/(A-1)
-    p_a_ipm_nn = p_a_ipm_n * (N-1)/(A-1)
+    # p_a_ipm_pp = p_a_ipm_p * (Z-1)/(A-1)
+    # p_a_ipm_pn = p_a_ipm_p * N/(A-1)
+    # p_a_ipm_np = p_a_ipm_n * Z/(A-1)
+    # p_a_ipm_nn = p_a_ipm_n * (N-1)/(A-1)
     
-    p_a_ipm = p_a_ipm_pp + p_a_ipm_pn + p_a_ipm_np + p_a_ipm_nn
+    # p_a_ipm = p_a_ipm_pp + p_a_ipm_pn + p_a_ipm_np + p_a_ipm_nn
     
     
     # This is 4 \pi for d3p, 2 for spin sum, and 1/(2*\pi)^3 for converting
     # from sums to integrals
-    print(np.sum(p_a_ipm*q_weights))
+    # print(np.sum(p_a_ipm*q_weights))
     
     plt.clf()
     
@@ -657,24 +700,60 @@ if __name__ == '__main__':
     #              label=nucleus+' (p)')
     # plt.semilogy(q_array_fine, p_a_ipm_n, color='blue', linestyle='dashed', 
     #              label=nucleus+' (n)') 
-    plt.semilogy(q_array_fine, p_a_ipm_pp, color='red', linestyle='dashdot', 
-                 label=nucleus+' (pp)')
-    plt.semilogy(q_array_fine, p_a_ipm_nn, color='blue', linestyle='dashed', 
-                 label=nucleus+' (nn)')
-    plt.semilogy(q_array_fine, p_a_ipm_pn+p_a_ipm_np, color='green', linestyle='dotted', 
-                 label=nucleus+' (pn+np)') 
-    plt.semilogy(q_array_fine, p_a_ipm, color='black', label=nucleus+' (total)')
-    plt.ylabel(r'$P^A(p)$')
+    # plt.semilogy(q_array_fine, p_a_ipm_pp, color='red', linestyle='dashdot', 
+    #              label=nucleus+' (pp)')
+    # plt.semilogy(q_array_fine, p_a_ipm_nn, color='blue', linestyle='dashed', 
+    #              label=nucleus+' (nn)')
+    # plt.semilogy(q_array_fine, p_a_ipm_pn+p_a_ipm_np, color='green', linestyle='dotted', 
+    #              label=nucleus+' (pn+np)') 
+    # plt.semilogy(q_array_fine, p_a_ipm, color='black', label=nucleus+' (total)')
+    # plt.ylabel(r'$P^A(p)$')
+    
+    
+    # --- use deuteron to check pair momentum distribution --- #
+    
+    # Load evolved wave function here (unitless)
+    H_initial = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot)
+    H_evolved = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot, 
+                                     method='srg', generator='Wegner', 
+                                     lamb=lamb)
+    U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
+    
+    psi_deuteron = ob.wave_function(H_initial, U=U_matrix_unitless)
+    
+    n_d_low_array = np.zeros(ntot)
+    n_d_high_array = np.zeros(ntot)
+    for iq, q in enumerate(q_array):
+        low_q, high_q = pmd.n_deuteron(q, psi_deuteron)
+        n_d_low_array[iq] = low_q
+        n_d_high_array[iq] = high_q
+    n_d_total_array = n_d_low_array + n_d_high_array
+    
+    # Correct momentum distribution for comparison
+    n_d_exact = ( ob.wave_function(H_initial)[:ntot]**2 + \
+                  ob.wave_function(H_initial)[ntot:]**2 ) / factor_array
+        
+    plt.semilogy(q_array_fine, n_d_total_array, color='black',
+                 linestyle='solid', label='total')
+    plt.semilogy(q_array_fine, n_d_low_array, color='blue', linestyle='dotted', 
+                 label='low-q part') 
+    plt.semilogy(q_array_fine, n_d_high_array, color='red', linestyle='dotted', 
+                 label='high-q part') 
+    plt.semilogy(q_array_fine, n_d_exact, color='green', linestyle='dashed', 
+                 label='exact') 
+    plt.ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
+        
+        
         
     # BUG TESTING 
-    plt.xlim( [min(q_array_fine), 5] )
-    plt.ylim( [1e-3, 2e0])
+    plt.xlim( [min(q_array_fine), 4] )
+    # plt.ylim( [1e-3, 2e0])
     # plt.ylim( [1e-6, 1e1])
     # plt.xlim( [2, 5] )
-    # plt.ylim( [1e-7, 1e2])
+    plt.ylim( [1e-5, 1e3])
     plt.legend(loc=0, frameon=False)
-    # plt.xlabel('q [fm' + r'$^{-1}$' + ']')
-    plt.xlabel('p [fm' + r'$^{-1}$' + ']')
+    plt.xlabel('q [fm' + r'$^{-1}$' + ']')
+    # plt.xlabel('p [fm' + r'$^{-1}$' + ']')
     
     # plt.title('kvnn = %d, ' % kvnn + r'$\lambda=%.2f$' % lamb + 
     #           ' [fm' + r'$^{-1}$' + ']')
