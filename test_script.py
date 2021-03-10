@@ -650,7 +650,8 @@ class pair_momentum_distributions(object):
                 #                     delta_U_matrix.T[ntot+q_index, j] ) * \
                 #                 psi_vector[j]
                 
-                # INCLUDE 3D1
+                # INCLUDE 3D1 (FORMAT IS GIVEN BELOW)
+                # \psi.T \delta_U \delta_U.T \psi
                 # 3S1 3S1-3S1 3S1-3S1 3S1
                 # 3S1 3S1-3D1 3D1-3S1 3S1
                 
