@@ -632,12 +632,12 @@ class pair_momentum_distributions(object):
                                  delta_U_matrix[ntot+i, ntot+q_index] * \
                                  psi_vector[ntot+q_index] )
             
-            third_term += 2/np.pi * k**2 * k_weights[i] * ( \
-                          psi_vector.T[q_index] * delta_U_matrix.T[q_index, i] * \
-                               psi_vector[i] + \
-                          psi_vector.T[ntot+q_index] * \
-                               delta_U_matrix.T[ntot+q_index, i+ntot] * \
-                               psi_vector[i+ntot] )
+            # third_term += 2/np.pi * k**2 * k_weights[i] * ( \
+            #               psi_vector.T[q_index] * delta_U_matrix.T[q_index, i] * \
+            #                     psi_vector[i] + \
+            #               psi_vector.T[ntot+q_index] * \
+            #                     delta_U_matrix.T[ntot+q_index, i+ntot] * \
+            #                     psi_vector[i+ntot] )
             
             for j, kp in enumerate(k_array):
                 
@@ -692,6 +692,8 @@ class pair_momentum_distributions(object):
                                     delta_U_matrix[i+ntot, ntot+q_index] * \
                                     delta_U_matrix.T[ntot+q_index, j+ntot] ) * \
                                 psi_vector[j+ntot] )
+                                    
+        third_term = second_term
                                     
         # low_q_part = first_term + second_term + third_term
         # high_q_part = fourth_term
@@ -899,6 +901,22 @@ if __name__ == '__main__':
     print('<n_d(q)> = %.5e' % n_d_total_array[0])
     print('Exact = %.5e' % n_d_exact[0])
     print('Ratio = %.5f' % ( n_d_total_array[0] / n_d_exact[0] ) )
+    
+    print('')
+    
+    q_index = find_q_index(1, q_array)
+    print('q=%.5f'%q_array[q_index])
+    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
+    print('Exact = %.5e' % n_d_exact[q_index])
+    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
+    
+    print('')
+    
+    q_index = find_q_index(1.5, q_array)
+    print('q=%.5f'%q_array[q_index])
+    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
+    print('Exact = %.5e' % n_d_exact[q_index])
+    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
     
     print('')
     
