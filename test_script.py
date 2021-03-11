@@ -40,12 +40,14 @@
 
 from os import getcwd, chdir
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 # Scripts made by A.T.
+import Figures.figures_functions as ff
 from lda import load_density, LDA
 import observables as ob
-from operators import find_q_index
+from operators import find_q_index, momentum_projection_operator
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
@@ -546,7 +548,6 @@ class pair_momentum_distributions(object):
         k_array = self.d['3S1']['k_array']
         k_weights = self.d['3S1']['k_weights']
         ntot = self.d['3S1']['ntot']
-        # I_matrix_unitless = self.d['3S1']['I']
         delta_U_matrix_unitless = self.d['3S1']['delta_U']
         
         factor_array = np.sqrt(2/np.pi*k_weights) * k_array # fm^-3/2
@@ -556,11 +557,26 @@ class pair_momentum_distributions(object):
         factor_array_long = np.concatenate( (factor_array, factor_array) )
         row, col = np.meshgrid(factor_array_long, factor_array_long)
         
+        
+        # # USE MOMENTUM PROJECTION OPERATOR HERE
+        # # units are fm^3
+        # bare_operator = momentum_projection_operator(q, k_array, k_weights, 
+        #                                              '3S1', smeared=False)
+        
+        # I_matrix_unitless = self.d['3S1']['I']
+        # psi_vector = psi_vector_unitless
+        # first_term = psi_vector.T @ I_matrix_unitless @ bare_operator @ \
+        #              I_matrix_unitless @ psi_vector
+        # second_term = psi_vector.T @ delta_U_matrix_unitless @ \
+        #               bare_operator @ I_matrix_unitless @ psi_vector
+        # third_term = second_term
+        # fourth_term = psi_vector.T @ delta_U_matrix_unitless @ \
+        #               bare_operator @ delta_U_matrix_unitless.T @ \
+        #               psi_vector
+                     
         # Make delta_U and psi have units
         # fm^3 and dimensions 2*ntot, 2*ntot
         delta_U_matrix = delta_U_matrix_unitless / row / col
-        # # Convert wave function to fm^3/2 and take only 3S1 part
-        # psi_vector = psi_vector_unitless[:ntot] / factor_array
         # Convert wave function to fm^3/2
         psi_vector = psi_vector_unitless / factor_array_long
         
@@ -569,7 +585,7 @@ class pair_momentum_distributions(object):
         
         # First term
         # first_term = psi_vector[q_index]**2 # fm^3
-        # INCLUDE 3D1
+        # 3S1^2 + 3D1^2
         first_term = psi_vector[q_index]**2 + psi_vector[ntot+q_index]**2
         
         # This is incorrect at the moment (@ operator not doing what you
@@ -599,58 +615,28 @@ class pair_momentum_distributions(object):
         fourth_term = 0
         for i, k in enumerate(k_array):
             
-            # I think I'm getting negative numbers here? 
-            # Take \psi to be positive??
-            # second_term += 2/np.pi * k_array[i]**2 * k_weights[i] * \
-            #                 abs( psi_vector.T[i] * delta_U_matrix[i, q_index] * \
-            #                 psi_vector[q_index] )
-            
-            # third_term += 2/np.pi * k_array[i]**2 * k_weights[i] * \
-            #               abs( psi_vector.T[q_index] * delta_U_matrix.T[q_index, i] * \
-            #               psi_vector[i] )
-            
-            # # INCLUDE 3D1
-            # second_term += 2/np.pi * k**2 * k_weights[i] * ( \
-            #                 abs( psi_vector.T[i] * delta_U_matrix[i, q_index] * \
-            #                      psi_vector[q_index] ) + \
-            #                 abs( psi_vector.T[ntot+i] * \
-            #                      delta_U_matrix[ntot+i, ntot+q_index] * \
-            #                      psi_vector[ntot+q_index] ) )   
-            
-            # third_term += 2/np.pi * k**2 * k_weights[i] * ( \
-            #               abs( psi_vector.T[q_index] * delta_U_matrix.T[q_index, i] * \
-            #                    psi_vector[i] ) + \
-            #               abs( psi_vector.T[ntot+q_index] * \
-            #                    delta_U_matrix.T[ntot+q_index, i+ntot] * \
-            #                    psi_vector[i+ntot] ) )
-            
-            # INCLUDE 3D1
+            # 3S1 3S1-3S1 3S1
+            # 3S1 3S1-3D1 3D1
+            # 3D1 3D1-3S1 3S1
+            # 3D1 3D1-3D1 3D1
             second_term += 2/np.pi * k**2 * k_weights[i] * ( \
                             psi_vector.T[i] * delta_U_matrix[i, q_index] * \
-                                 psi_vector[q_index] + \
+                            psi_vector[q_index] + \
+                                
+                            psi_vector.T[i] * \
+                            delta_U_matrix[i, ntot+q_index] * \
+                            psi_vector[ntot+q_index] + \
+                            
                             psi_vector.T[ntot+i] * \
-                                 delta_U_matrix[ntot+i, ntot+q_index] * \
-                                 psi_vector[ntot+q_index] )
-            
-            # third_term += 2/np.pi * k**2 * k_weights[i] * ( \
-            #               psi_vector.T[q_index] * delta_U_matrix.T[q_index, i] * \
-            #                     psi_vector[i] + \
-            #               psi_vector.T[ntot+q_index] * \
-            #                     delta_U_matrix.T[ntot+q_index, i+ntot] * \
-            #                     psi_vector[i+ntot] )
-            
+                            delta_U_matrix[ntot+i, q_index] * \
+                            psi_vector[q_index] + \
+                            
+                            psi_vector.T[ntot+i] * \
+                            delta_U_matrix[ntot+i, ntot+q_index] * \
+                            psi_vector[ntot+q_index] )
+
             for j, kp in enumerate(k_array):
                 
-                # fourth_term +=  (2/np.pi)**2 * k**2 * k_weights[i] *\
-                #                 kp**2 * k_weights[j] * \
-                #                 psi_vector.T[i] * ( 
-                #                     delta_U_matrix[i, q_index] * \
-                #                     delta_U_matrix.T[q_index, j] +
-                #                     delta_U_matrix[i, ntot+q_index] * \
-                #                     delta_U_matrix.T[ntot+q_index, j] ) * \
-                #                 psi_vector[j]
-                
-                # INCLUDE 3D1 (FORMAT IS GIVEN BELOW)
                 # \psi.T \delta_U \delta_U.T \psi
                 # 3S1 3S1-3S1 3S1-3S1 3S1
                 # 3S1 3S1-3D1 3D1-3S1 3S1
@@ -782,6 +768,7 @@ if __name__ == '__main__':
     # print(np.sum(p_a_ipm*q_weights))
     
     plt.clf()
+    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
@@ -863,79 +850,31 @@ if __name__ == '__main__':
     n_d_exact = ( ob.wave_function(H_initial)[:ntot]**2 + \
                   ob.wave_function(H_initial)[ntot:]**2 ) / factor_array
         
-    plt.semilogy(q_array_fine, n_d_total_array, color='black',
+    ax.semilogy(q_array_fine, n_d_total_array, color='black',
                  linestyle='solid', label='total')
-    # plt.semilogy(q_array_fine, n_d_low_array, color='blue', linestyle='dotted', 
-    #              label='low-q part') 
-    # plt.semilogy(q_array_fine, n_d_high_array, color='red', linestyle='dotted', 
-    #              label='high-q part') 
-    plt.semilogy(q_array_fine, n_d_1, color='blue', linestyle='dotted', 
+    ax.semilogy(q_array_fine, n_d_1, color='blue', linestyle='dotted', 
                  label='First term') 
-    plt.semilogy(q_array_fine, n_d_23, color='purple', linestyle='dotted', 
-                 label='Second+Third Term') 
-    plt.semilogy(q_array_fine, n_d_4, color='red', linestyle='dotted', 
+    ax.semilogy(q_array_fine, abs(n_d_23), color='purple', linestyle='dotted', 
+                 label='|Second+Third Term|') 
+    ax.semilogy(q_array_fine, n_d_4, color='red', linestyle='dotted', 
                  label='Fourth Term') 
-    plt.semilogy(q_array_fine, n_d_exact, color='green', linestyle='dashed', 
+    ax.semilogy(q_array_fine, n_d_exact, color='green', linestyle='dashed', 
                  label='exact') 
-    plt.ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
+    ax.set_ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
         
         
         
     # BUG TESTING 
-    plt.xlim( [min(q_array_fine), 4] )
-    # plt.ylim( [1e-3, 2e0])
-    # plt.ylim( [1e-6, 1e1])
-    # plt.xlim( [2, 5] )
-    # plt.ylim( [1e-5, 1e3])
-    plt.ylim( [1e-5, 1e3])
-    plt.legend(loc=0, frameon=False)
-    plt.xlabel('q [fm' + r'$^{-1}$' + ']')
-    # plt.xlabel('p [fm' + r'$^{-1}$' + ']')
+    ax.set_xlim( [min(q_array_fine), 4] )
+    ax.set_ylim( [1e-5, 1e3])
+    ax.legend(loc=0, frameon=False)
+    ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
-    # plt.title('kvnn = %d, ' % kvnn + r'$\lambda=%.2f$' % lamb + 
-    #           ' [fm' + r'$^{-1}$' + ']')
+    lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
+    lambda_label_location = 'center right'
+    
+    anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
+                                 frameon=False)
+    ax.add_artist(anchored_text)
+
     plt.show()
-    
-    # Print numbers at k = 0 fm^-1, 2 fm^-1, and 4 fm^-1
-    print('q=%.5f'%q_array[0])
-    print('<n_d(q)> = %.5e' % n_d_total_array[0])
-    print('Exact = %.5e' % n_d_exact[0])
-    print('Ratio = %.5f' % ( n_d_total_array[0] / n_d_exact[0] ) )
-    
-    print('')
-    
-    q_index = find_q_index(1, q_array)
-    print('q=%.5f'%q_array[q_index])
-    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
-    print('Exact = %.5e' % n_d_exact[q_index])
-    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
-    
-    print('')
-    
-    q_index = find_q_index(1.5, q_array)
-    print('q=%.5f'%q_array[q_index])
-    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
-    print('Exact = %.5e' % n_d_exact[q_index])
-    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
-    
-    print('')
-    
-    q_index = find_q_index(2, q_array)
-    print('q=%.5f'%q_array[q_index])
-    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
-    print('Exact = %.5e' % n_d_exact[q_index])
-    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
-    
-    print('')
-    
-    q_index = find_q_index(4, q_array)
-    print('q=%.5f'%q_array[q_index])
-    print('<n_d(q)> = %.5e' % n_d_total_array[q_index])
-    print('Exact = %.5e' % n_d_exact[q_index])
-    print('Ratio = %.5f' % ( n_d_total_array[q_index] / n_d_exact[q_index] ) )
-    
-    # NOTE
-    # AV18 \psi(k) ~ 12.76 fm^3/2 at 0 fm^-1
-    # -> |\psi(0)|^2 ~ 162 fm^3
-    # But multiplying by np.pi/2 gives ~ 255 fm^3 which is what you have for
-    # your exact result (kind of mesh dependent)
