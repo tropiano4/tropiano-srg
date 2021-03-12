@@ -836,7 +836,7 @@ if __name__ == '__main__':
     #     n_d_high_array[iq] = high_q
     # n_d_total_array = n_d_low_array + n_d_high_array
     
-    n_d_1= np.zeros(ntot)
+    n_d_1 = np.zeros(ntot)
     n_d_23 = np.zeros(ntot)
     n_d_4 = np.zeros(ntot)
     for iq, q in enumerate(q_array):
