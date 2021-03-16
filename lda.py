@@ -131,7 +131,7 @@ class LDA(object):
         # k_F_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
         
         # pn pair: Two k_F values in this case
-        if distribution_type == 'pn':
+        if distribution_type in ['pn', 'p', 'n']:
             
             rho_p_array = self.rho_p_array
             rho_n_array = self.rho_n_array
@@ -151,13 +151,14 @@ class LDA(object):
                     kFn = kFn_array[j]
                     function_array[j] = func_q(q, kFp, kFn)
                     
-                expectation_values[i] = dr*np.sum( r2_array * function_array )
+                expectation_values[i] = 4*np.pi*dr * \
+                                        np.sum( r2_array * function_array )
         
         else:
             
-            if distribution_type == 'pp' or distribution_type == 'p':
+            if distribution_type == 'pp':
                 rho_array = self.rho_p_array
-            elif distribution_type == 'nn' or distribution_type == 'n':
+            elif distribution_type == 'nn':
                 rho_array = self.rho_n_array
                 
             kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
@@ -171,7 +172,8 @@ class LDA(object):
 
                     function_array[j] = func_q(q, kF)
                     
-                expectation_values[i] = dr*np.sum( r2_array * function_array )
+                expectation_values[i] = 4*np.pi*dr * \
+                                        np.sum( r2_array * function_array )
   
         return expectation_values
     
