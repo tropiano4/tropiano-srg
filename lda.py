@@ -71,122 +71,47 @@ def load_density(nucleus, nucleon, Z, N):
 class LDA(object):
     
     
-    def __init__(self, function, function_name, kvnn, r_array, rho_array, 
-                 create_table=False, q_array=None, k_F_array=None):
+    def __init__(self, r_array, rho_p_array, rho_n_array):
         """
         Description.
         
         Parameters
         ----------
-        function : func
-            Function dependent on q [fm^-1] and k_F [fm^-1].
-        function_name : str
-            Name of the function for file writing/loading purposes.
-        kvnn : int
-            This number specifies the potential. (We're assuming the function
-            will depend on some NN potential.)
         r_array : 1-D ndarray
             Coordinates array [fm].
-        rho_array : 1-D ndarray
-            Nucleonic density as a function of r [# of nucleons / vol].
-        create_table : bool, opt
-            Option to create table for the given function with respect to q
-            and k_F. Default is False.
-        q_array : 1-D ndarray, opt
-            Momentum values [fm^-1]. Default is None (assuming table is
-            already created).
-        k_F_array : 1-D ndarray, opt
-            Fermi momentum values [fm^-1]. Default is None (assuming table is
-            already created).
+        rho_p_array : 1-D ndarray
+            Proton density as a function of r [# of nucleons / vol].
+        rho_n_array : 1-D ndarray
+            Neutron density as a function of r [# of nucleons / vol].
 
         """
-        
-        # Save the function
-        self.function = function
-        
-        # Save the name of the function and kvnn
-        self.function_name = function_name
-        self.kvnn = kvnn
         
         # Save the nucleonic densities and coordinates
         self.r_array = r_array
-        self.rho_array = rho_array
-        
-        # # Create the relevant tables for interpolation
-        # if create_table:
-            
-        #     self.create_table(q_array, k_F_array)
-            
-        # # Load interpolated function for LDA calculation
-        # self.load_table()
-
-    
-    def create_table(self, q_array, k_F_array):
-        """
-        Create a table of the function for interpolation over q and k_F.
-    
-        Parameters
-        ----------
-        q_array : 1-D ndarray
-            Momentum values [fm^-1].
-        k_F_array : 1-D ndarray
-            Fermi momentum values [fm^-1].
-        
-        """
-        
-        # Write table in txt file
-        f = open( '%s_kvnn_%d.txt' % (self.function_name, self.kvnn), 'w' )
-        g = open( 'q_table_kvnn_%d.txt' % self.kvnn, 'w' )
-        h = open( 'k_F_table_kvnn_%d.txt' % self.kvnn, 'w' )
-        
-        for i, q in enumerate(q_array):
-            for j, k_F in enumerate(k_F_array):
-                f.write( '{:<16.5e}'.format( self.function(q, k_F) ) )
-                if i == 0:
-                    h.write('%.5f\n'%k_F)
-            g.write('%.5f\n'%q)
-            f.write('\n')
-            
-        f.close()
-        g.close()
-        h.close()
-    
-
-    def load_table(self):
-        """
-        Set the interpolated version of f(q, k_F).
-
-        """
-
-        function_table = np.loadtxt( '%s_kvnn_%d.txt' % (self.function_name, 
-                                                     self.kvnn) )
-        q_array = np.loadtxt( 'q_table_kvnn_%d.txt' % self.kvnn )
-        k_F_array = np.loadtxt( 'k_F_table_kvnn_%d.txt' % self.kvnn )
-        
-        function_int = RectBivariateSpline(q_array, k_F_array, function_table)
-        
-        # This is an interpolated version of the function for various q and 
-        # k_F values
-        self.function_int = function_int
+        self.rho_p_array = rho_p_array
+        self.rho_n_array = rho_n_array
         
 
     # BUG TESTING
-    def local_density_approximation(self, q_array, func_q_k_F):
+    def local_density_approximation(self, q_array, func_q, distribution_type):
     #def local_density_approximation(self, q_array):
         """
         Evaluates nuclear-averaged expectation value of the function at a
-        range of q values.
+        range of q values. Function depends on Fermi momentum for protons and
+        neutrons.
     
         Parameters
         ----------
         q : 1-D ndarray
             High momentum values [fm^-1].
+        func_q : func
+            Function that depends on q and, possibly more than 1, k_F.
 
         Returns
         -------
         expectation_values : 1-D ndarray
             Array of expectation values of the the function evaluated at each
-            relative momentum q.
+            momentum q.
             
         """
         
@@ -194,7 +119,6 @@ class LDA(object):
     
         # Load coordinates and nucleonic density
         r_array = self.r_array
-        rho_array = self.rho_array
         # Number of r_array points
         N = len(r_array)
         
@@ -205,28 +129,50 @@ class LDA(object):
         # \rho(r) = ( 2*k_F(r)^3 ) / ( 3 \pi^2 ) for nucleons (g=4)
         # Evaluate k_F at each point in r_array
         # k_F_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
-        k_F_array = ( 3*np.pi**2 * rho_array )**(1/3)
         
-        expectation_values = np.zeros(M)
-        for i, q in enumerate(q_array):
-    
-            # Now evaluate f(q, k_F) at each point in q_array and k_F_array
-            function_array = np.zeros(N)
-            for j, k_F in enumerate(k_F_array):
-                # BUG TESTING
-                #function_array[j] = self.function_int(q, k_F)
-                function_array[j] = func_q_k_F(q, k_F)
-        
-            # Integrate over r
-            # integrand = dr * r2_array * function_array * rho_array
-            # numerator = 4*np.pi * np.sum(integrand)
-            # # Factor of 4*\pi cancels out
-            # expectation_values[i] = numerator / denominator
+        # pn pair: Two k_F values in this case
+        if distribution_type == 'pn':
             
-            # expectation_values[i] = 4*np.pi * np.sum( dr * r2_array * \
-            #                         function_array * rho_array )
-            expectation_values[i] = 4*np.pi * np.sum( dr * r2_array * function_array )
+            rho_p_array = self.rho_p_array
+            rho_n_array = self.rho_n_array
+            
+            kFp_array = ( 3*np.pi**2 * rho_p_array )**(1/3)
+            kFn_array = ( 3*np.pi**2 * rho_n_array )**(1/3)
+        
+            expectation_values = np.zeros(M)
+            for i, q in enumerate(q_array):
+    
+                # Now evaluate f(q, kFp, kFn) at each point in q_array and 
+                # kF_proton, kF_neutron
+                function_array = np.zeros(N)
+                for j in range(N):
+
+                    kFp = kFp_array[j]
+                    kFn = kFn_array[j]
+                    function_array[j] = func_q(q, kFp, kFn)
+                    
+                expectation_values[i] = dr*np.sum( r2_array * function_array )
+        
+        else:
+            
+            if distribution_type == 'pp' or distribution_type == 'p':
+                rho_array = self.rho_p_array
+            elif distribution_type == 'nn' or distribution_type == 'n':
+                rho_array = self.rho_n_array
                 
+            kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
+
+            expectation_values = np.zeros(M)
+            for i, q in enumerate(q_array):
+    
+                # Now evaluate f(q, kF) at each point in q_array and kF
+                function_array = np.zeros(N)
+                for j, kF in enumerate(kF_array):
+
+                    function_array[j] = func_q(q, kF)
+                    
+                expectation_values[i] = dr*np.sum( r2_array * function_array )
+  
         return expectation_values
     
     
