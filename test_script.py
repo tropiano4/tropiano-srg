@@ -41,12 +41,13 @@
 
 
 # Description of this test:
-#   Calculate n_{\lambda}(q, Q=0) for different nuclei using LDA.
+#   Calculate n_{\lambda}(q) for different nuclei using LDA.
 
 
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
+from numpy.polynomial.legendre import leggauss
 # Scripts made by A.T.
 from lda import load_density, LDA
 from operators import find_q_index
@@ -121,6 +122,13 @@ class pair_momentum_distributions(object):
             d[channel]['I'] = I_matrix # [fm^3]
             d[channel]['delta_U'] = delta_U_matrix # [fm^3]
             
+        # Create mesh for integration over angles
+        angle_points_num = 10
+        x_array, x_weights = leggauss(angle_points_num) # Interval [-1,1]
+        d['angle_points_num'] = angle_points_num
+        d['x_array'] = x_array
+        d['x_weights'] = x_weights
+            
         # Save dictionary
         self.d = d
         
@@ -186,44 +194,51 @@ class pair_momentum_distributions(object):
         return low_q_contribution + high_q_contribution
             
     
-    def n_infty(self, q, k_F):
+    def n_lambda_N(self, q, kF_1, kF_2):
+        # don't forget docstring
+        # kF_1: Fermi momentum for nucleon N
+        # kF_2 : Fermi momentum for opposite nucleon (so if you specified
+        # a proton distribution then Np refers to a neutron)
         
-        # Load momentum mesh, I, and delta_U from dictionary
+        # Load momentum mesh and SRG transformation for 1S0 and 3S1-3D1 
+        # channels
+        
+        # The momentum mesh is the same for 1S0 and 3S1-3D1
         k_array = self.d['1S0']['k_array']
         k_weights = self.d['1S0']['k_weights']
         ntot = self.d['1S0']['ntot']
         
-        # Create bare operator here
-        # n(q, Q) = \pi / (2 w_q q^2) *  1 / (4 \pi w_Q Q^2) [fm^6]
+        deltaU_1S0 = self.d['1S0']['delta_U'] # fm^3
+        deltaU_3S1 = self.d['3S1']['delta_U'] # fm^3
         
         # Find index of q in k_array
-        deltas_array = np.zeros(ntot)
         q_index = find_q_index(q, k_array)
-        deltas_array[q_index] = 1 
-        # factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array * \
-        #                np.sqrt(4*np.pi*k_weights) * k_array # [fm^-3]
-        factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array # [fm^-3/2]
-        deltas_array /= factor_array
-        operator_row, operator_col = np.meshgrid(deltas_array, deltas_array)
-        # operator = operator_row * operator_col
-        # operator_qq = operator[q_index, q_index]
-        operator_qq = 1
         
-    
-        if q <= k_F:
-            
-            x = q/k_F
-            
-            overall_factor = 8*4*np.pi/3*k_F**3 # fm^-3
-            # overall_factor = 1
-            x_part = 1-3/2*x+x**3/2 # unitless
-            
-            return overall_factor * x_part * operator_qq
-            # 02/16/21: currently [fm^-3]
+        # Common factors
+        integration_k_measure = 2/np.pi * k_weights * k_array**2
+
+        # Split into low- and high-q terms
         
-        else:
+        # Low-q terms
+        # Term 1: 1 * n(q) * 1
+        # Term 2: \deltaU * n(q) * 1
+        # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
+        
+        # The first three terms have \theta(kF_1 - q)
+        if q < kF_1:
             
-            return 0
+            first_term = 2
+            
+            integrand23_k_x = integration_k_measure * 
+            
+            second_term = 2/np.pi
+        
+        
+        
+        
+        
+        return None
+
 
 
 if __name__ == '__main__':
@@ -260,9 +275,10 @@ if __name__ == '__main__':
     
     # --- Calculate pair momentum distributions --- #
     n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
-                                                  'pp' ) * (Z-1)/(A-1)
+                                                  'pp' )
     
     ### BUG TESTING ###
+    # n_pp_array *= (Z-1)/(A-1)
     # n_pp_array /= factor_array
     # n_pp_array *= factor_array
     
