@@ -45,11 +45,11 @@ from lda import load_density, LDA
 from Potentials.vsrg_macos import vnn
 
 
-def n_single_particle(q, k_F):
+def n_single_particle(q, kF1, kF2):
         
     # This should just be \theta(k_F-p)
         
-    if q <= k_F:
+    if q <= kF1:
             
         return 1
         
@@ -59,6 +59,9 @@ def n_single_particle(q, k_F):
 
 
 if __name__ == '__main__':
+    
+    
+    # BUG: this doesn't work for asymmetric nuclei properly
 
     
     # --- Set up --- #
@@ -73,8 +76,8 @@ if __name__ == '__main__':
 
     # Details of example nuclei (format is [nuclei, Z, N])
     # nuclei_list = ['O16', 8, 8]
-    nuclei_list = ['Ca40', 20, 20]
-    # nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Ca40', 20, 20]
+    nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
@@ -94,7 +97,7 @@ if __name__ == '__main__':
     n_infty_n_exp_array = lda.local_density_approximation( q_array, 
                           n_single_particle, 'n' )
     
-    overall_factor = (4*np.pi)**2 * 2 * 1/(2*np.pi)**3
+    overall_factor = 4*np.pi * 2 * 1/(2*np.pi)**3
     
     p_a_ipm_p = q_array**2 * n_infty_p_exp_array / A * overall_factor
     p_a_ipm_n = q_array**2 * n_infty_n_exp_array / A * overall_factor
