@@ -52,12 +52,6 @@ from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
-#### TO DO ####
-# 1. Just put the n_lambda_1S0, ... functions here
-# 2. 1S0 (pp and nn) 1S0 (pn) 3S1-3S1 (pn) and 3S1-3D1 (pn) 1S0 (nn) 
-#    contributions next
-
-
 class pair_momentum_distributions(object):
     
     
@@ -114,20 +108,81 @@ class pair_momentum_distributions(object):
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
             
             # Store both matrices in the dictionary
-            d[channel]['I'] = I_matrix_unitless
-            d[channel]['delta_U'] = delta_U_matrix_unitless
+            # d[channel]['I'] = I_matrix_unitless
+            # d[channel]['delta_U'] = delta_U_matrix_unitless
             
             # U_matrix = U_matrix_unitless / row / col
-            # I_matrix = I_matrix_unitless / row / col
-            # delta_U_matrix = delta_U_matrix_unitless / row / col
+            I_matrix = I_matrix_unitless / row / col
+            delta_U_matrix = delta_U_matrix_unitless / row / col
             
-            # # Store both matrices in the dictionary
-            # d[channel]['I'] = I_matrix # [fm^3]
-            # d[channel]['delta_U'] = delta_U_matrix # [fm^3]
+            # Store both matrices in the dictionary
+            d[channel]['I'] = I_matrix # [fm^3]
+            d[channel]['delta_U'] = delta_U_matrix # [fm^3]
             
         # Save dictionary
         self.d = d
         
+    
+    def n_lambda_pp(self, q, k_F):
+        # don't forget docstring
+        # should be option somewhere to angle-average or set Q=0
+        
+        # Load momentum mesh, I, and delta_U from dictionary
+        k_array = self.d['1S0']['k_array']
+        k_weights = self.d['1S0']['k_weights']
+        ntot = self.d['1S0']['ntot']
+        #I_matrix = self.d['1S0']['I']
+        delta_U_matrix = self.d['1S0']['delta_U'] # fm^3
+        
+        # Find index of q in k_array
+        q_index = find_q_index(q, k_array)
+        weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
+        
+        # T = 1, M_T = 1/2 + 1/2 = 1
+        
+        # Only one k_F in this case
+        
+        # First three terms (combining second and third into one term linear
+        # in \delta U)
+        if q < k_F:
+            
+            # Factor of 2 for sum over \sigma and \sigma', units fm^3
+            #first_term = 2 / weight
+            first_term = 2
+            # Units fm^3
+            middle_terms = 2 / np.pi * delta_U_matrix[q_index, q_index]
+            
+            low_q_contribution = first_term + middle_terms
+            
+        else:
+            
+            low_q_contribution = 0
+            
+        # Fourth term
+        
+        # Index of where to stop the integral in the momentum mesh k_array
+        k_F_cutoff = find_q_index(k_F, k_array)
+        if k_array[k_F_cutoff] > k_F:
+            k_F_cutoff -= 1 # Prevents overshooting
+            
+        # fourth_term_integrand = delta_U_matrix[:ntot, q_index] * \
+        #                         delta_U_matrix.T[q_index, :ntot]
+        # # Integration measure 2/\pi k^2 dk is implicitly in the delta_U's here
+
+        # high_q_contribution = 1/4 * 2/np.pi * \
+        #                       np.sum( fourth_term_integrand[:k_F_cutoff+1] )
+        
+        fourth_term_integrand = 2/np.pi * k_array**2 * k_weights * \
+                                delta_U_matrix[:ntot, q_index] * \
+                                delta_U_matrix.T[q_index, :ntot]
+        
+        high_q_contribution = 1/4 * 2/np.pi * \
+                              np.sum( fourth_term_integrand[:k_F_cutoff+1] )
+                              
+        # return low_q_contribution
+        # return high_q_contribution
+        return low_q_contribution + high_q_contribution
+            
         
     def n_lambda_1S0(self, q, k_F, pair='pp'):
         """
@@ -692,11 +747,13 @@ class pair_momentum_distributions(object):
 if __name__ == '__main__':
 
     
+    # --- Set up --- #
+    
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    kmax, kmid, ntot = 10.0, 2.0, 120
-    # kmax, kmid, ntot = 30.0, 4.0, 120
+    # kmax, kmid, ntot = 10.0, 2.0, 120
+    kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     factor_array = 2/np.pi * q_weights * q_array**2
     
@@ -704,36 +761,38 @@ if __name__ == '__main__':
     pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
-    # nuclei_list = ['O16', 8, 8]
+    nuclei_list = ['O16', 8, 8]
     # nuclei_list = ['Ca40', 20, 20]
     # nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
-    # nucleus = nuclei_list[0]
-    # Z = nuclei_list[1]
-    # N = nuclei_list[2]
-    # A = N + Z
-    # r_array, rho_array_p = load_density(nucleus, 'proton', Z, N)
-    # r_array, rho_array_n = load_density(nucleus, 'neutron', Z, N)
+    nucleus = nuclei_list[0]
+    Z = nuclei_list[1]
+    N = nuclei_list[2]
+    A = N + Z
+    r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+    r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
     
-    # k_F_array = np.linspace(0.001, 1.8, 100)
+    # Call LDA class
+    lda = LDA(r_array, rho_p_array, rho_n_array)
     
-    # --- Write the relevant tables --- #
-    # Comment this out when you're done
-    # Load LDA class and input pair momentum distribution function
-    # lda = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array, 
-    #           True, q_array, k_F_array)
-    # GET RID OF INTERPOLATION
     
-    # No interpolation here
-    # THIS WILL LIKELY CAUSE BUGS LATER: FIX!
-    # lda_p = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_p)
-    # lda_n = LDA(pmd.n_lambda_1S0, 'n_lambda_1S0', kvnn, r_array, rho_array_n)
+    # --- Calculate pair momentum distributions --- #
+    n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
+                                                  'pp' ) * (Z-1)/(A-1)
+    
+    ### BUG TESTING ###
+    # n_pp_array /= factor_array
+    # n_pp_array *= factor_array
     
     
     # --- Plot n_lambda_pair_exp for pp pairs --- #
     
-    # q_array_fine = np.linspace(0.01, 6.0, 1000)
-    q_array_fine = q_array
+    plt.clf()
+    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
+    
+    plt.semilogy(q_array, n_pp_array, color='blue', linestyle='dashdot',
+                 label=nucleus+' (pp)')
+    plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' [fm' + r'$^{6}$' + ']')
 
     # BUG TESTING
     # n_lambda_pp_exp_array = lda_p.local_density_approximation(q_array_fine, 
@@ -766,9 +825,6 @@ if __name__ == '__main__':
     # This is 4 \pi for d3p, 2 for spin sum, and 1/(2*\pi)^3 for converting
     # from sums to integrals
     # print(np.sum(p_a_ipm*q_weights))
-    
-    plt.clf()
-    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
     
     # plt.plot(q_array_fine, n_lambda_pair_exp_array, label=nucleus)
     
@@ -819,14 +875,14 @@ if __name__ == '__main__':
     
     # --- use deuteron to check pair momentum distribution --- #
     
-    # Load evolved wave function here (unitless)
-    H_initial = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot)
-    H_evolved = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot, 
-                                     method='srg', generator='Wegner', 
-                                     lamb=lamb)
-    U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
+    # # Load evolved wave function here (unitless)
+    # H_initial = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot)
+    # H_evolved = vnn.load_hamiltonian(kvnn, '3S1', kmax, kmid, ntot, 
+    #                                  method='srg', generator='Wegner', 
+    #                                  lamb=lamb)
+    # U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
     
-    psi_deuteron = ob.wave_function(H_initial, U=U_matrix_unitless)
+    # psi_deuteron = ob.wave_function(H_initial, U=U_matrix_unitless)
     
     # n_d_low_array = np.zeros(ntot)
     # n_d_high_array = np.zeros(ntot)
@@ -836,45 +892,42 @@ if __name__ == '__main__':
     #     n_d_high_array[iq] = high_q
     # n_d_total_array = n_d_low_array + n_d_high_array
     
-    n_d_1 = np.zeros(ntot)
-    n_d_23 = np.zeros(ntot)
-    n_d_4 = np.zeros(ntot)
-    for iq, q in enumerate(q_array):
-        first_term, second_third_term, fourth_term = pmd.n_deuteron(q, psi_deuteron)
-        n_d_1[iq] = first_term
-        n_d_23[iq] = second_third_term
-        n_d_4[iq] = fourth_term
-    n_d_total_array = n_d_1 + n_d_23 + n_d_4
+    # n_d_1 = np.zeros(ntot)
+    # n_d_23 = np.zeros(ntot)
+    # n_d_4 = np.zeros(ntot)
+    # for iq, q in enumerate(q_array):
+    #     first_term, second_third_term, fourth_term = pmd.n_deuteron(q, psi_deuteron)
+    #     n_d_1[iq] = first_term
+    #     n_d_23[iq] = second_third_term
+    #     n_d_4[iq] = fourth_term
+    # n_d_total_array = n_d_1 + n_d_23 + n_d_4
     
-    # Correct momentum distribution for comparison
-    n_d_exact = ( ob.wave_function(H_initial)[:ntot]**2 + \
-                  ob.wave_function(H_initial)[ntot:]**2 ) / factor_array
+    # # Correct momentum distribution for comparison
+    # n_d_exact = ( ob.wave_function(H_initial)[:ntot]**2 + \
+    #               ob.wave_function(H_initial)[ntot:]**2 ) / factor_array
         
-    ax.semilogy(q_array_fine, n_d_total_array, color='black',
-                 linestyle='solid', label='total')
-    ax.semilogy(q_array_fine, n_d_1, color='blue', linestyle='dotted', 
-                 label='First term') 
-    ax.semilogy(q_array_fine, abs(n_d_23), color='purple', linestyle='dotted', 
-                 label='|Second+Third Term|') 
-    ax.semilogy(q_array_fine, n_d_4, color='red', linestyle='dotted', 
-                 label='Fourth Term') 
-    ax.semilogy(q_array_fine, n_d_exact, color='green', linestyle='dashed', 
-                 label='exact') 
-    ax.set_ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
-        
-        
+    # ax.semilogy(q_array_fine, n_d_total_array, color='black',
+    #              linestyle='solid', label='total')
+    # ax.semilogy(q_array_fine, n_d_1, color='blue', linestyle='dotted', 
+    #              label='First term') 
+    # ax.semilogy(q_array_fine, abs(n_d_23), color='purple', linestyle='dotted', 
+    #              label='|Second+Third Term|') 
+    # ax.semilogy(q_array_fine, n_d_4, color='red', linestyle='dotted', 
+    #              label='Fourth Term') 
+    # ax.semilogy(q_array_fine, n_d_exact, color='green', linestyle='dashed', 
+    #              label='exact') 
+    # ax.set_ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
         
     # BUG TESTING 
-    ax.set_xlim( [min(q_array_fine), 4] )
-    ax.set_ylim( [1e-5, 1e3])
+    ax.set_xlim( [min(q_array), 5] )
+    ax.set_ylim( [1e-6, 1e3])
     ax.legend(loc=0, frameon=False)
     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
     lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
     lambda_label_location = 'center right'
-    
     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
-                                 frameon=False)
+                                  frameon=False)
     ax.add_artist(anchored_text)
 
     plt.show()
