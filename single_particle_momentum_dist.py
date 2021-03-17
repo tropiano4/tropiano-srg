@@ -185,9 +185,8 @@ class pair_momentum_distributions(object):
                                            delta_U_matrix[:ntot, ntot:] )
                 d['deltaU_3D1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
                                                delta_U_matrix.T[ntot:, :ntot] )
-                 # d['deltaU_3D1-3D1_func'] = RectBivariateSpline(
-                 #                                k_array, k_array,
-                 #                                delta_U_matrix[ntot:, ntot:] )
+                # d['deltaU_3D1-3D1_func'] = RectBivariateSpline(k_array, k_array,
+                #                              delta_U_matrix[ntot:, ntot:] )
             
         # Create mesh for integration over COM momentum
         K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
