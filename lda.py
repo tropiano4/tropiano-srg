@@ -17,12 +17,6 @@
 from os import getcwd, chdir
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import RectBivariateSpline
-# Scripts made by A.T.
-
-
-# TO DO
-# 1. In hindsight, there's no need to interpolate.
 
 
 # Perhaps this function should go in a script within Densities/HFBRAD_SLY4
@@ -185,7 +179,7 @@ if __name__ == '__main__':
 
     # Details of example nuclei (format is [nuclei, Z, N])
     nuclei_details = [ ['O16', 8, 8], ['Ca40', 20, 20], ['Ca48', 20, 28],
-                       ['Pb208', 82, 126] ]
+                        ['Pb208', 82, 126] ]
     
     # Plot densities as a function of r
     plt.clf()
