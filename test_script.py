@@ -50,46 +50,11 @@
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
-from numpy.polynomial.legendre import leggauss
-from scipy.interpolate import RectBivariateSpline
-import time
 # Scripts made by A.T.
 from lda import load_density, LDA
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
-
-
-def construct_K_mesh(K_max=3.0, ntot=30):
-    """
-    Creates a momentum mesh for COM mometum.
-
-    Parameters
-    ----------
-    K_max : float
-        Maximum value in the momentum mesh [fm^-1].
-    ntot : int
-        Number of momentum points in mesh.
-
-    Returns
-    -------
-    K_array : 1-D ndarray
-        Momentum array [fm^-1].
-    K_weights: 1-D ndarray
-        Momentum weights [fm^-1].
-
-    """
-    
-    # Minimum momentum value
-    K_min = 0.0
-
-    x_array, x_weights = leggauss(ntot) # Interval [-1,1]
-    
-    # Convert from interval [-1, 1] to [a, b] (meaning x_array -> k_array)
-    K_array = 0.5 * (x_array + 1) * (K_max - K_min) + K_min
-    K_weights = (K_max - K_min) / 2 * x_weights
-
-    return K_array, K_weights
 
 
 class pair_momentum_distributions(object):
@@ -147,7 +112,7 @@ class pair_momentum_distributions(object):
             I_matrix_unitless = np.eye( len(factor_array), len(factor_array) )
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
             
-            # Store both matrices in the dictionary
+            # # Store both matrices in the dictionary
             # d[channel]['I'] = I_matrix_unitless
             # d[channel]['delta_U'] = delta_U_matrix_unitless
             
@@ -158,43 +123,6 @@ class pair_momentum_distributions(object):
             # Store both matrices in the dictionary
             d[channel]['I'] = I_matrix # [fm^3]
             d[channel]['delta_U'] = delta_U_matrix # [fm^3]
-            
-            # Interpolate deltaU matrices for evaluation of fourth term in
-            # single-particle momentum distributions
-        
-            # 1S0 channel
-            if channel == '1S0':
-                d['deltaU_1S0_func'] = RectBivariateSpline(k_array, k_array,
-                                       delta_U_matrix)
-                d['deltaU_1S0_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix.T)
-            # 3S1-3D1 channel
-            else:
-                d['deltaU_3S1-3S1_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix[:ntot, :ntot] )
-                d['deltaU_3S1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                               delta_U_matrix.T[:ntot, :ntot] )
-                d['deltaU_3S1-3D1_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix[:ntot, ntot:] )
-                d['deltaU_3D1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                               delta_U_matrix.T[ntot:, :ntot] )
-                 # d['deltaU_3D1-3D1_func'] = RectBivariateSpline(
-                 #                                k_array, k_array,
-                 #                                delta_U_matrix[ntot:, ntot:] )
-            
-        # Create mesh for integration over COM momentum
-        K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
-        Ktot = len(K_array)
-        d['Ktot'] = Ktot
-        d['K_array'] = K_array
-        d['K_weights'] = K_weights
-            
-        # Create mesh for integration over angles
-        xtot = 10
-        x_array, x_weights = leggauss(xtot) # Interval [-1,1]
-        d['xtot'] = xtot
-        d['x_array'] = x_array
-        d['x_weights'] = x_weights
             
         # Save dictionary
         self.d = d
@@ -213,7 +141,7 @@ class pair_momentum_distributions(object):
         
         # Find index of q in k_array
         q_index = find_q_index(q, k_array)
-        weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
+        # weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
         
         # T = 1, M_T = 1/2 + 1/2 = 1
         
@@ -259,6 +187,75 @@ class pair_momentum_distributions(object):
         # return low_q_contribution
         # return high_q_contribution
         return low_q_contribution + high_q_contribution
+    
+    
+    def n_lambda_pn(self, q, kF1, kF2):
+        # don't forget docstring
+        # should be option somewhere to angle-average or set Q=0
+        
+        # Load momentum mesh, I, and delta_U from dictionary
+        k_array = self.d['1S0']['k_array']
+        k_weights = self.d['1S0']['k_weights']
+        ntot = self.d['1S0']['ntot']
+        #I_matrix = self.d['1S0']['I']
+        delta_U_1S0 = self.d['1S0']['delta_U'] # fm^3
+        delta_U_3S1 = self.d['3S1']['delta_U'] # fm^3
+        
+        # Find index of q in k_array
+        q_index = find_q_index(q, k_array)
+        # weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
+        
+        k_F = min( (kF1, kF2) )
+        
+        # T = 1 or 0, M_T = 1/2 + 1/2 = 0
+        # We get 1S0 and 3S1-3D1 contributions here
+
+        # First three terms (combining second and third into one term linear
+        # in \delta U)
+        # This if statement is the two \theta functions
+        if q < k_F:
+            
+            # Factor of 2 for sum over \sigma and \sigma', units fm^3
+            #first_term = 2 / weight
+            first_term = 2
+            # Units fm^3
+            middle_terms = 2 / np.pi * ( delta_U_1S0[q_index, q_index] / 2 + \
+                           3/2 * delta_U_3S1[q_index, q_index] )            
+            
+            low_q_contribution = first_term + middle_terms
+            
+        else:
+            
+            low_q_contribution = 0
+            
+        # Fourth term
+        
+        # Index of where to stop the integral in the momentum mesh k_array
+        k_F_cutoff = find_q_index(k_F, k_array)
+        if k_array[k_F_cutoff] > k_F:
+            k_F_cutoff -= 1 # Prevents overshooting
+            
+        # fourth_term_integrand = delta_U_matrix[:ntot, q_index] * \
+        #                         delta_U_matrix.T[q_index, :ntot]
+        # # Integration measure 2/\pi k^2 dk is implicitly in the delta_U's here
+
+        # high_q_contribution = 1/4 * 2/np.pi * \
+        #                       np.sum( fourth_term_integrand[:k_F_cutoff+1] )
+        
+        fourth_term_integrand = 2/np.pi * k_array**2 * k_weights * (\
+                                delta_U_1S0[:ntot, q_index] * \
+                                delta_U_1S0.T[q_index, :ntot]/4 + \
+                                3/4 * delta_U_3S1[:ntot, q_index] * \
+                                delta_U_3S1.T[q_index, :ntot] + \
+                                3/4 * delta_U_3S1[:ntot, ntot+q_index] * \
+                                delta_U_3S1.T[ntot+q_index, :ntot] )
+        
+        high_q_contribution = 1/2 * 2/np.pi * \
+                              np.sum( fourth_term_integrand[:k_F_cutoff+1] )
+                              
+        # return low_q_contribution
+        # return high_q_contribution
+        return low_q_contribution + high_q_contribution
 
 
 if __name__ == '__main__':
@@ -268,6 +265,8 @@ if __name__ == '__main__':
     
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
+    # # Gezerlis N2LO 1 fm with \lambda=1.35 fm^-1
+    # kvnn = 222
     lamb = 1.35
     kmax, kmid, ntot = 10.0, 2.0, 120
     # kmax, kmid, ntot = 30.0, 4.0, 120
@@ -279,25 +278,41 @@ if __name__ == '__main__':
     
     # Details of example nuclei (format is [nuclei, Z, N])
     # nuclei_list = ['O16', 8, 8]
-    nuclei_list = ['Ca40', 20, 20]
+    # nuclei_list = ['Ca40', 20, 20]
     # nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
-    nucleus = nuclei_list[0]
-    Z = nuclei_list[1]
-    N = nuclei_list[2]
-    A = N + Z
-    r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
     
-    # Call LDA class
-    lda = LDA(r_array, rho_p_array, rho_n_array)
+    d = {}
+    
+    nuclei_details = [ ['O16', 8, 8], ['Ca40', 20, 20], ['Ca48', 20, 28],
+                       ['Pb208', 82, 126] ]
+    for nuclei_list in nuclei_details:
+
+        nucleus = nuclei_list[0]
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        A = N + Z
+        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+        r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+        
+        d[nucleus] = {}
+    
+        # Call LDA class
+        lda = LDA(r_array, rho_p_array, rho_n_array)
     
     
     # --- Calculate momentum distributions --- #
     
     # n(q, Q=0) pp-pair
-    n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
-                                                  'pp' )
+    # Should this be divided by # of pairs?
+        n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
+                                                     'pp' )
+        n_pn_array = lda.local_density_approximation( q_array, pmd.n_lambda_pn, 
+                                                     'pn' )
+        
+        d[nucleus] = n_pp_array / n_pn_array
+        
+        
     
     ### BUG TESTING ###
     # n_pp_array *= (Z-1)/(A-1)
@@ -307,23 +322,53 @@ if __name__ == '__main__':
     
     # --- Plot --- #
     
+    # # n(q, Q=0) pairs
+    #     plt.clf()
+    #     f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
+    
+    #     plt.semilogy(q_array, n_pp_array, color='blue', linestyle='solid',
+    #                  label=nucleus+' (pp)')
+    #     plt.semilogy(q_array, n_pn_array, color='red', linestyle='solid',
+    #                  label=nucleus+' (pn)')
+    #     plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' [fm' + r'$^{6}$' + ']')
+    #     ax.set_xlim( [min(q_array), 5] )
+    #     ax.set_ylim( [1e-3, 1e4])
+    
+    #     ax.legend(loc=0, frameon=False)
+    #     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
+    
+    #     lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
+    #     lambda_label_location = 'center right'
+    #     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
+    #                               frameon=False)
+    #     ax.add_artist(anchored_text)
+    
+    #     plt.show()
+    
+
+    # ratio of n(q, Q=0) pairs
     plt.clf()
     f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
     
-    # n(q, Q=0) pp-pair
-    plt.semilogy(q_array, n_pp_array, color='blue', linestyle='dashdot',
-                 label=nucleus+' (pp)')
-    plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' [fm' + r'$^{6}$' + ']')
+    plt.semilogy(q_array, d['O16'], color='black',
+                 linestyle='solid', label='O16')
+    plt.semilogy(q_array, d['Ca40'], color='red',
+                 linestyle='dashdot', label='Ca40')
+    plt.semilogy(q_array, d['Ca48'], color='blue',
+                 linestyle='dashed', label='Ca48')
+    plt.semilogy(q_array, d['Pb208'], color='green',
+                 linestyle='dotted', label='Pb208')
+    plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' (pp/pn ratios)')
     ax.set_xlim( [min(q_array), 5] )
-    ax.set_ylim( [1e-6, 1e3])
+    ax.set_ylim( [1e-2, 2e0])
     
-    ax.legend(loc=0, frameon=False)
+    ax.legend(loc='lower right', frameon=False)
     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
     lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
-    lambda_label_location = 'center right'
+    lambda_label_location = 'lower left'
     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
-                                  frameon=False)
+                                  frameon=True)
     ax.add_artist(anchored_text)
     
     plt.show()
