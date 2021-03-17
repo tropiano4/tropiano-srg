@@ -228,6 +228,9 @@ class deuteron(object):
                                 delta_U_3S1.T[q_index, :ntot] + \
                                 1/4 * delta_U_3S1[:ntot, ntot+q_index] * \
                                 delta_U_3S1.T[ntot+q_index, :ntot] )
+            
+        # factors you might be missing
+        overall_factor = 1/(2*np.pi)**3 * 4*np.pi / 2
         
         high_q_contribution = 1/2 * 2/np.pi * \
                               np.sum( fourth_term_integrand[:k_F_cutoff+1] )
@@ -377,7 +380,7 @@ if __name__ == '__main__':
                 label='LDA')
     ax.set_ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
     ax.set_xlim( [min(q_array), 4] )
-    ax.set_ylim( [1e-5, 1e3])
+    ax.set_ylim( [1e-5, 1e3] )
     ax.legend(loc=0, frameon=False)
     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
