@@ -12,17 +12,8 @@
 
 
 from matplotlib.cm import register_cmap
+from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
-
-
-# FIX THIS
-
-#/Users/anthonytropiano/Documents/GitHub/LENT/Figures/register_colormap.py:301:
-# MatplotlibDeprecationWarning: Passing raw data via parameters data and lut to
-# register_cmap() is deprecated since 3.3 and will become an error two minor
-# releases later. Instead use:
-# register_cmap(cmap=LinearSegmentedColormap(name, data, lut))
-# register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
 
 
 # Colormap data (this is copied from 
@@ -308,4 +299,5 @@ def RGBToPyCmap(rgbdata):
 
 
 mpl_data = RGBToPyCmap(turbo_colormap_data)
-register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+register_cmap( cmap=LinearSegmentedColormap('turbo', mpl_data, 
+                                            turbo_colormap_data.shape[0]) )
