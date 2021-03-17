@@ -36,6 +36,9 @@
 #   03/16/21 --- Testing pair momentum distribution for deuteron starting from
 #                second quantization derivation and using expansion of
 #                U(k, k'). Created pmd_deuteron_test.py in Old_codes.
+#   03/16/21 --- Testing single-nucleon momentum distributions for different
+#                nuclei using LDA. Created single_particle_momentum_dist.py.
+#                in Old_codes.
 #
 #------------------------------------------------------------------------------
 
@@ -48,11 +51,45 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
 from numpy.polynomial.legendre import leggauss
+from scipy.interpolate import RectBivariateSpline
+import time
 # Scripts made by A.T.
 from lda import load_density, LDA
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
+
+
+def construct_K_mesh(K_max=3.0, ntot=30):
+    """
+    Creates a momentum mesh for COM mometum.
+
+    Parameters
+    ----------
+    K_max : float
+        Maximum value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+
+    Returns
+    -------
+    K_array : 1-D ndarray
+        Momentum array [fm^-1].
+    K_weights: 1-D ndarray
+        Momentum weights [fm^-1].
+
+    """
+    
+    # Minimum momentum value
+    K_min = 0.0
+
+    x_array, x_weights = leggauss(ntot) # Interval [-1,1]
+    
+    # Convert from interval [-1, 1] to [a, b] (meaning x_array -> k_array)
+    K_array = 0.5 * (x_array + 1) * (K_max - K_min) + K_min
+    K_weights = (K_max - K_min) / 2 * x_weights
+
+    return K_array, K_weights
 
 
 class pair_momentum_distributions(object):
@@ -122,10 +159,40 @@ class pair_momentum_distributions(object):
             d[channel]['I'] = I_matrix # [fm^3]
             d[channel]['delta_U'] = delta_U_matrix # [fm^3]
             
+            # Interpolate deltaU matrices for evaluation of fourth term in
+            # single-particle momentum distributions
+        
+            # 1S0 channel
+            if channel == '1S0':
+                d['deltaU_1S0_func'] = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix)
+                d['deltaU_1S0_dag_func'] = RectBivariateSpline(k_array, k_array,
+                                           delta_U_matrix.T)
+            # 3S1-3D1 channel
+            else:
+                d['deltaU_3S1-3S1_func'] = RectBivariateSpline(k_array, k_array,
+                                           delta_U_matrix[:ntot, :ntot] )
+                d['deltaU_3S1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
+                                               delta_U_matrix.T[:ntot, :ntot] )
+                d['deltaU_3S1-3D1_func'] = RectBivariateSpline(k_array, k_array,
+                                           delta_U_matrix[:ntot, ntot:] )
+                d['deltaU_3D1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
+                                               delta_U_matrix.T[ntot:, :ntot] )
+                 # d['deltaU_3D1-3D1_func'] = RectBivariateSpline(
+                 #                                k_array, k_array,
+                 #                                delta_U_matrix[ntot:, ntot:] )
+            
+        # Create mesh for integration over COM momentum
+        K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
+        Ktot = len(K_array)
+        d['Ktot'] = Ktot
+        d['K_array'] = K_array
+        d['K_weights'] = K_weights
+            
         # Create mesh for integration over angles
-        angle_points_num = 10
-        x_array, x_weights = leggauss(angle_points_num) # Interval [-1,1]
-        d['angle_points_num'] = angle_points_num
+        xtot = 10
+        x_array, x_weights = leggauss(xtot) # Interval [-1,1]
+        d['xtot'] = xtot
         d['x_array'] = x_array
         d['x_weights'] = x_weights
             
@@ -192,53 +259,6 @@ class pair_momentum_distributions(object):
         # return low_q_contribution
         # return high_q_contribution
         return low_q_contribution + high_q_contribution
-            
-    
-    def n_lambda_N(self, q, kF_1, kF_2):
-        # don't forget docstring
-        # kF_1: Fermi momentum for nucleon N
-        # kF_2 : Fermi momentum for opposite nucleon (so if you specified
-        # a proton distribution then Np refers to a neutron)
-        
-        # Load momentum mesh and SRG transformation for 1S0 and 3S1-3D1 
-        # channels
-        
-        # The momentum mesh is the same for 1S0 and 3S1-3D1
-        k_array = self.d['1S0']['k_array']
-        k_weights = self.d['1S0']['k_weights']
-        ntot = self.d['1S0']['ntot']
-        
-        deltaU_1S0 = self.d['1S0']['delta_U'] # fm^3
-        deltaU_3S1 = self.d['3S1']['delta_U'] # fm^3
-        
-        # Find index of q in k_array
-        q_index = find_q_index(q, k_array)
-        
-        # Common factors
-        integration_k_measure = 2/np.pi * k_weights * k_array**2
-
-        # Split into low- and high-q terms
-        
-        # Low-q terms
-        # Term 1: 1 * n(q) * 1
-        # Term 2: \deltaU * n(q) * 1
-        # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
-        
-        # The first three terms have \theta(kF_1 - q)
-        if q < kF_1:
-            
-            first_term = 2
-            
-            integrand23_k_x = integration_k_measure * 
-            
-            second_term = 2/np.pi
-        
-        
-        
-        
-        
-        return None
-
 
 
 if __name__ == '__main__':
@@ -249,8 +269,8 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    # kmax, kmid, ntot = 10.0, 2.0, 120
-    kmax, kmid, ntot = 30.0, 4.0, 120
+    kmax, kmid, ntot = 10.0, 2.0, 120
+    # kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     factor_array = 2/np.pi * q_weights * q_array**2
     
@@ -258,8 +278,8 @@ if __name__ == '__main__':
     pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
-    nuclei_list = ['O16', 8, 8]
-    # nuclei_list = ['Ca40', 20, 20]
+    # nuclei_list = ['O16', 8, 8]
+    nuclei_list = ['Ca40', 20, 20]
     # nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
@@ -273,7 +293,9 @@ if __name__ == '__main__':
     lda = LDA(r_array, rho_p_array, rho_n_array)
     
     
-    # --- Calculate pair momentum distributions --- #
+    # --- Calculate momentum distributions --- #
+    
+    # n(q, Q=0) pp-pair
     n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
                                                   'pp' )
     
@@ -283,16 +305,18 @@ if __name__ == '__main__':
     # n_pp_array *= factor_array
     
     
-    # --- Plot n_lambda_pair_exp for pp pairs --- #
+    # --- Plot --- #
     
     plt.clf()
     f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
     
+    # n(q, Q=0) pp-pair
     plt.semilogy(q_array, n_pp_array, color='blue', linestyle='dashdot',
                  label=nucleus+' (pp)')
     plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' [fm' + r'$^{6}$' + ']')
     ax.set_xlim( [min(q_array), 5] )
     ax.set_ylim( [1e-6, 1e3])
+    
     ax.legend(loc=0, frameon=False)
     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
@@ -301,5 +325,5 @@ if __name__ == '__main__':
     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
                                   frameon=False)
     ax.add_artist(anchored_text)
-
+    
     plt.show()
