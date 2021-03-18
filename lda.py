@@ -9,7 +9,8 @@
 # DESCRIPTION.
 #
 # Revision history:
-#   ../../.. --- Minor revisions to r^2 operator.
+#   03/18/21 --- Added 12C data to Densities. Now shows \rho_proton(r) for
+#                12C in plots below.
 #
 #------------------------------------------------------------------------------
 
@@ -178,8 +179,8 @@ if __name__ == '__main__':
     # --- Test densities --- #
 
     # Details of example nuclei (format is [nuclei, Z, N])
-    nuclei_details = [ ['O16', 8, 8], ['Ca40', 20, 20], ['Ca48', 20, 28],
-                        ['Pb208', 82, 126] ]
+    nuclei_details = [ ['C12', 6, 6], ['O16', 8, 8], ['Ca40', 20, 20],
+                       ['Ca48', 20, 28], ['Pb208', 82, 126] ]
     
     # Plot densities as a function of r
     plt.clf()
