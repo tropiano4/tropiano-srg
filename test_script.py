@@ -284,8 +284,8 @@ if __name__ == '__main__':
     
     d = {}
     
-    nuclei_details = [ ['O16', 8, 8], ['Ca40', 20, 20], ['Ca48', 20, 28],
-                       ['Pb208', 82, 126] ]
+    nuclei_details = [ ['C12', 6, 6], ['O16', 8, 8], ['Ca40', 20, 20],
+                       ['Ca48', 20, 28], ['Pb208', 82, 126] ]
     for nuclei_list in nuclei_details:
 
         nucleus = nuclei_list[0]
