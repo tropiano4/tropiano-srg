@@ -48,7 +48,7 @@ from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
-class pair_momentum_distributions(object):
+class deuteron_pair_momentum_distribution_v1(object):
     
     
     def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0):
@@ -233,6 +233,90 @@ class pair_momentum_distributions(object):
         third_term = second_term
 
         return first_term, second_term + third_term, fourth_term
+    
+    
+    def n_deuteron_fourth_term_ratio(self, q, psi_vector_unitless):
+        # Ratio of 3S1 / 3S1-3D1 for deltaU deltaU^t term
+        
+        # Load momentum mesh, I, and delta_U from dictionary
+        k_array = self.d['3S1']['k_array']
+        k_weights = self.d['3S1']['k_weights']
+        ntot = self.d['3S1']['ntot']
+        delta_U_matrix_unitless = self.d['3S1']['delta_U']
+        
+        factor_array = np.sqrt(2/np.pi*k_weights) * k_array # fm^-3/2
+        factor_array_long = np.concatenate( (factor_array, factor_array) )
+        row, col = np.meshgrid(factor_array_long, factor_array_long)
+                     
+        # Make delta_U and psi have units
+        # fm^3 and dimensions 2*ntot, 2*ntot
+        delta_U_matrix = delta_U_matrix_unitless / row / col
+        # Convert wave function to fm^3/2
+        psi_vector = psi_vector_unitless / factor_array_long
+        
+        # Find index of q
+        q_index = find_q_index(q, k_array)
+        
+        # DO A DOUBLE FOUR LOOP TO MAKE SURE YOU'RE DOING THIS CORRECTLY
+        numerator = 0
+        denominator = 0
+        for i, k in enumerate(k_array):
+            for j, kp in enumerate(k_array):
+                
+                # \psi.T \delta_U \delta_U.T \psi
+                # 3S1 3S1-3S1 3S1-3S1 3S1
+                # 3S1 3S1-3D1 3D1-3S1 3S1
+                
+                # 3S1 3S1-3S1 3S1-3D1 3D1
+                # 3S1 3S1-3D1 3D1-3D1 3D1
+                
+                # 3D1 3D1-3S1 3S1-3S1 3S1
+                # 3D1 3D1-3D1 3D1-3S1 3S1
+                
+                # 3D1 3D1-3S1 3S1-3D1 3D1
+                # 3D1 3D1-3D1 3D1-3D1 3D1
+                
+                numerator += (2/np.pi)**2 * k**2 * k_weights[i] *\
+                                kp**2 * k_weights[j] * abs(\
+                                psi_vector.T[i] * ( 
+                                    delta_U_matrix[i, q_index] * \
+                                    delta_U_matrix.T[q_index, j] +
+                                    delta_U_matrix[i, ntot+q_index] * \
+                                    delta_U_matrix.T[ntot+q_index, j] ) * \
+                                psi_vector[j] )
+                
+                denominator += (2/np.pi)**2 * k**2 * k_weights[i] *\
+                                kp**2 * k_weights[j] * (\
+                                abs( psi_vector.T[i] * ( 
+                                    delta_U_matrix[i, q_index] * \
+                                    delta_U_matrix.T[q_index, j] +
+                                    delta_U_matrix[i, ntot+q_index] * \
+                                    delta_U_matrix.T[ntot+q_index, j] ) * \
+                                psi_vector[j] ) + \
+                                    
+                                abs( psi_vector.T[i] * (\
+                                    delta_U_matrix[i, q_index] * \
+                                    delta_U_matrix.T[q_index, j+ntot] +
+                                    delta_U_matrix[i, ntot+q_index] * \
+                                    delta_U_matrix.T[ntot+q_index, j+ntot] ) * \
+                                psi_vector[j+ntot] ) + \
+                                    
+                                abs( psi_vector.T[i+ntot] * ( 
+                                    delta_U_matrix[i+ntot, q_index] * \
+                                    delta_U_matrix.T[q_index, j] +
+                                    delta_U_matrix[i+ntot, ntot+q_index] * \
+                                    delta_U_matrix.T[ntot+q_index, j] ) * \
+                                psi_vector[j] ) + \
+                                
+                                abs( psi_vector.T[i+ntot] * ( 
+                                    delta_U_matrix[i+ntot, q_index] * \
+                                    delta_U_matrix.T[q_index, j+ntot] +
+                                    delta_U_matrix[i+ntot, ntot+q_index] * \
+                                    delta_U_matrix.T[ntot+q_index, j+ntot] ) * \
+                                psi_vector[j+ntot] ) )
+                
+                                    
+        return numerator / denominator
 
 
 if __name__ == '__main__':
@@ -249,7 +333,7 @@ if __name__ == '__main__':
     factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
-    pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+    pmd = deuteron_pair_momentum_distribution_v1(kvnn, lamb, kmax, kmid, ntot)
     
     
     # --- Use deuteron to check pair momentum distribution --- #
