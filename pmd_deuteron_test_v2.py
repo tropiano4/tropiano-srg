@@ -57,7 +57,7 @@ import observables as ob
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
-from pmd_deuteron_test import pair_momentum_distributions
+from pmd_deuteron_test import deuteron_pair_momentum_distribution_v1
 
 
 def hankel_transformation(channel, k_array, k_weights, r_array):
@@ -228,9 +228,6 @@ class deuteron(object):
                                 delta_U_3S1.T[q_index, :ntot] + \
                                 1/4 * delta_U_3S1[:ntot, ntot+q_index] * \
                                 delta_U_3S1.T[ntot+q_index, :ntot] )
-            
-        # factors you might be missing
-        overall_factor = 1/(2*np.pi)**3 * 4*np.pi / 2
         
         high_q_contribution = 1/2 * 2/np.pi * \
                               np.sum( fourth_term_integrand[:k_F_cutoff+1] )
@@ -324,7 +321,7 @@ if __name__ == '__main__':
     factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
-    pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+    pmd = deuteron_pair_momentum_distribution_v1(kvnn, lamb, kmax, kmid, ntot)
     
     
     # --- Use deuteron to check pair momentum distribution --- #
@@ -359,6 +356,9 @@ if __name__ == '__main__':
     
     lda_deuteron = deuteron(r_array, kvnn, lamb, kmax, kmid, ntot)
     n_d_lda = lda_deuteron.local_density_approximation(q_array)
+    # factors you might be missing
+    overall_factor = 1/(2*np.pi)**3 * 4*np.pi / 2
+    n_d_lda *= overall_factor
 
 
     # --- Plot n_lambda^d(q) --- #
@@ -367,13 +367,13 @@ if __name__ == '__main__':
     f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
 
     ax.semilogy(q_array, n_d_total_array, color='black', linestyle='solid',
-                label='total')
+                label='High Res.')
     ax.semilogy(q_array, n_d_1, color='blue', linestyle='dotted', 
-                label='First term') 
+                label='1') 
     ax.semilogy(q_array, abs(n_d_23), color='purple', linestyle='dotted', 
-                label='|Second+Third Term|') 
+                label=r'$|\delta U|$') 
     ax.semilogy(q_array, n_d_4, color='red', linestyle='dotted', 
-                label='Fourth Term') 
+                label=r'$|\delta U \delta U^{\dagger}|$') 
     ax.semilogy(q_array, n_d_exact, color='green', linestyle='dashed', 
                 label='exact') 
     ax.semilogy(q_array, n_d_lda, color='gray', linestyle='dashdot',
@@ -385,7 +385,7 @@ if __name__ == '__main__':
     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
     
     lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
-    lambda_label_location = 'center right'
+    lambda_label_location = 'lower right'
     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
                                   frameon=False)
     ax.add_artist(anchored_text)
