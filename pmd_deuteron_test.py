@@ -119,9 +119,6 @@ class deuteron_pair_momentum_distribution_v1(object):
         delta_U_matrix_unitless = self.d['3S1']['delta_U']
         
         factor_array = np.sqrt(2/np.pi*k_weights) * k_array # fm^-3/2
-        
-        ### NEW ###
-        
         factor_array_long = np.concatenate( (factor_array, factor_array) )
         row, col = np.meshgrid(factor_array_long, factor_array_long)
                      
@@ -233,6 +230,32 @@ class deuteron_pair_momentum_distribution_v1(object):
         third_term = second_term
 
         return first_term, second_term + third_term, fourth_term
+    
+    
+    def n_deuteron_single(self, q, psi_vector_unitless):
+        # Single-nucleon momentum distribution in deuteron
+        # q is NOT a relative momentum here!
+        
+        # Load momentum mesh, I, and delta_U from dictionary
+        k_array = self.d['3S1']['k_array']
+        k_weights = self.d['3S1']['k_weights']
+        ntot = self.d['3S1']['ntot']
+        delta_U_matrix_unitless = self.d['3S1']['delta_U']
+        
+        factor_array = np.sqrt(2/np.pi*k_weights) * k_array # fm^-3/2
+        factor_array_long = np.concatenate( (factor_array, factor_array) )
+        row, col = np.meshgrid(factor_array_long, factor_array_long)
+                     
+        # Make delta_U and psi have units
+        # fm^3 and dimensions 2*ntot, 2*ntot
+        delta_U_matrix = delta_U_matrix_unitless / row / col
+        # Convert wave function to fm^3/2
+        psi_vector = psi_vector_unitless / factor_array_long
+        
+        # Find index of q
+        q_index = find_q_index(q, k_array)
+        
+        
     
     
     def n_deuteron_fourth_term_ratio(self, q, psi_vector_unitless):
