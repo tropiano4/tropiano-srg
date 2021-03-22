@@ -44,12 +44,14 @@
 
 
 # Description of this test:
-#   Calculate n_{\lambda}(q) for deuteron using LDA.
+#   Calculate pair and single-nucleon n_{\lambda}(q) for deuteron using LDA.
 
 
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
+from numpy.polynomial.legendre import leggauss
+from scipy.interpolate import RectBivariateSpline
 from scipy.special import spherical_jn
 # Scripts made by A.T.
 import lda
@@ -58,6 +60,38 @@ from operators import find_q_index
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 from pmd_deuteron_test import deuteron_pair_momentum_distribution_v1
+
+
+def construct_K_mesh(K_max=3.0, ntot=30):
+    """
+    Creates a momentum mesh for COM mometum.
+
+    Parameters
+    ----------
+    K_max : float
+        Maximum value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+
+    Returns
+    -------
+    K_array : 1-D ndarray
+        Momentum array [fm^-1].
+    K_weights: 1-D ndarray
+        Momentum weights [fm^-1].
+
+    """
+    
+    # Minimum momentum value
+    K_min = 0.0
+
+    x_array, x_weights = leggauss(ntot) # Interval [-1,1]
+    
+    # Convert from interval [-1, 1] to [a, b] (meaning x_array -> k_array)
+    K_array = 0.5 * (x_array + 1) * (K_max - K_min) + K_min
+    K_weights = (K_max - K_min) / 2 * x_weights
+
+    return K_array, K_weights
 
 
 def hankel_transformation(channel, k_array, k_weights, r_array):
@@ -162,6 +196,31 @@ class deuteron(object):
         psi_r_3D1 = hank_trans_3D1 @ psi_k[ntot:]
     
         self.rho_array = psi_r_3S1**2 + psi_r_3D1**2
+        
+        # Stuff for single-particle
+        self.deltaU_3S1_3S1_func = RectBivariateSpline(k_array, k_array,
+                                   delta_U_matrix[:ntot, :ntot] )
+        self.deltaU_3S1_3S1_dag_func = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix.T[:ntot, :ntot] )
+        self.deltaU_3S1_3D1_func = RectBivariateSpline(k_array, k_array,
+                                   delta_U_matrix[:ntot, ntot:] )
+        self.deltaU_3D1_3S1_dag_func = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix.T[ntot:, :ntot] )
+        
+        # Create mesh for integration over COM momentum
+        K_array, K_weights = construct_K_mesh(ntot=15) # K_max = 3 fm^-1, 15 points
+        Ktot = len(K_array)
+        self.Ktot = Ktot
+        self.K_array = K_array
+        self.K_weights = K_weights
+            
+        # Create mesh for integration over angles
+        xtot = 10
+        # xtot = 6 # No change
+        x_array, x_weights = leggauss(xtot) # Interval [-1,1]
+        self.xtot = xtot
+        self.x_array = x_array
+        self.x_weights = x_weights
 
 
     def n_lambda_pn(self, q, k_F):
@@ -235,9 +294,178 @@ class deuteron(object):
         # return low_q_contribution
         # return high_q_contribution
         return low_q_contribution + high_q_contribution
+    
+    
+    def theta_q_2k(self, k_F, q):
+        # Evaluates \theta( k_F - \abs( q_vec - 2k_vec ) ) for every momentum 
+        # k and angle x
+        
+        k_array = self.k_array
+        x_array = self.x_array
+        x_weights = self.x_weights
+        
+        k_grid, x_grid = np.meshgrid(k_array, x_array, indexing='ij')
+        q_2k_magnitude = q**2 + 4*k_grid**2 - 4*q*k_grid*x_grid
+        
+        # This returns a (ntot, xtot) array of boolean values at every point
+        # and converts to 1's or 0's by multiplying 1
+        theta_q_2k = ( q_2k_magnitude < k_F ) * 1
+        
+        # Use this to weight the matrix with dx for integration purposes
+        k_grid, x_weights_grid = np.meshgrid(k_array, x_weights, indexing='ij')
+        theta_q_2k_weights = theta_q_2k * x_weights_grid
+
+        return theta_q_2k_weights
+    
+    
+    def theta_K_k(self, k_F, sign=1):
+        # Evaluates \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every
+        # COM momentum K, relative momentum k, and angle x where sign
+        # specifies the sign of k_vec
+        
+        k_array = self.k_array
+        K_array = self.K_array
+        x_array = self.x_array
+        x_weights = self.x_weights
+        
+        k_grid, K_grid, x_grid = np.meshgrid(k_array, K_array, x_array,
+                                             indexing='ij')
+        kK_magnitude = K_grid**2/4 + k_grid**2 + sign*k_grid*K_grid*x_grid
+        # This returns a (ntot, Ktot, xtot) array of boolean values at every
+        # point and converts to 1's or 0's by multiplying 1
+        theta_K_k = ( kK_magnitude < k_F ) * 1
+        
+        # Use this to weight the matrix with dx for integration purposes
+        k_grid, K_grid, x_weights_grid = np.meshgrid(k_array, K_array,
+                                                     x_weights, indexing='ij')
+        theta_K_k_weights = theta_K_k * x_weights_grid
+        
+        return theta_K_k_weights
+    
+
+    def n_lambda_N(self, q, kF):
+        # Same thing as above but single-particle
+
+        # Load momentum mesh and SRG transformation for 1S0 and 3S1-3D1 
+        # channels
+        
+        # The momentum mesh is the same for 1S0 and 3S1-3D1
+        k_array = self.k_array
+        k_weights = self.k_weights
+        ntot = self.ntot
+        
+        # Momentum mesh for COM momentum
+        K_array = self.K_array
+        K_weights = self.K_weights
+
+        deltaU_3S1 = self.delta_U  # fm^3
+        
+        # Common factors
+        integration_k_measure = 2/np.pi * k_weights * k_array**2
+
+        # Split into low- and high-q terms
+        
+        # Low-q terms
+        # Term 1: 1 * n(q) * 1
+        # Term 2: \deltaU * n(q) * 1
+        # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
+        
+        # The first three terms have \theta(kF_1 - q)
+        if q < kF:
+            
+            first_term = 2
+            
+            # These are (ntot, xtot) matrices of 
+            # \theta( kF1 - \abs( q_vec - 2k_vec ) ) for every momentum k and 
+            # angle x
+            theta_kF_k_x_matrix = self.theta_q_2k(kF, q)
+            
+            # Do integration over x first (angle-averaging) where the 
+            # integration weights of x are already built-in
+            # This sum collapses theta_k_x_matrix to a vector dependent only
+            # on k: (ntot, xtot) -> (ntot, 1)
+            theta_kF_k_vector = np.sum( theta_kF_k_x_matrix, axis=-1 ) / 2
+            
+            # Build integrand for k integration
+            integrand_k = integration_k_measure * 3/2 * \
+                          np.diag( deltaU_3S1[:ntot, :ntot] ) * \
+                          theta_kF_k_vector
+            
+            # Do integration over k now where the factor of 2 is for combining
+            # the second and third terms
+            middle_terms = 2 * np.sum(integrand_k)
+            
+        # q > kF_1
+        else:
+            
+            first_term = 0
+            middle_terms = 0
+        
+        # High-q term
+        
+        # Load interpolated deltaU's
+        deltaU_3S1_3S1_func = self.deltaU_3S1_3S1_func
+        deltaU_3S1_3S1_dag_func = self.deltaU_3S1_3S1_dag_func
+        deltaU_3S1_3D1_func = self.deltaU_3S1_3D1_func
+        deltaU_3D1_3S1_dag_func = self.deltaU_3D1_3S1_dag_func
+        
+        q_K_array = np.sqrt( q**2 + K_array**2/4 )
+        # We can only interpolate \deltaU(k,k') up to k_max
+        # Do not allow this next array to go above k_max - this may impose
+        # a cutoff on the K integration
+        q_K_array_cutoff = q_K_array[ q_K_array < max(k_array) ]
+        K_cutoff_index = len(q_K_array_cutoff)
+        
+        k_grid, q_K_grid, = np.meshgrid(k_array, q_K_array_cutoff,
+                                        indexing='ij')
+        # k_grid, q_K_grid, _ = np.meshgrid(k_array, q_K_array_cutoff, x_array,
+        #                                   indexing='ij')
+        
+        # Evaluate deltaU at (k, \abs(q_vec-K_vec/2)) where we approximate
+        # \abs(q_vec-K_vec/2) ~ q_vec^2 + K_vec^2/4
+        deltaU_squared_3S1_3S1 = deltaU_3S1_3S1_func.ev(k_grid, q_K_grid) * \
+                                 deltaU_3S1_3S1_dag_func.ev(q_K_grid, k_grid)
+        deltaU_squared_3S1_3D1 = deltaU_3S1_3D1_func.ev(k_grid, q_K_grid) * \
+                                 deltaU_3D1_3S1_dag_func.ev(q_K_grid, k_grid)
+                                 
+        # Build x-dependent part and integrate with resized K
+        
+        # These are (ntot, Ktot, xtot) arrays of
+        # \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every COM momentum
+        # K, relative momentum k, and angle x where sign specifies the sign of
+        # k_vec
+        theta_kF_K_plus_k_x = self.theta_K_k(kF, sign=1)
+        theta_kF_K_minus_k_x = self.theta_K_k(kF, sign=-1)
+            
+        # Do integration over x first (angle-averaging) where the integration
+        # weights of x are already built-in
+        # This sum collapses theta_K_k_x to a matrix dependent only on K and 
+        # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
+            
+        # \int dx \theta( kF_1 - \abs( 1/2*K_vec + k_vec ) ) \times
+        # \theta( kF_1 - \abs( 1/2*K_vec - k_vec ) ) / 2 
+        theta_kF_K_k = ( np.sum( theta_kF_K_plus_k_x * theta_kF_K_minus_k_x,
+                         axis=-1 ) )[:, :K_cutoff_index] / 2
+        
+        # Build K integrand
+        integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
+        integrand_k_K = 3/4 * integration_K_measure * (\
+                        deltaU_squared_3S1_3S1 + deltaU_squared_3S1_3D1 ) * \
+                        theta_kF_K_k                        
+          
+        # Do integration over K
+        integrand_k = np.sum( integrand_k_K, axis=-1 ) * integration_k_measure
+        
+        # Lastly do integration over k
+        fourth_term = 2/np.pi * np.sum(integrand_k)
+
+        # return first_term
+        # return middle_terms
+        # return fourth_term
+        return first_term + middle_terms + fourth_term
 
 
-    def local_density_approximation(self, q_array):
+    def local_density_approximation(self, q_array, func_q_kF):
         
         M = len(q_array)
     
@@ -260,7 +488,7 @@ class deuteron(object):
             function_array = np.zeros(N)
             for j, k_F in enumerate(kF_array):
 
-                function_array[j] = self.n_lambda_pn(q, k_F)
+                function_array[j] = func_q_kF(q, k_F)
                     
             expectation_values[i] = 4*np.pi*dr * np.sum( r2_array * function_array )
   
@@ -355,10 +583,15 @@ if __name__ == '__main__':
     r_array, _ = lda.load_density('O16', 'proton', 8, 8)
     
     lda_deuteron = deuteron(r_array, kvnn, lamb, kmax, kmid, ntot)
-    n_d_lda = lda_deuteron.local_density_approximation(q_array)
+    n_d_lda = lda_deuteron.local_density_approximation(q_array,
+              lda_deuteron.n_lambda_pn)
+    n_d_lda_single = lda_deuteron.local_density_approximation(q_array,
+              lda_deuteron.n_lambda_N)
     # factors you might be missing
     overall_factor = 1/(2*np.pi)**3 * 4*np.pi / 2
     n_d_lda *= overall_factor
+    print('Normalization exact = %.3f' % np.sum(factor_array*n_d_exact))
+    print('Normalization LDA = %.3f' % np.sum(factor_array*n_d_lda))
 
 
     # --- Plot n_lambda^d(q) --- #
@@ -377,7 +610,9 @@ if __name__ == '__main__':
     ax.semilogy(q_array, n_d_exact, color='green', linestyle='dashed', 
                 label='exact') 
     ax.semilogy(q_array, n_d_lda, color='gray', linestyle='dashdot',
-                label='LDA')
+                label='Pair LDA')
+    ax.semilogy(q_array, n_d_lda_single, color='orange', linestyle='dashdot',
+                label='Single-nucleon LDA')
     ax.set_ylabel(r'$<n^{\lambda}_d(q)>$' + ' [fm' + r'$^3$' + ']')
     ax.set_xlim( [min(q_array), 4] )
     ax.set_ylim( [1e-5, 1e3] )
