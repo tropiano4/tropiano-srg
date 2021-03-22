@@ -57,12 +57,18 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
 # --- Fix --- #
-# 1. Fix the normalization business. \int dq P^A(q) = A_Ca40/A_Ca48?
+# 1. You can speed this up by creating full integrand and doing one dx
+#    integral, then dk integral, etc. (Didn't work.)
+# 2. Seems to something happening in last q_array point.
+# 3. Fix the normalization business. \int dq P^A(q) = A_Ca40/A_Ca48?
 
 # --- Checks --- #
 # 1. What is the sensitivity to K_mesh details?
+#    K_max = 2-4 fm^-1 doesn't change.
+#    20-30 points doesn't change.
 # 2. Are you doing the integration over K correctly?
 # 3. What is the sensitivity to x_mesh details?
+#    10 -> 6 points doesn't change.
 # 4. Are you doing the integration over angles correctly?
 # 5. Check long expressions for typos (coupled-channel for sure!)
 
@@ -99,7 +105,7 @@ def construct_K_mesh(K_max=3.0, ntot=30):
     return K_array, K_weights
 
 
-class pair_momentum_distributions(object):
+class single_nucleon_momentum_distributions(object):
     
     
     def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0):
@@ -189,7 +195,9 @@ class pair_momentum_distributions(object):
                 #                              delta_U_matrix[ntot:, ntot:] )
             
         # Create mesh for integration over COM momentum
-        K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
+        # K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
+        # K_array, K_weights = construct_K_mesh(ntot=20) # K_max = 3 fm^-1, 20 points
+        K_array, K_weights = construct_K_mesh(ntot=15) # K_max = 3 fm^-1, 15 points
         Ktot = len(K_array)
         d['Ktot'] = Ktot
         d['K_array'] = K_array
@@ -197,6 +205,7 @@ class pair_momentum_distributions(object):
             
         # Create mesh for integration over angles
         xtot = 10
+        # xtot = 6 # No change
         x_array, x_weights = leggauss(xtot) # Interval [-1,1]
         d['xtot'] = xtot
         d['x_array'] = x_array
@@ -285,6 +294,8 @@ class pair_momentum_distributions(object):
         K_array = self.d['K_array']
         K_weights = self.d['K_weights']
         
+        # x_array = self.d['x_array']
+        
         deltaU_1S0 = self.d['1S0']['delta_U'] # fm^3
         deltaU_3S1 = self.d['3S1']['delta_U'] # fm^3
         
@@ -318,9 +329,23 @@ class pair_momentum_distributions(object):
             
             # Build integrand for k integration
             integrand_k = integration_k_measure * ( np.diag( deltaU_1S0 ) *\
-                            ( theta_kF1_k_vector + theta_kF2_k_vector/2 ) + \
-                            3/2 * np.diag( deltaU_3S1[:ntot, :ntot] ) * \
-                            theta_kF2_k_vector )
+                          ( theta_kF1_k_vector + theta_kF2_k_vector/2 ) + \
+                          3/2 * np.diag( deltaU_3S1[:ntot, :ntot] ) * \
+                          theta_kF2_k_vector )
+            
+            # # Build integrand with respect to dk dx
+            # deltaU_1S0_grid, _ = np.meshgrid( np.diag( deltaU_1S0 ), x_array,
+            #                                   indexing='ij' )
+            # deltaU_3S1_grid, _ = np.meshgrid( np.diag( deltaU_3S1 )[:ntot],
+            #                                   x_array, indexing='ij' )
+            # # This is a (ntot, xtot matrix)
+            # integrand_k_x = deltaU_1S0_grid * ( theta_kF1_k_x_matrix + \
+            #                 theta_kF2_k_x_matrix/2 ) + 3/2 * deltaU_3S1_grid * \
+            #                 theta_kF2_k_x_matrix
+            # # Do integration over x first (angle-averaging) where the 
+            # # integration weights of x are already built-in
+            # integrand_k = integration_k_measure * np.sum( integrand_k_x/2,
+            #                                               axis=-1 )
             
             # Do integration over k now where the factor of 2 is for combining
             # the second and third terms
@@ -348,20 +373,20 @@ class pair_momentum_distributions(object):
         # a cutoff on the K integration
         q_K_array_cutoff = q_K_array[ q_K_array < max(k_array) ]
         K_cutoff_index = len(q_K_array_cutoff)
-        # if K_cutoff_index != 30:
-        #     print('Index of last allowed K point: %d'%K_cutoff_index)
-        #     print('q = %.3f' % q)
-        k_grid, q_K_grid = np.meshgrid(k_array, q_K_array_cutoff,
-                                       indexing='ij')
+        
+        k_grid, q_K_grid, = np.meshgrid(k_array, q_K_array_cutoff,
+                                        indexing='ij')
+        # k_grid, q_K_grid, _ = np.meshgrid(k_array, q_K_array_cutoff, x_array,
+        #                                   indexing='ij')
         
         # Evaluate deltaU at (k, \abs(q_vec-K_vec/2)) where we approximate
         # \abs(q_vec-K_vec/2) ~ q_vec^2 + K_vec^2/4
         deltaU_squared_1S0 = deltaU_1S0_func.ev(k_grid, q_K_grid) * \
-                             deltaU_1S0_dag_func.ev(q_K_grid, k_grid)
+                              deltaU_1S0_dag_func.ev(q_K_grid, k_grid)
         deltaU_squared_3S1_3S1 = deltaU_3S1_3S1_func.ev(k_grid, q_K_grid) * \
-                                 deltaU_3S1_3S1_dag_func.ev(q_K_grid, k_grid)
+                                  deltaU_3S1_3S1_dag_func.ev(q_K_grid, k_grid)
         deltaU_squared_3S1_3D1 = deltaU_3S1_3D1_func.ev(k_grid, q_K_grid) * \
-                                 deltaU_3D1_3S1_dag_func.ev(q_K_grid, k_grid)
+                                  deltaU_3D1_3S1_dag_func.ev(q_K_grid, k_grid)
                                  
         # Build x-dependent part and integrate with resized K
         
@@ -394,7 +419,7 @@ class pair_momentum_distributions(object):
         theta_kF2_kF1_K_k = ( np.sum( 
                               theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
                               axis=-1 ) )[:, :K_cutoff_index] / 2
-                                 
+        
         # Build K integrand
         integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
         integrand_k_K = integration_K_measure * (\
@@ -405,6 +430,27 @@ class pair_momentum_distributions(object):
                             theta_kF1_kF2_K_k + theta_kF2_kF1_K_k ) + \
                           3/4*deltaU_squared_3S1_3D1 * (\
                             theta_kF1_kF2_K_k + theta_kF2_kF1_K_k ) )
+        
+        # # Build dk dK dx integrand
+        # integrand_k_K_x = deltaU_squared_1S0 * theta_kF1_K_plus_k_x + \
+        #                   deltaU_squared_1S0/4 * ( theta_kF1_K_plus_k_x * \
+        #                   theta_kF2_K_minus_k_x + theta_kF2_K_plus_k_x * \
+        #                   theta_kF1_K_minus_k_x ) + 3/4 * \
+        #                   deltaU_squared_3S1_3S1 * ( theta_kF1_K_plus_k_x * \
+        #                   theta_kF2_K_minus_k_x + theta_kF2_K_plus_k_x * \
+        #                   theta_kF1_K_minus_k_x ) + 3/4 * \
+        #                   deltaU_squared_3S1_3D1 * ( theta_kF1_K_plus_k_x * \
+        #                   theta_kF2_K_minus_k_x + theta_kF2_K_plus_k_x * \
+        #                   theta_kF1_K_minus_k_x )
+                              
+        # # Do integration over x first (angle-averaging) where the integration
+        # # weights of x are already built-in
+        # # This sum collapses theta_K_k_x to a matrix dependent only on K and 
+        # # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
+        # integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
+        # integrand_k_K = integration_K_measure * np.sum( integrand_k_K_x,
+        #                                                 axis=-1 )                             
+
             
         # Do integration over K
         integrand_k = np.sum( integrand_k_K, axis=-1 ) * integration_k_measure
@@ -416,7 +462,6 @@ class pair_momentum_distributions(object):
         # return middle_terms
         # return fourth_term
         return first_term + middle_terms + fourth_term
-
 
 
 if __name__ == '__main__':
@@ -433,12 +478,13 @@ if __name__ == '__main__':
     factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
-    pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+    pmd = single_nucleon_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
+    nuclei_list = ['C12', 6, 6]
     # nuclei_list = ['O16', 8, 8]
     # nuclei_list = ['Ca40', 20, 20]
-    nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
@@ -461,6 +507,9 @@ if __name__ == '__main__':
     print('n_lambda^p(q) done after %.2f minutes' % mins)
     n_n_array = lda.local_density_approximation( q_array, pmd.n_lambda_N, 'n' )
     
+    
+    # This is 4 \pi for d3p, 2 for spin sum, and 1/(2*\pi)^3 for converting
+    # from sums to integrals
     overall_factor = 4*np.pi * 1/(2*np.pi)**3
     
     # BUG: this doesn't work for asymmetric nuclei for some reason
@@ -468,9 +517,7 @@ if __name__ == '__main__':
     p_a_n = q_array**2 * n_n_array / A * overall_factor
 
     p_a = p_a_p + p_a_n
-    
-    # This is 4 \pi for d3p, 2 for spin sum, and 1/(2*\pi)^3 for converting
-    # from sums to integrals
+
     print( np.sum(p_a*q_weights) )
     
     
