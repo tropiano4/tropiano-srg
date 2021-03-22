@@ -370,6 +370,10 @@ class deuteron(object):
         # Term 2: \deltaU * n(q) * 1
         # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
         
+        # 2J+1 factor
+        # j_factor = 3
+        j_factor = 1
+        
         # The first three terms have \theta(kF_1 - q)
         if q < kF:
             
@@ -387,7 +391,7 @@ class deuteron(object):
             theta_kF_k_vector = np.sum( theta_kF_k_x_matrix, axis=-1 ) / 2
             
             # Build integrand for k integration
-            integrand_k = integration_k_measure * 3/2 * \
+            integrand_k = integration_k_measure * j_factor/2 * \
                           np.diag( deltaU_3S1[:ntot, :ntot] ) * \
                           theta_kF_k_vector
             
@@ -449,7 +453,7 @@ class deuteron(object):
         
         # Build K integrand
         integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
-        integrand_k_K = 3/4 * integration_K_measure * (\
+        integrand_k_K = j_factor/4 * integration_K_measure * (\
                         deltaU_squared_3S1_3S1 + deltaU_squared_3S1_3D1 ) * \
                         theta_kF_K_k                        
           
@@ -590,8 +594,8 @@ if __name__ == '__main__':
     # factors you might be missing
     overall_factor = 1/(2*np.pi)**3 * 4*np.pi / 2
     n_d_lda *= overall_factor
-    print('Normalization exact = %.3f' % np.sum(factor_array*n_d_exact))
-    print('Normalization LDA = %.3f' % np.sum(factor_array*n_d_lda))
+    print('Normalization exact = %.3e' % np.sum(factor_array*n_d_exact))
+    print('Normalization LDA = %.3e' % np.sum(factor_array*n_d_lda))
 
 
     # --- Plot n_lambda^d(q) --- #
