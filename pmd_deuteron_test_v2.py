@@ -494,7 +494,10 @@ class deuteron(object):
 
                 function_array[j] = func_q_kF(q, k_F)
                     
-            expectation_values[i] = 4*np.pi*dr * np.sum( r2_array * function_array )
+            # expectation_values[i] = 4*np.pi*dr * np.sum( r2_array * function_array )
+            # Deuteron is normalization is \int dr r^2 \rho_d(r) = 1 without
+            # any factor of 4*\pi
+            expectation_values[i] = dr * np.sum( r2_array * function_array )
   
         return expectation_values
     
