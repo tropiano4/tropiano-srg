@@ -18,6 +18,58 @@
 from os import getcwd, chdir
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.special import spherical_jn
+# Scripts made by A.T.
+import observables as ob
+from Potentials.vsrg_macos import vnn
+from SRG.srg_unitary_transformation import SRG_unitary_transformation
+
+
+def hankel_transformation(channel, k_array, k_weights, r_array):
+    """
+    <r|klm> matrix for given partial wave channel. If len(r_array) = m and len(k_array) = n, then this function 
+    returns an m x n matrix.
+    
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    r_array : 1-D ndarray
+        Coordinates array [fm].
+        
+    Returns
+    -------
+    M : 2-D ndarray
+        Hankel transformation matrix [fm^-3].
+        
+    Notes
+    -----
+    The L > 0 transformations may require factors of i or -1. Check conventions.
+
+    """
+        
+    # L = 0 (0th spherical Bessel function)
+    if channel[1] == 'S':
+        L = 0
+    # L = 1
+    elif channel[1] == 'P':
+        L = 1
+    # L = 2
+    elif channel[1] == 'D':
+        L = 2
+        
+    # r_array row vectors and k_array column vectors where both grids are
+    # n x m matrices
+    k_cols, r_rows = np.meshgrid(k_array, r_array)
+    k_weights_cols, _ = np.meshgrid(k_weights, r_array)
+        
+    M = 2/np.pi * k_cols**2 * k_weights_cols * spherical_jn(L, k_cols * r_rows)
+
+    return M
 
 
 # Perhaps this function should go in a script within Densities/HFBRAD_SLY4
@@ -220,6 +272,38 @@ if __name__ == '__main__':
         
         print(4*np.pi*np.sum(0.1*r_array**2*rho_array))
         
+    # --- Show deuteron too --- #
+    
+    kvnn = 6
+    channel = '3S1'
+    lamb = 1.35
+    kmax, kmid, ntot = 10.0, 2.0, 120
+    
+    # Load evolved deuteron wave function in momentum-space
+    k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
+    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+    H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
+                                      method='srg', generator='Wegner', lamb=lamb)
+    U_matrix = SRG_unitary_transformation(H_initial, H_evolved)
+    psi_k_unitless = ob.wave_function(H_initial, U=U_matrix)
+        
+    # Divide out momenta/weights
+    factor_array = np.concatenate( (np.sqrt(k_weights) * k_array,
+                                    np.sqrt(k_weights) * k_array) ) * np.sqrt(2/np.pi)
+    psi_k = psi_k_unitless / factor_array
+    
+    hank_trans_3S1 = hankel_transformation('3S1', k_array, k_weights, r_array)
+    hank_trans_3D1 = hankel_transformation('3D1', k_array, k_weights, r_array)
+    
+    # sign = -1
+    psi_r_3S1 = hank_trans_3S1 @ psi_k[:ntot]
+    psi_r_3D1 = hank_trans_3D1 @ psi_k[ntot:]
+    
+    rho_d = psi_r_3S1**2 + psi_r_3D1**2
+    print(4*np.pi*np.sum(0.1*r_array**2*rho_d))
+    
+    plt.plot(r_array, rho_d, label='Deuteron')
+        
     plt.xlim( [0.0, 20.0] )
     plt.legend(loc='upper right', frameon=False)
     plt.xlabel('r [fm]')
@@ -241,6 +325,9 @@ if __name__ == '__main__':
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
     
         plt.plot(r_array, kF_array, label=nucleus)
+        
+    # Show deuteron too
+    plt.plot(r_array, ( 3*np.pi**2 * rho_d )**(1/3), label='Deuteron')
         
     plt.xlim( [0.0, 20.0] )
     plt.legend(loc='upper right', frameon=False)
