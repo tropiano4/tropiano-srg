@@ -371,8 +371,8 @@ class deuteron(object):
         # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
         
         # 2J+1 factor
-        # j_factor = 3
-        j_factor = 1
+        j_factor = 3
+        # j_factor = 1
         
         # The first three terms have \theta(kF_1 - q)
         if q < kF:
