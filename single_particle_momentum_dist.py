@@ -65,7 +65,7 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 # --- Checks --- #
 # 1. What is the sensitivity to K_mesh details?
 #    K_max = 2-4 fm^-1 doesn't change.
-#    20-30 points doesn't change.
+#    15-30 points doesn't change.
 # 2. Are you doing the integration over K correctly?
 # 3. What is the sensitivity to x_mesh details?
 #    10 -> 6 points doesn't change.
@@ -481,10 +481,10 @@ if __name__ == '__main__':
     pmd = single_nucleon_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
     # Details of example nuclei (format is [nuclei, Z, N])
-    nuclei_list = ['C12', 6, 6]
+    # nuclei_list = ['C12', 6, 6]
     # nuclei_list = ['O16', 8, 8]
     # nuclei_list = ['Ca40', 20, 20]
-    # nuclei_list = ['Ca48', 20, 28]
+    nuclei_list = ['Ca48', 20, 28]
     # nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
