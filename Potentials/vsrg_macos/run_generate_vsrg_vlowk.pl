@@ -60,8 +60,8 @@ $ntot = 120; # momentum points for P+Q = full = bare space
 #$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
 $kmax = 10.0;
 #$kmax = 30.0;
-#$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
-$kmid = 3.0; # setting in Anderson:2010aq
+$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
+#$kmid = 3.0; # setting in Anderson:2010aq
 #$kmid = 4.0;
 #$kmid = 6.0;
 
@@ -154,8 +154,8 @@ $J_max = 13;  # highest J value
         "3O11","1O11","3O12",
         "3Q12","1Q12","3Q13"
         );
-@pws = ("1S0","3S1");
-#@pws = ("1S0","3S1","1P1","3P0");
+#@pws = ("1S0","3S1");
+@pws = ("1P1","3P0","3P1","3P2");
 #@pws = ("3P0");
 #@pws = ("3N12","1M10","1O12");
 #@pws = ("1F3","1G4");
