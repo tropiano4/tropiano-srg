@@ -126,6 +126,7 @@ class single_nucleon_momentum_distributions(object):
         """
         
         channels = ['1S0', '3S1']
+        # channels = ['1S0', '3S1', '1P1', '3P0', '3P1', '3P2']
         
         d = {}
         
