@@ -204,8 +204,16 @@ class deuteron(object):
                                        delta_U_matrix.T[:ntot, :ntot] )
         self.deltaU_3S1_3D1_func = RectBivariateSpline(k_array, k_array,
                                    delta_U_matrix[:ntot, ntot:] )
+        self.deltaU_3S1_3D1_dag_func = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix.T[:ntot, ntot:] )
+        self.deltaU_3D1_3S1_func = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix[ntot:, :ntot] )
         self.deltaU_3D1_3S1_dag_func = RectBivariateSpline(k_array, k_array,
                                        delta_U_matrix.T[ntot:, :ntot] )
+        self.deltaU_3D1_3D1_func = RectBivariateSpline(k_array, k_array,
+                                   delta_U_matrix[ntot:, ntot:] )
+        self.deltaU_3D1_3D1_dag_func = RectBivariateSpline(k_array, k_array,
+                                       delta_U_matrix.T[ntot:, ntot:] )
         
         # Create mesh for integration over COM momentum
         K_array, K_weights = construct_K_mesh(ntot=15) # K_max = 3 fm^-1, 15 points
@@ -392,8 +400,9 @@ class deuteron(object):
             
             # Build integrand for k integration
             integrand_k = integration_k_measure * j_factor/2 * \
-                          np.diag( deltaU_3S1[:ntot, :ntot] ) * \
-                          theta_kF_k_vector
+                          ( np.diag( deltaU_3S1[:ntot, :ntot] ) + \
+                            np.diag( deltaU_3S1[ntot:, ntot:] ) ) \
+                          * theta_kF_k_vector
             
             # Do integration over k now where the factor of 2 is for combining
             # the second and third terms
@@ -411,7 +420,11 @@ class deuteron(object):
         deltaU_3S1_3S1_func = self.deltaU_3S1_3S1_func
         deltaU_3S1_3S1_dag_func = self.deltaU_3S1_3S1_dag_func
         deltaU_3S1_3D1_func = self.deltaU_3S1_3D1_func
+        deltaU_3S1_3D1_dag_func = self.deltaU_3S1_3D1_func
+        deltaU_3D1_3S1_func = self.deltaU_3D1_3S1_func
         deltaU_3D1_3S1_dag_func = self.deltaU_3D1_3S1_dag_func
+        deltaU_3D1_3D1_func = self.deltaU_3D1_3D1_func
+        deltaU_3D1_3D1_dag_func = self.deltaU_3D1_3D1_dag_func
         
         q_K_array = np.sqrt( q**2 + K_array**2/4 )
         # We can only interpolate \deltaU(k,k') up to k_max
@@ -431,6 +444,10 @@ class deuteron(object):
                                  deltaU_3S1_3S1_dag_func.ev(q_K_grid, k_grid)
         deltaU_squared_3S1_3D1 = deltaU_3S1_3D1_func.ev(k_grid, q_K_grid) * \
                                  deltaU_3D1_3S1_dag_func.ev(q_K_grid, k_grid)
+        deltaU_squared_3D1_3S1 = deltaU_3D1_3S1_func.ev(k_grid, q_K_grid) * \
+                                 deltaU_3S1_3D1_dag_func.ev(q_K_grid, k_grid)
+        deltaU_squared_3D1_3D1 = deltaU_3D1_3D1_func.ev(k_grid, q_K_grid) * \
+                                 deltaU_3D1_3D1_dag_func.ev(q_K_grid, k_grid)
                                  
         # Build x-dependent part and integrate with resized K
         
@@ -454,7 +471,8 @@ class deuteron(object):
         # Build K integrand
         integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
         integrand_k_K = j_factor/4 * integration_K_measure * (\
-                        deltaU_squared_3S1_3S1 + deltaU_squared_3S1_3D1 ) * \
+                        deltaU_squared_3S1_3S1 + deltaU_squared_3S1_3D1 + \
+                        deltaU_squared_3D1_3S1 + deltaU_squared_3D1_3D1 ) * \
                         theta_kF_K_k                        
           
         # Do integration over K
