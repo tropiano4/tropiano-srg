@@ -70,7 +70,6 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 # 3. What is the sensitivity to x_mesh details?
 #    10 -> 6 points doesn't change.
 # 4. Are you doing the integration over angles correctly?
-# 5. Check long expressions for typos (coupled-channel for sure!)
 
 
 def construct_K_mesh(K_max=3.0, ntot=30):
@@ -109,24 +108,9 @@ class single_nucleon_momentum_distributions(object):
     
     
     def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0):
-        """
-        Description.
-
-        Parameters
-        ----------
-        kvnn : TYPE
-            DESCRIPTION.
-        lamb : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
         
-        channels = ['1S0', '3S1']
-        # channels = ['1S0', '3S1', '1P1', '3P0', '3P1', '3P2']
+        # channels = ['1S0', '3S1']
+        channels = ['1S0', '3S1', '1P1', '3P0', '3P1', '3P2']
         
         d = {}
         
@@ -153,7 +137,7 @@ class single_nucleon_momentum_distributions(object):
             
             # Divide out momentum/weights factor
             factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
-            if channel == '3S1':
+            if vnn.coupled_channel(channel):
                 factor_array = np.concatenate( (factor_array, factor_array) )
             row, col = np.meshgrid(factor_array, factor_array)
             
@@ -166,34 +150,11 @@ class single_nucleon_momentum_distributions(object):
             # d[channel]['delta_U'] = delta_U_matrix_unitless
             
             # U_matrix = U_matrix_unitless / row / col
-            I_matrix = I_matrix_unitless / row / col
+            # I_matrix = I_matrix_unitless / row / col
             delta_U_matrix = delta_U_matrix_unitless / row / col
             
-            # Store both matrices in the dictionary
-            d[channel]['I'] = I_matrix # [fm^3]
-            d[channel]['delta_U'] = delta_U_matrix # [fm^3]
-            
-            # Interpolate deltaU matrices for evaluation of fourth term in
-            # single-particle momentum distributions
-        
-            # 1S0 channel
-            if channel == '1S0':
-                d['deltaU_1S0_func'] = RectBivariateSpline(k_array, k_array,
-                                       delta_U_matrix)
-                d['deltaU_1S0_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix.T)
-            # 3S1-3D1 channel
-            else:
-                d['deltaU_3S1-3S1_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix[:ntot, :ntot] )
-                d['deltaU_3S1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                               delta_U_matrix.T[:ntot, :ntot] )
-                d['deltaU_3S1-3D1_func'] = RectBivariateSpline(k_array, k_array,
-                                           delta_U_matrix[:ntot, ntot:] )
-                d['deltaU_3D1-3S1_dag_func'] = RectBivariateSpline(k_array, k_array,
-                                               delta_U_matrix.T[ntot:, :ntot] )
-                # d['deltaU_3D1-3D1_func'] = RectBivariateSpline(k_array, k_array,
-                #                              delta_U_matrix[ntot:, ntot:] )
+            # Store delta_U_matrix in the dictionary
+            d[channel]['delta_U_matrix'] = delta_U_matrix # [fm^3]
             
         # Create mesh for integration over COM momentum
         # K_array, K_weights = construct_K_mesh() # K_max = 3 fm^-1, 30 points
@@ -214,6 +175,52 @@ class single_nucleon_momentum_distributions(object):
             
         # Save dictionary
         self.d = d
+        
+        # Interpolate deltaU matrices for evaluation of fourth term in
+        # single-particle momentum distributions
+        self.intepolate_potentials(channels)
+        
+    
+    def intepolate_potentials(self, channels):
+        # Interpolate each of the potentials
+        
+
+        # Loop over channels
+        for channel in channels:
+            
+            k_array = self.d[channel]['k_array']
+            ntot = self.d[channel]['ntot']
+            delta_U_matrix = self.d[channel]['delta_U_matrix']
+            
+            # Coupled-channel
+            if vnn.coupled_channel(channel):
+            
+                self.d[channel]['deltaU_00'] = RectBivariateSpline(k_array,
+                                         k_array, delta_U_matrix[:ntot, :ntot])
+                self.d[channel]['deltaU_dag_00'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix.T[:ntot, :ntot])
+                
+                self.d[channel]['deltaU_01'] = RectBivariateSpline(k_array,
+                                         k_array, delta_U_matrix[:ntot, ntot:])
+                self.d[channel]['deltaU_dag_01'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix.T[:ntot, ntot:])
+                
+                self.d[channel]['deltaU_10'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix[ntot:, :ntot])
+                self.d[channel]['deltaU_dag_10'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix.T[ntot:, :ntot])
+                
+                self.d[channel]['deltaU_11'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix[ntot:, ntot:])
+                self.d[channel]['deltaU_dag_11'] = RectBivariateSpline(k_array,
+                                       k_array, delta_U_matrix.T[ntot:, ntot:])
+
+            else:
+                
+                self.d[channel]['deltaU'] = RectBivariateSpline(k_array,
+                                                       k_array, delta_U_matrix)
+                self.d[channel]['deltaU_dag'] = RectBivariateSpline(k_array,
+                                                     k_array, delta_U_matrix.T)
 
 
     def theta_q_2k(self, k_F, q):
@@ -297,8 +304,12 @@ class single_nucleon_momentum_distributions(object):
         
         # x_array = self.d['x_array']
         
-        deltaU_1S0 = self.d['1S0']['delta_U'] # fm^3
-        deltaU_3S1 = self.d['3S1']['delta_U'] # fm^3
+        deltaU_1S0 = self.d['1S0']['delta_U_matrix'] # fm^3
+        deltaU_3S1 = self.d['3S1']['delta_U_matrix']
+        deltaU_1P1 = self.d['1P1']['delta_U_matrix']
+        deltaU_3P0 = self.d['3P0']['delta_U_matrix']
+        deltaU_3P1 = self.d['3P1']['delta_U_matrix']
+        deltaU_3P2 = self.d['3P2']['delta_U_matrix']
         
         # Common factors
         integration_k_measure = 2/np.pi * k_weights * k_array**2
@@ -329,10 +340,15 @@ class single_nucleon_momentum_distributions(object):
             theta_kF2_k_vector = np.sum( theta_kF2_k_x_matrix, axis=-1 ) / 2
             
             # Build integrand for k integration
-            integrand_k = integration_k_measure * ( np.diag( deltaU_1S0 ) *\
-                          ( theta_kF1_k_vector + theta_kF2_k_vector/2 ) + \
-                          3/2 * np.diag( deltaU_3S1[:ntot, :ntot] ) * \
-                          theta_kF2_k_vector )
+            integrand_k = integration_k_measure * ( \
+                            ( np.diag(deltaU_1S0) + \
+                              np.diag(deltaU_3P0) + \
+                              3*np.diag(deltaU_3P1) + \
+                              5*np.diag(deltaU_3P2)[:ntot] ) * \
+                            ( theta_kF1_k_vector + theta_kF2_k_vector/2 ) + \
+                            ( 3*np.diag(deltaU_3S1)[:ntot] + \
+                              3*np.diag(deltaU_1P1) ) * \
+                            theta_kF2_k_vector/2 )
             
             # # Build integrand with respect to dk dx
             # deltaU_1S0_grid, _ = np.meshgrid( np.diag( deltaU_1S0 ), x_array,
@@ -360,14 +376,6 @@ class single_nucleon_momentum_distributions(object):
         
         # High-q term
         
-        # Load interpolated deltaU's
-        deltaU_1S0_func = self.d['deltaU_1S0_func']
-        deltaU_1S0_dag_func = self.d['deltaU_1S0_dag_func']
-        deltaU_3S1_3S1_func = self.d['deltaU_3S1-3S1_func']
-        deltaU_3S1_3S1_dag_func = self.d['deltaU_3S1-3S1_dag_func']
-        deltaU_3S1_3D1_func = self.d['deltaU_3S1-3D1_func']
-        deltaU_3D1_3S1_dag_func = self.d['deltaU_3D1-3S1_dag_func']
-        
         q_K_array = np.sqrt( q**2 + K_array**2/4 )
         # We can only interpolate \deltaU(k,k') up to k_max
         # Do not allow this next array to go above k_max - this may impose
@@ -382,12 +390,26 @@ class single_nucleon_momentum_distributions(object):
         
         # Evaluate deltaU at (k, \abs(q_vec-K_vec/2)) where we approximate
         # \abs(q_vec-K_vec/2) ~ q_vec^2 + K_vec^2/4
-        deltaU_squared_1S0 = deltaU_1S0_func.ev(k_grid, q_K_grid) * \
-                              deltaU_1S0_dag_func.ev(q_K_grid, k_grid)
-        deltaU_squared_3S1_3S1 = deltaU_3S1_3S1_func.ev(k_grid, q_K_grid) * \
-                                  deltaU_3S1_3S1_dag_func.ev(q_K_grid, k_grid)
-        deltaU_squared_3S1_3D1 = deltaU_3S1_3D1_func.ev(k_grid, q_K_grid) * \
-                                  deltaU_3D1_3S1_dag_func.ev(q_K_grid, k_grid)
+        deltaU_squared_1S0 = self.d['1S0']['deltaU'].ev(k_grid, q_K_grid) * \
+                             self.d['1S0']['deltaU_dag'].ev(q_K_grid, k_grid)
+        deltaU_squared_1P1 = self.d['1P1']['deltaU'].ev(k_grid, q_K_grid) * \
+                             self.d['1P1']['deltaU_dag'].ev(q_K_grid, k_grid)
+        deltaU_squared_3P0 = self.d['3P0']['deltaU'].ev(k_grid, q_K_grid) * \
+                             self.d['3P0']['deltaU_dag'].ev(q_K_grid, k_grid)
+        deltaU_squared_3P1 = self.d['3P1']['deltaU'].ev(k_grid, q_K_grid) * \
+                             self.d['3P1']['deltaU_dag'].ev(q_K_grid, k_grid)
+                             
+        # Coupled-channel ones
+        # 3S1-3D1
+        deltaU_squared_3S1_3S1 = self.d['3S1']['deltaU_00'].ev(k_grid, q_K_grid) * \
+                            self.d['3S1']['deltaU_dag_00'].ev(q_K_grid, k_grid)
+        deltaU_squared_3S1_3D1 = self.d['3S1']['deltaU_01'].ev(k_grid, q_K_grid) * \
+                            self.d['3S1']['deltaU_dag_10'].ev(q_K_grid, k_grid)
+        # 3P2-3F2
+        deltaU_squared_3P2_3P2 = self.d['3P2']['deltaU_00'].ev(k_grid, q_K_grid) * \
+                            self.d['3P2']['deltaU_dag_00'].ev(q_K_grid, k_grid)
+        deltaU_squared_3P2_3F2 = self.d['3P2']['deltaU_01'].ev(k_grid, q_K_grid) * \
+                            self.d['3P2']['deltaU_dag_10'].ev(q_K_grid, k_grid)
                                  
         # Build x-dependent part and integrate with resized K
         
@@ -424,14 +446,16 @@ class single_nucleon_momentum_distributions(object):
         # Build K integrand
         integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
         integrand_k_K = integration_K_measure * (\
-                          deltaU_squared_1S0 * theta_kF1_kF1_K_k + \
-                          deltaU_squared_1S0/4 * (\
-                            theta_kF1_kF2_K_k + theta_kF2_kF1_K_k ) + \
-                          3/4*deltaU_squared_3S1_3S1 * (\
-                            theta_kF1_kF2_K_k + theta_kF2_kF1_K_k ) + \
-                          3/4*deltaU_squared_3S1_3D1 * (\
-                            theta_kF1_kF2_K_k + theta_kF2_kF1_K_k ) )
-        
+                          ( deltaU_squared_1S0 + deltaU_squared_3P0 + \
+                            3*deltaU_squared_3P1 + 5*deltaU_squared_3P2_3P2 + \
+                            5*deltaU_squared_3P2_3F2 ) * \
+                          ( theta_kF1_kF1_K_k + theta_kF1_kF2_K_k/4 + \
+                            theta_kF2_kF1_K_k/4 ) + \
+                          ( 3*deltaU_squared_3S1_3S1 + \
+                            3*deltaU_squared_3S1_3D1 +
+                            3*deltaU_squared_1P1 ) * \
+                          ( theta_kF1_kF2_K_k/4 + theta_kF2_kF1_K_k/4) )
+
         # # Build dk dK dx integrand
         # integrand_k_K_x = deltaU_squared_1S0 * theta_kF1_K_plus_k_x + \
         #                   deltaU_squared_1S0/4 * ( theta_kF1_K_plus_k_x * \
