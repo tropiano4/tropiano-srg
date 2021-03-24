@@ -28,6 +28,7 @@
 #   06/25/20 --- Added a couple more linestyles to line_styles function and
 #                updated replace_periods_with_commas to replace_periods.
 #   06/30/20 --- Added convert_ticks_to_labels function.
+#   03/24/21 --- Added nuclei_label_conversion function.
 #
 #------------------------------------------------------------------------------
 
@@ -415,6 +416,44 @@ def line_styles(curve_number):
         print(print_statement)
         
         return 'solid'
+    
+
+def nuclei_label_conversion(nucleus):
+    """
+    Converts a nucleus string (e.g., 'C12') to a label with the mass number in
+    the exponent appearing before the element abbreviation (e.g., '^{12}C').
+
+    Parameters
+    ----------
+    nucleus : str
+        Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+
+    Returns
+    -------
+    nucleus_label : str
+        Label for nucleus.
+
+    """
+    
+    # Create mass number and element strings by looping over characters of
+    # input nucleus string
+    mass_number = ''
+    element = ''
+    
+    for char in nucleus:
+        
+        try:
+            
+            number = int(char) # This gives a ValueError if char is a letter
+            mass_number += str(number)
+        
+        except ValueError:
+            
+            element += char
+            
+    nucleus_label = r'$^{%s}$' % mass_number + element
+            
+    return nucleus_label
 
 
 def replace_periods(file_name):
