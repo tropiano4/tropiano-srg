@@ -178,7 +178,7 @@ class LDA(object):
         # k_F_array = ( 3*np.pi**2/2 * rho_array )**(1/3)
         
         # pn pair: Two k_F values in this case
-        if distribution_type in ['pn', 'p']:
+        if distribution_type in ['pn', 'p', 'n']:
             
             rho_p_array = self.rho_p_array
             rho_n_array = self.rho_n_array
@@ -196,34 +196,14 @@ class LDA(object):
 
                     kFp = kFp_array[j]
                     kFn = kFn_array[j]
-                    function_array[j] = func_q(q, kFp, kFn)
+                    if distribution_type == 'n':
+                        function_array[j] = func_q(q, kFn, kFp)
+                    else:
+                        function_array[j] = func_q(q, kFp, kFn)
                     
                 expectation_values[i] = 4*np.pi*dr * \
                                         np.sum( r2_array * function_array )
-                                        
-        elif distribution_type == 'n':
-            
-            rho_p_array = self.rho_p_array
-            rho_n_array = self.rho_n_array
-            
-            kFp_array = ( 3*np.pi**2 * rho_p_array )**(1/3)
-            kFn_array = ( 3*np.pi**2 * rho_n_array )**(1/3)
-        
-            expectation_values = np.zeros(M)
-            for i, q in enumerate(q_array):
-    
-                # Now evaluate f(q, kFp, kFn) at each point in q_array and 
-                # kF_proton, kF_neutron
-                function_array = np.zeros(N)
-                for j in range(N):
 
-                    kFp = kFp_array[j]
-                    kFn = kFn_array[j]
-                    function_array[j] = func_q(q, kFn, kFp)
-                    
-                expectation_values[i] = 4*np.pi*dr * \
-                                        np.sum( r2_array * function_array )
-        
         else:
             
             if distribution_type == 'pp':
