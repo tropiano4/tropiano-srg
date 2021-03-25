@@ -37,7 +37,7 @@
 #                second quantization derivation and using expansion of
 #                U(k, k'). Created pmd_deuteron_test.py in Old_codes.
 #   03/16/21 --- Testing single-nucleon momentum distributions for different
-#                nuclei using LDA. Created single_particle_momentum_dist.py.
+#                nuclei using LDA. Created single_particle_momentum_dist.py
 #                in Old_codes.
 #
 #------------------------------------------------------------------------------
