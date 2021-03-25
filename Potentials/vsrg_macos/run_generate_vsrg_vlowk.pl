@@ -58,11 +58,11 @@ $ntot = 120; # momentum points for P+Q = full = bare space
 #$ntot = 141;
 #$kmax = 6.0;
 #$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
-$kmax = 10.0;
-#$kmax = 30.0;
-$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
+#$kmax = 10.0;
+$kmax = 30.0;
+#$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
 #$kmid = 3.0; # setting in Anderson:2010aq
-#$kmid = 4.0;
+$kmid = 4.0;
 #$kmid = 6.0;
 
 # The potentials are labeled by the value of kvnn (see allvnnmodels.f)
@@ -96,14 +96,14 @@ $kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
 #     ostat = 0,1,2,3,4,5 --> LO, NLO, N2LO, N3LO, N4LO, N4LO+
 #     cutnum = 1,2,3,4--> 400, 450, 500, 550 MeV cutoff
 
-#@kvnns = (06); # Argonne v18
+@kvnns = (06); # Argonne v18
 #@kvnns = (10); # Entem-Machleidt
 #@kvnns = (32); # Epelbaum
 #@kvnns = (90,91,92,93,95,96,97,98,100,101,102,103,105,106,107,108,110,111,112,113,115,116,117,118); # RKE semi-local potentials
 #@kvnns = (90); # RKE semi-local potential at LO with specified cutoff (unless changed it's 400 MeV)
 #@kvnns = (105,106,107,110,111,112); # RKE semi-local potential at N3LO and N4LO
 #@kvnns = (74,79);
-@kvnns = (79, 111, 222); # Potentials used for A.T. operator evolution paper
+#@kvnns = (79, 111, 222); # Potentials used for A.T. operator evolution paper
 #@kvnns = (106, 107, 118); # RKE semi-local potential at N3LO (450 and 500 MeV), and N4LO+ (450 MeV)
 
 # The following list is all of the semi-local EKM potentials
