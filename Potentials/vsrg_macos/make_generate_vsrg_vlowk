@@ -108,8 +108,8 @@ ifeq ($(COMPILER),GNU)
   F90FLAGS= -J $(MODIR) -I $(MODIR) -O3 
 
   ifeq ($(ARCH),INTEL64)
-#    LDFLAGS = -L/usr/local/opt/lapack/lib
-    LDFLAGS =
+    LDFLAGS = -L/usr/local/opt/lapack/lib
+#    LDFLAGS =
     LIBS=     -llapack -lblas
   endif
 endif
