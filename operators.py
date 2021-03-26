@@ -24,6 +24,8 @@
 #                operator.
 #   11/29/20 --- Added functions that create momentum meshes using Gaussian
 #                quadrature.
+#   03/26/21 --- Removed construct_momentum_mesh function and added to new
+#                script integration.py.
 #
 #------------------------------------------------------------------------------
 
@@ -275,47 +277,3 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
         r2_momentum_space = U @ r2_momentum_space @ U.T
         
     return r2_momentum_space
-
-
-def construct_momentum_mesh(k_max, k_mid, ntot, nmod):
-    """
-    Creates a momentum mesh split into two parts for low- and high-
-    momentum.
-
-    Parameters
-    ----------
-    k_max : float
-        Maximum value in the momentum mesh [fm^-1].
-    k_mid : float
-        Mid-point value in the momentum mesh [fm^-1].
-    ntot : int
-        Number of momentum points in mesh.
-    nmod : int
-        Number of points in the low-k part of the mesh.
-
-    Returns
-    -------
-    k_array : 1-D ndarray
-        Momentum array [fm^-1].
-    k_weights: 1-D ndarray
-        Momentum weights [fm^-1].
-
-    """
-    
-    # Minimum momentum value
-    k_min = 0.0
-
-    x_array_1, x_weights_1 = leggauss(nmod) # Interval [-1,1]
-    x_array_2, x_weights_2 = leggauss(ntot-nmod)
-    
-    # Convert from interval [-1, 1] to [a, b] (meaning x_array -> k_array)
-    k_array_1 = 0.5 * (x_array_1 + 1) * (k_mid - k_min) + k_min
-    k_weights_1 = (k_mid - k_min) / 2 * x_weights_1
-    
-    k_array_2 = 0.5 * (x_array_2 + 1) * (k_max - k_mid) + k_mid
-    k_weights_2 = (k_max - k_mid) / 2 * x_weights_2
-    
-    k_array = np.concatenate( (k_array_1, k_array_2) )
-    k_weights = np.concatenate( (k_weights_1, k_weights_2) )
-    
-    return k_array, k_weights
