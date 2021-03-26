@@ -59,7 +59,7 @@ def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0):
     # Standard (no mid-point)
     if nmod == 0 and xmid == 0:
         
-        y_array, y_weights = leggauss(nmod) # Interval [-1, 1]
+        y_array, y_weights = leggauss(ntot) # Interval [-1, 1]
         
         # Convert from interval [-1, 1] to [a, b] (meaning y_array -> x_array)
         x_array = 0.5 * (y_array + 1) * (xmax - xmin) + xmin
