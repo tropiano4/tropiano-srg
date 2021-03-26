@@ -444,6 +444,7 @@ class single_nucleon_momentum_distributions(object):
                               axis=-1 ) )[:, :K_cutoff_index] / 2
         
         # Build K integrand
+        # Possible bug: shouldn't integration_measure be a grid?
         integration_K_measure = ( K_weights * K_array**2 )[:K_cutoff_index]
         integrand_k_K = integration_K_measure * (\
                           ( deltaU_squared_1S0 + deltaU_squared_3P0 + \
