@@ -13,7 +13,9 @@
 # script is based off single_particle_momentum_dist.py in Old_codes.
 #
 # Revision history:
-#   XX/XX/XX --- ...
+#   03/29/21 --- Finalized and produces same results (up to factors of 2*\pi)
+#                as single_particle_momentum_dist.py. Also, fixed a bug
+#                involving the integration over total momentum K.
 #
 #------------------------------------------------------------------------------
 
@@ -25,10 +27,6 @@ from scipy.interpolate import RectBivariateSpline
 from integration import gaussian_quadrature_mesh
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
-
-
-# --- Tests and bug checks --- #
-# 1. How much do things change with different K and x meshes?
 
 
 class single_nucleon_momentum_distributions(object):
@@ -59,20 +57,20 @@ class single_nucleon_momentum_distributions(object):
         
         # --- Set up --- #
         
-        # Save highest allowed L based on input channels (assuming channels
-        # is ordered correctly!)
+        # Save highest allowed L based on input channels
         highest_L = 0
         for channel in channels:
             next_L = self.channel_L_value(channel)
             if next_L > highest_L:
                 highest_L = next_L
         
-        # Load and save momentum and angular arrays for integration
+        # Load and save momentum and angle arrays for integration
         
         # Relative momentum k [fm^-1]
         k_array, k_weights = vnn.load_momentum(kvnn, '1S0')
         ntot = len(k_array)
         self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
+        self.k_integration_measure = k_weights * k_array**2
         
         # Total momentum K [fm^-1] where we put more points toward K=0 fm^-1
         Kmax = 3.0 # Max momentum
@@ -82,6 +80,10 @@ class single_nucleon_momentum_distributions(object):
         K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot, xmid=Kmid,
                                                       nmod=Nmod)
         self.K_array, self.K_weights, self.Ntot = K_array, K_weights, Ntot
+        # K integration measure should be a 2-D grid of dimension (ntot, Ntot)
+        # since we'll integrate over k last
+        _, self.K_integration_measure = np.meshgrid(k_array,
+                                        K_weights * K_array**2, indexing='ij')
         
         # cos(\theta) angles for averaging
         xtot = 9
@@ -103,7 +105,7 @@ class single_nucleon_momentum_distributions(object):
         deltaU2_pn = np.zeros( (ntot, ntot) )
         
         # Allowed channels for pp (and nn) up through the D-waves
-        pp_channels = ['1S0', '3P0', '3P1', '3P2', '1D2']
+        pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
         
         # Loop over channels and evaluate matrix elements
         for channel in channels:
@@ -178,10 +180,8 @@ class single_nucleon_momentum_distributions(object):
         self.deltaU_pp_k = np.diag(deltaU_pp)
         self.deltaU_pn_k = np.diag(deltaU_pn)
         
-        # Interpolate pp and pn < k | \delta U | k' > and
-        # < k | \delta U^{\dagger} | k' > matrix elements to evaluate at
-        # |q_vec-K_vec/2| for \deltaU \deltaU^{\dagger} term
-        # These are functions of two momentum variables
+        # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
+        # matrix elements to evaluate at |q_vec-K_vec/2|
         self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
                                                    deltaU2_pp)
         self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
@@ -238,13 +238,8 @@ class single_nucleon_momentum_distributions(object):
         else:
             print('Input channel is outside the range of this function.')
             return None
-        
-        
-    # Grids for \theta functions and angle-averaging
-    # Return n(q, kF_1, kF_2) total or 1, \delta U, \delta U\delta U^{\dagger}
-    # or pp, nn, pn, and np contributions
-    
-    
+
+
     def theta_q_2k(self, kF, q):
         """
         Evaluates \theta( k_F - \abs(q_vec - 2k_vec) ) for every momentum k
@@ -306,31 +301,254 @@ class single_nucleon_momentum_distributions(object):
 
         # Return the weighted matrix for integration purposes
         return theta_K_k * self.x_weights_3d
-    
 
-    def n_lambda(self, q, kF_1, kF_2):
+
+    def n_lambda(self, q, kF_1, kF_2, contributions='total'):
         """
+        Single-nucleon momentum distribution where kF_1 specifies proton or
+        neutron and kF_2 accounts for correlations to the opposite nucleon.
+        (Note, q is not relative momentum.)
+        
+        Parameters
+        ----------
+        q : float
+            Momentum value [fm^-1].
+        kF_1 : float
+            Fermi momentum [fm^-1] for the corresponding nucleon momentum
+            distribution.
+        kF_2 : float
+            Fermi momentum [fm^-1] for the correlated nucleon. If kF_1
+            corresponds to a proton, then kF_2 corresponds to a neutron (and
+            vice versa).
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            1. Specify 'NN_contributions' for pp, pn (or nn, np) from the 
+               high-q term along with the total.
+            2. Specify 'q_contributions' for 1, \delta U, and 
+               \delta U \delta U^\dagger along with the total.
+            
+        Return
+        ------
+        output : float or tuple
+            Single-nucleon momentum distribution [unitless] evaluated at
+            momentum q [fm^-1]. (Note, this function will return a tuple of
+            floats if contributions is not 'total'.)
+            
         """
         
-        return None
+        # Split into low- and high-q terms
+        
+        # Low-q terms
+        # Term 1: 1 * n(q) * 1
+        # Term 2: \deltaU * n(q) * 1
+        # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
+        # \delta U term : Term 2 + Term 3
+        if q < kF_1:
+            
+            term_1 = 2 # 2*\theta(kF_1 - q)
+            
+            # These are (ntot, xtot) matrices (including x_weights) of 
+            # \theta( kF1 - \abs( q_vec - 2k_vec ) ) for every momentum k and 
+            # angle x
+            theta_kF1_k_x_matrix = self.theta_q_2k(kF_1, q)
+            theta_kF2_k_x_matrix = self.theta_q_2k(kF_2, q)
+            
+            # Integrate over x first (angle-averaging) where the integration
+            # weights of x are already built-in
+            # This sum collapses theta_k_x_matrix to a vector dependent only
+            # on k: (ntot, xtot) -> (ntot, 1)
+            theta_kF1_k_vector = np.sum( theta_kF1_k_x_matrix, axis=-1 ) / 2
+            theta_kF2_k_vector = np.sum( theta_kF2_k_x_matrix, axis=-1 ) / 2
+            
+            # Build integrand for k integration where we split terms according
+            # to pp and pn (or nn and np if kF_1 corresponds to a neutron)
+            integrand_k = self.k_integration_measure * ( \
+                              self.deltaU_pp_k * theta_kF1_k_vector + \
+                              self.deltaU_pn_k * theta_kF2_k_vector )
+
+            # Integrate over k where the factor of 2 is for combining the
+            # second and third terms
+            deltaU_factor = 2 / (2*np.pi)**3 * 2/np.pi
+            term_deltaU = deltaU_factor * np.sum(integrand_k)
+            
+        # q > kF_1
+        else:
+            
+            term_1 = 0
+            term_deltaU = 0
+        
+        # High-q term: \deltaU * n(q) * \deltaU^\dagger
+        
+        # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
+        q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
+        
+        # We can only interpolate \deltaU(k,k') up to k_max
+        # Do not allow this next array to go above k_max - this may impose
+        # a cutoff on the K integration
+        q_K_array_cutoff = q_K_array[ q_K_array < max(self.k_array) ]
+        K_cutoff_index = len(q_K_array_cutoff)
+        
+        # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
+        # \delta U^\dagger( abs(q_vec - K_vec/2), k )
+        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array_cutoff,
+                                        indexing='ij')
+        
+        # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
+        # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
+        # and np if kF_1 corresponds to a neutron)
+        deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
+        deltaU2_pn_array = self.deltaU2_pn_func.ev(k_grid, q_K_grid)
+        
+        # Build x-dependent part and integrate with resized K
+        
+        # These are (ntot, Ktot, xtot) arrays of
+        # \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every total momentum
+        # K, relative momentum k, and angle x where sign specifies the sign of
+        # k_vec
+        theta_kF1_K_plus_k_x = self.theta_K_k(kF_1, sign=1)
+        theta_kF1_K_minus_k_x = self.theta_K_k(kF_1, sign=-1)
+        theta_kF2_K_plus_k_x = self.theta_K_k(kF_2, sign=1)
+        theta_kF2_K_minus_k_x = self.theta_K_k(kF_2, sign=-1)
+            
+        # Integrate over x first
+        # This sum collapses theta_K_k_x to a matrix dependent only on K and 
+        # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
+            
+        # \int dx/2 \theta_pp (or \theta_nn)
+        theta_kF1_kF1_K_k = ( np.sum( 
+                              theta_kF1_K_plus_k_x * theta_kF1_K_minus_k_x,
+                              axis=-1 ) )[:, :K_cutoff_index] / 2
+        # \int dx/2 \theta_pn (or \theta_np)
+        theta_kF1_kF2_K_k = ( np.sum( 
+                              theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
+                              theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
+                              axis=-1 ) )[:, :K_cutoff_index] / 2
+
+        # Build K integrand (ntot, K_cutoff_index) array spliting pp and np
+        # contributions (or nn and np)
+        integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * (\
+                            deltaU2_pp_array * theta_kF1_kF1_K_k + \
+                            deltaU2_pn_array * theta_kF1_kF2_K_k )
+
+        # Integrate over K and build k integrand
+        integrand_k = np.sum( integrand_k_K, axis=-1 ) * \
+                      self.k_integration_measure
+                      
+        # Integrate over k
+        deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
+        term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
+        
+        # Add up each contribution for total
+        total = term_1 + term_deltaU + term_deltaU2
+
+        # Return contributions and total or just total
+        if contributions == 'NN_contributions':
+            return None # THINK ABOUT THIS
+        elif contributions == 'q_contributions':
+            return term_1, term_deltaU, term_deltaU2, total
+        else: # Default
+            return total
     
     
     
     
 if __name__ == '__main__':
     
-    # --- Testing --- #
-    kvnn = 6
-    kmax = 10.0
-    kmid = 2.0
-    ntot = 120
-    lamb = 1.35
-    channels = ['1S0', '3S1', '3P0', '3P1', '3P2', '1P1']
     
-    test = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+    # --- Set up --- #
+    
+    import matplotlib.pyplot as plt
+    from matplotlib.offsetbox import AnchoredText
+    import time
+    from lda import load_density, LDA
+    
+    # AV18 with \lambda=1.35 fm^-1
+    kvnn = 6
+    lamb = 1.35
+    channels = ('1S0', '3S1', '1P1', '3P0', '3P1', '3P2')
+    kmax, kmid, ntot = 10.0, 2.0, 120
+    # kmax, kmid, ntot = 30.0, 4.0, 120
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    factor_array = 2/np.pi * q_weights * q_array**2
+    
+    # Load n_\lambda_pp(q, k_F) for AV18
+    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
                                                  kmid, ntot)
-    a = test.theta_q_2k(1.35, 1.0)
-    b = test.theta_K_k(1.35)
-    print(a)
-    print(a[0])
-    print(len(b), len(b[0]), len(b[0][0]) )
+    
+    # Details of example nuclei (format is [nuclei, Z, N])
+    # nuclei_list = ['C12', 6, 6]
+    # nuclei_list = ['O16', 8, 8]
+    nuclei_list = ['Ca40', 20, 20]
+    # nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Pb208', 82, 126]
+    nucleus = nuclei_list[0]
+    Z = nuclei_list[1]
+    N = nuclei_list[2]
+    A = N + Z
+    r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+    r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+    
+    # Call LDA class
+    lda = LDA(r_array, rho_p_array, rho_n_array)
+    
+    
+    # --- Calculate momentum distributions --- #
+    
+    # n(q) p single-particle
+    t0 = time.time() # Start time
+    n_p_array = lda.local_density_approximation( q_array, snmd.n_lambda, 'p' )
+    t1 = time.time() # End time
+    mins = round( (t1 - t0) / 60.0, 2)
+    print('n_lambda^p(q) done after %.2f minutes' % mins)
+    
+    t0 = time.time()
+    n_n_array = lda.local_density_approximation( q_array, snmd.n_lambda, 'n' )
+    t1 = time.time()
+    print('n_lambda^n(q) done after %.2f minutes' % mins)
+    mins = round( (t1 - t0) / 60.0, 2)
+    
+    # This is 4 \pi for d3p and 1/(2*\pi)^3 for converting
+    # from sums to integrals
+    overall_factor = 4*np.pi * 1/(2*np.pi)**3
+    
+    # BUG: this doesn't work for asymmetric nuclei for some reason
+    p_a_p = q_array**2 * n_p_array / A * overall_factor
+    p_a_n = q_array**2 * n_n_array / A * overall_factor
+
+    p_a = p_a_p + p_a_n
+
+    print( np.sum(p_a*q_weights) )
+    
+    
+    # --- Plot --- #
+    
+    plt.clf()
+    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
+    
+    # n(q) p single-particle
+    plt.semilogy(q_array, p_a_p, color='red', linestyle='dashdot', 
+                  label=nucleus+' (p)')
+    plt.semilogy(q_array, p_a_n, color='blue', linestyle='dashed', 
+                  label=nucleus+' (n)')
+    plt.semilogy(q_array, p_a, color='black', label=nucleus+' (total)')
+    plt.ylabel(r'$P^A(q)$')
+    ax.set_xlim( [min(q_array), 4] )
+    ax.set_ylim( [1e-9, 2e0])
+    
+    ax.legend(loc=0, frameon=False)
+    ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
+    
+    lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
+    lambda_label_location = 'center right'
+    anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
+                                  frameon=False)
+    ax.add_artist(anchored_text)
+    
+    plt.show()
+    
+    # --- Further tests and bug checks --- #
+    # 1. How much do things change with different K and x meshes?
+    # 2. Check that the q_K_cutoff is working correctly.
