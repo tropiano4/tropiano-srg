@@ -223,7 +223,7 @@ class deuteron(object):
         self.K_weights = K_weights
             
         # Create mesh for integration over angles
-        xtot = 10
+        xtot = 9
         # xtot = 6 # No change
         x_array, x_weights = leggauss(xtot) # Interval [-1,1]
         self.xtot = xtot
@@ -369,7 +369,7 @@ class deuteron(object):
         deltaU_3S1 = self.delta_U  # fm^3
         
         # Common factors
-        integration_k_measure = 2/np.pi * k_weights * k_array**2
+        integration_k_measure = k_weights * k_array**2
 
         # Split into low- and high-q terms
         
@@ -406,7 +406,7 @@ class deuteron(object):
             
             # Do integration over k now where the factor of 2 is for combining
             # the second and third terms
-            middle_terms = 2 * np.sum(integrand_k)
+            middle_terms = 2 / (2*np.pi)**3 * 2/np.pi * np.sum(integrand_k)
             
         # q > kF_1
         else:

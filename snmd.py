@@ -451,8 +451,33 @@ class single_nucleon_momentum_distributions(object):
             return term_1, term_deltaU, term_deltaU2, total
         else: # Default
             return total
+        
+        
+    def n_lambda_deuteron(self, q, kF, contributions='total'):
+        """
+        
+
+        Parameters
+        ----------
+        q : TYPE
+            DESCRIPTION.
+        kF_1 : TYPE
+            DESCRIPTION.
+        kF_2 : TYPE
+            DESCRIPTION.
+        contributions : TYPE, optional
+            DESCRIPTION. The default is 'total'.
+
+        Returns
+        -------
+        None.
+
+        """
     
-    
+        # Do the same thing as above for deuteron where kF(r) is decided by
+        # the deuteron wave function |\psi(r)|^2
+        
+        return None
     
     
 if __name__ == '__main__':
