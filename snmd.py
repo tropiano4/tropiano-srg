@@ -24,7 +24,7 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import RectBivariateSpline
 # Scripts made by A.T.
-from integration import gaussian_quadrature_mesh
+from Misc.integration import gaussian_quadrature_mesh
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
@@ -307,7 +307,7 @@ class single_nucleon_momentum_distributions(object):
         """
         Single-nucleon momentum distribution where kF_1 specifies proton or
         neutron and kF_2 accounts for correlations to the opposite nucleon.
-        (Note, q is not relative momentum.)
+        (Note, q is not a relative momentum.)
         
         Parameters
         ----------
@@ -446,38 +446,11 @@ class single_nucleon_momentum_distributions(object):
 
         # Return contributions and total or just total
         if contributions == 'NN_contributions':
-            return None # THINK ABOUT THIS
+            return None # Work in progress
         elif contributions == 'q_contributions':
             return term_1, term_deltaU, term_deltaU2, total
         else: # Default
             return total
-        
-        
-    def n_lambda_deuteron(self, q, kF, contributions='total'):
-        """
-        
-
-        Parameters
-        ----------
-        q : TYPE
-            DESCRIPTION.
-        kF_1 : TYPE
-            DESCRIPTION.
-        kF_2 : TYPE
-            DESCRIPTION.
-        contributions : TYPE, optional
-            DESCRIPTION. The default is 'total'.
-
-        Returns
-        -------
-        None.
-
-        """
-    
-        # Do the same thing as above for deuteron where kF(r) is decided by
-        # the deuteron wave function |\psi(r)|^2
-        
-        return None
     
     
 if __name__ == '__main__':
@@ -576,4 +549,5 @@ if __name__ == '__main__':
     
     # --- Further tests and bug checks --- #
     # 1. How much do things change with different K and x meshes?
-    # 2. Check that the q_K_cutoff is working correctly.
+    # 2. Check that the q_K_cutoff is working correctly. (This is still giving
+    #    me 0 at the end of the final nuclear-averaged array.)
