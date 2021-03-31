@@ -34,6 +34,8 @@
 #   05/05/20 --- Updated to include function that converts potential to a new
 #                momentum mesh.
 #   06/29/20 --- Renamed to 'vnn.py' along with minor updates to functions.
+#   03/31/21 --- Add channel_L_value function that returns L given partial
+#                wave channel.
 #
 #------------------------------------------------------------------------------
 
@@ -722,6 +724,56 @@ def coupled_channel(channel):
     boolean_value = channel in coupled_channels
     
     return boolean_value
+
+
+def channel_L_value(channel):
+    """
+    Returns the L value associated with the given partial wave channel.
+
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel (e.g. '1S0').
+
+    Returns
+    -------
+    L : int
+        Total orbital angular momentum associated with partial wave channel.
+
+    """
+        
+    # This gives 'S', 'P', etc.
+    channel_letter = channel[1]
+        
+    if channel_letter == 'S':
+        return 0
+    elif channel_letter == 'P':
+        return 1
+    elif channel_letter == 'D':
+        return 2
+    elif channel_letter == 'F':
+        return 3
+    elif channel_letter == 'G':
+        return 4
+    elif channel_letter == 'H':
+        return 5
+    elif channel_letter == 'I':
+        return 6
+    elif channel_letter == 'K':
+        return 7
+    elif channel_letter == 'L':
+        return 8
+    elif channel_letter == 'M':
+        return 9
+    elif channel_letter == 'N':
+        return 10
+    elif channel_letter == 'O':
+        return 11
+    elif channel_letter == 'Q':
+        return 12
+    else:
+        print('Input channel is outside the range of this function.')
+        return None
 
 
 def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
