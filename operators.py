@@ -26,14 +26,14 @@
 #                quadrature.
 #   03/26/21 --- Removed construct_momentum_mesh function and added to new
 #                script integration.py.
+#   03/31/21 --- Moved hankel_transformation to fourier_transform.py.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
-from numpy.polynomial.legendre import leggauss
-from scipy.special import spherical_jn
 # Scripts made by A.T.
+from Misc.fourier_transform import hankel_transformation_r2k
 from Potentials.vsrg_macos import vnn
 
 
@@ -147,53 +147,6 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     return operator
 
 
-def hankel_transformation(channel, k_array, r_array, dr):
-    """
-    <klm|r> transformation matrix for given partial wave channel. If
-    len(r_array) = m and len(k_array) = n, then this function returns an 
-    n x m matrix.
-    
-    Parameters
-    ----------
-    channel : str
-        The partial wave channel (e.g. '1S0').
-    k_array : 1-D ndarray
-        Momentum array [fm^-1].
-    r_array : 1-D ndarray
-        Coordinates array [fm].
-    dr : float
-        Coordinates step-size (weight) [fm].
-        
-    Returns
-    -------
-    M : 2-D ndarray
-        Hankel transformation matrix [fm^3\2].
-
-    """
-        
-    # L = 0 (0th spherical Bessel function)
-    if channel[1] == 'S':
-        L = 0
-    # L = 1
-    elif channel[1] == 'P':
-        L = 1
-    # L = 2
-    elif channel[1] == 'D':
-        L = 2
-    elif channel[1] == 'F':
-        L = 3
-    elif channel[1] == 'G':
-        L = 4
-        
-    # r_array column vectors and k_array row vectors where both grids are
-    # n x m matrices
-    r_cols, k_rows = np.meshgrid(r_array, k_array)
-        
-    M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows * r_cols)
-
-    return M
-
-
 def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     """
     r^2 operator in momentum-space. For an evolved operator, enter in a unitary 
@@ -248,8 +201,8 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     r2_coordinate_space = np.diag(r_array**2) * regulator
      
     # Transform operator to momentum-space
-    s_transformation = hankel_transformation('3S1', k_array, r_array, dr)
-    d_transformation = hankel_transformation('3D1', k_array, r_array, dr)
+    s_transformation = hankel_transformation_r2k('3S1', k_array, r_array, dr)
+    d_transformation = hankel_transformation_r2k('3D1', k_array, r_array, dr)
 
     # Each variable here corresponds to a sub-block of the coupled channel 
     # matrix
