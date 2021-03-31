@@ -16,6 +16,8 @@
 #   03/29/21 --- Finalized and produces same results (up to factors of 2*\pi)
 #                as single_particle_momentum_dist.py. Also, fixed a bug
 #                involving the integration over total momentum K.
+#   03/31/21 --- Moved channel_L_value function to vnn.py. See vnn.py for
+#                details of the function.
 #
 #------------------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ class single_nucleon_momentum_distributions(object):
         # Save highest allowed L based on input channels
         highest_L = 0
         for channel in channels:
-            next_L = self.channel_L_value(channel)
+            next_L = vnn.channel_L_value(channel)
             if next_L > highest_L:
                 highest_L = next_L
         
@@ -152,7 +154,7 @@ class single_nucleon_momentum_distributions(object):
                 # L value (e.g., 0 + 2 <= 2 meaning we include the 3D1-3D1
                 # part of the coupled 3S1-3D1 channel if we input D-waves
                 # in channels)
-                if self.channel_L_value(channel) + 2 <= highest_L:
+                if vnn.channel_L_value(channel) + 2 <= highest_L:
                     deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
                     deltaU2_pn += (2*J+1)/4 * ( \
                                   delta_U_matrix[ntot:, :ntot]**2 + \
@@ -202,43 +204,6 @@ class single_nucleon_momentum_distributions(object):
                                               indexing='ij')
         _, self.K_weights_2d = np.meshgrid(k_array, K_weights, indexing='ij')
 
-        
-    def channel_L_value(self, channel):
-        """
-        Returns the L value associated with the given partial wave channel.
-
-        Parameters
-        ----------
-        channel : str
-            The partial wave channel (e.g. '1S0').
-
-        Returns
-        -------
-        L : int
-            Total orbital angular momentum associated with partial wave
-            channel [unitless].
-
-        """
-        
-        # This gives 'S', 'P', etc.
-        channel_letter = channel[1]
-        
-        if channel_letter == 'S':
-            return 0
-        elif channel_letter == 'P':
-            return 1
-        elif channel_letter == 'D':
-            return 2
-        elif channel_letter == 'F':
-            return 3
-        elif channel_letter == 'G':
-            return 4
-        elif channel_letter == 'H':
-            return 5
-        else:
-            print('Input channel is outside the range of this function.')
-            return None
-
 
     def theta_q_2k(self, kF, q):
         """
@@ -260,8 +225,8 @@ class single_nucleon_momentum_distributions(object):
 
         """
     
-        q_2k_magnitude = q**2 + 4 * self.k_grid_2d**2 - \
-                         4 * q * self.k_grid_2d * self.x_grid_2d
+        q_2k_magnitude = np.sqrt( q**2 + 4 * self.k_grid_2d**2 - \
+                                  4 * q * self.k_grid_2d * self.x_grid_2d )
         
         # This returns a (ntot, xtot) array of boolean values at every point
         # converted to 1's or 0's by multiplying 1
@@ -292,8 +257,9 @@ class single_nucleon_momentum_distributions(object):
 
         """
     
-        K_k_magnitude = self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
-                        sign * self.k_grid_3d * self.K_grid_3d * self.x_grid_3d
+        K_k_magnitude = np.sqrt( self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
+                                 sign * self.k_grid_3d * self.K_grid_3d * \
+                                 self.x_grid_3d )
         
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
@@ -512,7 +478,6 @@ if __name__ == '__main__':
     # from sums to integrals
     overall_factor = 4*np.pi * 1/(2*np.pi)**3
     
-    # BUG: this doesn't work for asymmetric nuclei for some reason
     p_a_p = q_array**2 * n_p_array / A * overall_factor
     p_a_n = q_array**2 * n_n_array / A * overall_factor
 
