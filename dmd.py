@@ -12,7 +12,7 @@
 # calculation of A/d ratios with snmd.py.
 #
 # Revision history:
-#   xx/xx/xx --- ...
+#   03/31/21 --- Moved hankel_transformation function to fourier_transform.py.
 #
 #------------------------------------------------------------------------------
 
@@ -20,67 +20,19 @@
 import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import RectBivariateSpline
-from scipy.special import spherical_jn
 # Scripts made by A.T.
+from Misc.fourier_transform import hankel_transformation_k2r
 from Misc.integration import gaussian_quadrature_mesh
 import observables as ob
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
-# Note: this should probably be in a separate script in Misc eventually
-def hankel_transformation(channel, k_array, k_weights, r_array):
-    """
-    <r|klm> matrix for given partial wave channel. If len(r_array) = m and
-    len(k_array) = n, then this function returns an m x n matrix.
-    
-    Parameters
-    ----------
-    channel : str
-        The partial wave channel (e.g. '1S0').
-    k_array : 1-D ndarray
-        Momentum array [fm^-1].
-    k_weights : 1-D ndarray
-        Momentum weights [fm^-1].
-    r_array : 1-D ndarray
-        Coordinates array [fm].
-        
-    Returns
-    -------
-    M : 2-D ndarray
-        Hankel transformation matrix [fm^-3].
-        
-    Notes
-    -----
-    The L > 0 transformations may require factors of i or -1. Check conventions.
-
-    """
-        
-    # L = 0 (0th spherical Bessel function)
-    if channel[1] == 'S':
-        L = 0
-    # L = 1
-    elif channel[1] == 'P':
-        L = 1
-    # L = 2
-    elif channel[1] == 'D':
-        L = 2
-        
-    # r_array row vectors and k_array column vectors where both grids are
-    # n x m matrices
-    k_cols, r_rows = np.meshgrid(k_array, r_array)
-    k_weights_cols, _ = np.meshgrid(k_weights, r_array)
-        
-    M = 2/np.pi * k_cols**2 * k_weights_cols * spherical_jn(L, k_cols * r_rows)
-
-    return M
-
-
 class deuteron_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0,
-                 r_array=np.linspace(0.1, 20.0, 200)):
+    def __init__( self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0,
+                  r_array=np.linspace(0.1, 20.0, 200) ):
         """
         Saves momentum arrays, grids, and matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -202,10 +154,10 @@ class deuteron_momentum_distributions(object):
         psi_k = psi_k_unitless / factor_array_cc # [fm^3/2]
     
         # Transform to coordinate space
-        hank_trans_3S1 = hankel_transformation('3S1', k_array, k_weights,
-                                               r_array)
-        hank_trans_3D1 = hankel_transformation('3D1', k_array, k_weights,
-                                               r_array)
+        hank_trans_3S1 = hankel_transformation_k2r('3S1', k_array, k_weights,
+                                                   r_array)
+        hank_trans_3D1 = hankel_transformation_k2r('3D1', k_array, k_weights,
+                                                   r_array)
     
         # Get 3S1 and 3D1 waves [fm^-3/2]
         psi_r_3S1 = hank_trans_3S1 @ psi_k[:ntot]
@@ -237,8 +189,8 @@ class deuteron_momentum_distributions(object):
 
         """
     
-        q_2k_magnitude = q**2 + 4 * self.k_grid_2d**2 - \
-                         4 * q * self.k_grid_2d * self.x_grid_2d
+        q_2k_magnitude = np.sqrt( q**2 + 4 * self.k_grid_2d**2 - \
+                                  4 * q * self.k_grid_2d * self.x_grid_2d )
         
         # This returns a (ntot, xtot) array of boolean values at every point
         # converted to 1's or 0's by multiplying 1
@@ -269,8 +221,9 @@ class deuteron_momentum_distributions(object):
 
         """
     
-        K_k_magnitude = self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
-                        sign * self.k_grid_3d * self.K_grid_3d * self.x_grid_3d
+        K_k_magnitude = np.sqrt( self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
+                                 sign * self.k_grid_3d * self.K_grid_3d * \
+                                 self.x_grid_3d )
         
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
