@@ -291,9 +291,9 @@ class single_nucleon_momentum_distributions(object):
             distribution.
             1. Default is 'total' which only returns the total momentum
                distribution.
-            1. Specify 'NN_contributions' for pp, pn (or nn, np) from the 
+            2. Specify 'NN_contributions' for pp, pn (or nn, np) from the 
                high-q term along with the total.
-            2. Specify 'q_contributions' for 1, \delta U, and 
+            3. Specify 'q_contributions' for 1, \delta U, and 
                \delta U \delta U^\dagger along with the total.
             
         Return
