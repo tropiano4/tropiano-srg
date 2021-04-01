@@ -170,10 +170,11 @@ class pair_momentum_distributions(object):
         self.deltaU2_pn = deltaU2_pn
 
 
-    def n_lambda_pp(self, q, kF):
+    def n_lambda_pp(self, q, kF, contributions='total'):
         """
         Pair momentum distribution for proton-proton only where kF specifies
-        the proton Fermi momentum.
+        the proton Fermi momentum. For neutron-neutron use kF corresponding to
+        a neutron.
         
         Parameters
         ----------
@@ -181,12 +182,20 @@ class pair_momentum_distributions(object):
             Relative momentum value [fm^-1].
         kF : float
             Fermi momentum [fm^-1].
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            2. Specify 'q_contributions' for 1, \delta U, and 
+               \delta U \delta U^\dagger along with the total.
             
         Return
         ------
-        output : float
+        output : float or tuple
             Pair momentum distribution [unitless] evaluated at momentum q
-            [fm^-1].
+            [fm^-1]. (Note, this function will return a tuple of floats if
+            contributions is not 'total'.)
             
         """
         
@@ -213,84 +222,107 @@ class pair_momentum_distributions(object):
             
             term_1 = 0
             term_deltaU = 0
-            
-            
-        ## LEFT OFF HERE ##
-        
+
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
         
-        # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
-        q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
-        
-        # We can only interpolate \deltaU(k,k') up to k_max
-        # Do not allow this next array to go above k_max - this may impose
-        # a cutoff on the K integration
-        q_K_array_cutoff = q_K_array[ q_K_array < max(self.k_array) ]
-        K_cutoff_index = len(q_K_array_cutoff)
-        
-        # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array_cutoff,
-                                        indexing='ij')
-        
-        # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
-        # and np if kF_1 corresponds to a neutron)
-        deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
-        deltaU2_pn_array = self.deltaU2_pn_func.ev(k_grid, q_K_grid)
-        
-        # Build x-dependent part and integrate with resized K
-        
-        # These are (ntot, Ktot, xtot) arrays of
-        # \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every total momentum
-        # K, relative momentum k, and angle x where sign specifies the sign of
-        # k_vec
-        theta_kF1_K_plus_k_x = self.theta_K_k(kF_1, sign=1)
-        theta_kF1_K_minus_k_x = self.theta_K_k(kF_1, sign=-1)
-        theta_kF2_K_plus_k_x = self.theta_K_k(kF_2, sign=1)
-        theta_kF2_K_minus_k_x = self.theta_K_k(kF_2, sign=-1)
-            
-        # Integrate over x first
-        # This sum collapses theta_K_k_x to a matrix dependent only on K and 
-        # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
-            
-        # \int dx/2 \theta_pp (or \theta_nn)
-        theta_kF1_kF1_K_k = ( np.sum( 
-                              theta_kF1_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) )[:, :K_cutoff_index] / 2
-        # \int dx/2 \theta_pn (or \theta_np)
-        theta_kF1_kF2_K_k = ( np.sum( 
-                              theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
-                              theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) )[:, :K_cutoff_index] / 2
+        # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
+        # dk k^2
+        integrand_k = self.deltaU2_pp[:, q_index] * self.k_integration_measure
 
-        # Build K integrand (ntot, K_cutoff_index) array spliting pp and np
-        # contributions (or nn and np)
-        integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * (\
-                            deltaU2_pp_array * theta_kF1_kF1_K_k + \
-                            deltaU2_pn_array * theta_kF1_kF2_K_k )
-
-        # Integrate over K and build k integrand
-        integrand_k = np.sum( integrand_k_K, axis=-1 ) * \
-                      self.k_integration_measure
+        # Index of where to stop the integral in the momentum mesh k_array
+        # (This is from \theta(kFp-k))
+        kF_cutoff = find_q_index(kF, self.k_array)
                       
         # Integrate over k
-        deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
-        term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
+        deltaU2_factor = 1/4 * 1/(2*np.pi)**3 * (2/np.pi)**2 * 1/(4*np.pi)
+        term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
+        
+        # Add up each term for total
+        total = term_1 + term_deltaU + term_deltaU2
 
-        # Return total
-        return term_1 + term_deltaU + term_deltaU2
+        # Return contributions and total or just total
+        if contributions == 'q_contributions':
+            return total, term_1, term_deltaU, term_deltaU2
+        else: # Default
+            return total
         
     
-    def n_lambda_pn(self):
+    def n_lambda_pn(self, q, kF_1, kF_2, contributions='total'):
+        """
+        Pair momentum distribution for proton-neutron only where kF_1 (kF_2)
+        specifies the proton (neutron) Fermi momentum. Flip the kF arguments
+        for neutron-proton.
         
-        return None
-    
-    
-    def n_lambda_total(self, q, kF_p, kF_n):
-        
-        # total = self.n_lambda_pp(q, kF_p) + self.n_lambda_pn(q, kF_p, kF_n) + \
-        #         self.n_lambda_pp(q, kF_n) + self.n_lambda_np(q, kF_n, kF_p)
+        Parameters
+        ----------
+        q : float
+            Relative momentum value [fm^-1].
+        kF : float
+            Fermi momentum [fm^-1].
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            2. Specify 'q_contributions' for 1, \delta U, and 
+               \delta U \delta U^\dagger along with the total.
             
-        # Add up each contribution
-        return None
+        Return
+        ------
+        output : float or tuple
+            Pair momentum distribution [unitless] evaluated at momentum q
+            [fm^-1]. (Note, this function will return a tuple of floats if
+            contributions is not 'total'.)
+            
+        """
+        
+        # In the Q=0 case, one of the \theta's is more restrictive
+        kF = min(kF_1, kF_2) # Take smaller kF and evaluate
+        
+        # Find index of q in k_array
+        q_index = find_q_index(q, self.k_array)
+        
+        # Split into low- and high-q terms
+        
+        # Low-q terms
+        # Term 1: 1 * n(q) * 1
+        # Term 2: \deltaU * n(q) * 1
+        # Term 3: 1 * n(q) * \deltaU^\dagger = Term 2
+        # \delta U term : Term 2 + Term 3
+        if q < kF: # \theta(kF - q)*\theta(kF - q)
+            
+            term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
+            
+            deltaU_factor = 1/(4*np.pi) * 2/np.pi
+            # delta U evaluated at q
+            term_deltaU = deltaU_factor * self.deltaU_pn[q_index, q_index]
+            
+        # q > kF_1
+        else:
+            
+            term_1 = 0
+            term_deltaU = 0
+
+        # High-q term: \deltaU * n(q) * \deltaU^\dagger
+        
+        # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
+        # dk k^2
+        integrand_k = self.deltaU2_pn[:, q_index] * self.k_integration_measure
+
+        # Index of where to stop the integral in the momentum mesh k_array
+        # (This is from \theta(kFp-k))
+        kF_cutoff = find_q_index(kF, self.k_array)
+                      
+        # Integrate over k
+        deltaU2_factor = 1/4 * 1/(2*np.pi)**3 * (2/np.pi)**2 * 1/(4*np.pi) * 2
+        # Last factor of 2 is for \theta^p \theta^n + \theta^p \theta^n
+        term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
+        
+        # Add up each term for total
+        total = term_1 + term_deltaU + term_deltaU2
+
+        # Return contributions and total or just total
+        if contributions == 'q_contributions':
+            return total, term_1, term_deltaU, term_deltaU2
+        else: # Default
+            return total
