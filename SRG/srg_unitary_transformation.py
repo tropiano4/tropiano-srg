@@ -9,6 +9,10 @@
 # SRG unitary transformation function returns an SRG unitary transformation 
 # given an initial and SRG evolved Hamiltonian in units MeV.
 #
+# Revision history:
+#   04/02/21 --- Switched la.eig to la.eigh for hermitian matrices after
+#                issues with eig returning complex eigenvalues with 0j values.
+#
 #------------------------------------------------------------------------------
 
 
@@ -37,25 +41,11 @@ def SRG_unitary_transformation(H_initial, H_evolved):
     
     # Length of the matrices
     N = len(H_initial)
-    
+
     # Diagonalize the initial Hamiltonian
-    eig_initial, vecs_initial = la.eig(H_initial)
+    _, vecs_initial = la.eigh(H_initial)
     # Diagonalize the evolved Hamiltonian
-    eig_evolved, vecs_evolved = la.eig(H_evolved)
-    
-    # Store eigenvalue and eigenvector pairs in a dictionary which will sort by 
-    # lowest eigenvalue naturally
-    d_initial = {}
-    d_evolved = {}
-    
-    for i in range(N):
-        
-        d_initial[ eig_initial[i] ] = vecs_initial[:, i]
-        d_evolved[ eig_evolved[i] ] = vecs_evolved[:, i]
-        
-    # Sort eigenvalues from lowest to highest energy
-    eig_initial = np.sort(eig_initial)
-    eig_evolved = np.sort(eig_evolved)
+    _, vecs_evolved = la.eigh(H_evolved)
 
     # Initialize unitary transformation U
     U = np.zeros( (N, N) )
@@ -64,9 +54,9 @@ def SRG_unitary_transformation(H_initial, H_evolved):
     # evolved and initial eigenvectors
     for alpha in range(N):
         
-        # Eigenvectors
-        psi_alpha_initial = d_initial[ eig_initial[alpha] ]
-        psi_alpha_evolved = d_evolved[ eig_evolved[alpha] ]
+        # Eigenvectors (these are already sorted correctly from eigh)
+        psi_alpha_initial = vecs_initial[:, alpha]
+        psi_alpha_evolved = vecs_evolved[:, alpha]
         
         # Make sure the phases match using dot product
         if psi_alpha_initial.T @ psi_alpha_evolved < 0:
