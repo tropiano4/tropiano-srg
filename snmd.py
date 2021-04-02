@@ -18,6 +18,8 @@
 #                involving the integration over total momentum K.
 #   03/31/21 --- Moved channel_L_value function to vnn.py. See vnn.py for
 #                details of the function.
+#   04/02/21 --- Added option to return pp and pn (or nn and np) contributions
+#                to \delta U \delta U^\dagger term along with total.
 #
 #------------------------------------------------------------------------------
 
@@ -291,10 +293,11 @@ class single_nucleon_momentum_distributions(object):
             distribution.
             1. Default is 'total' which only returns the total momentum
                distribution.
-            2. Specify 'NN_contributions' for pp, pn (or nn, np) from the 
-               high-q term along with the total.
-            3. Specify 'q_contributions' for 1, \delta U, and 
-               \delta U \delta U^\dagger along with the total.
+            2. Specify 'NN_contributions' for total, pp, and pn (or nn, np)
+               where the nucleon-nucleon contributions are isolated in the
+               high-q term.
+            3. Specify 'q_contributions' for total, 1, \delta U, and 
+               \delta U \delta U^\dagger.
             
         Return
         ------
@@ -392,31 +395,61 @@ class single_nucleon_momentum_distributions(object):
                               theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
                               theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
                               axis=-1 ) )[:, :K_cutoff_index] / 2
+        
+        # Overall factor in front of \delta U^2 term
+        deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
+        
+        # Split pp and np up to isolate contributions
+        if contributions == 'NN_contributions':
+            
+            # Build K integrand (ntot, K_cutoff_index) array isolating pp and
+            # pn terms
+            integrand_k_K_pp = self.K_integration_measure[:, :K_cutoff_index] * \
+                               deltaU2_pp_array * theta_kF1_kF1_K_k
+            integrand_k_K_pn = self.K_integration_measure[:, :K_cutoff_index] * \
+                               deltaU2_pn_array * theta_kF1_kF2_K_k
+                               
+            # Integrate over K and build k integrand
+            integrand_k_pp = np.sum( integrand_k_K_pp, axis=-1 ) * \
+                             self.k_integration_measure
+            integrand_k_pn = np.sum( integrand_k_K_pn, axis=-1 ) * \
+                             self.k_integration_measure
+                             
+            # Integrate over k
+            term_deltaU2_pp = deltaU2_factor * np.sum(integrand_k_pp)
+            term_deltaU2_pn = deltaU2_factor * np.sum(integrand_k_pn)
+            
+            # Add for total \delta U^2 term then calculate total
+            term_deltaU2 = term_deltaU2_pp + term_deltaU2_pn
+            total = total = term_1 + term_deltaU + term_deltaU2
+            
+            # Return \delta U^2 pp and pn (or nn and np) contributions along
+            # with total
+            return total, term_deltaU2_pp, term_deltaU2_pn
+            
+        # Otherwise, add pp and pn
+        else:
 
-        # Build K integrand (ntot, K_cutoff_index) array spliting pp and np
-        # contributions (or nn and np)
-        integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * (\
+            # Build K integrand (ntot, K_cutoff_index) array
+            integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * (\
                             deltaU2_pp_array * theta_kF1_kF1_K_k + \
                             deltaU2_pn_array * theta_kF1_kF2_K_k )
 
-        # Integrate over K and build k integrand
-        integrand_k = np.sum( integrand_k_K, axis=-1 ) * \
-                      self.k_integration_measure
+            # Integrate over K and build k integrand
+            integrand_k = np.sum( integrand_k_K, axis=-1 ) * \
+                          self.k_integration_measure
                       
-        # Integrate over k
-        deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
-        term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
+            # Integrate over k
+            term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
-        # Add up each contribution for total
-        total = term_1 + term_deltaU + term_deltaU2
+            # Add up each contribution for total
+            total = term_1 + term_deltaU + term_deltaU2
 
-        # Return contributions and total or just total
-        if contributions == 'NN_contributions':
-            return None # Work in progress
-        elif contributions == 'q_contributions':
-            return term_1, term_deltaU, term_deltaU2, total
-        else: # Default
-            return total
+            # Return contributions and total or just total
+            if contributions == 'q_contributions':
+                return total, term_1, term_deltaU, term_deltaU2
+            else: # Default
+                return total
     
     
 if __name__ == '__main__':
@@ -432,7 +465,7 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    channels = ('1S0', '3S1', '1P1', '3P0', '3P1', '3P2')
+    channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2', '1D2', '3D2', '3D3')
     kmax, kmid, ntot = 10.0, 2.0, 120
     # kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
