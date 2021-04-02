@@ -118,6 +118,8 @@ class pair_momentum_distributions(object):
             # 2J+1 factor
             J = int( channel[-1] )
             
+            print(2*J+1)
+            
             # Add to the pp and pn terms
             # Coupled-channel
             if vnn.coupled_channel(channel):
