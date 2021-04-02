@@ -17,7 +17,6 @@
 
 
 from os import getcwd, chdir
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -179,6 +178,8 @@ if __name__ == '__main__':
     
     
     # --- Test densities --- #
+    
+    import matplotlib.pyplot as plt
 
     # Details of example nuclei (format is [nuclei, Z, N])
     nuclei_details = [ ['C12', 6, 6], ['O16', 8, 8], ['Ca40', 20, 20],
