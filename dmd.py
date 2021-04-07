@@ -628,7 +628,7 @@ if __name__ == '__main__':
     
     # Load momentum and weights
     q_array, q_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
-    factor_array = q_array**2 * q_weights
+    factor_array = 2/np.pi*q_array**2 * q_weights
     
     # Load hamiltonian
     H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
@@ -637,6 +637,9 @@ if __name__ == '__main__':
     psi_exact_unitless = ob.wave_function(H_matrix)
     psi_squared_exact = ( psi_exact_unitless[:ntot]**2 + \
                           psi_exact_unitless[ntot:]**2 ) / factor_array
+    
+    norm = np.sum(factor_array*psi_squared_exact)
+    print('Normalization of exact: 2/\pi \dq q^2 n_d(q) = %.5f' % norm)
         
     # Calculate using LDA
     dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
@@ -645,10 +648,10 @@ if __name__ == '__main__':
     # Plot pair momentum distributions
     plt.semilogy(q_array, psi_squared_exact, label='Exact')
     plt.semilogy(q_array, n_d_array, label='LDA')
-    plt.semilogy(q_array, n_d_array * (2*np.pi)**3,
-                  label=r'$(2\pi)^3$' + 'LDA')
-    plt.xlim( (0.0, 5.0) )
-    plt.ylim( (1e-5, 1e3) )
+    plt.semilogy(q_array, n_d_array * (2*np.pi)**3 * np.pi/2,
+                  label=r'$\pi/2 \times (2\pi)^3 \times$' + 'LDA')
+    plt.xlim( (0.0, 4.0) )
+    plt.ylim( (1e-6, 1e7) )
     plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
     plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
     plt.legend(loc=0)
