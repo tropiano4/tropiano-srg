@@ -30,6 +30,7 @@ Short-range correlation physics at low RG resolution
   * Evaluate A-body matrix elements under LDA (free Fermi gas).
 
 5. LDA results
+  * FIG: high-q tail of momentum distributions.
   * FIG: (pp+pn)/(nn+np) ratio.
     - np dominance to scalar counting.
   * FIG: 3S1-3D1 / 1S0 ratio.
