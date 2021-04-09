@@ -91,25 +91,15 @@ def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
                           (kvnn_string, kmax, kmid, ntot)
     
     chdir(potential_directory)
-    
-    # Initialize arrays
-    k_array = np.zeros(ntot)
-    k_weights = np.zeros(ntot)
-    
-    # Open mesh file and load
+
+    # Load mesh file
     mesh_file = 'vsrg_%s_kvnn_%s_lam12.0_reg_0_3_0_mesh.out' % \
-                (channel, kvnn_string)
-    f = open(mesh_file, 'r')
+                (channel, kvnn_string)    
+    data = np.loadtxt(mesh_file)
     
-    i = 0
-    for line in f:
-        unit = line.strip().split() # This is a list
-        k_array[i] = unit[0] # First element of list
-        k_weights[i] = unit[1] # Second element of list
-        i += 1
-    
-    # Close file
-    f.close()
+    # Momentum is the first column and weights are the second
+    k_array = data[:, 0] # fm^-1
+    k_weights = data[:, 1] # fm^-1
       
     # Go back to original directory
     chdir(cwd)
@@ -268,13 +258,13 @@ def load_kinetic_energy(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
     
-    # Load momentum array
+    # Load momentum array [fm^-1]
     k_array = load_momentum(kvnn, channel, kmax, kmid, ntot)[0]
     
-    # Matrix of (h-bar*k)^2 / M along diagonal (n x n)
+    # Matrix of (h-bar*k)^2 / M along diagonal (n x n) [MeV]
     T = np.diag(k_array**2) * hbar_sq_over_m
     
-    # Coupled channel potential
+    # Coupled channel operator
     if coupled_channel(channel):
         
         # Length of k_array
@@ -343,7 +333,7 @@ def load_hamiltonian(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     k_array, k_weights = load_momentum(kvnn, channel, kmax, kmid, ntot)
     
     # Convert to units MeV
-    V = convert2MeV(k_array, k_weights, V_fm, coupled_channel(channel))
+    V = convert2MeV( k_array, k_weights, V_fm, coupled_channel(channel) )
     
     # Add T and V for Hamiltonian
     H = T + V
@@ -526,9 +516,6 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
     
     f = open(vnn_file,'w')
     
-    # Length of momentum array
-    n = len(k_array)
-    
     # Coupled-channel potentials are written differently - write each sub-
     # block as a column
     if coupled_channel(channel):
@@ -537,25 +524,18 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
                  'kp', 'V11', 'V12', 'V21', 'V22')
         f.write('#' + header + '\n')
         
-        for i in range(n):
-            
-            k = k_array[i]
-            w = k_weights[i]
-            
-            for j in range(n):
-                
-                kp = k_array[j]
-                wp = k_weights[j]
-                # For conversion to fm multiply by this factor
-                factor = np.pi / ( 2.0 * k * kp * np.sqrt(w*wp) )
-                
+        for i, (ik, iw) in enumerate( zip(k_array, k_weights) ):
+            for j, (jk, jw) in enumerate( zip(k_array, k_weights) ):
+
+                # Divide out the integration measure 2/\pi dk k^2
+                factor = np.pi / ( 2.0 * ik * jk * np.sqrt(iw * jw) )
                 v11 = V[i, j] * factor
-                v12 = V[i, j+n] * factor
-                v21 = V[i+n, j] * factor
-                v22 = V[i+n, j+n] * factor
+                v12 = V[i, j+ntot] * factor
+                v21 = V[i+ntot, j] * factor
+                v22 = V[i+ntot, j+ntot] * factor
                 
                 line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format(
-                        k, kp, v11, v12, v21, v22)
+                        ik, jk, v11, v12, v21, v22)
                 
                 f.write(line + '\n')
                 
@@ -564,21 +544,15 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
         header = '{:^15s}{:^15s}{:^23s}'.format('k', 'kp', 'V')
         f.write('#' + header + '\n')
         
-        for i in range(n):
-            
-            k = k_array[i]
-            w = k_weights[i]
-            
-            for j in range(n):
+        for i, (ik, iw) in enumerate( zip(k_array, k_weights) ):
+            for j, (jk, jw) in enumerate( zip(k_array, k_weights) ):
+
+                # Divide out the integration measure 2/\pi dk k^2
+                factor = np.pi / ( 2.0 * ik * jk * np.sqrt(iw * jw) )
                 
-                kp = k_array[j]
-                wp = k_weights[j]
-                # For conversion to fm multiply by this factor
-                factor = np.pi / ( 2.0 * k * kp * np.sqrt(w*wp) )
+                v = V[i,j] * factor
                 
-                v = V[i,j]*factor
-                
-                line = '{:^15.6f}{:^15.6f}{:^23e}'.format(k, kp, v)
+                line = '{:^15.6f}{:^15.6f}{:^23e}'.format(ik, jk, v)
                 
                 f.write(line+'\n')
                 
@@ -649,30 +623,22 @@ def save_omega(k_array, O, kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     
     f = open(omega_file,'w')
     
-    # Length of momentum array
-    n = len(k_array)
-    
     if coupled_channel(channel):
         
         header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format('k', 'kp', 
                   'O11', 'O12', 'O21', 'O22')
         f.write('#' + header + '\n')
         
-        for i in range(n):
-            
-            k = k_array[i]
-            
-            for j in range(n):
-                
-                kp = k_array[j]
-                
+        for i, ik in enumerate(k_array):
+            for j, jk in enumerate(k_array):
+
                 o11 = O[i, j]
-                o12 = O[i, j+n]
-                o21 = O[i+n, j]
-                o22 = O[i+n, j+n]
+                o12 = O[i, j+ntot]
+                o21 = O[i+ntot, j]
+                o22 = O[i+ntot, j+ntot]
                 
                 line = '{:^15.6f}{:^15.6f}{:^23e}{:^23e}{:^23e}{:^23e}'.format(
-                        k, kp, o11, o12, o21, o22)
+                        ik, jk, o11, o12, o21, o22)
                 
                 f.write(line + '\n')
                 
@@ -681,17 +647,12 @@ def save_omega(k_array, O, kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
         header = '{:^15s}{:^15s}{:^23s}'.format('k', 'kp', 'O')
         f.write('#' + header + '\n')
         
-        for i in range(n):
-            
-            k = k_array[i]
-            
-            for j in range(n):
-                
-                kp = k_array[j]
+        for i, ik in enumerate(k_array):
+            for j, jk in enumerate(k_array):
                 
                 o = O[i,j]
                 
-                line = '{:^15.6f}{:^15.6f}{:^23e}'.format(k, kp, o)
+                line = '{:^15.6f}{:^15.6f}{:^23e}'.format(ik, jk, o)
                 
                 f.write(line + '\n')
                 
@@ -780,7 +741,7 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     """
     Converts an NN potential from units fm to MeV with momentum array and 
     weights. That is, the returned potential includes integration factors
-    along with hbar^2 / M.
+    along with dividing out M / h-bar^2.
     
     Parameters
     ----------
@@ -796,7 +757,7 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     Returns
     -------
     V_MeV : 2-D ndarray
-        Potential matrix [MeV].
+        Potential matrix with integration measure [MeV].
 
     """
     
@@ -843,12 +804,13 @@ def mesh_specifications(kvnn):
     # In all cases so far, ntot = 120
     ntot = 120
     
-    # Argonne v18 and Wendt LO (4, 9, 20 fm^-1)
+    #  Wendt LO (4, 9, 20 fm^-1)
     if kvnn in [900, 901, 902]:
         kmax = 30.0
         kmid = 4.0
         
     # All new chiral potentials are generated with the following mesh
+    # Set default mesh for AV18 to these values as well
     else:
         kmax = 10.0
         kmid = 2.0
