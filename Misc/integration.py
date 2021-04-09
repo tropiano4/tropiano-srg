@@ -10,16 +10,19 @@
 # quadrature.
 #
 # Revision history:
-#   xx/xx/xx --- ...
+#   04/09/21 --- Added Gauss-Chebyshev as an option for Gaussian quadrature
+#                points.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
+from numpy.polynomial.chebyshev import chebgauss
 from numpy.polynomial.legendre import leggauss
 
 
-def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0):
+def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0,
+                             method='legendre'):
     """
     Creates an integration mesh from [xmin, xmax] under Gaussian quadrature.
     Option to split into two connected meshes by specifying the mid-point and
@@ -38,6 +41,10 @@ def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0):
     nmod : int, optional
         Number of points in the interval [xmin, xmid]. If nmod=0, the
         function will not split up the mesh into two pieces.
+    method : str, optional
+        Method to compute sample points and weights. Default is 'legendre' for
+        Gauss-Legendre quadrature. Specify 'chebyshev' for Gauss-Chebyshev
+        quadrature.
 
     Returns
     -------
@@ -59,7 +66,11 @@ def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0):
     # Standard (no mid-point)
     if nmod == 0 and xmid == 0:
         
-        y_array, y_weights = leggauss(ntot) # Interval [-1, 1]
+        # Interval [-1, 1]
+        if method == 'legendre':
+            y_array, y_weights = leggauss(ntot)
+        elif method == 'chebyshev':
+            y_array, y_weights = chebgauss(ntot)
         
         # Convert from interval [-1, 1] to [a, b] (meaning y_array -> x_array)
         x_array = 0.5 * (y_array + 1) * (xmax - xmin) + xmin
@@ -68,8 +79,13 @@ def gaussian_quadrature_mesh(xmax, ntot, xmin=0, xmid=0, nmod=0):
     # Connect low- and high-x meshes    
     else:
         
-        y_array_1, y_weights_1 = leggauss(nmod) # Interval [-1, 1]
-        y_array_2, y_weights_2 = leggauss(ntot - nmod)
+        # Interval [-1, 1]
+        if method == 'legendre':
+            y_array_1, y_weights_1 = leggauss(nmod)
+            y_array_2, y_weights_2 = leggauss(ntot - nmod)
+        elif method == 'chebyshev':
+            y_array_1, y_weights_1 = chebgauss(nmod)
+            y_array_2, y_weights_2 = chebgauss(ntot - nmod)
         
         # Convert from interval [-1, 1] to [a, b] (meaning y_array -> x_array)
         x_array_1 = 0.5 * (y_array_1 + 1) * (xmid - xmin) + xmin
