@@ -127,7 +127,7 @@ def momentum_projection_operator(q, k_array, k_weights, channel,
     delta_function_array /= factor_array
     
     # Build momentum projection operator
-    row, col = np.meshgrid(delta_function_array, delta_function_array)
+    col, row = np.meshgrid(delta_function_array, delta_function_array)
     operator = row * col
 
     # Build coupled channel operator 
@@ -213,7 +213,7 @@ def r2_operator(k_array, k_weights, r_array, dr, U=np.empty(0), a=1000):
     factor_array = np.concatenate( ( np.sqrt(k_weights) * k_array, 
                                      np.sqrt(k_weights) * k_array ) ) * \
                    np.sqrt(2/np.pi)
-    row, col = np.meshgrid(factor_array, factor_array)
+    col, row = np.meshgrid(factor_array, factor_array)
         
     # Length of k_array
     n = len(k_array)

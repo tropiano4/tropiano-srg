@@ -70,7 +70,7 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     """
     Diagonalizes the Hamiltonian and returns the wave function of the state
     nearest energy = eps. The wave function is unitless, that is, the momenta 
-    and weights are factored in such that \sum_i { psi(k_i)^2 } = 1. For an 
+    and weights are factored in such that \sum_i { |psi(k_i)|^2 } = 1. For an 
     evolved wave function, enter in a unitary transformation U.
     
     Parameters
@@ -93,7 +93,7 @@ def wave_function(H_matrix, eps=-2.22, U=np.empty(0)):
     -----
     We use the following completeness relation:
         
-        1 = 2/\pi \sum_{l} \int_0^{\infty} dk k^2 |k l m> <k l m|,
+        1 = 2/\pi \sum_{l, m} \int_0^{\infty} dk k^2 |k l m> <k l m|,
         
     which means the unitless wave functions include a factor of \sqrt[2/\pi].
         
@@ -202,20 +202,16 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     phase_shifts = np.zeros(M)
 
     # Loop over each lab energy
-    for i in range(M):
-        
-        # Lab energy
-        e = e_array[i]
-        
+    for i, ie in enumerate(e_array):
+
         # Momentum corresponding to center of mass energy E_lab / 2 where the 
         # factor of 41.47 converts from MeV to fm^-1
-        k0 = np.sqrt( e / 2.0 / hbar_sq_over_m )
+        k0 = np.sqrt( ie / 2.0 / hbar_sq_over_m )
         
         # Build D_vector
         
         # First N elements of D_vector
-        D_vector = 2.0/np.pi * ( k_weights * k_array**2 ) / \
-                   ( k_array**2 - k0**2 )
+        D_vector = 2.0/np.pi * (k_weights * k_array**2) / (k_array**2 - k0**2)
         # N+1 element of D_vector
         D_last = -2.0/np.pi * k0**2 * ( np.sum( k_weights /
                  ( k_array**2 - k0**2 ) ) + np.log( ( k_max + k0 ) / \
@@ -304,20 +300,16 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
     phase_shifts = np.zeros( (M, 3) )
 
     # Loop over each lab energy
-    for i in range(M):
-        
-        # Lab energy
-        e = e_array[i]
-        
+    for i, ie in enumerate(e_array):
+
         # Momentum corresponding to center of mass energy E_lab / 2 where the 
         # factor of 41.47 converts from MeV to fm^-1
-        k0 = np.sqrt( e / 2.0 / hbar_sq_over_m )
+        k0 = np.sqrt( ie / 2.0 / hbar_sq_over_m )
         
         # Build D_vector
         
         # First N elements of D_vector
-        D_vector = 2.0/np.pi * ( k_weights * k_array**2 ) / \
-                   ( k_array**2 - k0**2 )
+        D_vector = 2.0/np.pi * (k_weights * k_array**2) / (k_array**2 - k0**2)
         # N+1 element of D_vector
         D_last = -2.0/np.pi * k0**2 *( np.sum( k_weights /
                  ( k_array**2 - k0**2 ) ) + np.log( ( k_max + k0 ) /
@@ -394,7 +386,7 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
             while delta_bar_a < -100.0 * np.pi / 180.0:
             #while delta_bar_a < 0.0:
                 delta_bar_a += np.pi
-            if e > 120.0:
+            if ie > 120.0:
                 ang = 80.0 * np.pi / 180.0
             else:
                 ang = np.pi
@@ -532,9 +524,9 @@ def quadrupole_moment_from_kspace(psi, k_array, k_weights):
     """
         
     # Split psi into 3S1 and 3D1 components
-    n = int( len(psi) / 2 )
-    u_unitless = psi[:n]
-    w_unitless = psi[n:]
+    ntot = len(k_array)
+    u_unitless = psi[:ntot]
+    w_unitless = psi[ntot:]
     
     # Divide out momenta and weights
     u = u_unitless / ( k_array * np.sqrt(k_weights) ) # fm^3/2

@@ -771,7 +771,7 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
         k_weights = np.concatenate( (k_weights, k_weights) )
     
     # Build grids of momentum and weights factor
-    row, col = np.meshgrid( k_array * np.sqrt(k_weights),
+    col, row = np.meshgrid( k_array * np.sqrt(k_weights),
                             k_array * np.sqrt(k_weights) )
     
     # Multiply the potential by 2/pi * row * col gives fm^-2 conversion and 
@@ -895,7 +895,7 @@ def convert_potential_to_new_mesh(kvnn, channel, old_mesh, new_mesh):
     if coupled_channel(channel):
         factor_array = np.concatenate( (factor_array, factor_array) )
         
-    row, col = np.meshgrid(factor_array, factor_array)
+    col, row = np.meshgrid(factor_array, factor_array)
     
     V_matrix_new *= row * col
     
