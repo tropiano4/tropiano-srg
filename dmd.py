@@ -644,12 +644,16 @@ if __name__ == '__main__':
     # Calculate using LDA
     dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     n_d_array = dmd.local_density_approximation(q_array, 'pair')
+    n_d_p_array = dmd.local_density_approximation(q_array, 'single-nucleon')
     
     # Plot pair momentum distributions
-    plt.semilogy(q_array, psi_squared_exact, label='Exact')
-    plt.semilogy(q_array, n_d_array, label='LDA')
+    plt.semilogy(q_array, psi_squared_exact, label='AV18')
+    plt.semilogy(q_array, n_d_array, label='LDA pair')
     plt.semilogy(q_array, n_d_array * (2*np.pi)**3 * np.pi/2,
-                  label=r'$\pi/2 \times (2\pi)^3 \times$' + 'LDA')
+                  label=r'$\pi/2 \times (2\pi)^3 \times$' + 'LDA pair')
+    plt.semilogy(q_array, n_d_p_array, label='LDA proton')
+    plt.semilogy(q_array, n_d_p_array * (2*np.pi)**6 * np.pi/2,
+                  label=r'$\pi/2 \times (2\pi)^6 \times$' + 'LDA proton')
     plt.xlim( (0.0, 4.0) )
     plt.ylim( (1e-6, 1e7) )
     plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
