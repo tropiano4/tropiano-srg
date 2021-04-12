@@ -30,7 +30,8 @@ Short-range correlation physics at low RG resolution
   * Evaluate A-body matrix elements under LDA (free Fermi gas).
 
 5. LDA results
-  * FIG: high-q tail of momentum distributions.
+  * FIG: high-q tail of momentum distributions. Universality.
+    - Scale up the 12C, 16O, 40Ca SNMD's by a factor based on 16O AV18 data.
   * FIG: (pp+pn)/(nn+np) ratio.
     - np dominance to scalar counting.
   * FIG: 3S1-3D1 / 1S0 ratio.
@@ -44,6 +45,7 @@ Short-range correlation physics at low RG resolution
   * Move onto cross sections, scale/scheme dependence of extracted properties.
   * Impact of FSI's, how physical interpretations depend on the RG scale.
   * Knock-out reactions (high resolution operators with low resolution structure mixes scales).
+  * What if the probe is a nucleon? See MH talk!
 
 7. Extras
   * Factorization figures.
