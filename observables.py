@@ -24,6 +24,10 @@
 #                operators to follow the conventions in the notes
 #                "NN operator conventions".
 #   06/05/20 --- Updated rms_radius_from_kspace function.
+#   04/14/21 --- Corrected bug in phase shifts functions where \Lambda (called
+#                k_max in the functions) was taken to be the last node in the
+#                mesh not the actual maximum value (e.g., 9.99 instead of 10
+#                fm^-1).
 #
 # Notes:
 #   * Some functions here only work for the 3S1 - 3D1 coupled channel. This 
@@ -190,7 +194,7 @@ def phase_shifts(e_array, V_matrix, k_array, k_weights):
     M = len(e_array)
     
     # Maximum momentum value in fm^-1
-    k_max = max(k_array)
+    k_max = round( max(k_array) )
         
     # Length of the momentum array
     N = len(k_array)
@@ -284,7 +288,7 @@ def coupled_channel_phase_shifts(e_array, V_matrix, k_array, k_weights,
     M = len(e_array)
     
     # Maximum momentum value in fm^-1
-    k_max = max(k_array)
+    k_max = round( max(k_array) )
         
     # Length of the momentum array
     N = len(k_array)
