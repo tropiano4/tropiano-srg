@@ -8,7 +8,7 @@
 # 
 # The purpose of this script is to test out codes. Generally, something is
 # tested here, which evolves into several tests/checks. In the case of an
-# extensive script, one should save the script as a seperate file with an
+# extensive script, one should save the script as a separate file with an
 # extension _testv#.py where v# corresponds to the version number. For example,
 # momentum_projection_operator_testv1.py. Use the revision history below to
 # document when and why these files are created.
@@ -39,336 +39,203 @@
 #   03/16/21 --- Testing single-nucleon momentum distributions for different
 #                nuclei using LDA. Created single_particle_momentum_dist.py
 #                in Old_codes.
+#   04/14/21 --- Creating AV18 SRG evolution figure for APS April Meeting
+#                presentation.
+#                potential_contours_kvnn_6_channel_1P1_Wegner_lamb_1p5.png in
+#                Figures/Operator_evolution/Old_figures/Potential_contours.
 #
 #------------------------------------------------------------------------------
 
 
 # Description of this test:
-#   Calculate n_{\lambda}(q) for different nuclei using LDA.
+#   Making an AV18 SRG plot for the April APS meeting.
 
 
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
 # Scripts made by A.T.
-from lda import load_density, LDA
-from operators import find_q_index
+from Figures import figures_functions as ff
 from Potentials.vsrg_macos import vnn
-from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
-class pair_momentum_distributions(object):
+# Copied from operator_evolution_fig.ipynb
+def potential_contours(kvnn, channel, generator, lambda_array, colorbar_limits=(-1.0, 1.0)):
+    """
+    Plots SRG-evolved NN potentials [fm] with respect to momentum [fm^-1]. This
+    is an 1 x n contour plot where n is the size of lambda_array. Analogous to 
+    potential_contours_kvnns function but for one potential only.
     
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    generator : str, optional
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lambda_array : 1-D ndarray
+        Lambda evolution values [fm^-1]. These values serve as block-diagonal cutoffs in the case of block-diagonal
+        decoupling.
+    colorbar_limits : tuple, optional
+        Tuple specifying the minimum and maximum values [fm] of the colorbar.
+
+    Returns
+    -------
+    f : Figure
+        Figure object from matplotlib subplots function.
+    axs : axes.Axes object
+        Array of Axes objects from matplotlib subplots function.
     
-    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0):
-        """
-        Description.
-
-        Parameters
-        ----------
-        kvnn : TYPE
-            DESCRIPTION.
-        lamb : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
-        
-        channels = ['1S0', '3S1']
-        
-        d = {}
-        
-        for channel in channels:
-            
-            # Store relevant pieces in dictionary for each channel
-            d[channel] = {}
-            
-            # Load momentum mesh and store in dictionary
-            k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid,
-                                                   ntot)
-            ntot = len(k_array)
-            d[channel]['k_array'] = k_array
-            d[channel]['k_weights'] = k_weights
-            d[channel]['ntot'] = ntot
-            
-            # Load SRG transformation in 1S0 and 3S1-3D1 channels
-            H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-            H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 
-                                             method='srg', generator='Wegner', 
-                                             lamb=lamb)
-            # Load U(k, k') [unitless]
-            U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
-            
-            # Divide out momentum/weights factor
-            factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
-            if channel == '3S1':
-                factor_array = np.concatenate( (factor_array, factor_array) )
-            row, col = np.meshgrid(factor_array, factor_array)
-            
-            # Converting to units [fm^3]
-            I_matrix_unitless = np.eye( len(factor_array), len(factor_array) )
-            delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
-            
-            # # Store both matrices in the dictionary
-            # d[channel]['I'] = I_matrix_unitless
-            # d[channel]['delta_U'] = delta_U_matrix_unitless
-            
-            # U_matrix = U_matrix_unitless / row / col
-            I_matrix = I_matrix_unitless / row / col
-            delta_U_matrix = delta_U_matrix_unitless / row / col
-            
-            # Store both matrices in the dictionary
-            d[channel]['I'] = I_matrix # [fm^3]
-            d[channel]['delta_U'] = delta_U_matrix # [fm^3]
-            
-        # Save dictionary
-        self.d = d
-        
+    """
     
-    def n_lambda_pp(self, q, k_F):
-        # don't forget docstring
-        # should be option somewhere to angle-average or set Q=0
-        
-        # Load momentum mesh, I, and delta_U from dictionary
-        k_array = self.d['1S0']['k_array']
-        k_weights = self.d['1S0']['k_weights']
-        ntot = self.d['1S0']['ntot']
-        #I_matrix = self.d['1S0']['I']
-        delta_U_matrix = self.d['1S0']['delta_U'] # fm^3
-        
-        # Find index of q in k_array
-        q_index = find_q_index(q, k_array)
-        # weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
-        
-        # T = 1, M_T = 1/2 + 1/2 = 1
-        
-        # Only one k_F in this case
-        
-        # First three terms (combining second and third into one term linear
-        # in \delta U)
-        if q < k_F:
+    # --- Set-up --- #
+    
+    # Load momentum
+    k_array, _ = vnn.load_momentum(kvnn, channel)
+    
+    # Size of figure
+    row_number = 1
+    col_number = len(lambda_array)
+    figure_size = (4*col_number, 3.5*row_number) # Extra width for colorbar
+    
+    # Axes limits
+    axes_max = 4.0
+    axes_lim = (0.0, axes_max)
+    
+    # Axes ticks, labels, and fontsizes
+    x_label = "k' [fm" + r'$^{-1}$' + ']'
+    y_label = 'k [fm' + r'$^{-1}$' + ']'
+    axes_label_size = 18
+    axes_stepsize = 1.0 # Step-size in labeling tick marks
+    axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
+    axes_ticks_strings = ff.convert_ticks_to_labels(axes_ticks)
+    axes_tick_size = 18
+    
+    # Colorbar ticks, label, and fontsize
+    mn = colorbar_limits[0]
+    mx = colorbar_limits[1]
+    levels_number = 61
+    levels = np.linspace(mn, mx, levels_number)
+    levels_ticks = np.linspace(mn, mx, 9)
+    levels_ticks_strings = ff.convert_ticks_to_labels(levels_ticks)
+    colorbar_label = '[fm]'
+    colorbar_label_size = 22
+    colorbar_tick_size = 20
+    
+    # Color scheme for contour plots
+    color_style = 'turbo'
+    
+
+    # --- Load potential --- #
+    
+    # Initialize dictionary to store evolved potential at each \lambda
+    d = {}
+    
+    # Loop over lambda values
+    for lamb in lambda_array:
             
-            # Factor of 2 for sum over \sigma and \sigma', units fm^3
-            #first_term = 2 / weight
-            first_term = 2
-            # Units fm^3
-            middle_terms = 2 / np.pi * delta_U_matrix[q_index, q_index]
-            
-            low_q_contribution = first_term + middle_terms
-            
+        # Load initial potential if lambda = infinity
+        if lamb == np.inf:
+            V_matrix = vnn.load_potential(kvnn, channel)
+        # Otherwise load evolved potential
         else:
+            if generator == 'Block-diag':
+                # For block-diagonal, set lambda = 1 fm^-1
+                V_matrix = vnn.load_potential(kvnn, channel, method='srg', generator=generator, lamb=1.0,
+                                              lambda_bd=lamb)
+            else:
+                V_matrix = vnn.load_potential(kvnn, channel, method='srg', generator=generator, lamb=lamb)
+                
+        # Interpolate the potential through 0 to axes_max for smoother looking figure (the extension _int means 
+        # interpolated)
+        k_array_int, V_matrix_int = ff.interpolate_matrix(k_array, V_matrix, axes_max+0.2)
             
-            low_q_contribution = 0
+        # Store in dictionary with generator and lamb as keys
+        d[lamb] = V_matrix_int
             
-        # Fourth term
-        
-        # Index of where to stop the integral in the momentum mesh k_array
-        k_F_cutoff = find_q_index(k_F, k_array)
-        if k_array[k_F_cutoff] > k_F:
-            k_F_cutoff -= 1 # Prevents overshooting
             
-        # fourth_term_integrand = delta_U_matrix[:ntot, q_index] * \
-        #                         delta_U_matrix.T[q_index, :ntot]
-        # # Integration measure 2/\pi k^2 dk is implicitly in the delta_U's here
-
-        # high_q_contribution = 1/4 * 2/np.pi * \
-        #                       np.sum( fourth_term_integrand[:k_F_cutoff+1] )
-        
-        fourth_term_integrand = 2/np.pi * k_array**2 * k_weights * \
-                                delta_U_matrix[:ntot, q_index] * \
-                                delta_U_matrix.T[q_index, :ntot]
-        
-        high_q_contribution = 1/4 * 2/np.pi * \
-                              np.sum( fourth_term_integrand[:k_F_cutoff+1] )
-                              
-        # return low_q_contribution
-        # return high_q_contribution
-        return low_q_contribution + high_q_contribution
+    # --- Plot data --- #
     
+    # Initialize figure
+    plt.close('all')
+    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True, figsize=figure_size)
     
-    def n_lambda_pn(self, q, kF1, kF2):
-        # don't forget docstring
-        # should be option somewhere to angle-average or set Q=0
-        
-        # Load momentum mesh, I, and delta_U from dictionary
-        k_array = self.d['1S0']['k_array']
-        k_weights = self.d['1S0']['k_weights']
-        ntot = self.d['1S0']['ntot']
-        #I_matrix = self.d['1S0']['I']
-        delta_U_1S0 = self.d['1S0']['delta_U'] # fm^3
-        delta_U_3S1 = self.d['3S1']['delta_U'] # fm^3
-        
-        # Find index of q in k_array
-        q_index = find_q_index(q, k_array)
-        # weight = 2/np.pi * k_array[q_index]**2 * k_weights[q_index] # fm^-3
-        
-        k_F = min( (kF1, kF2) )
-        
-        # T = 1 or 0, M_T = 1/2 + 1/2 = 0
-        # We get 1S0 and 3S1-3D1 contributions here
+    # Loop over generators and lambda's keeping track of indices
+    for i, lamb in enumerate(lambda_array):
+            
+        c = axs[i].contourf(k_array_int, k_array_int, d[lamb], levels, cmap=color_style, 
+                            extend='both')
 
-        # First three terms (combining second and third into one term linear
-        # in \delta U)
-        # This if statement is the two \theta functions
-        if q < k_F:
-            
-            # Factor of 2 for sum over \sigma and \sigma', units fm^3
-            #first_term = 2 / weight
-            first_term = 2
-            # Units fm^3
-            middle_terms = 2 / np.pi * ( delta_U_1S0[q_index, q_index] / 2 + \
-                           3/2 * delta_U_3S1[q_index, q_index] )            
-            
-            low_q_contribution = first_term + middle_terms
-            
-        else:
-            
-            low_q_contribution = 0
-            
-        # Fourth term
-        
-        # Index of where to stop the integral in the momentum mesh k_array
-        k_F_cutoff = find_q_index(k_F, k_array)
-        if k_array[k_F_cutoff] > k_F:
-            k_F_cutoff -= 1 # Prevents overshooting
-            
-        # fourth_term_integrand = delta_U_matrix[:ntot, q_index] * \
-        #                         delta_U_matrix.T[q_index, :ntot]
-        # # Integration measure 2/\pi k^2 dk is implicitly in the delta_U's here
+        # Specify axes limits
+        axs[i].set_xlim( axes_lim )
+        axs[i].set_ylim( axes_lim )
+                     
+        # Specify axes tick marks
+        axs[i].xaxis.set_ticks(axes_ticks)
+        axs[i].xaxis.set_ticklabels(axes_ticks_strings)
+        # Switch from bottom to top
+        axs[i].xaxis.set_label_position('top')
+        axs[i].xaxis.tick_top()
+        axs[i].tick_params(labeltop=True, labelsize=axes_tick_size)
+                                         
+        # Prevent overlapping x-axis tick marks
+        if i < col_number - 1:
+            xticks = axs[i].xaxis.get_major_ticks()
+            xticks[-1].set_visible(False)
 
-        # high_q_contribution = 1/4 * 2/np.pi * \
-        #                       np.sum( fourth_term_integrand[:k_F_cutoff+1] )
-        
-        fourth_term_integrand = 2/np.pi * k_array**2 * k_weights * (\
-                                delta_U_1S0[:ntot, q_index] * \
-                                delta_U_1S0.T[q_index, :ntot]/4 + \
-                                3/4 * delta_U_3S1[:ntot, q_index] * \
-                                delta_U_3S1.T[q_index, :ntot] + \
-                                3/4 * delta_U_3S1[:ntot, ntot+q_index] * \
-                                delta_U_3S1.T[ntot+q_index, :ntot] )
-        
-        high_q_contribution = 1/2 * 2/np.pi * \
-                              np.sum( fourth_term_integrand[:k_F_cutoff+1] )
-                              
-        # return low_q_contribution
-        # return high_q_contribution
-        return low_q_contribution + high_q_contribution
+        # Set x-axis label
+        axs[i].set_xlabel(x_label, fontsize=axes_label_size)
+                                         
+        # On the left column, set and label y-axis
+        if i == 0:
+                                         
+            # Specify axes tick marks
+            axs[i].yaxis.set_ticks(axes_ticks)
+            axs[i].yaxis.set_ticklabels(axes_ticks_strings)
+            axs[i].tick_params(labelsize=axes_tick_size)
+                                         
+            # Set y-axis label
+            axs[i].set_ylabel(y_label, fontsize=axes_label_size)
+
+    # Invert y-axis
+    plt.gca().invert_yaxis()
+                                         
+    # Amount of white space in-between sub-plots
+    f.subplots_adjust(hspace=0.0, wspace=0.0)
+                                         
+    # Set colorbar axe
+    f.subplots_adjust(right=0.8) # Adjust for colorbar space
+    cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+                                         
+    # Set colorbar
+    cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
+    cbar.ax.tick_params(labelsize=colorbar_tick_size)
+    cbar.ax.set_yticklabels(levels_ticks_strings)
+                                         
+    # Set colorbar label
+    cbar.ax.set_title(colorbar_label, fontsize=colorbar_label_size)
+
+    return f, axs
 
 
 if __name__ == '__main__':
+    
+    # Copied from operator_evolution_fig.ipynb
+    # Contours of AV18 with band- and block-diagonal evolution in the 3S1 channel
 
-    
-    # --- Set up --- #
-    
-    # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
-    # # Gezerlis N2LO 1 fm with \lambda=1.35 fm^-1
-    # kvnn = 222
-    lamb = 1.35
-    kmax, kmid, ntot = 10.0, 2.0, 120
-    # kmax, kmid, ntot = 30.0, 4.0, 120
-    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-    factor_array = 2/np.pi * q_weights * q_array**2
+    channel = '1P1'
+    generator = 'Wegner'
+    lambda_array = np.array( (np.inf, 1.5) )
+    clim = (-0.4, 0.4)
     
-    # Load n_\lambda_pp(q, k_F) for AV18
-    pmd = pair_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
-    
-    # Details of example nuclei (format is [nuclei, Z, N])
-    # nuclei_list = ['O16', 8, 8]
-    # nuclei_list = ['Ca40', 20, 20]
-    # nuclei_list = ['Ca48', 20, 28]
-    # nuclei_list = ['Pb208', 82, 126]
-    
-    d = {}
-    
-    nuclei_details = [ ['C12', 6, 6], ['O16', 8, 8], ['Ca40', 20, 20],
-                       ['Ca48', 20, 28], ['Pb208', 82, 126] ]
-    for nuclei_list in nuclei_details:
+    f, axs = potential_contours(kvnn, channel, generator, lambda_array, clim)
 
-        nucleus = nuclei_list[0]
-        Z = nuclei_list[1]
-        N = nuclei_list[2]
-        A = N + Z
-        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-        r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-        
-        d[nucleus] = {}
-    
-        # Call LDA class
-        lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-    
-    # --- Calculate momentum distributions --- #
-    
-    # n(q, Q=0) pp-pair
-    # Should this be divided by # of pairs?
-        n_pp_array = lda.local_density_approximation( q_array, pmd.n_lambda_pp, 
-                                                     'pp' )
-        n_pn_array = lda.local_density_approximation( q_array, pmd.n_lambda_pn, 
-                                                     'pn' )
-        
-        d[nucleus] = n_pp_array / n_pn_array
-        
-        
-    
-    ### BUG TESTING ###
-    # n_pp_array *= (Z-1)/(A-1)
-    # n_pp_array /= factor_array
-    # n_pp_array *= factor_array
-    
-    
-    # --- Plot --- #
-    
-    # # n(q, Q=0) pairs
-    #     plt.clf()
-    #     f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
-    
-    #     plt.semilogy(q_array, n_pp_array, color='blue', linestyle='solid',
-    #                  label=nucleus+' (pp)')
-    #     plt.semilogy(q_array, n_pn_array, color='red', linestyle='solid',
-    #                  label=nucleus+' (pn)')
-    #     plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' [fm' + r'$^{6}$' + ']')
-    #     ax.set_xlim( [min(q_array), 5] )
-    #     ax.set_ylim( [1e-3, 1e4])
-    
-    #     ax.legend(loc=0, frameon=False)
-    #     ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
-    
-    #     lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
-    #     lambda_label_location = 'center right'
-    #     anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
-    #                               frameon=False)
-    #     ax.add_artist(anchored_text)
-    
-    #     plt.show()
-    
-
-    # ratio of n(q, Q=0) pairs
-    plt.clf()
-    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
-    
-    plt.semilogy(q_array, d['O16'], color='black',
-                 linestyle='solid', label='O16')
-    plt.semilogy(q_array, d['Ca40'], color='red',
-                 linestyle='dashdot', label='Ca40')
-    plt.semilogy(q_array, d['Ca48'], color='blue',
-                 linestyle='dashed', label='Ca48')
-    plt.semilogy(q_array, d['Pb208'], color='green',
-                 linestyle='dotted', label='Pb208')
-    plt.ylabel(r'$<n_{\lambda}(q,Q=0)>$' + ' (pp/pn ratios)')
-    ax.set_xlim( [min(q_array), 5] )
-    ax.set_ylim( [1e-2, 2e0])
-    
-    ax.legend(loc='lower right', frameon=False)
-    ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
-    
-    lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
+    # Add \lambda label to each sub-plot
+    lambda_label_size = 17
     lambda_label_location = 'lower left'
-    anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
-                                  frameon=True)
-    ax.add_artist(anchored_text)
-    
-    plt.show()
+    for i, lamb in enumerate(lambda_array):
+        lambda_label = ff.lambda_label_conversion(lamb, generator)
+        anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
+        axs[i].add_artist(anchored_text)
