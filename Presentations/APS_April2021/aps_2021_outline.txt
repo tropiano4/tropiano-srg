@@ -65,8 +65,15 @@ Write this in notebook first.
 
 CHANGES TO MAKE STILL
 
+Feedback
+-Bullet on experimental vs RG resolution scale in slide 2?
+-Fix universality bullet (see DF comment)
+-Slide 9?
+-AV18 data slide
 -Think about pn dominance slide and edit
+
 -Take out plot AV18 title where necessary
 -Add figure captions
--Cite a_2 data, AV18?, ..., LCA
+-Cite a_2 data, AV18?, ..., LCA, CLAS picture
 -Split slides by bullet (e.g., summary/outlook slide)
+-Implement Fe56 into everything
