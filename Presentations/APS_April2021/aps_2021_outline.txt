@@ -23,8 +23,19 @@ Short-range correlation physics at low RG resolution
   * FIG: AV deuteron wave function in coordinate space.
 
 4. Computing momentum distributions at low RG resolution
+
+Where does the short distance physics go?
+  -Short distance physics (or high momentum physics) shifts to the operator.
+  -We can see that by applying the SRG transformation to the momentum distribution operator.
+  -Skipping the details point to final high-q term.
+Expand SRG transformation. For high-q operator (high-q momentum distribution tails), we isolate the \delta U \delta U^\dagger term.
+Factorization of \delta U’s gives high-q function and low-q A-body matrix element.
+Deuteron example. Step through each piece (see SB talk)
+Evaluate A-body matrix elements using LDA.
+
+Write this in notebook first.
+
   * Very brief second quantized equations of U(k,k'), n(q), etc.
-  (Maybe write final expression stating what is important (high-q piece).)
   * Highlight factorization.
   * FIG: Deuteron wave function contributions (step through).
   * Evaluate A-body matrix elements under LDA (free Fermi gas).
@@ -50,3 +61,12 @@ Short-range correlation physics at low RG resolution
 7. Extras
   * Factorization figures.
   * Extra equations on our formalism.
+
+
+CHANGES TO MAKE STILL
+
+-Think about pn dominance slide and edit
+-Take out plot AV18 title where necessary
+-Add figure captions
+-Cite a_2 data, AV18?, ..., LCA
+-Split slides by bullet (e.g., summary/outlook slide)
