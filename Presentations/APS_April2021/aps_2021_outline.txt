@@ -6,10 +6,10 @@ Short-range correlation physics at low RG resolution
 
 2. Motivation
   * Recent experiments have been able to isolate processes where short-range correlation (SRC) physics is dominant and well accounted for by SRC phenomenology.
-  * Description of high resolution picture
+  * SRC physics at high RG resolution
     - SRC pairs are components in the nuclear wave function with relative momenta above the Fermi momentum.
     - FIG: Cartoon of SRC pairs in high-k tail.
-  * Description of low RG resolution picture
+  * SRC physics at low RG resolution
     - Using RG methods we can tune the scale to lower resolution (we refer to this as low RG resolution).
     - SRC physics shifted into the reaction operators from the nuclear wave function.
     - FIG: Cartoon of mean field nucleons and no high-k tail?
@@ -49,28 +49,3 @@ Short-range correlation physics at low RG resolution
 7. Extras
   * Factorization figures.
   * Extra equations on our formalism.
-
-
-CHANGES TO MAKE STILL
-
-Feedback
--Slide 3: Change Alternative approach to Low RG resolution description of SRC physics
-  -Get rid of Using RG methods... bullet
-  -Add But low RG resolution operators do NOT become hard which simplifies calculations
--Slide 15: Keep only the 2-body term in \delta U \delta U^{\dagger} (for A-body calculations)
--Slide 19: Works well with simple approximations and is systematically improvable
--Slide 20: Don't bother describing (a) - just say these are cross section ratios on the left, on the right are the pair fraction...
-  -Do we describe this physics? Yes and all of it is established in 2-body system
-  -Furthermore we can apply this to any nucleus
--Slide 23: Isospin dependence: by taking ratios we see the pn-dominant region is independent of N/Z while the scalar limits depends on N/Z
--Slide 25: Update a_2 figure
-  -Black circles for experiment
-  -Red triangles for our calculation
-  -No integration limits label
--Slide 26: Simple approximations work and are systematically improvable
-  -Also add MH's talk number
-
--Take out plot AV18 title where necessary
--Add figure captions
--Cite a_2 data, AV18?, ..., LCA, CLAS picture
--Implement Fe56 into everything
