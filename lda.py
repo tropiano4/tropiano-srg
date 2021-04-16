@@ -12,6 +12,8 @@
 # Revision history:
 #   03/18/21 --- Added 12C data to Densities. Now shows \rho_proton(r) for
 #                12C in plots below.
+#   04/16/21 --- Added 56Fe data to Densities. Now shows \rho_proton(r) for
+#                56Fe in plots below.
 #
 #------------------------------------------------------------------------------
 
@@ -181,9 +183,9 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt
 
-    # Details of example nuclei (format is [nuclei, Z, N])
-    nuclei_details = [ ['C12', 6, 6], ['O16', 8, 8], ['Ca40', 20, 20],
-                       ['Ca48', 20, 28], ['Pb208', 82, 126] ]
+    # Details of example nuclei (format is (nuclei, Z, N) )
+    nuclei_details = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+                       ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
     
     # Plot densities as a function of r
     plt.clf()
