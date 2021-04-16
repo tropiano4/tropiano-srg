@@ -8,11 +8,11 @@ Short-range correlation physics at low RG resolution
   * Recent experiments have been able to isolate processes where short-range correlation (SRC) physics is dominant and well accounted for by SRC phenomenology.
   * Description of high resolution picture
     - SRC pairs are components in the nuclear wave function with relative momenta above the Fermi momentum.
-    - FIG: Cartoon of SRC pairs in nucleus and high-k tail.
+    - FIG: Cartoon of SRC pairs in high-k tail.
   * Description of low RG resolution picture
     - Using RG methods we can tune the scale to lower resolution (we refer to this as low RG resolution).
     - SRC physics shifted into the reaction operators from the nuclear wave function.
-    - FIG: Cartoon of mean field nucleons and no high-k tail.
+    - FIG: Cartoon of mean field nucleons and no high-k tail?
   * FIG: Cartoon of high and low-resolution electron scattering.
   * Punch line: same cross section but different interpretations.
 
@@ -23,18 +23,6 @@ Short-range correlation physics at low RG resolution
   * FIG: AV deuteron wave function in coordinate space.
 
 4. Computing momentum distributions at low RG resolution
-
-Where does the short distance physics go?
-  -Short distance physics (or high momentum physics) shifts to the operator.
-  -We can see that by applying the SRG transformation to the momentum distribution operator.
-  -Skipping the details point to final high-q term.
-Expand SRG transformation. For high-q operator (high-q momentum distribution tails), we isolate the \delta U \delta U^\dagger term.
-Factorization of \delta U’s gives high-q function and low-q A-body matrix element.
-Deuteron example. Step through each piece (see SB talk)
-Evaluate A-body matrix elements using LDA.
-
-Write this in notebook first.
-
   * Very brief second quantized equations of U(k,k'), n(q), etc.
   * Highlight factorization.
   * FIG: Deuteron wave function contributions (step through).
