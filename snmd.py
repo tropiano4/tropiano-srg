@@ -480,6 +480,7 @@ if __name__ == '__main__':
     # nuclei_list = ['O16', 8, 8]
     nuclei_list = ['Ca40', 20, 20]
     # nuclei_list = ['Ca48', 20, 28]
+    # nuclei_list = ['Fe56', 26, 30]
     # nuclei_list = ['Pb208', 82, 126]
     nucleus = nuclei_list[0]
     Z = nuclei_list[1]
