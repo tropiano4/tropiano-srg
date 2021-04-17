@@ -28,7 +28,7 @@ SRC
  
  * Go through DF comments in Overleaf and add updated figures (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value)
- * Finalize extras and a_2 functions in SRC notebooks
+ * Finalize extra functions, a_2 averaging, writing directly to Dropbox in SRC notebooks
  * A/C12 ratio update: nuclei labels, more tick marks
  * S-wave dominance
    - Plot n^total_S-waves / n^total_SPD-waves
