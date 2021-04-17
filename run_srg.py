@@ -99,9 +99,9 @@ def run_srg(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,
     t1 = time.time() # End time
     
     # Print details
-    mins = round( (t1 - t0) / 60.0, 2) # Minutes elapsed evolving H(s)
+    mins = round( (t1 - t0) / 60.0, 4) # Minutes elapsed evolving H(s)
     print('_'*85)
-    print( 'H(s) done evolving to final lambda = %.2f fm^-1 after %f minutes'
+    print( 'H(s) done evolving to final lambda = %.2f fm^-1 after %.4f minutes'
           % (lambda_array[-1], mins) )
     print('_'*85)
     print('\nSpecifications:\n')
