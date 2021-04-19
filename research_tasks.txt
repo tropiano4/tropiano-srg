@@ -26,21 +26,23 @@ SRC
         e. Python implementation
            - Figures compared to AV18 data
  
- * Go through DF comments in Overleaf and add updated figures (left off at Calculations and cartoons at low-resolution)
+ * Go through DF comments in Overleaf and add updated figures
+   (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value for P- or D-waves)
- * Finalize extra functions, a_2 averaging
+ * Finalize extra functions, a_2 averaging in SRC notebooks
+ ...
  * A/C12 ratio update: nuclei labels, more tick marks
  * S-wave dominance
    - Plot n^total_S-waves / n^total_SPD-waves
- ...
  * Absolute GCF contact calculation
  * How should you effectively split up contributions to pp, np, etc. in snmd.py, pmd.py, dmd.py?
-   - Change lda.py to account for functions that return floats or tuples
+   - Change lda.py to account for functions that return floats or tuples?
  * Update a2 plot with pp, pn, np, nn contributions
    - Do \int dq P^A_{pp only}(q) / deuteron total and likewise for other pieces
    - Check that contributions give total result
- * Factorized S-wave only to factorized S-wave only then same idea for all partial waves
- * Numerically check asymptotic relation
+ * Check factorization approximation of other partial waves
+   - Factorized S-wave only to factorized S-wave only then same idea for all partial waves
+ * Numerically check asymptotic relation comparing SNMD's and PMD's
    - Add in \d^3Q integration option to pmd.py
  * Read Nikheff paper
  * Read Bethe paper
@@ -54,10 +56,10 @@ Computer issues
 SRG
  * Load and save evolved potentials from data frame?
  * SRG solver options
-   -ode or solve_ivp, evolve w.r.t. s or \lambda
+   - ode or solve_ivp, evolve w.r.t. s or \lambda
  * Try solving for U(s) or \delta U(s) instead
  * Open questions
-   -High lambda (10 fm^-1) potential evolution bug?
+   - High lambda (10 fm^-1) potential evolution bug?
 
 Misc.
  * Phase shift corrector function
