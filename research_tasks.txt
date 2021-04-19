@@ -30,6 +30,7 @@ SRC
    (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value for P- or D-waves)
  * Finalize extra functions, a_2 averaging in SRC notebooks
+ * Correct momentum distribution notes
  ...
  * A/C12 ratio update: nuclei labels, more tick marks
  * S-wave dominance
