@@ -2,30 +2,6 @@
 
 SRC
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
-
-   - Outline:
-     1. Brief description of notes in abstract
-     2. Definitions and partial wave relations
-        a. Operators
-        b. Completeness relations
-     3. Single-nucleon momentum distributions
-        a. Contractions with respect to true vacuum
-        b. Contractions with respect to filled Fermi sea
-        c. Transformation to partial waves
-        d. Angle-averaging
-        e. Final expression
-           - Give example with S-waves only
-        f. Python implementation
-           - Figures compared to AV18 data
-     4. Pair momentum distributions
-        a. Contractions with respect to true vacuum
-        b. Contractions with respect to filled Fermi sea
-        c. Transformation to partial waves
-        d. Final expression
-           - Give example with S-waves only and Q=0
-        e. Python implementation
-           - Figures compared to AV18 data
- 
  * Go through DF comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value for P- or D-waves)
