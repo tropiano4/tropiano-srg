@@ -2,6 +2,9 @@
 
 SRC
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
+   - Focus on practicality and how you can make this clear to others
+     (the goal is to figure out where mistakes are being made!)
+   - Attach codes and figures with/without relevant factors of 2\pi, etc.
  * Go through DF comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value for P- or D-waves)
