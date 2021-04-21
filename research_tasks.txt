@@ -1,14 +1,17 @@
 --- Research to-do list ---
 
 SRC
+ * a_2 with error bars option in SRC notebooks
+ * Generate a_2 figure with \lambda = 1.5, 2.0 fm^-1 with error bars
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
+   - Figure out consistent continuum and partial wave basis normalizations
    - Focus on practicality and how you can make this clear to others
      (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures with/without relevant factors of 2\pi, etc.
  * Go through DF comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
  * Figure out bug in pmd.py (first q value for P- or D-waves)
- * Finalize extra functions, a_2 averaging in SRC notebooks
+ * Finalize extra functions in SRC notebooks
  * Correct momentum distribution notes
  ...
  * A/C12 ratio update: nuclei labels, more tick marks
