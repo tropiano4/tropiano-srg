@@ -1,8 +1,6 @@
 --- Research to-do list ---
 
 SRC
- * a_2 with error bars option in SRC notebooks
- * Generate a_2 figure with \lambda = 1.5, 2.0 fm^-1 with error bars
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
    - Focus on practicality and how you can make this clear to others
