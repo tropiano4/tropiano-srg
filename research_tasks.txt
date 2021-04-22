@@ -1,40 +1,45 @@
---- Research to-do list ---
+--- SRC ---
 
-SRC
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
    - Focus on practicality and how you can make this clear to others
      (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures with/without relevant factors of 2\pi, etc.
- * Go through DF comments in Overleaf and add updated figures
+
+ * Go through comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
+
  * Figure out bug in pmd.py (first q value for P- or D-waves)
+   - Something might be wrong with one of the higher partial waves?
+
  * Finalize extra functions in SRC notebooks
- * Correct momentum distribution notes
- ...
- * A/C12 ratio update: nuclei labels, more tick marks
- * S-wave dominance
-   - Plot n^total_S-waves / n^total_SPD-waves
- * Absolute GCF contact calculation
+   - A/C12 ratio
+   - S-waves dominance: n^total_S-waves / n^total_SPD-waves
+   - GCF contacts: ratios and absolute
+   - Factorization in other partial waves (e.g., U_1P1(k_i, q) / U_1P1(k_0, q)
+   - Numerically check asymptotic relation of SNMD and PMD
+
+ * Correct iPad momentum distribution notes? (Might be switching to DME description)
+
  * How should you effectively split up contributions to pp, np, etc. in snmd.py, pmd.py, dmd.py?
    - Change lda.py to account for functions that return floats or tuples?
- * Update a2 plot with pp, pn, np, nn contributions
+
+ * Update a2 plot with pp, pn, np, nn contributions?
    - Do \int dq P^A_{pp only}(q) / deuteron total and likewise for other pieces
    - Check that contributions give total result
- * Check factorization approximation of other partial waves
-   - Factorized S-wave only to factorized S-wave only then same idea for all partial waves
- * Numerically check asymptotic relation comparing SNMD's and PMD's
-   - Add in \d^3Q integration option to pmd.py
+
  * Read Nikheff paper
+
  * Read Bethe paper
 
 
-Computer issues
+--- Potentials ---
 * Fix Potentials Fortran/Perl codes
   - Not finding lapack or blas
+* Implement Gezerlis local potential codes to Potentials/vsrg_macos
 
 
-SRG
+--- SRG ---
  * Load and save evolved potentials from data frame?
  * SRG solver options
    - ode or solve_ivp, evolve w.r.t. s or \lambda
@@ -42,6 +47,5 @@ SRG
  * Open questions
    - High lambda (10 fm^-1) potential evolution bug?
 
-Misc.
+--- Misc. ---
  * Phase shift corrector function
- * Implement Gez. local potential codes to Potentials/vsrg_macos
