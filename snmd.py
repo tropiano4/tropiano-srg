@@ -20,6 +20,8 @@
 #                details of the function.
 #   04/02/21 --- Added option to return pp and pn (or nn and np) contributions
 #                to \delta U \delta U^\dagger term along with total.
+#   04/22/21 --- Testing changes to overall factors in front of \delta U
+#                and \delta U^2 terms. Update this update when it's correct!
 #
 #------------------------------------------------------------------------------
 
@@ -340,7 +342,9 @@ class single_nucleon_momentum_distributions(object):
 
             # Integrate over k where the factor of 2 is for combining the
             # second and third terms
-            deltaU_factor = 2 / (2*np.pi)**3 * 2/np.pi
+            # deltaU_factor = 2 / (2*np.pi)**3 * 2/np.pi
+            # CHANGES 04/22/21
+            deltaU_factor = 2 * 2/np.pi * 2**2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -397,7 +401,9 @@ class single_nucleon_momentum_distributions(object):
                               axis=-1 ) )[:, :K_cutoff_index] / 2
         
         # Overall factor in front of \delta U^2 term
-        deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
+        # CHANGES 04/22/21
+        # deltaU2_factor = 1/2 * 1/(2*np.pi)**6 * (2/np.pi)**2
+        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
         
         # Split pp and np up to isolate contributions
         if contributions == 'NN_contributions':

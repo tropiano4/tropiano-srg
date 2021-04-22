@@ -48,194 +48,183 @@
 
 
 # Description of this test:
-#   Making an AV18 SRG plot for the April APS meeting.
+#   Testing overall factor difference between SNMD and AV18 data.
 
 
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredText
 import numpy as np
 # Scripts made by A.T.
 from Figures import figures_functions as ff
+from lda import load_density, LDA
 from Potentials.vsrg_macos import vnn
+from snmd import single_nucleon_momentum_distributions
 
 
 # Copied from operator_evolution_fig.ipynb
-def potential_contours(kvnn, channel, generator, lambda_array, colorbar_limits=(-1.0, 1.0)):
+def snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax=10.0, kmid=2.0,
+                         ntot=120, xlim=(2, 6), ylim=(1e-2, 1e4), calc=False):
     """
-    Plots SRG-evolved NN potentials [fm] with respect to momentum [fm^-1]. This
-    is an 1 x n contour plot where n is the size of lambda_array. Analogous to 
-    potential_contours_kvnns function but for one potential only.
+    Nuclear-averaged and SRG-evolved proton momentum distributions
+    n_\lambda^A(q) / Z. This figure compares our LDA momentum distributions
+    with AV18 data.
     
     Parameters
     ----------
+    nucleus : tuple
+        Details for various nuclei formatted as a tuple: (name (str), Z (int),
+        N (int)) (e.g., ('O16', 8, 8)).
+    channels : tuple
+        Partial wave channels to include in the calculation
+        (e.g., ('1S0', '3S1')).
     kvnn : int
         This number specifies the potential.
-    channel : str
-        The partial wave channel (e.g. '1S0').
-    generator : str, optional
-        SRG generator 'Wegner', 'T', or 'Block-diag'.
-    lambda_array : 1-D ndarray
-        Lambda evolution values [fm^-1]. These values serve as block-diagonal cutoffs in the case of block-diagonal
-        decoupling.
-    colorbar_limits : tuple, optional
-        Tuple specifying the minimum and maximum values [fm] of the colorbar.
-
+    lamb : float
+        SRG \lambda parameter [fm^-1].
+    kmax : float, optional
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float, optional
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int, optional
+        Number of momentum points in mesh.
+    xlim : tuple, optional
+        Limits of x-axis [fm^-1].
+    ylim : tuple, optional
+        Limits of y-axis [fm^3].
+        
     Returns
     -------
     f : Figure
         Figure object from matplotlib subplots function.
-    axs : axes.Axes object
-        Array of Axes objects from matplotlib subplots function.
+    ax : axes.Axes object
+        Single Axes object from matplotlib subplots function.
     
     """
     
-    # --- Set-up --- #
+    # Load data from the following directory
+    data_directory = 'Figures/SRC_physics/Data'
     
-    # Load momentum
-    k_array, _ = vnn.load_momentum(kvnn, channel)
+    # Name of nucleus (e.g., 'Ca40')
+    nucleus_name = nucleus[0]
+    Z = nucleus[1]
+    N = nucleus[2]
     
-    # Size of figure
-    row_number = 1
-    col_number = len(lambda_array)
-    figure_size = (4*col_number, 3.5*row_number) # Extra width for colorbar
+    if calc:
+        
+        q_array, _ = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+        
+        # Initialize pair momentum distributions class for given potential
+        snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb,
+                                                     kmax, kmid, ntot)
     
-    # Axes limits
-    axes_max = 4.0
-    axes_lim = (0.0, axes_max)
+        # Load r values and nucleonic densities (the r_array's are the same)
+        r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
+        r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
     
-    # Axes ticks, labels, and fontsizes
-    x_label = "k' [fm" + r'$^{-1}$' + ']'
-    y_label = 'k [fm' + r'$^{-1}$' + ']'
-    axes_label_size = 18
-    axes_stepsize = 1.0 # Step-size in labeling tick marks
-    axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
-    axes_ticks_strings = ff.convert_ticks_to_labels(axes_ticks)
-    axes_tick_size = 18
+        # Call LDA class
+        lda = LDA(r_array, rho_p_array, rho_n_array)
     
-    # Colorbar ticks, label, and fontsize
-    mn = colorbar_limits[0]
-    mx = colorbar_limits[1]
-    levels_number = 61
-    levels = np.linspace(mn, mx, levels_number)
-    levels_ticks = np.linspace(mn, mx, 9)
-    levels_ticks_strings = ff.convert_ticks_to_labels(levels_ticks)
-    colorbar_label = '[fm]'
-    colorbar_label_size = 22
-    colorbar_tick_size = 20
+        # Calculate nuclear-averaged momentum distributions
+        n_p_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'p')
+        
+    else:
+        # for now scale up by this factor (based on LDA / AV18 at q=4.1 fm^-1)
+        # factor =  1.18700e-1 / 1.25227e-7
     
-    # Color scheme for contour plots
-    color_style = 'turbo'
+        # Get rid of 1/(2\pi)^6 (2/\pi)^2
+        # factor = (2*np.pi)**6 * (np.pi/2)**2
     
+        # include factor of 2^4 for four (1 - (-1)^(L+S+T)) terms
+        # factor = (2*np.pi)**6 * (np.pi/2)**2 * 2**4
+    
+        # keep 2/\pi terms
+        factor = (2*np.pi)**6 * 2**4
+        
+        # Data file name
+        file_name = 'lda_snmd_%s_channels' % nucleus_name
+        # Add each channel to file name
+        for channel in channels:
+            file_name += '_%s' % channel
+        file_name += '_kvnn_%d_lamb_%.2f_kmax_%.1f' % (kvnn, lamb, kmax)
+        file_name = ff.replace_periods(file_name) + '.dat'
+        
+        # Load momentum and single-nucleon momentum distributions
+        data = np.loadtxt(data_directory + '/' + file_name)
+        # Momentum in fm^-1
+        q_array = data[:, 0]
+        # Proton momentum distribution scaled up by overall factor
+        n_p_array = data[:, 1] * factor
 
-    # --- Load potential --- #
+    # Figure size
+    row_number = 1
+    col_number = 1
+    figure_size = (4*col_number, 4*row_number)
+
+    # Axes labels and fontsize
+    x_label = 'q [fm' + r'$^{-1}$' + ']'
+    x_label_size = 16
+    y_label = 'proton ' + r'$n^{\lambda}_A(q)/Z$' + ' [fm' + r'$^3$' + ']'
+    y_label_size = 16
     
-    # Initialize dictionary to store evolved potential at each \lambda
-    d = {}
-    
-    # Loop over lambda values
-    for lamb in lambda_array:
-            
-        # Load initial potential if lambda = infinity
-        if lamb == np.inf:
-            V_matrix = vnn.load_potential(kvnn, channel)
-        # Otherwise load evolved potential
-        else:
-            if generator == 'Block-diag':
-                # For block-diagonal, set lambda = 1 fm^-1
-                V_matrix = vnn.load_potential(kvnn, channel, method='srg', generator=generator, lamb=1.0,
-                                              lambda_bd=lamb)
-            else:
-                V_matrix = vnn.load_potential(kvnn, channel, method='srg', generator=generator, lamb=lamb)
-                
-        # Interpolate the potential through 0 to axes_max for smoother looking figure (the extension _int means 
-        # interpolated)
-        k_array_int, V_matrix_int = ff.interpolate_matrix(k_array, V_matrix, axes_max+0.2)
-            
-        # Store in dictionary with generator and lamb as keys
-        d[lamb] = V_matrix_int
-            
-            
-    # --- Plot data --- #
-    
+    # Curve width
+    curve_width = 2.0
+
     # Initialize figure
     plt.close('all')
-    f, axs = plt.subplots(row_number, col_number, sharex=True, sharey=True, figsize=figure_size)
-    
-    # Loop over generators and lambda's keeping track of indices
-    for i, lamb in enumerate(lambda_array):
+    f, ax = plt.subplots(figsize=figure_size)
+
+    # Legend label
+    curve_label = ff.nuclei_label_conversion(nucleus_name) # Labels the nucleus
+        
+    # Add curve to figure
+    ax.semilogy(q_array, n_p_array, color='xkcd:red', label=curve_label,
+                linewidth=curve_width)
+        
+    # Add AV18 data with error bars
+    av18_data = np.loadtxt(data_directory + '/' + 'AV18_%s_snmd.txt' % nucleus_name)
+    q_array_av18 = av18_data[:, 0] # fm^-1
+    n_p_array_av18 = av18_data[:, 1]
+    error_bars_array_av18 = av18_data[:, 2]
             
-        c = axs[i].contourf(k_array_int, k_array_int, d[lamb], levels, cmap=color_style, 
-                            extend='both')
+    # AV18 data with error bars
+    ax.set_yscale('log')
+    ax.errorbar(q_array_av18, n_p_array_av18, yerr=error_bars_array_av18,
+                color='xkcd:black', label='AV18', linestyle='', marker='.')
 
-        # Specify axes limits
-        axs[i].set_xlim( axes_lim )
-        axs[i].set_ylim( axes_lim )
-                     
-        # Specify axes tick marks
-        axs[i].xaxis.set_ticks(axes_ticks)
-        axs[i].xaxis.set_ticklabels(axes_ticks_strings)
-        # Switch from bottom to top
-        axs[i].xaxis.set_label_position('top')
-        axs[i].xaxis.tick_top()
-        axs[i].tick_params(labeltop=True, labelsize=axes_tick_size)
-                                         
-        # Prevent overlapping x-axis tick marks
-        if i < col_number - 1:
-            xticks = axs[i].xaxis.get_major_ticks()
-            xticks[-1].set_visible(False)
+    # Specify axes limits
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+        
+    # Set axes labels and legend
+    ax.set_xlabel(x_label, fontsize=x_label_size)
+    ax.set_ylabel(y_label, fontsize=y_label_size)
 
-        # Set x-axis label
-        axs[i].set_xlabel(x_label, fontsize=axes_label_size)
-                                         
-        # On the left column, set and label y-axis
-        if i == 0:
-                                         
-            # Specify axes tick marks
-            axs[i].yaxis.set_ticks(axes_ticks)
-            axs[i].yaxis.set_ticklabels(axes_ticks_strings)
-            axs[i].tick_params(labelsize=axes_tick_size)
-                                         
-            # Set y-axis label
-            axs[i].set_ylabel(y_label, fontsize=axes_label_size)
-
-    # Invert y-axis
-    plt.gca().invert_yaxis()
-                                         
-    # Amount of white space in-between sub-plots
-    f.subplots_adjust(hspace=0.0, wspace=0.0)
-                                         
-    # Set colorbar axe
-    f.subplots_adjust(right=0.8) # Adjust for colorbar space
-    cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
-                                         
-    # Set colorbar
-    cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
-    cbar.ax.tick_params(labelsize=colorbar_tick_size)
-    cbar.ax.set_yticklabels(levels_ticks_strings)
-                                         
-    # Set colorbar label
-    cbar.ax.set_title(colorbar_label, fontsize=colorbar_label_size)
-
-    return f, axs
+    return f, ax
 
 
 if __name__ == '__main__':
     
-    # Copied from operator_evolution_fig.ipynb
-    # Contours of AV18 with band- and block-diagonal evolution in the 3S1 channel
+    # Compare O16 proton momentum distribution to AV18
 
+    nucleus =  ('O16', 8, 8)
+    channels =  ('1S0', '3S1')
     kvnn = 6
-    channel = '1P1'
-    generator = 'Wegner'
-    lambda_array = np.array( (np.inf, 1.5) )
-    clim = (-0.4, 0.4)
-    
-    f, axs = potential_contours(kvnn, channel, generator, lambda_array, clim)
+    lamb = 1.35
+    kmax, kmid, ntot = 10.0, 2.0, 120 # Default mesh
 
-    # Add \lambda label to each sub-plot
-    lambda_label_size = 17
-    lambda_label_location = 'lower left'
-    for i, lamb in enumerate(lambda_array):
-        lambda_label = ff.lambda_label_conversion(lamb, generator)
-        anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, prop=dict(size=lambda_label_size))
-        axs[i].add_artist(anchored_text)
+    # # Use data
+    # xlim = (1.5, 6)
+    # ylim = (1e-3, 1e2)
+    # f, ax = snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax, kmid,
+    #                              ntot, xlim, ylim)
+    
+    # Calculate
+    xlim = (0, 6)
+    ylim = (1e-3, 1e6)
+    f, ax = snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax, kmid,
+                                  ntot, xlim, ylim, calc=True)
+    
+
+    # Add legend
+    legend_size = 16
+    legend_location = 'upper right'
+    ax.legend(loc=legend_location, frameon=False, fontsize=legend_size)
