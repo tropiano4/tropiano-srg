@@ -211,17 +211,17 @@ if __name__ == '__main__':
     lamb = 1.35
     kmax, kmid, ntot = 10.0, 2.0, 120 # Default mesh
 
-    # # Use data
-    # xlim = (1.5, 6)
-    # ylim = (1e-3, 1e2)
-    # f, ax = snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax, kmid,
-    #                              ntot, xlim, ylim)
-    
-    # Calculate
-    xlim = (0, 6)
-    ylim = (1e-3, 1e6)
+    # Use data
+    xlim = (1.5, 6)
+    ylim = (1e-3, 1e2)
     f, ax = snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax, kmid,
-                                  ntot, xlim, ylim, calc=True)
+                                  ntot, xlim, ylim)
+    
+    # # Calculate
+    # xlim = (0, 6)
+    # ylim = (1e-3, 1e4)
+    # f, ax = snmd_tails_with_AV18(nucleus, channels, kvnn, lamb, kmax, kmid,
+    #                               ntot, xlim, ylim, calc=True)
     
 
     # Add legend
