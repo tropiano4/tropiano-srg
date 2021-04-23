@@ -14,6 +14,10 @@
 #                12C in plots below.
 #   04/16/21 --- Added 56Fe data to Densities. Now shows \rho_proton(r) for
 #                56Fe in plots below.
+#   04/23/21 --- Implemented method to average over multiple contributions
+#                returned from input function. For example, we can now input
+#                a function that returns the total, pp, and pn contributions,
+#                then average each.
 #
 #------------------------------------------------------------------------------
 
@@ -88,7 +92,8 @@ class LDA(object):
         self.rho_n_array = rho_n_array
         
 
-    def local_density_approximation(self, q_array, func_q, distribution_type):
+    def local_density_approximation(self, q_array, func_q, distribution_type,
+                                    contributions='total'):
         """
         Evaluates nuclear-averaged expectation value of the function at a
         range of q values. Function depends on Fermi momentum for protons and
@@ -103,24 +108,48 @@ class LDA(object):
         distribution_type : str
             Type of momentum distribution (e.g., 'pn'). This determines
             whether the function takes one or two k_F inputs.
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            2. Specify 'NN_contributions' for total, pp, and pn (or nn, np)
+               where the nucleon-nucleon contributions are isolated in the
+               high-q term.
+            3. Specify 'q_contributions' for total, 1, \delta U, and 
+               \delta U \delta U^\dagger.
 
         Returns
         -------
-        expectation_values : 1-D ndarray
-            Array of expectation values of the function evaluated at each
-            momentum q.
+        expectation_values : 2-D ndarray
+            Array of expectation values of the function for each contribution
+            evaluated at each momentum q.
             
         """
         
-        M = len(q_array)
-    
+        # Set shape of return array with 'axes'
+        # Only return total contribution at each q
+        if contributions == 'total':
+            axes = 1
+        # Return total, pp (nn), and pn (np) contributions at each q
+        elif contributions == 'NN_contributions':
+            axes = 3 
+        # Return total, 1, \delta U, and \delta U^2 contributions at each q
+        elif contributions == 'q_contributions':
+            axes = 4
+            
         # Load r_array
         r_array = self.r_array
         # Number of r_array points
-        N = len(r_array)
-        
-        r2_array = r_array**2
+        mtot = len(r_array)
+        r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
         dr = 0.1 # Spacing between r-points
+            
+        # Length of q_array
+        ntot = len(q_array)
+        
+        # Evaluate f(q, kFp) at each point in q_array and kF
+        expectation_values = np.zeros( (ntot, axes) )
 
         # pn pair or single-nucleon: Two k_F values in this case
         if distribution_type in ['pn', 'p', 'n']:
@@ -131,24 +160,26 @@ class LDA(object):
             # Evaluate k_F at each point in r_array
             kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
             kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
-        
-            expectation_values = np.zeros(M)
+            
+            # Loop over q
             for i, q in enumerate(q_array):
     
-                # Now evaluate f(q, kFp, kFn) at each point in q_array and 
-                # kF_proton, kF_neutron
-                function_array = np.zeros(N)
-                for j in range(N):
+                function_array = np.zeros( (mtot, axes) )
+                
+                # Loop over r for k_F values
+                for j, (kFp, kFn) in enumerate( zip(kFp_array, kFn_array) ):
 
-                    kFp = kFp_array[j]
-                    kFn = kFn_array[j]
                     if distribution_type == 'n':
-                        function_array[j] = func_q(q, kFn, kFp)
+                        function_array[j, :] = func_q(q, kFn, kFp,
+                                               contributions=contributions)
                     else:
-                        function_array[j] = func_q(q, kFp, kFn)
-                    
-                expectation_values[i] = 4*np.pi*dr * \
-                                        np.sum(r2_array * function_array)
+                        function_array[j, :] = func_q(q, kFp, kFn,
+                                               contributions=contributions)
+
+                # Integrate over r for each contribution (summing over axis=0)
+                expectation_values[i, :] = 4*np.pi*dr * \
+                                           np.sum(r2_grid * function_array,
+                                                  axis=0)
         
         # pp or nn pair: One k_F value
         else:
@@ -161,17 +192,20 @@ class LDA(object):
             # Evaluate k_F at each point in r_array
             kF_array = (3*np.pi**2 * rho_array)**(1/3)
 
-            expectation_values = np.zeros(M)
+            # Loop over q
             for i, q in enumerate(q_array):
     
-                # Now evaluate f(q, kF) at each point in q_array and kF
-                function_array = np.zeros(N)
+                function_array = np.zeros( (mtot, axes) )
+                
+                # Loop over r for k_F values
                 for j, kF in enumerate(kF_array):
 
-                    function_array[j] = func_q(q, kF)
+                    function_array[j, :] = func_q(q, kF,
+                                                  contributions=contributions)
                     
-                expectation_values[i] = 4*np.pi*dr * \
-                                        np.sum(r2_array * function_array)
+                expectation_values[i, :] = 4*np.pi*dr * \
+                                           np.sum(r2_grid * function_array,
+                                                  axis=0)
   
         return expectation_values
     

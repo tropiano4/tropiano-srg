@@ -73,8 +73,9 @@ class single_nucleon_momentum_distributions(object):
         # Load and save momentum and angle arrays for integration
         
         # Relative momentum k [fm^-1]
-        k_array, k_weights = vnn.load_momentum(kvnn, '1S0')
-        ntot = len(k_array)
+        k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+        if ntot == 0:
+            ntot = len(k_array)
         self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
         self.k_integration_measure = k_weights * k_array**2
         
@@ -145,8 +146,8 @@ class single_nucleon_momentum_distributions(object):
                 # First L of coupled-channel
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
-                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
-                                            delta_U_matrix[:ntot, ntot:]**2 )
+                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 \
+                                          + delta_U_matrix[:ntot, ntot:]**2 )
 
                 # Isospin CG's=1 for pp
                 if channel in pp_channels:
@@ -471,7 +472,9 @@ if __name__ == '__main__':
     # AV18 with \lambda=1.35 fm^-1
     kvnn = 6
     lamb = 1.35
-    channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2', '1D2', '3D2', '3D3')
+    channels = ('1S0', '3S1')
+    # channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2')
+    # channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2', '1D2', '3D2', '3D3')
     kmax, kmid, ntot = 10.0, 2.0, 120
     # kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
