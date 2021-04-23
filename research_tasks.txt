@@ -1,5 +1,9 @@
 --- SRC ---
 
+ * Check normalization of SNMD
+
+ * Try \lambda for other SNMD
+
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
    - Focus on practicality and how you can make this clear to others
