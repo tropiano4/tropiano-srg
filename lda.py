@@ -14,10 +14,10 @@
 #                12C in plots below.
 #   04/16/21 --- Added 56Fe data to Densities. Now shows \rho_proton(r) for
 #                56Fe in plots below.
-#   04/23/21 --- Implemented method to average over multiple contributions
-#                returned from input function. For example, we can now input
-#                a function that returns the total, pp, and pn contributions,
-#                then average each.
+#   04/23/21 --- Added method to average over multiple contributions returned
+#                from input function. For example, we can now input a function
+#                that returns the total, pp, and pn contributions, then average
+#                each contribution separately.
 #
 #------------------------------------------------------------------------------
 
