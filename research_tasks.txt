@@ -1,12 +1,12 @@
 --- SRC ---
 
  * Check normalization of SNMD
+   - Normalization of other nuclei in test_script?
+   - Update SNMD figures in src_physics_fig.ipynb
+   - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
    - Bug in 3P2 and 3D3 channels?
        Interpolation problem?
-
- * Try \lambda for other SNMD (src_physics_fig.ipynb)
- 
- * Do other nuclei for SNMD (src_physics_fig.ipynb)
+   - Bug at last q-point in snmd.py?
 
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
@@ -18,9 +18,6 @@
  * Go through comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
 
- * Figure out bug in pmd.py (first q value for P- or D-waves)
-   - Something might be wrong with one of the higher partial waves?
-
  * Finalize extra functions in SRC notebooks
    - Deuteron bar chart (do test example in test_script.py)
    - A/C12 ratio
@@ -31,8 +28,6 @@
 
  * Correct iPad momentum distribution notes? (Might be switching to DME description)
 
- * How should you effectively split up contributions to pp, np, etc. in snmd.py, pmd.py, dmd.py?
-   
  * Update a2 plot with pp, pn, np, nn contributions?
    - Do \int dq P^A_{pp only}(q) / deuteron total and likewise for other pieces
    - Check that contributions give total result
