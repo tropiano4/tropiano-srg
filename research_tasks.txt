@@ -1,6 +1,7 @@
 --- SRC ---
 
  * Check normalization of SNMD
+   - Update snmd.py and pmd.py revision histories
    - Normalization of other nuclei in test_script?
    - Update SNMD figures in src_physics_fig.ipynb
    - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
