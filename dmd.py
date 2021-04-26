@@ -11,6 +11,16 @@
 # nuclear-averaged momentum distributions which can then be used for
 # calculation of A/d ratios with snmd.py.
 #
+# Notes on normalizations:
+#   1. The deuteron wave function describing relative position or momentum is
+#      normalized according to
+#        \int dr r^2 ( |\psi_3S1(r)|^2 + |\psi_3D1(r)|^2 ) = 1,
+#        2/\pi * \int dk k^2 ( |\psi_{3S1}(k)|^2 + |\psi_{3D1}(k)|^2 ) = 1.
+#   2. Under LDA, we adopt the normalization
+#        4\pi / (2\pi)^3 \int dk k^2 < n_d^N(k) > = 1,
+#        4\pi / (2\pi)^3 \int dk k^2 < n_d^{pn}(k) > = 1,
+#      where angled-brackets indicate nuclear-averaging.
+#
 # Revision history:
 #   03/31/21 --- Moved hankel_transformation function to fourier_transform.py.
 #   04/06/21 --- Added pair momentum distribution function called
@@ -118,16 +128,18 @@ class deuteron_momentum_distributions(object):
         self.delta_U_matrix = delta_U_matrix_unitless
         delta_U_matrix = delta_U_matrix_unitless / row / col
             
-        # 2J+1 factor
-        J = 1
+        # AV18 does things for M_J=J (see single-nucleon momentun
+        # distributions on https://www.phy.anl.gov/theory/research/momenta/)
+        # No 2*J+1 factor since we're fixing M_J for single-nucleon momentum
+        # distributions
             
         # Evaluate matrix elements
-        deltaU = (2*J+1)/2 * ( delta_U_matrix[:ntot, :ntot] + \
-                               delta_U_matrix[ntot:, ntot:] )
-        deltaU2 = (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
-                                delta_U_matrix[:ntot, ntot:]**2 + \
-                                delta_U_matrix[ntot:, :ntot]**2 + \
-                                delta_U_matrix[ntot:, ntot:]**2 )
+        deltaU = 1/2 * ( delta_U_matrix[:ntot, :ntot] + \
+                         delta_U_matrix[ntot:, ntot:] )
+        deltaU2 = 1/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
+                          delta_U_matrix[:ntot, ntot:]**2 + \
+                          delta_U_matrix[ntot:, :ntot]**2 + \
+                          delta_U_matrix[ntot:, ntot:]**2 )
             
         # Save \delta U matrix elements (these are (ntot, ntot) arrays)
         # < k | \delta U | k' >
@@ -352,9 +364,8 @@ class deuteron_momentum_distributions(object):
         # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
             
         # \int dx/2
-        theta_kF_K_k = ( np.sum( 
-                              theta_kF_K_plus_k_x * theta_kF_K_minus_k_x,
-                              axis=-1 ) )[:, :K_cutoff_index] / 2
+        theta_kF_K_k = ( np.sum(theta_kF_K_plus_k_x * theta_kF_K_minus_k_x,
+                                axis=-1 ) )[:, :K_cutoff_index] / 2
 
         # Build K integrand (ntot, K_cutoff_index) array spliting pp and np
         # contributions (or nn and np)
@@ -367,9 +378,8 @@ class deuteron_momentum_distributions(object):
                       
         # Integrate over k (no 1/2 factor as in snmd.py because the two pn
         # \theta's are the same in this case and give a factor of 2)
-        # deltaU2_factor = (2/np.pi)**2 * 2**4
-        # TESTING
-        deltaU2_factor = (2/np.pi)**2
+        deltaU2_factor = (2/np.pi)**2 * 2**4
+        #deltaU2_factor = (2/np.pi)**2 * 2**4 * 0.5
         term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
         # Add up each contribution for total
@@ -409,11 +419,19 @@ class deuteron_momentum_distributions(object):
             [fm^-1]. (Note, this function will return a tuple of floats if
             contributions is not 'total'.)
             
+        Notes
+        -----
+        Unsure about 2*J+1 factor that is present here. Can't get comparable
+        output with |\psi_d(q)|^2 without J-factor.
+            
         """
 
 
         # Find index of q in k_array
         q_index = find_q_index(q, self.k_array)
+        
+        # Factor for summing over M_J
+        j_fac = 3
         
         # Split into low- and high-q terms
         
@@ -426,7 +444,7 @@ class deuteron_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor = 2/np.pi * 1/(4*np.pi) * 2**2
+            deltaU_factor = 2/np.pi * 1/(4*np.pi) * 2**2 * j_fac
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU[q_index, q_index]
             
@@ -447,9 +465,7 @@ class deuteron_momentum_distributions(object):
         kF_cutoff = find_q_index(kF, self.k_array)
                       
         # Integrate over k
-        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4 * 
-        # TESTING
-        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4 * 2 * j_fac
         # Last factor of 2 is for \theta^p \theta^n + \theta^p \theta^n
         term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
         
@@ -485,9 +501,9 @@ class deuteron_momentum_distributions(object):
 
         Returns
         -------
-        expectation_values : 1-D ndarray
-            Array of expectation values of the distribution evaluated at each
-            momentum q.
+        expectation_values : 1-D or 2-D ndarray
+            Array of expectation values of the function for each contribution
+            evaluated at each momentum q.
 
         """
         
@@ -538,6 +554,10 @@ class deuteron_momentum_distributions(object):
             # So taking ratios A/d are consistent
             expectation_values[i, :] = dr * np.sum(r2_grid * function_array,
                                                    axis=0)
+            
+        # Return 1-D array if contributions = 'total'
+        if contributions == 'total':
+            expectation_values = expectation_values[:, 0]
   
         return expectation_values
     
@@ -650,7 +670,7 @@ class deuteron_momentum_distributions(object):
 if __name__ == '__main__':
     
     
-    # --- Compare pair momentum distribution to exact result --- #
+    # --- Compare pair momentum distribution to wave function result --- #
     
     import matplotlib.pyplot as plt
     
@@ -662,7 +682,7 @@ if __name__ == '__main__':
     
     # Load momentum and weights
     q_array, q_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
-    factor_array = 2/np.pi*q_array**2 * q_weights
+    factor_array = q_array**2 * q_weights
     
     # Load hamiltonian
     H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
@@ -671,31 +691,43 @@ if __name__ == '__main__':
     psi_exact_unitless = ob.wave_function(H_matrix)
     psi_squared_exact = ( psi_exact_unitless[:ntot]**2 + \
                           psi_exact_unitless[ntot:]**2 ) / factor_array
-    
-    norm = np.sum(factor_array*psi_squared_exact)
-    print('Normalization of exact: 2/\pi \dq q^2 n_d(q) = %.5f' % norm)
         
     # Calculate using LDA
     dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+    # Pair momentum distribution
     n_d_array = dmd.local_density_approximation(q_array, 'pair')
-    n_d_p_array = dmd.local_density_approximation(q_array, 'single-nucleon')
+    # Nucleon momentum distribution
+    n_d_N_array = dmd.local_density_approximation(q_array, 'single-nucleon')
+    
+    # Normalization of wave function
+    norm = np.sum(factor_array * psi_squared_exact)
+    print('Normalization of exact: \dq q^2 n_d(q) = %.5f' % norm)
+    tail = np.sum( (factor_array * psi_squared_exact)[59:] )
+    print('Normalization of exact (2 fm^-1 up): \dq q^2 n_d(q) = %.5f' % tail)
+    
+    # Normalization of LDA pair momentum distribution
+    lda_factor = 4*np.pi * 1/(2*np.pi)**3
+    norm_lda = lda_factor * np.sum(factor_array * n_d_array)
+    print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d(q)> = %.5f'
+          % norm_lda)
+    tail_lda = lda_factor * np.sum( (factor_array * n_d_array)[59:] )
+    print('Normalization of LDA (2 fm^-1 up): ' + \
+          '4\pi/(2\pi)^3 \dq q^2 <n_d(q)> = %.5f' % tail_lda)
+    
+    # Normalization of LDA nucleon momentum distribution
+    norm_lda_snmd = lda_factor * np.sum(factor_array * n_d_N_array)
+    print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d^N(q)> = %.5f'
+          % norm_lda_snmd) 
     
     # Plot pair momentum distributions
     plt.semilogy(q_array, psi_squared_exact, label='AV18')
     plt.semilogy(q_array, n_d_array, label='LDA pair')
-    plt.semilogy(q_array, n_d_array * np.pi/2, 
-                 label=r'$\pi/2 \times$' + 'LDA pair')
-    # plt.semilogy(q_array, n_d_p_array, label='LDA proton')
-    # plt.semilogy(q_array, n_d_p_array * np.pi/2,
-    #               label=r'$\pi/2 \times$' + 'LDA proton')
-    plt.xlim( (0.0, 4.0) )
-    plt.ylim( (1e-6, 1e7) )
+    plt.semilogy(q_array, n_d_array * lda_factor,
+                 label=r'$4\pi \times 1/(2\pi)^3 \times$'+'LDA pair')
+    plt.semilogy(q_array, n_d_N_array * lda_factor,
+                 label=r'$4\pi \times 1/(2\pi)^3 \times$'+'LDA nucleon')
+    plt.xlim( (0.0, 5.0) )
+    plt.ylim( (1e-5, 1e4) )
     plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
     plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
     plt.legend(loc=0)
-    
-    # LDA normalization
-    exact_norm = np.sum( (psi_squared_exact * factor_array)[59:] )
-    lda_norm = np.sum( (n_d_p_array * factor_array)[59:] )
-    print(exact_norm)
-    print(lda_norm)

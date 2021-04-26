@@ -28,7 +28,8 @@ import numpy as np
 
 def load_density(nucleus, nucleon, Z, N):
     """
-    Loads a nucleonic density for the given nucleus.
+    Loads a nucleonic density for the given nucleus. Densities are normalized
+    according to 4*\pi \int_0^\infty dr r^2 \rho_A(r) = Z or N.
     
     Parameters
     ----------
@@ -121,7 +122,7 @@ class LDA(object):
 
         Returns
         -------
-        expectation_values : 2-D ndarray
+        expectation_values : 1-D or 2-D ndarray
             Array of expectation values of the function for each contribution
             evaluated at each momentum q.
             
@@ -206,6 +207,10 @@ class LDA(object):
                 expectation_values[i, :] = 4*np.pi*dr * \
                                            np.sum(r2_grid * function_array,
                                                   axis=0)
+                                           
+        # Return 1-D array if contributions = 'total'
+        if contributions == 'total':
+            expectation_values = expectation_values[:, 0]
   
         return expectation_values
     

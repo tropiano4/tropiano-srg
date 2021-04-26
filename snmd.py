@@ -517,8 +517,8 @@ if __name__ == '__main__':
     print('n_lambda^n(q) done after %.2f minutes' % mins)
     mins = round( (t1 - t0) / 60.0, 2)
     
-    # This is 4 \pi for d3p and 1/(2*\pi)^3 for converting
-    # from sums to integrals
+    # This is 4 \pi for d3p and 1/(2*\pi)^3 for converting from sums to
+    # integrals
     overall_factor = 4*np.pi * 1/(2*np.pi)**3
     
     p_a_p = q_array**2 * n_p_array / A * overall_factor
