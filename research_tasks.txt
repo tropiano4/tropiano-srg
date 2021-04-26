@@ -1,9 +1,9 @@
 --- SRC ---
 
  * Check normalization of SNMD
-   - Update snmd.py and pmd.py revision histories
-   - Normalization of other nuclei in test_script?
-   - Update SNMD figures in src_physics_fig.ipynb
+   - Normalization of other nuclei in test_script
+     Do total, 1, \delta U, \delta U^2
+   - Update SNMD data/figures
    - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
    - Bug in 3P2 and 3D3 channels?
        Interpolation problem?
@@ -28,6 +28,8 @@
    - Numerically check asymptotic relation of SNMD and PMD
 
  * Correct iPad momentum distribution notes? (Might be switching to DME description)
+
+ * Add 'Integrate' option to pmd.py
 
  * Update a2 plot with pp, pn, np, nn contributions?
    - Do \int dq P^A_{pp only}(q) / deuteron total and likewise for other pieces
