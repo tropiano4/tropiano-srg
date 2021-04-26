@@ -17,6 +17,8 @@
 #                'n_lambda_pair' and renamed original single-nucleon momentum
 #                distribution from 'n_lambda' to 'n_lambda_single'. Also
 #                merged pmd_deuteron_test.py with this script.
+#   04/26/21 --- Correcting overall factors in front of \delta U and
+#                \delta U^2 terms.
 #
 #------------------------------------------------------------------------------
 
@@ -182,10 +184,11 @@ class deuteron_momentum_distributions(object):
         self.dr = r_array[1] - r_array[0]
         
         
-    def theta_q_2k(self, kF, q):
+    def theta_deltaU(self, kF, q):
         """
         Evaluates \theta( k_F - \abs(q_vec - 2k_vec) ) for every momentum k
-        and angle x where \abs(q_vec - 2k_vec) = \sqrt(q^2 + 4k^2 + 4kqx).
+        and angle x where \abs(q_vec - 2k_vec) = \sqrt(q^2 + 4k^2 - 4kqx). This
+        function appears in the \delta U term.
 
         Parameters
         ----------
@@ -202,22 +205,23 @@ class deuteron_momentum_distributions(object):
 
         """
     
-        q_2k_magnitude = np.sqrt( q**2 + 4 * self.k_grid_2d**2 - \
-                                  4 * q * self.k_grid_2d * self.x_grid_2d )
+        q_2k_magnitude = np.sqrt( q**2 + 4*self.k_grid_2d**2 - \
+                                  4*q*self.k_grid_2d*self.x_grid_2d )
         
         # This returns a (ntot, xtot) array of boolean values at every point
         # converted to 1's or 0's by multiplying 1
         theta_q_2k = ( q_2k_magnitude < kF ) * 1
 
-        # Return the weighted matrix for integration purposes
+        # Return the 2-D array with x integration weights
         return theta_q_2k * self.x_weights_2d
     
     
-    def theta_K_k(self, kF, sign=1):
+    def theta_deltaU2(self, kF, sign=1):
         """
-        Evaluates \theta( k_F - \abs(K_vec/2 + sign*k_vec) ) for every
-        momentum k and angle x where \abs(K_vec/2 + sign * k_vec) = 
-        \sqrt(K^2/4 + k^2 + sign*Kkx).
+        Evaluates \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) for every momentum k
+        and angle x where
+            \abs(K_vec/2 +(-) k_vec) = \sqrt(K^2/4 + k^2 +(-) K*k*x).
+        These functions appear in the \delta U \delta U^\dagger term.
 
         Parameters
         ----------
@@ -235,14 +239,14 @@ class deuteron_momentum_distributions(object):
         """
     
         K_k_magnitude = np.sqrt( self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
-                                 sign * self.k_grid_3d * self.K_grid_3d * \
+                                 sign*self.k_grid_3d*self.K_grid_3d* \
                                  self.x_grid_3d )
         
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
         theta_K_k = ( K_k_magnitude < kF ) * 1
 
-        # Return the weighted matrix for integration purposes
+        # Return the 3-D array with x integration weights
         return theta_K_k * self.x_weights_3d
     
     
@@ -290,7 +294,7 @@ class deuteron_momentum_distributions(object):
             # This is a (ntot, xtot) matrix (including x_weights) of 
             # \theta( kF - \abs( q_vec - 2k_vec ) ) for every momentum k and 
             # angle x
-            theta_kF_k_x_matrix = self.theta_q_2k(kF, q)
+            theta_kF_k_x_matrix = self.theta_deltaU(kF, q)
             
             # Integrate over x first (angle-averaging) where the integration
             # weights of x are already built-in
@@ -304,7 +308,7 @@ class deuteron_momentum_distributions(object):
 
             # Integrate over k where the factor of 2 is for combining the
             # second and third terms
-            deltaU_factor = 2 / (2*np.pi)**3 * 2/np.pi
+            deltaU_factor = 2 * 2/np.pi * 2**2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -340,8 +344,8 @@ class deuteron_momentum_distributions(object):
         # \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every total momentum
         # K, relative momentum k, and angle x where sign specifies the sign of
         # k_vec
-        theta_kF_K_plus_k_x = self.theta_K_k(kF, sign=1)
-        theta_kF_K_minus_k_x = self.theta_K_k(kF, sign=-1)
+        theta_kF_K_plus_k_x = self.theta_deltaU2(kF, sign=1)
+        theta_kF_K_minus_k_x = self.theta_deltaU2(kF, sign=-1)
             
         # Integrate over x first
         # This sum collapses theta_K_k_x to a matrix dependent only on K and 
@@ -363,7 +367,9 @@ class deuteron_momentum_distributions(object):
                       
         # Integrate over k (no 1/2 factor as in snmd.py because the two pn
         # \theta's are the same in this case and give a factor of 2)
-        deltaU2_factor = 1/(2*np.pi)**6 * (2/np.pi)**2
+        # deltaU2_factor = (2/np.pi)**2 * 2**4
+        # TESTING
+        deltaU2_factor = (2/np.pi)**2
         term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
         # Add up each contribution for total
@@ -420,7 +426,7 @@ class deuteron_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor = 1/(4*np.pi) * 2/np.pi
+            deltaU_factor = 2/np.pi * 1/(4*np.pi) * 2**2
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU[q_index, q_index]
             
@@ -441,7 +447,9 @@ class deuteron_momentum_distributions(object):
         kF_cutoff = find_q_index(kF, self.k_array)
                       
         # Integrate over k
-        deltaU2_factor = 1/4 * 1/(2*np.pi)**3 * (2/np.pi)**2 * 1/(4*np.pi) * 2
+        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4 * 
+        # TESTING
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2
         # Last factor of 2 is for \theta^p \theta^n + \theta^p \theta^n
         term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
         
@@ -455,7 +463,8 @@ class deuteron_momentum_distributions(object):
             return total
     
 
-    def local_density_approximation(self, q_array, distribution):
+    def local_density_approximation(self, q_array, distribution,
+                                    contributions='total'):
         """
         Evaluates the nuclear-averaged single-nucleon momentum distribution in
         deuteron assuming LDA.
@@ -466,6 +475,13 @@ class deuteron_momentum_distributions(object):
             Momentum values [fm^-1]. These are not relative momenta.
         distribution : str
             Type of distribution: 'single-nucleon' or 'pair'.
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            2. Specify 'q_contributions' for total, 1, \delta U, and 
+               \delta U \delta U^\dagger.
 
         Returns
         -------
@@ -475,35 +491,53 @@ class deuteron_momentum_distributions(object):
 
         """
         
-        # Number of q points
-        M = len(q_array)
+        # Set shape of return array with 'axes'
+        # Only return total contribution at each q
+        if contributions == 'total':
+            axes = 1
+        # Return total, 1, \delta U, and \delta U^2 contributions at each q
+        elif contributions == 'q_contributions':
+            axes = 4
         
         # Load r_array and rho_array
         r_array = self.r_array
         rho_array = self.rho_array
-        # Number of r points
-        N = len(r_array)
+        # Number of r_array points
+        mtot = len(r_array)
+        r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
+        dr = 0.1 # Spacing between r-points
+            
+        # Length of q_array
+        ntot = len(q_array)
+        
+        # Evaluate f(q, kF) at each point in q_array and kF
+        expectation_values = np.zeros( (ntot, axes) )
     
         # kF values for pn pair
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
         
-        # Loop over q_array and average with respect to r
-        expectation_values = np.zeros(M)
+        # Loop over q
         for i, q in enumerate(q_array):
     
-            # Now evaluate n(q, kF)
-            n_lambda_array = np.zeros(N)
-            for j, k_F in enumerate(kF_array):
+            function_array = np.zeros( (mtot, axes) )
+
+            # Loop over r for k_F values
+            for j, kF in enumerate(kF_array):
 
                 if distribution == 'single-nucleon':
-                    n_lambda_array[j] = self.n_lambda_single(q, k_F)
+                    function_array[j, :] = self.n_lambda_single(q, kF,
+                                                                contributions)
                 elif distribution == 'pair':
-                    n_lambda_array[j] = self.n_lambda_pair(q, k_F)
+                    function_array[j, :] = self.n_lambda_pair(q, kF,
+                                                              contributions)
                     
-            # Deuteron is normalization is \int dr r^2 \rho_d(r) = 1 without
+            # Deuteron normalization is \int dr r^2 \rho_d(r) = 1 without
             # any factor of 4*\pi
-            expectation_values[i] = self.dr * np.sum( r_array**2 *
-                                                      n_lambda_array )
+            # For nucleus A, normalization would be
+            #     4*\pi \int dr r^2 \rho_A(r) = Z or N depending on nucleon
+            # So taking ratios A/d are consistent
+            expectation_values[i, :] = dr * np.sum(r2_grid * function_array,
+                                                   axis=0)
   
         return expectation_values
     
@@ -566,40 +600,40 @@ class deuteron_momentum_distributions(object):
             
             # 3S1-3S1 only
             numerator = abs( psi_vector.T[:ntot] @ ( \
-                                delta_U_matrix[:ntot, :ntot] @ \
-                                bare_operator[:ntot, :ntot] @ \
-                                delta_U_matrix.T[:ntot, :ntot] +
-                                delta_U_matrix[:ntot, ntot:] @ \
-                                bare_operator[ntot:, ntot:] @ \
-                                delta_U_matrix.T[ntot:, :ntot] ) @ \
-                              psi_vector[:ntot] )
+                                 delta_U_matrix[:ntot, :ntot] @ \
+                                 bare_operator[:ntot, :ntot] @ \
+                                 delta_U_matrix.T[:ntot, :ntot] +
+                                 delta_U_matrix[:ntot, ntot:] @ \
+                                 bare_operator[ntot:, ntot:] @ \
+                                 delta_U_matrix.T[ntot:, :ntot] ) @ \
+                             psi_vector[:ntot] )
                         
             # Full 3S1-3D1 taking absolute values 
             denominator = numerator + \
                           abs( psi_vector.T[:ntot] @ ( \
-                                  delta_U_matrix[:ntot, :ntot] @ \
-                                  bare_operator[:ntot, :ntot] @ \
-                                  delta_U_matrix.T[:ntot, ntot:] +
-                                  delta_U_matrix[:ntot, ntot:] @ \
-                                  bare_operator[ntot:, ntot:] @ \
-                                  delta_U_matrix.T[ntot:, ntot:] ) @ \
-                                psi_vector[ntot:] ) + \
+                                   delta_U_matrix[:ntot, :ntot] @ \
+                                   bare_operator[:ntot, :ntot] @ \
+                                   delta_U_matrix.T[:ntot, ntot:] +
+                                   delta_U_matrix[:ntot, ntot:] @ \
+                                   bare_operator[ntot:, ntot:] @ \
+                                   delta_U_matrix.T[ntot:, ntot:] ) @ \
+                               psi_vector[ntot:] ) + \
                           abs( psi_vector.T[ntot:] @ ( \
-                                  delta_U_matrix[ntot:, :ntot] @ \
-                                  bare_operator[:ntot, :ntot] @ \
-                                  delta_U_matrix.T[:ntot, :ntot] +
-                                  delta_U_matrix[ntot:, ntot:] @ \
-                                  bare_operator[ntot:, ntot:] @ \
-                                  delta_U_matrix.T[ntot:, :ntot] ) @ \
-                                psi_vector[:ntot] ) + \
+                                   delta_U_matrix[ntot:, :ntot] @ \
+                                   bare_operator[:ntot, :ntot] @ \
+                                   delta_U_matrix.T[:ntot, :ntot] +
+                                   delta_U_matrix[ntot:, ntot:] @ \
+                                   bare_operator[ntot:, ntot:] @ \
+                                   delta_U_matrix.T[ntot:, :ntot] ) @ \
+                               psi_vector[:ntot] ) + \
                           abs( psi_vector.T[ntot:] @ ( \
-                                  delta_U_matrix[ntot:, :ntot] @ \
-                                  bare_operator[:ntot, :ntot] @ \
-                                  delta_U_matrix.T[:ntot, ntot:] +
-                                  delta_U_matrix[ntot:, ntot:] @ \
-                                  bare_operator[ntot:, ntot:] @ \
-                                  delta_U_matrix.T[ntot:, ntot:] ) @ \
-                                psi_vector[ntot:] )
+                                   delta_U_matrix[ntot:, :ntot] @ \
+                                   bare_operator[:ntot, :ntot] @ \
+                                   delta_U_matrix.T[:ntot, ntot:] +
+                                   delta_U_matrix[ntot:, ntot:] @ \
+                                   bare_operator[ntot:, ntot:] @ \
+                                   delta_U_matrix.T[ntot:, ntot:] ) @ \
+                               psi_vector[ntot:] )
                                    
         # Add up each term for total
         total = term_1 + term_deltaU + term_deltaU2
@@ -649,13 +683,19 @@ if __name__ == '__main__':
     # Plot pair momentum distributions
     plt.semilogy(q_array, psi_squared_exact, label='AV18')
     plt.semilogy(q_array, n_d_array, label='LDA pair')
-    plt.semilogy(q_array, n_d_array * (2*np.pi)**3 * np.pi/2,
-                  label=r'$\pi/2 \times (2\pi)^3 \times$' + 'LDA pair')
-    plt.semilogy(q_array, n_d_p_array, label='LDA proton')
-    plt.semilogy(q_array, n_d_p_array * (2*np.pi)**6 * np.pi/2,
-                  label=r'$\pi/2 \times (2\pi)^6 \times$' + 'LDA proton')
+    plt.semilogy(q_array, n_d_array * np.pi/2, 
+                 label=r'$\pi/2 \times$' + 'LDA pair')
+    # plt.semilogy(q_array, n_d_p_array, label='LDA proton')
+    # plt.semilogy(q_array, n_d_p_array * np.pi/2,
+    #               label=r'$\pi/2 \times$' + 'LDA proton')
     plt.xlim( (0.0, 4.0) )
     plt.ylim( (1e-6, 1e7) )
     plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
     plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
     plt.legend(loc=0)
+    
+    # LDA normalization
+    exact_norm = np.sum( (psi_squared_exact * factor_array)[59:] )
+    lda_norm = np.sum( (n_d_p_array * factor_array)[59:] )
+    print(exact_norm)
+    print(lda_norm)

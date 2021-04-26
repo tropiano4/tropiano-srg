@@ -14,7 +14,8 @@
 # pmd_deuteron_test.py with the latter two in Old_codes.
 #
 # Revision history:
-#   xx/xx/xx --- ...
+#   04/26/21 --- Correcting overall factors in front of \delta U and
+#                \delta U^2 terms.
 #
 #------------------------------------------------------------------------------
 
@@ -213,7 +214,7 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor = 1/(4*np.pi) * 2/np.pi
+            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pp[q_index, q_index]
             
@@ -234,7 +235,7 @@ class pair_momentum_distributions(object):
         kF_cutoff = find_q_index(kF, self.k_array)
                       
         # Integrate over k
-        deltaU2_factor = 1/4 * 1/(2*np.pi)**3 * (2/np.pi)**2 * 1/(4*np.pi)
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
         term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
         
         # Add up each term for total
@@ -293,7 +294,7 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor = 1/(4*np.pi) * 2/np.pi
+            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pn[q_index, q_index]
             
@@ -314,7 +315,7 @@ class pair_momentum_distributions(object):
         kF_cutoff = find_q_index(kF, self.k_array)
                       
         # Integrate over k
-        deltaU2_factor = 1/4 * 1/(2*np.pi)**3 * (2/np.pi)**2 * 1/(4*np.pi) * 2
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4 * 2
         # Last factor of 2 is for \theta^p \theta^n + \theta^p \theta^n
         term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
         

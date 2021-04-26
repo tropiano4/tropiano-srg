@@ -148,7 +148,7 @@ class LDA(object):
         # Length of q_array
         ntot = len(q_array)
         
-        # Evaluate f(q, kFp) at each point in q_array and kF
+        # Evaluate f(q, kF) at each point in q_array and kF
         expectation_values = np.zeros( (ntot, axes) )
 
         # pn pair or single-nucleon: Two k_F values in this case

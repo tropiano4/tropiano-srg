@@ -25,6 +25,8 @@
 #
 #------------------------------------------------------------------------------
 
+# --- Further tests and bug checks --- #
+# 1. How much do things change with different K and x meshes?
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
@@ -146,8 +148,8 @@ class single_nucleon_momentum_distributions(object):
                 # First L of coupled-channel
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
-                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 \
-                                          + delta_U_matrix[:ntot, ntot:]**2 )
+                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
+                                            delta_U_matrix[:ntot, ntot:]**2 )
 
                 # Isospin CG's=1 for pp
                 if channel in pp_channels:
@@ -552,8 +554,3 @@ if __name__ == '__main__':
     ax.add_artist(anchored_text)
     
     plt.show()
-    
-    # --- Further tests and bug checks --- #
-    # 1. How much do things change with different K and x meshes?
-    # 2. Check that the q_K_cutoff is working correctly. (This is still giving
-    #    me 0 at the end of the final nuclear-averaged array.)
