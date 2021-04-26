@@ -20,8 +20,8 @@
 #                details of the function.
 #   04/02/21 --- Added option to return pp and pn (or nn and np) contributions
 #                to \delta U \delta U^\dagger term along with total.
-#   04/22/21 --- Testing changes to overall factors in front of \delta U
-#                and \delta U^2 terms. Update this update when it's correct!
+#   04/22/21 --- Correcting overall factors in front of \delta U and
+#                \delta U^2 terms.
 #
 #------------------------------------------------------------------------------
 
@@ -210,10 +210,11 @@ class single_nucleon_momentum_distributions(object):
         _, self.K_weights_2d = np.meshgrid(k_array, K_weights, indexing='ij')
 
 
-    def theta_q_2k(self, kF, q):
+    def theta_deltaU(self, kF, q):
         """
         Evaluates \theta( k_F - \abs(q_vec - 2k_vec) ) for every momentum k
-        and angle x where \abs(q_vec - 2k_vec) = \sqrt(q^2 + 4k^2 + 4kqx).
+        and angle x where \abs(q_vec - 2k_vec) = \sqrt(q^2 + 4k^2 - 4kqx). This
+        function appears in the \delta U term.
 
         Parameters
         ----------
@@ -230,22 +231,23 @@ class single_nucleon_momentum_distributions(object):
 
         """
     
-        q_2k_magnitude = np.sqrt( q**2 + 4 * self.k_grid_2d**2 - \
-                                  4 * q * self.k_grid_2d * self.x_grid_2d )
+        q_2k_magnitude = np.sqrt( q**2 + 4*self.k_grid_2d**2 - \
+                                  4*q*self.k_grid_2d*self.x_grid_2d )
         
         # This returns a (ntot, xtot) array of boolean values at every point
         # converted to 1's or 0's by multiplying 1
         theta_q_2k = ( q_2k_magnitude < kF ) * 1
 
-        # Return the weighted matrix for integration purposes
+        # Return the 2-D array with x integration weights
         return theta_q_2k * self.x_weights_2d
     
     
-    def theta_K_k(self, kF, sign=1):
+    def theta_deltaU2(self, kF, sign=1):
         """
-        Evaluates \theta( k_F - \abs(K_vec/2 + sign*k_vec) ) for every
-        momentum k and angle x where \abs(K_vec/2 + sign * k_vec) = 
-        \sqrt(K^2/4 + k^2 + sign*Kkx).
+        Evaluates \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) for every momentum k
+        and angle x where
+            \abs(K_vec/2 +(-) k_vec) = \sqrt(K^2/4 + k^2 +(-) K*k*x).
+        These functions appear in the \delta U \delta U^\dagger term.
 
         Parameters
         ----------
@@ -263,14 +265,14 @@ class single_nucleon_momentum_distributions(object):
         """
     
         K_k_magnitude = np.sqrt( self.K_grid_3d**2/4 + self.k_grid_3d**2 + \
-                                 sign * self.k_grid_3d * self.K_grid_3d * \
+                                 sign*self.k_grid_3d*self.K_grid_3d* \
                                  self.x_grid_3d )
         
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
         theta_K_k = ( K_k_magnitude < kF ) * 1
 
-        # Return the weighted matrix for integration purposes
+        # Return the 3-D array with x integration weights
         return theta_K_k * self.x_weights_3d
 
 
@@ -325,8 +327,8 @@ class single_nucleon_momentum_distributions(object):
             # These are (ntot, xtot) matrices (including x_weights) of 
             # \theta( kF1 - \abs( q_vec - 2k_vec ) ) for every momentum k and 
             # angle x
-            theta_kF1_k_x_matrix = self.theta_q_2k(kF_1, q)
-            theta_kF2_k_x_matrix = self.theta_q_2k(kF_2, q)
+            theta_kF1_k_x_matrix = self.theta_deltaU(kF_1, q)
+            theta_kF2_k_x_matrix = self.theta_deltaU(kF_2, q)
             
             # Integrate over x first (angle-averaging) where the integration
             # weights of x are already built-in
@@ -380,10 +382,10 @@ class single_nucleon_momentum_distributions(object):
         # \theta( k_F - \abs( 1/2*K_vec +/- k_vec ) ) for every total momentum
         # K, relative momentum k, and angle x where sign specifies the sign of
         # k_vec
-        theta_kF1_K_plus_k_x = self.theta_K_k(kF_1, sign=1)
-        theta_kF1_K_minus_k_x = self.theta_K_k(kF_1, sign=-1)
-        theta_kF2_K_plus_k_x = self.theta_K_k(kF_2, sign=1)
-        theta_kF2_K_minus_k_x = self.theta_K_k(kF_2, sign=-1)
+        theta_kF1_K_plus_k_x = self.theta_deltaU2(kF_1, sign=1)
+        theta_kF1_K_minus_k_x = self.theta_deltaU2(kF_1, sign=-1)
+        theta_kF2_K_plus_k_x = self.theta_deltaU2(kF_2, sign=1)
+        theta_kF2_K_minus_k_x = self.theta_deltaU2(kF_2, sign=-1)
             
         # Integrate over x first
         # This sum collapses theta_K_k_x to a matrix dependent only on K and 
@@ -407,10 +409,10 @@ class single_nucleon_momentum_distributions(object):
             
             # Build K integrand (ntot, K_cutoff_index) array isolating pp and
             # pn terms
-            integrand_k_K_pp = self.K_integration_measure[:, :K_cutoff_index] * \
-                               deltaU2_pp_array * theta_kF1_kF1_K_k
-            integrand_k_K_pn = self.K_integration_measure[:, :K_cutoff_index] * \
-                               deltaU2_pn_array * theta_kF1_kF2_K_k
+            integrand_k_K_pp = self.K_integration_measure[:, :K_cutoff_index] \
+                               * deltaU2_pp_array * theta_kF1_kF1_K_k
+            integrand_k_K_pn = self.K_integration_measure[:, :K_cutoff_index] \
+                               * deltaU2_pn_array * theta_kF1_kF2_K_k
                                
             # Integrate over K and build k integrand
             integrand_k_pp = np.sum( integrand_k_K_pp, axis=-1 ) * \
