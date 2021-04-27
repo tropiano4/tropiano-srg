@@ -1,15 +1,20 @@
 --- SRC ---
 
+ * Updates/results
+   - Normalization and comparison to AV18 for deuteron in LDA works if we fix M_J (no 2*J+1 factors)
+   - Normalization for other nuclei is overestimated but comparison to AV18 is solid
+       1. No K integration dependence
+       2. Removing 2J+1 makes comparison to data worse and overall normalization still doesn't cancel
+
  * Check normalization of SNMD
-   - Normalization of other nuclei in test_script
-     Do total, 1, \delta U, \delta U^2
-     Do proton and neutron normalizations
-     2*J+1 factor??
-   - Update SNMD data/figures
-   - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
+   - Bug at last q-point in snmd.py?
    - Bug in 3P2 and 3D3 channels?
        Interpolation problem?
-   - Bug at last q-point in snmd.py?
+       Cancellation of \delta U and other contributions doesn't work out?
+   - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
+   - Update SNMD data/figures
+       Set legend rc params
+       Run everything and save to Dropbox as well (run dmd.py with new K mesh)
 
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
