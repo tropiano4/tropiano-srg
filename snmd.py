@@ -25,8 +25,6 @@
 #
 #------------------------------------------------------------------------------
 
-# --- Further tests and bug checks --- #
-# 1. How much do things change with different K and x meshes?
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
