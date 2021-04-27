@@ -3,6 +3,8 @@
  * Check normalization of SNMD
    - Normalization of other nuclei in test_script
      Do total, 1, \delta U, \delta U^2
+     Do proton and neutron normalizations
+     2*J+1 factor??
    - Update SNMD data/figures
    - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
    - Bug in 3P2 and 3D3 channels?
@@ -15,6 +17,7 @@
    - Focus on practicality and how you can make this clear to others
      (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures
+   - Add normalizations
 
  * Go through comments in Overleaf and add updated figures
    (left off at Calculations and cartoons at low-resolution)
