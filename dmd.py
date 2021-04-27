@@ -29,6 +29,8 @@
 #                merged pmd_deuteron_test.py with this script.
 #   04/26/21 --- Correcting overall factors in front of \delta U and
 #                \delta U^2 terms.
+#   04/27/21 --- Fixed issue with evaluating at maximum q-point in q_array for
+#                single-nucleon distribution.
 #
 #------------------------------------------------------------------------------
 
@@ -334,16 +336,9 @@ class deuteron_momentum_distributions(object):
         # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
         q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
         
-        # We can only interpolate \deltaU(k,k') up to k_max
-        # Do not allow this next array to go above k_max - this may impose
-        # a cutoff on the K integration
-        q_K_array_cutoff = q_K_array[ q_K_array < max(self.k_array) ]
-        K_cutoff_index = len(q_K_array_cutoff)
-        
         # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array_cutoff,
-                                        indexing='ij')
+        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array, indexing='ij')
         
         # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
@@ -365,12 +360,12 @@ class deuteron_momentum_distributions(object):
             
         # \int dx/2
         theta_kF_K_k = ( np.sum(theta_kF_K_plus_k_x * theta_kF_K_minus_k_x,
-                                axis=-1 ) )[:, :K_cutoff_index] / 2
+                                axis=-1 ) ) / 2
 
         # Build K integrand (ntot, K_cutoff_index) array spliting pp and np
         # contributions (or nn and np)
-        integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * \
-                        deltaU2_array * theta_kF_K_k
+        integrand_k_K = self.K_integration_measure * deltaU2_array * \
+                        theta_kF_K_k
 
         # Integrate over K and build k integrand
         integrand_k = np.sum( integrand_k_K, axis=-1 ) * \

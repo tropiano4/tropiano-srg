@@ -22,6 +22,7 @@
 #                to \delta U \delta U^\dagger term along with total.
 #   04/22/21 --- Correcting overall factors in front of \delta U and
 #                \delta U^2 terms.
+#   04/27/21 --- Fixed issue with evaluating at maximum q-point in q_array.
 #
 #------------------------------------------------------------------------------
 
@@ -355,20 +356,13 @@ class single_nucleon_momentum_distributions(object):
             term_deltaU = 0
         
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
-        
+
         # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
         q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
         
-        # We can only interpolate \deltaU(k,k') up to k_max
-        # Do not allow this next array to go above k_max - this may impose
-        # a cutoff on the K integration
-        q_K_array_cutoff = q_K_array[ q_K_array < max(self.k_array) ]
-        K_cutoff_index = len(q_K_array_cutoff)
-        
         # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array_cutoff,
-                                        indexing='ij')
+        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array, indexing='ij')
         
         # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
@@ -389,17 +383,17 @@ class single_nucleon_momentum_distributions(object):
             
         # Integrate over x first
         # This sum collapses theta_K_k_x to a matrix dependent only on K and 
-        # k: (ntot, Ktot, xtot) -> (ntot, K_cutoff_index)
+        # k: (ntot, Ktot, xtot) -> (ntot, Ktot)
             
         # \int dx/2 \theta_pp (or \theta_nn)
         theta_kF1_kF1_K_k = ( np.sum( 
                               theta_kF1_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) )[:, :K_cutoff_index] / 2
+                              axis=-1 ) ) / 2
         # \int dx/2 \theta_pn (or \theta_np)
         theta_kF1_kF2_K_k = ( np.sum( 
                               theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
                               theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) )[:, :K_cutoff_index] / 2
+                              axis=-1 ) ) / 2
         
         # Overall factor in front of \delta U^2 term
         deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
@@ -409,10 +403,10 @@ class single_nucleon_momentum_distributions(object):
             
             # Build K integrand (ntot, K_cutoff_index) array isolating pp and
             # pn terms
-            integrand_k_K_pp = self.K_integration_measure[:, :K_cutoff_index] \
-                               * deltaU2_pp_array * theta_kF1_kF1_K_k
-            integrand_k_K_pn = self.K_integration_measure[:, :K_cutoff_index] \
-                               * deltaU2_pn_array * theta_kF1_kF2_K_k
+            integrand_k_K_pp = self.K_integration_measure * \
+                               deltaU2_pp_array * theta_kF1_kF1_K_k
+            integrand_k_K_pn = self.K_integration_measure * \
+                               deltaU2_pn_array * theta_kF1_kF2_K_k
                                
             # Integrate over K and build k integrand
             integrand_k_pp = np.sum( integrand_k_K_pp, axis=-1 ) * \
@@ -436,7 +430,7 @@ class single_nucleon_momentum_distributions(object):
         else:
 
             # Build K integrand (ntot, K_cutoff_index) array
-            integrand_k_K = self.K_integration_measure[:, :K_cutoff_index] * (\
+            integrand_k_K = self.K_integration_measure * (\
                             deltaU2_pp_array * theta_kF1_kF1_K_k + \
                             deltaU2_pn_array * theta_kF1_kF2_K_k )
 
