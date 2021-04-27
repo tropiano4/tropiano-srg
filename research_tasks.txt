@@ -7,11 +7,10 @@
        2. Removing 2J+1 makes comparison to data worse and overall normalization still doesn't cancel
 
  * Check normalization of SNMD
-   - Bug at last q-point in snmd.py?
+   - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
    - Bug in 3P2 and 3D3 channels?
        Interpolation problem?
        Cancellation of \delta U and other contributions doesn't work out?
-   - Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
    - Update SNMD data/figures
        Set legend rc params
        Run everything and save to Dropbox as well (run dmd.py with new K mesh)
