@@ -81,7 +81,7 @@ class single_nucleon_momentum_distributions(object):
         
         # Total momentum K [fm^-1] where we put more points toward K=0 fm^-1
         Kmax = 3.0 # Max momentum
-        Kmid = 1.5 # Mid-point
+        Kmid = 1.0 # Mid-point
         Ntot = 20 # Total number of points
         Nmod = 10 # Total number of points in the low-K region
         K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot, xmid=Kmid,
@@ -476,7 +476,6 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 10.0, 2.0, 120
     # kmax, kmid, ntot = 30.0, 4.0, 120
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-    factor_array = 2/np.pi * q_weights * q_array**2
     
     # Load n_\lambda_pp(q, k_F) for AV18
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,

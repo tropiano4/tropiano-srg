@@ -89,7 +89,7 @@ class deuteron_momentum_distributions(object):
         
         # Total momentum K [fm^-1] where we put more points toward K=0 fm^-1
         Kmax = 3.0 # Max momentum
-        Kmid = 1.5 # Mid-point
+        Kmid = 1.0 # Mid-point
         Ntot = 20 # Total number of points
         Nmod = 10 # Total number of points in the low-K region
         K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot, xmid=Kmid,
