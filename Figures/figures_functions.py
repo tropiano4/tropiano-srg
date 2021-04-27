@@ -29,6 +29,9 @@
 #                updated replace_periods_with_commas to replace_periods.
 #   06/30/20 --- Added convert_ticks_to_labels function.
 #   03/24/21 --- Added nuclei_label_conversion function.
+#   04/27/21 --- Added coupled_channel function and convert_number_to_string,
+#                and updated channel_label_conversion function and
+#                lambda_label_conversion function.
 #
 #------------------------------------------------------------------------------
 
@@ -37,7 +40,7 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d
 
 
-def channel_label_conversion(channel):
+def channel_label_conversion(channel, label_coupled_channel=True):
     """
     Converts a channel string argument to a label for plotting purposes.
     
@@ -45,6 +48,9 @@ def channel_label_conversion(channel):
     ----------
     channel : str
         The partial wave channel (e.g. '1S0').
+    label_coupled_channel : bool, optional
+        Option to label full coupled-channel (e.g., '3S1-3D1' instead of
+        '3S1' only).
         
     Returns
     -------
@@ -52,9 +58,45 @@ def channel_label_conversion(channel):
         Label for the channel.
         
     """
-
-    # Make numbers super- and sub-scripts
-    label = r'$^%s$' % channel[0] + channel[1] + r'$_%s$' % channel[2]
+    
+    # Get S, L, and J as strings where L is given by 'S', 'P', etc.
+    S = channel[0]
+    L = channel[1]
+    J = channel[2]
+    
+    # Make label with super- and sub-scripts
+    # Label coupled channel?
+    if label_coupled_channel and coupled_channel(channel):
+        
+        if L == 'S':
+            L2 = 'D'
+        elif L == 'P':
+            L2 = 'F'
+        elif L == 'D':
+            L2 = 'G'
+        elif L == 'F':
+            L2 = 'H'
+        elif L == 'G':
+            L2 = 'I'
+        elif L == 'H':
+            L2 = 'K'
+        elif L == 'I':
+            L2 = 'L'
+        elif L == 'K':
+            L2 = 'M'
+        elif L == 'L':
+            L2 = 'N'
+        elif L == 'M':
+            L2 = 'O'
+        elif L == 'N':
+            L2 = 'Q'
+            
+        label = r'$^{%s}{\rm %s}_{%s}\endash^{%s}{\rm %s}_{%s}$' % (S, L, J,
+                                                                    S, L2, J)
+        
+    else:
+        
+        label = r'$^{%s}{\rm %s}_{%s}$' % (S, L, J)
     
     return label
 
@@ -110,6 +152,59 @@ def convert_ticks_to_labels(ticks):
     return tick_labels
 
 
+def coupled_channel(channel):
+    """
+    Boolean value on whether the given channel is a coupled channel.
+    
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    
+    Returns
+    -------
+    boolean_value : bool
+        True if the channel is coupled channel and false otherwise.
+        
+    """
+    
+    # List of coupled channels
+    coupled_channels = ['3S1', '3P2', '3D3', '3F4', '3G5', '3H6', '3I7',
+                        '3K8', '3L9', '3M10', '3N11', '3O12', '3Q13']
+
+    # This is true or false
+    boolean_value = channel in coupled_channels
+    
+    return boolean_value
+
+
+def convert_number_to_string(number):
+    """
+    Gives the given number with the correct amount of digits meaning plots will
+    show '1.35' not '1.35000000023'.
+
+    Parameters
+    ----------
+    number : float
+        Some input float (e.g., \lambda or momentum).
+
+    Returns
+    -------
+    output : str
+        Input number but rounded to the correct number of digits and converted
+        to a string.
+
+    """
+    
+    # Loop over i until the rounded number matches the input number
+    # then return the string of the rounded number
+    i = 0
+    while round(number, i) != number:
+        i += 1
+        
+    return str( round(number, i) )
+
+
 def generator_label_conversion(generator, lambda_bd=0.00):
     """
     Converts a generator string argument to a label for plotting purposes (e.g.
@@ -137,13 +232,10 @@ def generator_label_conversion(generator, lambda_bd=0.00):
         if lambda_bd == 0.00:
             label = r'$G=H_{BD}$'
             
-        # If lambda_bd is already an integer, format as an integer
-        elif int(lambda_bd) == lambda_bd:
-            label = r'$G=H_{BD}$' + ' (%d fm' % lambda_bd + r'$^{-1}$' + ')'
-            
-        # Otherwise, present with two decimal places
+        # Otherwise, present with lambda_bd
         else:
-            label = r'$G=H_{BD}$' + ' (%.2f fm' % lambda_bd + r'$^{-1}$' + ')'
+            lambda_bd_str = convert_number_to_string(lambda_bd)
+            label = r'$G=H_{BD}$' + ' (%s fm'%lambda_bd_str + r'$^{-1}$' + ')'
             
     elif generator == 'Wegner':
         label = r'$G=H_{D}$'
@@ -363,13 +455,16 @@ def lambda_label_conversion(lamb, generator='Wegner'):
     # Case for finite lamb
     else:
         
+        # Make \lambda or \lambda_bd a string
+        lamb_str = convert_number_to_string(lamb)
+        
         # Label \lambda_bd
         if generator == 'Block-diag':
-            label = r'$\Lambda_{BD}=%.1f$' % lamb + ' fm' + r'$^{-1}$'
+            label = r'$\Lambda_{BD}=%s$' % lamb_str + ' fm' + r'$^{-1}$'
             
         # Label \lambda
         else:
-            label = r'$\lambda=%.1f$' % lamb + ' fm' + r'$^{-1}$'
+            label = r'$\lambda=%s$' % lamb_str + ' fm' + r'$^{-1}$'
             
     return label
         
@@ -517,7 +612,7 @@ def xkcd_colors(curve_number):
     """
     
     colors = ['xkcd:black', 'xkcd:red', 'xkcd:blue', 'xkcd:green',
-              'xkcd:orange', 'xkcd:purple', 'xkcd:grey']
+              'xkcd:orange', 'xkcd:purple', 'xkcd:grey', 'xkcd:brown']
     
     try:
         
