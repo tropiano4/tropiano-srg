@@ -43,156 +43,231 @@
 #                presentation.
 #                potential_contours_kvnn_6_channel_1P1_Wegner_lamb_1p5.png in
 #                Figures/Operator_evolution/Old_figures/Potential_contours.
+#   04/28/21 --- Testing normalization and contributions of \delta U, etc. or
+#                pp/pn to single-nucleon momentun distributions. Created
+#                lda_normalizations_test.py in Old_codes.
 #
 #------------------------------------------------------------------------------
 
 
 # Description of this test:
-#   Testing normalization and contributions of \delta U, etc. or pp/pn to
-#   single-nucleon momentun distributions.
+#   Looking at higher partial waves for potential bug in 3P2 and 3D3 channels.
+#   Seems 3S1-3D1, 3P2-3F2, 3D3-3G3 channels accumulate large numbers at high
+#   momentum in
+#       < k | \delta U | k' > and < k | \delta U \delta U^\dagger | k' >.
 
 
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 import numpy as np
 # Scripts made by A.T.
 from Figures import figures_functions as ff
-from lda import load_density, LDA
 from Potentials.vsrg_macos import vnn
-from snmd import single_nucleon_momentum_distributions
+from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
-# Load data from the following directory
-data_directory = 'Figures/SRC_physics/Data'
-
-# Figure size
-row_number = 1
-col_number = 1
-figure_size = (4*col_number, 4*row_number)
-
-# Axes labels and fontsize
-title_size = 16
-x_label = 'q [fm' + r'$^{-1}$' + ']'
-x_label_size = 16
-y_label = 'proton ' + r'$n^{\lambda}_A(q)/Z$' + ' [fm' + r'$^3$' + ']'
-y_label_size = 16
-legend_size = 14
-legend_location = 'upper right'
+def delta_U_contours(q_array, matrix, axes_lim=(0.0, 5.0), colorbar_limits=(-0.1, 0.1)):
     
-# Curve width
-curve_width = 2.0
+    # --- Set-up --- #
+    
+    # Size of figure
+    row_number = 1
+    col_number = 1
+    figure_size = (4*col_number, 3.5*row_number) # Extra width for colorbar
+    
+    # Axes limits
+    axes_max = axes_lim[1]
+    
+    # Axes ticks, labels, and fontsizes
+    x_label = "k' [fm" + r'$^{-1}$' + ']'
+    y_label = 'k [fm' + r'$^{-1}$' + ']'
+    axes_label_size = 18
+    if 15 < axes_max <= 30:
+        axes_stepsize = 5.0 # Step-size in labeling tick marks
+    elif 10 < axes_max <= 15:
+        axes_stepsize = 3.0
+    elif 5 < axes_max <= 10:
+        axes_stepsize = 2.0
+    else:
+        axes_stepsize = 1.0
+    axes_ticks = np.arange(0.0, axes_max + axes_stepsize, axes_stepsize)
+    axes_ticks_strings = ff.convert_ticks_to_labels(axes_ticks)
+    axes_tick_size = 18
+    
+    # Colorbar ticks, label, and fontsize
+    mn = colorbar_limits[0]
+    mx = colorbar_limits[1]
+    levels_number = 61
+    levels = np.linspace(mn, mx, levels_number)
+    levels_ticks = np.linspace(mn, mx, 9)
+    levels_ticks_strings = ff.convert_ticks_to_labels(levels_ticks)
+    colorbar_tick_size = 18
 
-# Axes limits
-xlim = (0.0, 5.0)
-ylim = (1e-2, 1e3)
+    # Color scheme for contour plots
+    color_style = 'turbo'
 
-# Set potential and other inputs
+
+    # --- Plot data --- #
+    
+    # Initialize figure
+    plt.close('all')
+    f, ax = plt.subplots(row_number, col_number, figsize=figure_size)
+    
+    c = ax.contourf(q_array, q_array, matrix, levels, cmap=color_style,
+                    extend='both')
+        
+    # Specify axes limits
+    ax.set_xlim( axes_lim )
+    ax.set_ylim( axes_lim )
+                     
+    # Specify axes tick marks
+    ax.xaxis.set_ticks(axes_ticks)
+    ax.xaxis.set_ticklabels(axes_ticks_strings)
+    # Switch from bottom to top
+    ax.xaxis.set_label_position('top')
+    ax.xaxis.tick_top()
+    ax.tick_params(labeltop=True, labelsize=axes_tick_size)
+
+    # Set x-axis label
+    ax.set_xlabel(x_label, fontsize=axes_label_size)
+                                         
+    # Specify axes tick marks
+    ax.yaxis.set_ticks(axes_ticks)
+    ax.yaxis.set_ticklabels(axes_ticks_strings)
+    ax.tick_params(labelsize=axes_tick_size)
+                                      
+    # Set y-axis label
+    ax.set_ylabel(y_label, fontsize=axes_label_size)
+
+    # Invert y-axis
+    plt.gca().invert_yaxis()
+                                         
+    # Set colorbar axes
+    f.subplots_adjust(right=0.8) # Adjust for colorbar space
+    cbar_ax = f.add_axes( (0.85, 0.15, 0.05, 0.7) )
+                                         
+    # Set tick size and labels
+    cbar = f.colorbar(c, cax=cbar_ax, ticks=levels_ticks)
+    cbar.ax.tick_params(labelsize=colorbar_tick_size)
+    cbar.ax.set_yticklabels(levels_ticks_strings)
+
+    return f, ax
+
+
+# Load \delta U term here for 3P2
 kvnn = 6
+# kvnn = 222
+channel = '3S1'
+#channel = '3P2'
+# channel = '3D3'
 lamb = 1.35
 kmax, kmid, ntot = 10.0, 2.0, 120
-nuclei_list = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-                ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
-channels = ('1S0', '3S1')
+#kmax, kmid, ntot = 30.0, 4.0, 120
 
-# Load momentum (channel argument doesn't matter here)
-q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
-    
-# Initialize pair momentum distributions class for given potential
-snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
-                                             ntot)
+# Load and save momentum arrays for integration
+k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
+# For dividing out momenta/weights
+factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
+# For coupled-channel matrices
+factor_array_cc = np.concatenate( (factor_array, factor_array) )
+        
+        
+# --- Evaluate matrix elements --- #
+        
+# Load SRG transformation
+H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='srg',
+                                 generator='Wegner', lamb=lamb)
+# Load U(k, k') [unitless]
+U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
 
-# Loop over nuclei
-for nucleus in nuclei_list:
-    
-    nucleus_name = nucleus[0]
-    Z = nucleus[1]
-    N = nucleus[2]
-    
-    # Load r values and nucleonic densities (the r_array's are the same)
-    r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
-    r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
-    
-    # Call LDA class
-    lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-    # Calculate nuclear-averaged momentum distributions
-    n_p_array_cont = lda.local_density_approximation(q_array, snmd.n_lambda,
-                                          'p', contributions='q_contributions')
-    n_n_array_cont = lda.local_density_approximation(q_array, snmd.n_lambda,
-                                          'n', contributions='q_contributions')
-    
-    # Proton contributions
-    n_p_total_array = n_p_array_cont[:, 0]
-    n_p_1_array = n_p_array_cont[:, 1]
-    n_p_delU_array = n_p_array_cont[:, 2]
-    n_p_delU2_array = n_p_array_cont[:, 3]
-    
-    # Neutron contributions
-    n_n_total_array = n_n_array_cont[:, 0]
-    n_n_1_array = n_n_array_cont[:, 1]
-    n_n_delU_array = n_n_array_cont[:, 2]
-    n_n_delU2_array = n_n_array_cont[:, 3]
-    
-    # Compute normalizations here
-    factor = 4*np.pi/(2*np.pi)**3
-    p_total_norm = factor * np.sum(q_array**2 * q_weights * n_p_total_array)
-    p_1_norm = factor * np.sum(q_array**2 * q_weights * n_p_1_array)
-    p_delU_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU_array)
-    p_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU2_array)
-    n_total_norm = factor * np.sum(q_array**2 * q_weights * n_n_total_array)
-    n_1_norm = factor * np.sum(q_array**2 * q_weights * n_n_1_array)
-    n_delU_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU_array)
-    n_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU2_array)
-    
-    # Print normalizations
-    print('_'*50)
-    print(nucleus_name)
-    print('Total proton normalization = %.5f' % p_total_norm)
-    print('1 term proton normalization = %.5f' % p_1_norm)
-    print('\delta U term proton normalization = %.5f' % p_delU_norm)
-    print('\delta U^2 term proton normalization = %.5f' % p_delU2_norm)
-    print('-'*50)
-    print('Total neutron normalization = %.5f' % n_total_norm)
-    print('1 term neutron normalization = %.5f' % n_1_norm)
-    print('\delta U term neutron normalization = %.5f' % n_delU_norm)
-    print('\delta U^2 term neutron normalization = %.5f\n' % n_delU2_norm)
-    
-    # Plot with respect to AV18 data
-    plt.close('all')
-    f, ax = plt.subplots(figsize=figure_size)
-        
-    # Add curve to figure
-    ax.set_yscale('log')
-    ax.plot(q_array, n_p_total_array/Z, color='xkcd:grey', label='total',
-            linewidth=curve_width)
-    ax.plot(q_array, n_p_1_array/Z, color='xkcd:blue', label='1',
-            linestyle='dotted', linewidth=curve_width)
-    ax.plot(q_array, abs(n_p_delU_array)/Z, color='xkcd:green',
-            label=r'$|\delta U|$', linestyle='dashed', linewidth=curve_width)
-    ax.plot(q_array, n_p_delU2_array/Z, color='xkcd:red', linestyle='dashdot',
-            label=r'$\delta U \delta U^{\dagger}$', linewidth=curve_width)
-        
-    # Add AV18 data with error bars
-    if nucleus_name in ('C12', 'O16', 'Ca40'):
-        av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt' % nucleus_name)
-        q_array_av18 = av18_data[:, 0] # fm^-1
-        n_p_array_av18 = av18_data[:, 1] / Z
-        error_bars_array_av18 = av18_data[:, 2] / Z
+# Isolate 2-body term and convert to fm^3
+I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
+row, col = np.meshgrid(factor_array_cc, factor_array_cc)
+
+delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
+delta_U_matrix = delta_U_matrix_unitless / row / col
             
-        # AV18 data with error bars
-        ax.errorbar(q_array_av18, n_p_array_av18, yerr=error_bars_array_av18,
-                    color='xkcd:black', label='AV18', linestyle='', marker='.')
+# 2J+1 factor
+J = int( channel[-1] )
+            
+# Add to the pp and pn terms
+# Coupled-channel
+# First L of coupled-channel
+# Isospin CG's=1/\sqrt(2) for pn
+deltaU = (2*J+1)/2 * ( delta_U_matrix[:ntot, :ntot] + delta_U_matrix[ntot:, ntot:] )
+deltaU2 = (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
+                        delta_U_matrix[:ntot, ntot:]**2 + \
+                        delta_U_matrix[ntot:, :ntot]**2 + \
+                        delta_U_matrix[ntot:, ntot:]**2 )
 
-    # Specify axes limits
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
-    
-    # Title of plot
-    plot_title = ff.nuclei_label_conversion(nucleus_name) # Labels the nucleus
-    ax.set_title(plot_title, fontsize=title_size)
-        
-    # Set axes labels and legend
-    ax.legend(loc=legend_location, frameon=False, fontsize=legend_size)
-    ax.set_xlabel(x_label, fontsize=x_label_size)
-    ax.set_ylabel(y_label, fontsize=y_label_size)
-    
-    plt.show()
+# --- Plot \delta U and \delta U^2 --- #
+
+axes_lim = (0.0, 10.0)
+if channel == '3S1':
+    c_lim = (-0.4, 0.4)
+elif channel == '3P2':
+    c_lim = (-0.2, 0.2)
+elif channel == '3D3':
+    c_lim = (-0.04, 0.04)
+
+f, ax = delta_U_contours(k_array, deltaU, axes_lim, c_lim)
+
+# Add matrix labels
+matrix_label_size = 20
+matrix_label_location = 'lower left'
+matrix_label = r'$\delta$'+'U ' + ff.channel_label_conversion(channel)
+anchored_text = AnchoredText(matrix_label, loc=matrix_label_location,
+                             prop=dict(size=matrix_label_size))
+ax.add_artist(anchored_text)
+
+plt.show()
+
+
+axes_lim = (0.0, 10.0)
+if channel == '3S1':
+    c_lim = (-0.1, 0.1)
+elif channel == '3P2':
+    c_lim = (-0.02, 0.02)
+elif channel == '3D3':
+    c_lim = (-0.004, 0.004)
+
+f, ax = delta_U_contours(k_array, deltaU2, axes_lim, c_lim)
+
+# Add matrix labels
+matrix_label_size = 20
+matrix_label_location = 'lower left'
+matrix_label = r'$\delta$'+'U'+r'$^2$' ' ' + ff.channel_label_conversion(channel)
+anchored_text = AnchoredText(matrix_label, loc=matrix_label_location,
+                             prop=dict(size=matrix_label_size))
+ax.add_artist(anchored_text)
+
+plt.show()
+
+
+# --- Plot diagonal terms of \delta U --- #
+
+plt.close('all')
+f, ax = plt.subplots(1, 1, figsize=(4,4))
+
+ax.plot(k_array, np.diag(deltaU))
+
+ax.set_xlim( (0.0, 10.0) )
+#ax.set_xlim( (0.0, 30.0) )
+if channel == '3S1':
+    ax.set_ylim( (-0.5, 0.01) )
+elif channel == '3P2':
+    ax.set_ylim( (-0.5, 0.01) )
+elif channel == '3D3':
+    ax.set_ylim( (-0.2, 0.01) )
+
+ax.set_xlabel('k ' + r'$fm^{-1}$')
+ax.set_ylabel(r'$\delta$'+'U(k,k)')
+
+# Add matrix labels
+matrix_label_size = 16
+matrix_label_location = 'lower center'
+matrix_label = ff.channel_label_conversion(channel)
+anchored_text = AnchoredText(matrix_label, loc=matrix_label_location,
+                             prop=dict(size=matrix_label_size), frameon=False)
+ax.add_artist(anchored_text)
