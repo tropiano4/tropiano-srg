@@ -76,7 +76,7 @@ class single_nucleon_momentum_distributions(object):
         # Relative momentum k [fm^-1]
         k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
         if ntot == 0:
-            ntot = len(k_array)
+            ntot = len(k_array) # Make sure ntot is the number of k-points
         self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
         self.k_integration_measure = k_weights * k_array**2
         
