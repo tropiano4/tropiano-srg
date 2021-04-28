@@ -88,7 +88,8 @@ ylim = (1e-2, 1e3)
 # Set potential and other inputs
 kvnn = 6
 lamb = 1.35
-kmax, kmid, ntot = 10.0, 2.0, 120
+# kmax, kmid, ntot = 10.0, 2.0, 120
+kmax, kmid, ntot = 30.0, 4.0, 120
 nuclei_list = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
                 ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
 channels = ('1S0', '3S1')
