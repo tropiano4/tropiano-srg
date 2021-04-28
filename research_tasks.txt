@@ -2,11 +2,11 @@
 --- SRC ---
 
  * Bug in 3P2 and 3D3 channels?
-   - Looks like too much high momentum stuff is accumulating at ~10 fm^-1 -> try kmax=30 mesh
-       1. Generate SRG-evolved potentials for channels=('3P0', '1P1', '3P1', '1D2', '3D2') 
-       2. Test snmd.py with kmax=30 and higher partial waves
-   - Might be best to do AV18 and Gezerlis both on kmax=15.0, kmid=3.0, ntot=120 mesh
- * Try putting multiple \lambda values on same plot (under extras in src_physics_fig.ipynb)
+   - Do AV18 and Gezerlis both on kmax=15.0, kmid=3.0, ntot=120 mesh
+
+ * Check normalization in SNMD above and below ~1 fm^-1
+   - What do you expect analytically with LDA low-k part?
+
  * Update SNMD data/figures
    - Write new files and save to Dropbox as well (run dmd.py with new K mesh)
    - Set legend rc params with updated legend
