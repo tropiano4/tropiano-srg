@@ -12,6 +12,9 @@
 # functions with LDA.py for nuclear-averaged momentum distributions. This
 # script is based off single_particle_momentum_dist.py in Old_codes.
 #
+# Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
+# screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
+#
 # Revision history:
 #   03/29/21 --- Finalized and produces same results (up to factors of 2*\pi)
 #                as single_particle_momentum_dist.py. Also, fixed a bug
@@ -449,99 +452,3 @@ class single_nucleon_momentum_distributions(object):
                 return total, term_1, term_deltaU, term_deltaU2
             else: # Default
                 return total
-    
-    
-if __name__ == '__main__':
-    
-    
-    # --- Set up --- #
-    
-    import matplotlib.pyplot as plt
-    from matplotlib.offsetbox import AnchoredText
-    import time
-    from lda import load_density, LDA
-    
-    # AV18 with \lambda=1.35 fm^-1
-    kvnn = 6
-    lamb = 1.35
-    channels = ('1S0', '3S1')
-    # channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2')
-    # channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '3P2', '1D2', '3D2', '3D3')
-    kmax, kmid, ntot = 10.0, 2.0, 120
-    # kmax, kmid, ntot = 30.0, 4.0, 120
-    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-    
-    # Load n_\lambda_pp(q, k_F) for AV18
-    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                 kmid, ntot)
-    
-    # Details of example nuclei (format is [nuclei, Z, N])
-    # nuclei_list = ['C12', 6, 6]
-    # nuclei_list = ['O16', 8, 8]
-    nuclei_list = ['Ca40', 20, 20]
-    # nuclei_list = ['Ca48', 20, 28]
-    # nuclei_list = ['Fe56', 26, 30]
-    # nuclei_list = ['Pb208', 82, 126]
-    nucleus = nuclei_list[0]
-    Z = nuclei_list[1]
-    N = nuclei_list[2]
-    A = N + Z
-    r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    
-    # Call LDA class
-    lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-    
-    # --- Calculate momentum distributions --- #
-    
-    # n(q) p single-particle
-    t0 = time.time() # Start time
-    n_p_array = lda.local_density_approximation( q_array, snmd.n_lambda, 'p' )
-    t1 = time.time() # End time
-    mins = round( (t1 - t0) / 60.0, 2)
-    print('n_lambda^p(q) done after %.2f minutes' % mins)
-    
-    t0 = time.time()
-    n_n_array = lda.local_density_approximation( q_array, snmd.n_lambda, 'n' )
-    t1 = time.time()
-    print('n_lambda^n(q) done after %.2f minutes' % mins)
-    mins = round( (t1 - t0) / 60.0, 2)
-    
-    # This is 4 \pi for d3p and 1/(2*\pi)^3 for converting from sums to
-    # integrals
-    overall_factor = 4*np.pi * 1/(2*np.pi)**3
-    
-    p_a_p = q_array**2 * n_p_array / A * overall_factor
-    p_a_n = q_array**2 * n_n_array / A * overall_factor
-
-    p_a = p_a_p + p_a_n
-
-    print( np.sum(p_a*q_weights) )
-    
-    
-    # --- Plot --- #
-    
-    plt.clf()
-    f, ax = plt.subplots( 1, 1, figsize=(4, 4) )
-    
-    # n(q) p single-particle
-    plt.semilogy(q_array, p_a_p, color='red', linestyle='dashdot', 
-                  label=nucleus+' (p)')
-    plt.semilogy(q_array, p_a_n, color='blue', linestyle='dashed', 
-                  label=nucleus+' (n)')
-    plt.semilogy(q_array, p_a, color='black', label=nucleus+' (total)')
-    plt.ylabel(r'$P^A(q)$')
-    ax.set_xlim( [min(q_array), 4] )
-    ax.set_ylim( [1e-9, 2e0])
-    
-    ax.legend(loc=0, frameon=False)
-    ax.set_xlabel('q [fm' + r'$^{-1}$' + ']')
-    
-    lambda_label = 'AV18\n' + r'$\lambda=%.2f$' % lamb + ' fm' + r'$^{-1}$'
-    lambda_label_location = 'center right'
-    anchored_text = AnchoredText(lambda_label, loc=lambda_label_location, 
-                                  frameon=False)
-    ax.add_artist(anchored_text)
-    
-    plt.show()

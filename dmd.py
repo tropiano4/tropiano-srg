@@ -21,6 +21,9 @@
 #        4\pi / (2\pi)^3 \int dk k^2 < n_d^{pn}(k) > = 1,
 #      where angled-brackets indicate nuclear-averaging.
 #
+# Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
+# screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
+#
 # Revision history:
 #   03/31/21 --- Moved hankel_transformation function to fourier_transform.py.
 #   04/06/21 --- Added pair momentum distribution function called

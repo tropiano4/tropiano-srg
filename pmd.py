@@ -13,6 +13,9 @@
 # combination of old and current scripts: snmd.py, pmd_simple_test.py, and
 # pmd_deuteron_test.py with the latter two in Old_codes.
 #
+# Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
+# screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
+#
 # Revision history:
 #   04/26/21 --- Correcting overall factors in front of \delta U and
 #                \delta U^2 terms.
