@@ -5,6 +5,7 @@
    - Do AV18 and Gezerlis both on kmax=15.0, kmid=3.0, ntot=120 mesh
 
  * Check normalization in SNMD above and below ~1 fm^-1
+   - Numerical check in lda_normalization_test.py
    - What do you expect analytically with LDA low-k part?
 
  * Update SNMD data/figures
