@@ -55,6 +55,14 @@
 #   Seems 3S1-3D1, 3P2-3F2, 3D3-3G3 channels accumulate large numbers at high
 #   momentum in
 #       < k | \delta U | k' > and < k | \delta U \delta U^\dagger | k' >.
+#   Results:
+#     1. Numerical artifact at end of AV18 \delta U(k,k) in 3S1 channel,
+#        kmax=10 fm^-1 but doesn't seem to disrupt calculations. (Minor for
+#        kmax=15 fm^-1.)
+#     2. Numerical artifacts at end of AV18 \delta U(k,k) in 3P2, 3D3
+#        channels, kmax=10, 15. (Minor for kmax=30.)
+#     3. Numerical artifacts at front of AV18, N2LO \delta U(k,k) in 3P2, 3D3
+#        channels, kmax=10, 15, 30 fm^-1 and screws up calculations.
 
 
 import matplotlib.pyplot as plt
@@ -157,12 +165,13 @@ def delta_U_contours(q_array, matrix, axes_lim=(0.0, 5.0), colorbar_limits=(-0.1
 # Load \delta U term here for 3P2
 kvnn = 6
 # kvnn = 222
-channel = '3S1'
-#channel = '3P2'
-# channel = '3D3'
+# channel = '3S1'
+# channel = '3P2'
+channel = '3D3'
 lamb = 1.35
-kmax, kmid, ntot = 10.0, 2.0, 120
-#kmax, kmid, ntot = 30.0, 4.0, 120
+# kmax, kmid, ntot = 10.0, 2.0, 120
+kmax, kmid, ntot = 15.0, 3.0, 120
+# kmax, kmid, ntot = 30.0, 4.0, 120
 
 # Load and save momentum arrays for integration
 k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
@@ -203,7 +212,8 @@ deltaU2 = (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
 
 # --- Plot \delta U and \delta U^2 --- #
 
-axes_lim = (0.0, 10.0)
+axes_lim = (0.0, kmax)
+
 if channel == '3S1':
     c_lim = (-0.4, 0.4)
 elif channel == '3P2':
@@ -224,7 +234,6 @@ ax.add_artist(anchored_text)
 plt.show()
 
 
-axes_lim = (0.0, 10.0)
 if channel == '3S1':
     c_lim = (-0.1, 0.1)
 elif channel == '3P2':
@@ -252,8 +261,7 @@ f, ax = plt.subplots(1, 1, figsize=(4,4))
 
 ax.plot(k_array, np.diag(deltaU))
 
-ax.set_xlim( (0.0, 10.0) )
-#ax.set_xlim( (0.0, 30.0) )
+ax.set_xlim( axes_lim )
 if channel == '3S1':
     ax.set_ylim( (-0.5, 0.01) )
 elif channel == '3P2':
