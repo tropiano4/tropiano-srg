@@ -3,6 +3,7 @@
 
  * Bug in 3P2 and 3D3 channels?
    - Do AV18 and Gezerlis both on kmax=15.0, kmid=3.0, ntot=120 mesh
+   - Look at matrix elements of \delta U with new mesh
 
  * Check normalization in SNMD above and below ~1 fm^-1
    - Numerical check in lda_normalization_test.py
