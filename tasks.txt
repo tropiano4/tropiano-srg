@@ -1,16 +1,6 @@
 
 --- SRC ---
 
- * Update SNMD data/figures
-   - Write SNMD/a2 files
-       kvnn = 222, kmax = 10, S+P
-       kvnn = 224, kmax = 10, S
-       kvnn = 224, kmax = 10, S+P
-
-   - Copy and paste in Dropbox
-   - Generate bar chart plots with old notebook (save to Dropbox too)
-   - Generate and run figures from repository then Dropbox
-
  * Try to understand normalization (unitarity check)
 
  * Go through comments in Overleaf and add updated figures
@@ -26,7 +16,6 @@
    - Add normalizations
 
  * Finalize extra functions in SRC notebooks
-   - Deuteron bar chart (do test example in test_script.py)
    - A/C12 ratio
    - S-waves dominance: n^total_S-waves / n^total_SPD-waves
    - GCF contacts: ratios and absolute
@@ -58,3 +47,4 @@
 
 --- Misc. ---
  * Phase shift corrector function
+ * Implementing Loguru, snoop, and heart rate?
