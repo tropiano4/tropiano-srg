@@ -9,9 +9,9 @@
 # The purpose of this script is to test out codes. Generally, something is
 # tested here, which evolves into several tests/checks. In the case of an
 # extensive script, one should save the script as a separate file with an
-# extension _testv#.py where v# corresponds to the version number. For example,
-# momentum_projection_operator_testv1.py. Use the revision history below to
-# document when and why these files are created.
+# extension _test.py. For example, momentum_projection_operator_testv1.py (v1
+# means 'version 1'). Use the revision history below to document when and why
+# these files are created.
 #
 # Revision history:
 #   08/30/19 --- Testing how to use *args in Python functions. This may be
