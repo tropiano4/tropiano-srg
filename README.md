@@ -28,6 +28,8 @@ Description of major codes:
 
 * Jupyter notebooks titled with an extension fig.ipynb are used to generate figures which go to the __Figures__ folder.
 
+* lda.py - Nuclear-averages momentum distributions using a local density approximation (LDA).
+
 * observables.py - Calculates NN observables.
 
 * operators.py - Creates momentum-space operators.
