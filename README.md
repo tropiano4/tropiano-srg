@@ -9,7 +9,7 @@ Description of each folder:
 
 * __Figures__ contains research/results figures and a Python script figures_functions.py that has useful plotting oriented functions.
 
-* __Magnus__ contains codes for Magnus-evolving a Hamiltonian via the Wegner or relative kinetic energy generator. Also contains a script for evolving via the "split thing" approach. See magnus_split.py for details.
+* __Magnus__ contains codes for SRG-evolving a Hamiltonian via the Wegner or relative kinetic energy generator and using the Magnus expansion.
 
 * __Notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the arXiv version of the operator evolution paper, candidacy paper, etc.) and notes taken on iPad.
 
@@ -17,7 +17,7 @@ Description of each folder:
 
 * __Papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
 
-* __Potentials__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README for more information on how to generate potentials. Also stores the initial and evolved potentials, momentum and weights arrays, and a Python script for loading and saving potentials called vnn.py. 
+* __Potentials__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README for more information on how to generate potentials. Also stores the initial and evolved potentials, momenta and weights, and a Python script for loading and saving potentials called vnn.py. 
 
 * __Presentations__ contains all the files used for presentations for conferences or meetings.
 
@@ -28,6 +28,8 @@ Description of major codes:
 
 * Jupyter notebooks titled with an extension fig.ipynb are used to generate figures which go to the __Figures__ folder.
 
+* lda.py - Nuclear-averages momentum distributions using a local density approximation (LDA).
+
 * observables.py - Calculates NN observables.
 
 * operators.py - Creates momentum-space operators.
@@ -35,5 +37,7 @@ Description of major codes:
 * run_magnus.py - Magnus-evolves a specified Hamiltonian using scripts from the __Magnus__ folder.
 
 * run_srg.py - SRG-evolves a specified Hamiltonian using scripts from the __SRG__ folder.
+
+* snmd.py, pmd.py, dmd.py - Calculates single-nucleon, pair, and deuteron momentum distributions in LDA.
 
 * test.py - Script used for testing purposes.
