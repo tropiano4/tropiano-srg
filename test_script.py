@@ -163,8 +163,9 @@ def delta_U_contours(q_array, matrix, axes_lim=(0.0, 5.0), colorbar_limits=(-0.1
 
 
 # Load \delta U term here for 3P2
-kvnn = 6
+# kvnn = 6
 # kvnn = 222
+kvnn = 224
 # channel = '3S1'
 # channel = '3P2'
 channel = '3D3'
