@@ -7,6 +7,10 @@
 # Date:     February 24, 2020
 # 
 # Register a custom colormap for contour plots in matplotlib.
+# Instructions:
+#   1. Import this script "from Figures import register_colormap".
+#   2. Set color map style in matplotlib function with argument 'turbo'
+#      "c = ax.contourf(x, y, z, cmap='turbo')".
 #
 #------------------------------------------------------------------------------
 
