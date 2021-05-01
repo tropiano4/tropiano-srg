@@ -166,9 +166,9 @@ def delta_U_contours(q_array, matrix, axes_lim=(0.0, 5.0), colorbar_limits=(-0.1
 # kvnn = 6
 # kvnn = 222
 kvnn = 224
-# channel = '3S1'
+channel = '3S1'
 # channel = '3P2'
-channel = '3D3'
+# channel = '3D3'
 lamb = 1.35
 # kmax, kmid, ntot = 10.0, 2.0, 120
 kmax, kmid, ntot = 15.0, 3.0, 120
