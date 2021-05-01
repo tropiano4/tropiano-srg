@@ -6,7 +6,7 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 3, 2019
 # 
-# Functions useful for generating figures.
+# Useful functions for generating and labeling figures.
 #
 # Revision history:
 #   09/03/19 --- Updated kvnn_label_conversion function to include more
@@ -68,6 +68,7 @@ def channel_label_conversion(channel, label_coupled_channel=True):
     # Label coupled channel?
     if label_coupled_channel and coupled_channel(channel):
         
+        # Get L + 2 value
         if L == 'S':
             L2 = 'D'
         elif L == 'P':
@@ -101,6 +102,33 @@ def channel_label_conversion(channel, label_coupled_channel=True):
     return label
 
 
+def convert_number_to_string(number):
+    """
+    Gives the input number with the correct amount of digits meaning plots will
+    show '1.35' not '1.35000000023'.
+
+    Parameters
+    ----------
+    number : float
+        Some input float (e.g., \lambda or momentum).
+
+    Returns
+    -------
+    output : str
+        Input number but rounded to the correct number of digits and converted
+        to a string.
+
+    """
+    
+    # Loop over i until the rounded number matches the input number
+    # then return the string of the rounded number
+    i = 0
+    while round(number, i) != number:
+        i += 1
+        
+    return str( round(number, i) )
+
+
 def convert_ticks_to_labels(ticks):
     """
     Converts axes or colorbar ticks to string formatted labels displaying the
@@ -130,24 +158,27 @@ def convert_ticks_to_labels(ticks):
     
     for tick in ticks:
         
-        i = 0
-        while abs( round(tick, i) - tick ) > 1e-5:
-            i += 1
+        # Use convert_ticks_to_labels function instead
+        tick_labels.append( convert_number_to_string(tick) )
+        
+        # i = 0
+        # while abs( round(tick, i) - tick ) > 1e-5:
+        #     i += 1
             
-        # If digits = 0, then display integers
-        if i == 0:
-            tick_labels.append('%d' % tick)
-        # Otherwise, display floats with the correct number of digits
-        elif i == 1:
-            tick_labels.append('%.1f' % tick)
-        elif i == 2:
-            tick_labels.append('%.2f' % tick)
-        elif i == 3:
-            tick_labels.append('%.3f' % tick)
-        elif i == 4:
-            tick_labels.append('%.4f' % tick)
-        else:
-            tick_labels.append('%.f' % tick)
+        # # If digits = 0, then display integers
+        # if i == 0:
+        #     tick_labels.append('%d' % tick)
+        # # Otherwise, display floats with the correct number of digits
+        # elif i == 1:
+        #     tick_labels.append('%.1f' % tick)
+        # elif i == 2:
+        #     tick_labels.append('%.2f' % tick)
+        # elif i == 3:
+        #     tick_labels.append('%.3f' % tick)
+        # elif i == 4:
+        #     tick_labels.append('%.4f' % tick)
+        # else:
+        #     tick_labels.append('%.f' % tick)
         
     return tick_labels
 
@@ -178,37 +209,10 @@ def coupled_channel(channel):
     return boolean_value
 
 
-def convert_number_to_string(number):
-    """
-    Gives the given number with the correct amount of digits meaning plots will
-    show '1.35' not '1.35000000023'.
-
-    Parameters
-    ----------
-    number : float
-        Some input float (e.g., \lambda or momentum).
-
-    Returns
-    -------
-    output : str
-        Input number but rounded to the correct number of digits and converted
-        to a string.
-
-    """
-    
-    # Loop over i until the rounded number matches the input number
-    # then return the string of the rounded number
-    i = 0
-    while round(number, i) != number:
-        i += 1
-        
-    return str( round(number, i) )
-
-
 def generator_label_conversion(generator, lambda_bd=0.00):
     """
-    Converts a generator string argument to a label for plotting purposes (e.g.
-    generator = 'Wegner' gives r'$G = H_D$').
+    Converts an SRG generator string argument to a label for plotting purposes
+    (e.g. generator = 'Wegner' gives r'$G = H_D$').
     
     Parameters
     ----------
@@ -232,7 +236,7 @@ def generator_label_conversion(generator, lambda_bd=0.00):
         if lambda_bd == 0.00:
             label = r'$G=H_{BD}$'
             
-        # Otherwise, present with lambda_bd
+        # Otherwise, present with lambda_bd value
         else:
             lambda_bd_str = convert_number_to_string(lambda_bd)
             label = r'$G=H_{BD}$' + ' (%s fm'%lambda_bd_str + r'$^{-1}$' + ')'
@@ -276,7 +280,7 @@ def interpolate_matrix(x_array, M, x_max, ntot=500):
     # List of boolean values
     bool_list = x_array <= x_max 
     
-    # The number of points in the given momentum array less than x_max
+    # The number of points in x_array less than x_max
     n = len( list( filter(None, bool_list) ) )
     
     # Resize x_array and M to size that you want to plot
@@ -424,7 +428,7 @@ def kvnn_label_conversion(kvnn, full_label=True):
 def lambda_label_conversion(lamb, generator='Wegner'):
     """
     Converts a lambda evolution parameter to a label for plotting purposes 
-    (e.g. lamb = 2 gives r'$\lambda=2.0 fm^-1$').
+    (e.g. lamb = 2 gives r'$\lambda=2 fm^-1$').
     
     Parameters
     ----------
@@ -495,8 +499,8 @@ def line_styles(curve_number):
     """
     
     # Note, the last two are 'densely dashed' and 'densely dashdotted'
-    line_styles = ['solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1)), 
-                   (0, (3, 1, 1, 1))]
+    line_styles = [ 'solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1) ), 
+                    (0, (3, 1, 1, 1) ) ]
     
     try:
         
@@ -516,7 +520,7 @@ def line_styles(curve_number):
 def nuclei_label_conversion(nucleus):
     """
     Converts a nucleus string (e.g., 'C12') to a label with the mass number in
-    the exponent appearing before the element abbreviation (e.g., '^{12}C').
+    the exponent appearing before the element (e.g., '^{12}C').
 
     Parameters
     ----------
