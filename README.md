@@ -30,7 +30,7 @@ Description of major codes:
 
 * lda.py - Nuclear-averages momentum distributions using a local density approximation (LDA) with densities from the __Densities__ folder.
 
-* observables.py - Calculates NN observables.
+* observables.py - Calculates NN observables and wave functions.
 
 * operators.py - Creates momentum-space operators.
 
