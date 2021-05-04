@@ -4,8 +4,10 @@
  * Try to understand normalization (unitarity check)
 
  * Go through comments in Overleaf and add updated figures
-   (left off at Calculations and cartoons at low-resolution)
-   - Update to-do list in notes
+   - Thorough edit of "Short-range correlation physics at low RG resolution"
+   - Update this file, add comments, changes, and respond to DF comments
+   - Edit SRC notes
+   - Update this file, add comments, changes, and respond to DF comments
 
  * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
    - Figure out consistent continuum and partial wave basis normalizations
