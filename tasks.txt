@@ -4,8 +4,7 @@
  * Go through comments in Overleaf and add updated figures
    - Thorough edit of "Short-range correlation physics at low RG resolution"
    - Update this file, add comments, changes, and respond to DF comments
-   - Edit SRC notes
-   - Update this file, add comments, changes, and respond to DF comments
+   - Update SRC notes and respond to DF comments
 
  * Try to understand normalization (unitarity check)
    - Factor of 1/2?
