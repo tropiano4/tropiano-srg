@@ -13,9 +13,9 @@
    - Switch x-axis to fm^-1 for figures 4, 9, and 10
    - Update description of Fig. 4 (based on your comment)
    - Expand Eq. 5 into two columns with momentum indices
-   - n(q)/Z results text
+   - Describe n(q)/Z figure in text
    - Fig. 10 y-axis to 0.25
-   - a_2 results text
+   - Describe a_2 figure in text giving simple equation
    - Add to summary?
    - Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
 
@@ -26,6 +26,7 @@
      (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures
    - Add normalizations
+   - Correct iPad notes?
 
  * Finalize extra functions in SRC notebooks
    - A/C12 ratio
@@ -33,10 +34,7 @@
    - Factorization in other partial waves (e.g., U_1P1(k_i, q) / U_1P1(k_0, q)
    - Numerically check asymptotic relation of SNMD and PMD
 
- * Correct iPad momentum distribution notes? (Might be switching to DME description)
-
  * Add 'Integrate' option to pmd.py
-
 
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes
