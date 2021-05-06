@@ -1,19 +1,23 @@
 
 --- SRC ---
 
- * Go through comments in Overleaf and add updated figures
-     * Q momentum in section 3B
-     * SNMD results text
-     * a_2 results text
-     * Add to summary
-     * Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
-     * Integrated strength check
-   - Update SRC notes and respond to DF comments
+ * Calculate N_X / N for partial wave contributions
 
- * Try to understand normalization (unitarity check)
-   - Factor of 1/2?
+ * iPad notes on U U^\dagger check
 
- * Update Figures in Overleaf notes with new figures and bullets of how each calculation is being done
+ * Update SRC notes with new figures
+
+ * Updates to SRC paper
+   - Switch x-axis to fm^-1 for figures 4, 9, and 10
+   - Update description of Fig. 4 (based on your comment)
+   - Expand Eq. 5 into two columns with momentum indices
+   - n(q)/Z results text
+   - Fig. 10 y-axis to 0.25
+   - a_2 results text
+   - Add to summary?
+   - Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
+
+ * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
    - Focus on practicality and how you can make this clear to others
@@ -23,7 +27,6 @@
 
  * Finalize extra functions in SRC notebooks
    - A/C12 ratio
-   - S-waves dominance: n^total_S-waves / n^total_SPD-waves
    - GCF contacts: ratios and absolute
    - Factorization in other partial waves (e.g., U_1P1(k_i, q) / U_1P1(k_0, q)
    - Numerically check asymptotic relation of SNMD and PMD
@@ -48,7 +51,7 @@
    - High lambda (10 fm^-1) potential evolution bug?
 
 --- Read ---
- * Collins_2006ib
+ * Greider_1959aa
  * QFT textbook
  * Many-body textbook
  * Renormalization paper, then textbook
