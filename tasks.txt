@@ -2,7 +2,12 @@
 --- SRC ---
 
  * Go through comments in Overleaf and add updated figures
-   - Update paper: changes to figures, add comments, changes to text, and respond to DF comments
+     * Q momentum in section 3B
+     * SNMD results text
+     * a_2 results text
+     * Add to summary
+     * Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
+     * Integrated strength check
    - Update SRC notes and respond to DF comments
 
  * Try to understand normalization (unitarity check)
