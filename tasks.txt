@@ -2,6 +2,8 @@
 --- SRC ---
 
  * Calculate N_X / N for partial wave contributions
+   - Write file first (add results to comment and Slack)
+   - Do we want a table/figure in the paper?
 
  * iPad notes on U U^\dagger check
 
