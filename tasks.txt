@@ -9,7 +9,6 @@
    - Describe a_2 figure in text giving simple equation
    - Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
    - Update description of second-quantized equations
-   - Do we want a table for S-wave dominance numbers?
 
  * Update SRC notes with new figures
 
