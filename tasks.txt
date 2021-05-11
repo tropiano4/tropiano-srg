@@ -1,14 +1,13 @@
 
 --- SRC ---
 
- * iPad notes on U U^\dagger check
-
  * Updates to SRC paper
-   - Update description of Fig. 4 (based on your comment)
-   - Describe n(q)/Z figure in text
-   - Describe a_2 figure in text giving simple equation
+   - Add partial wave expansion and completeness (see SRG paper on what you should add) to Sec. 4
+   - Describe a_2 figure in text giving simple equation (expand on DF description)
    - Add U(k, q_i)^2 / U(k, q_0)^2 figure to supplementary files
-   - Update description of second-quantized equations
+   - Read and edit results section
+
+ * iPad notes on U U^\dagger check
 
  * Update SRC notes with new figures
 
