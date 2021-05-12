@@ -221,6 +221,7 @@ if __name__ == '__main__':
     # --- Test densities --- #
     
     import matplotlib.pyplot as plt
+    from Figures import figures_functions as ff
 
     # Details of example nuclei (format is (nuclei, Z, N) )
     nuclei_details = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
@@ -228,7 +229,7 @@ if __name__ == '__main__':
     
     # Plot densities as a function of r
     plt.clf()
-    for nuclei_list in nuclei_details:
+    for i, nuclei_list in enumerate(nuclei_details):
         
         # Plot density for some nuclei here
         nucleus = nuclei_list[0]
@@ -236,8 +237,21 @@ if __name__ == '__main__':
         Z = nuclei_list[1]
         N = nuclei_list[2]
         r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        
+        if i == 0:
+            curve_color = 'tab:blue'
+        elif i == 1:
+            curve_color = 'tab:red'
+        elif i == 2:
+            curve_color = 'tab:green'
+        elif i == 3:
+            curve_color = 'tab:orange'
+        elif i == 4:
+            curve_color = 'tab:purple'
+        elif i == 5:
+            curve_color = 'tab:olive'
 
-        plt.plot(r_array, rho_array, label=nucleus)
+        plt.plot(r_array, rho_array, label=nucleus, color=curve_color)
         
         print( 4*np.pi*np.sum(0.1 * r_array**2 * rho_array) )
         
@@ -250,7 +264,7 @@ if __name__ == '__main__':
     # Plot k_F for some nuclei as function of r
     # rho = 2 / (3*\pi^2) k_F^3
     plt.clf()
-    for nuclei_list in nuclei_details:
+    for j, nuclei_list in enumerate(nuclei_details):
         
         # Plot density for some nuclei here
         nucleus = nuclei_list[0]
@@ -259,8 +273,23 @@ if __name__ == '__main__':
         N = nuclei_list[2]
         r_array, rho_array = load_density(nucleus, nucleon, Z, N)
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
+        
+        # if j == 0:
+        #     curve_color = 'tab:blue'
+        # elif j == 1:
+        #     curve_color = 'tab:red'
+        # elif j == 2:
+        #     curve_color = 'tab:green'
+        # elif j == 3:
+        #     curve_color = 'tab:orange'
+        # elif j == 4:
+        #     curve_color = 'tab:purple'
+        # elif j == 5:
+        #     curve_color = 'tab:olive'
+        
+        curve_color = ff.xkcd_colors(j+1)
     
-        plt.plot(r_array, kF_array, label=nucleus)
+        plt.plot(r_array, kF_array, label=nucleus, color=curve_color)
 
     plt.xlim( [0.0, 20.0] )
     plt.legend(loc='upper right', frameon=False)
