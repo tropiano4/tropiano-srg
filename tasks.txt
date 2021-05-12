@@ -3,7 +3,8 @@
 
  * Updates to SRC paper
    - Read and edit results section
-   - Describe a_2 figure in text giving simple equation (expand on DF description)
+     * n_\lambda equation with respect to partial waves?
+     * Maybe say how you evaluate the evolved operator then give final equation in partial waves
 
  * iPad notes on U U^\dagger check
 
