@@ -2,9 +2,9 @@
 --- SRC ---
 
  * Updates to SRC paper
-   - Read and edit results section
-     * n_\lambda equation with respect to partial waves?
-     * Maybe say how you evaluate the evolved operator then give final equation in partial waves
+   - Add S-wave dominance table 
+   - n_\lambda equation with respect to partial waves?
+   - 1 term with Skyrme wave functions
 
  * iPad notes on U U^\dagger check
 
@@ -42,10 +42,9 @@
    - High lambda (10 fm^-1) potential evolution bug?
 
 --- Read ---
- * Greider_1959aa
  * QFT textbook
  * Many-body textbook
- * Renormalization paper, then textbook
+ * Renormalization textbook
  * EFT paper (Epelbaum primer)
  * Scattering theory textbook
  * Nikheff paper
