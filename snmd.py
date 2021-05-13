@@ -349,7 +349,9 @@ class single_nucleon_momentum_distributions(object):
 
             # Integrate over k where the factor of 2 is for combining the
             # second and third terms
-            deltaU_factor = 2 * 2/np.pi * 2**2
+            # deltaU_factor = 2 * 2/np.pi * 2**2
+            # TESTING
+            deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
