@@ -88,12 +88,12 @@ ylim = (1e-2, 1e3)
 
 # Set potential and other inputs
 kvnn = 6
-# lamb = 1.35
-lamb = 3.0
+lambda_array = np.array([6.0, 3.0, 2.0, 1.35])
 # kmax, kmid, ntot = 10.0, 2.0, 120
 kmax, kmid, ntot = 15.0, 3.0, 120
 # kmax, kmid, ntot = 30.0, 4.0, 120
-nuclei_list = [ ['C12', 6, 6] ]
+# nuclei_list = [ ['C12', 6, 6] ]
+nuclei_list = ( ('O16', 8, 8), ('Ca40', 20, 20), ('Pb208', 82, 126) )
 # nuclei_list = ( ('C12', 6, 6), ('Ca40', 20, 20) )
 # nuclei_list = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
 #                 ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
@@ -102,131 +102,138 @@ channels = ('1S0', '3S1')
 
 # Load momentum (channel argument doesn't matter here)
 q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
-    
-# Initialize pair momentum distributions class for given potential
-snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
-                                             ntot)
 
-# Loop over nuclei
-for nucleus in nuclei_list:
+# Loop over lambda
+for lamb in lambda_array:
     
-    nucleus_name = nucleus[0]
-    Z = nucleus[1]
-    N = nucleus[2]
-    
-    # Load r values and nucleonic densities (the r_array's are the same)
-    r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
-    r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
-    
-    # Call LDA class
-    lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-    # Calculate nuclear-averaged momentum distributions
-    n_p_array_cont = lda.local_density_approximation(q_array, snmd.n_lambda,
-                                          'p', contributions='q_contributions')
-    # n_n_array_cont = lda.local_density_approximation(q_array, snmd.n_lambda,
-    #                                       'n', contributions='q_contributions')
-    
-    # Proton contributions
-    n_p_total_array = n_p_array_cont[:, 0]
-    n_p_1_array = n_p_array_cont[:, 1]
-    n_p_delU_array = n_p_array_cont[:, 2]
-    n_p_delU2_array = n_p_array_cont[:, 3]
-    
-    # # Neutron contributions
-    # n_n_total_array = n_n_array_cont[:, 0]
-    # n_n_1_array = n_n_array_cont[:, 1]
-    # n_n_delU_array = n_n_array_cont[:, 2]
-    # n_n_delU2_array = n_n_array_cont[:, 3]
-    
-    # Compute normalizations here
-    # Proton
-    factor = 4*np.pi/(2*np.pi)**3
-    p_total_norm = factor * np.sum(q_array**2 * q_weights * n_p_total_array)
-    p_1_norm = factor * np.sum(q_array**2 * q_weights * n_p_1_array)
-    p_delU_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU_array)
-    p_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU2_array)
-    # Neutron
-    # n_total_norm = factor * np.sum(q_array**2 * q_weights * n_n_total_array)
-    # n_1_norm = factor * np.sum(q_array**2 * q_weights * n_n_1_array)
-    # n_delU_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU_array)
-    # n_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU2_array)
-    # Proton above/below dividing point in momentum
-    q_split = 1.0
-    q_split_index = op.find_q_index(q_split, q_array)
-    low_norm = factor * np.sum( (q_array**2 * q_weights *
-                                 n_p_total_array)[:q_split_index] )
-    high_norm = factor * np.sum( (q_array**2 * q_weights *
-                                  n_p_total_array)[q_split_index:] )
-    
-    # Print normalizations
+    # Initialize pair momentum distributions class for given potential
+    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+                                                 kmid, ntot)
     print('_'*50)
-    print(nucleus_name)
-    print('Total proton normalization = %.5f' % p_total_norm)
-    print('1 term proton normalization = %.5f' % p_1_norm)
-    print('\delta U term proton normalization = %.5f' % p_delU_norm)
-    print('\delta U^2 term proton normalization = %.5f' % p_delU2_norm)
-    # print('-'*50)
-    # print('Total neutron normalization = %.5f' % n_total_norm)
-    # print('1 term neutron normalization = %.5f' % n_1_norm)
-    # print('\delta U term neutron normalization = %.5f' % n_delU_norm)
-    # print('\delta U^2 term neutron normalization = %.5f\n' % n_delU2_norm)
-    print('-'*50)
-    print( 'Normalization below %.3f fm^-1 = %.5f' % (q_array[q_split_index],
-                                                      low_norm) )
-    print( 'Normalization above %.3f fm^-1 = %.5f' % (q_array[q_split_index],
-                                                      high_norm) )
-    
-    # Plot with respect to AV18 data
-    plt.close('all')
-    f, ax = plt.subplots(figsize=figure_size)
-        
-    # Add curve to figure
-    ax.set_yscale('log')
-    ax.plot(q_array, n_p_total_array/Z, color='xkcd:grey', label='total',
-            linewidth=curve_width)
-    ax.plot(q_array, n_p_1_array/Z, color='xkcd:blue', label='1',
-            linestyle='dotted', linewidth=curve_width)
-    ax.plot(q_array, abs(n_p_delU_array)/Z, color='xkcd:green',
-            label=r'$|\delta U|$', linestyle='dashed', linewidth=curve_width)
-    ax.plot(q_array, n_p_delU2_array/Z, color='xkcd:red', linestyle='dashdot',
-            label=r'$\delta U \delta U^{\dagger}$', linewidth=curve_width)
-        
-    # Add AV18 data with error bars
-    if nucleus_name in ('C12', 'O16', 'Ca40'):
-        av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt' % nucleus_name)
-        q_array_av18 = av18_data[:, 0] # fm^-1
-        n_p_array_av18 = av18_data[:, 1] / Z
-        error_bars_array_av18 = av18_data[:, 2] / Z
-            
-        # AV18 data with error bars
-        ax.errorbar(q_array_av18, n_p_array_av18, yerr=error_bars_array_av18,
-                    color='xkcd:black', label='AV18', linestyle='', marker='.')
-        
-        # Proton above/below dividing point in momentum
-        q_split_index_av18 = op.find_q_index(q_split, q_array_av18)
-        low_norm_av18 = factor * np.sum( (q_array_av18**2 * 0.1 *
-                                          n_p_array_av18*Z)[:q_split_index_av18] )
-        high_norm_av18 = factor * np.sum( (q_array_av18**2 * 0.1 *
-                                           n_p_array_av18*Z)[q_split_index_av18:] )
-        
-        print('-'*50)
-        print( 'AV18 normalization below %.3f fm^-1 = %.5f' %
-               (q_array_av18[q_split_index_av18], low_norm_av18) )
-        print( 'AV18 normalization above %.3f fm^-1 = %.5f' %
-               (q_array_av18[q_split_index_av18], high_norm_av18) )
+    print( 'lambda = %s fm^-1\n' % ff.convert_number_to_string(lamb) )
 
-    # Specify axes limits
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
+    # Loop over nuclei
+    for nucleus in nuclei_list:
     
-    # Title of plot
-    plot_title = ff.nuclei_label_conversion(nucleus_name) # Labels the nucleus
-    ax.set_title(plot_title, fontsize=title_size)
+        nucleus_name = nucleus[0]
+        Z = nucleus[1]
+        N = nucleus[2]
+    
+        # Load r values and nucleonic densities (the r_array's are the same)
+        r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
+        r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
+    
+        # Call LDA class
+        lda = LDA(r_array, rho_p_array, rho_n_array)
+    
+        # Calculate nuclear-averaged momentum distributions
+        n_p_array_cont = lda.local_density_approximation(q_array,
+                         snmd.n_lambda, 'p', contributions='q_contributions')
+        # n_n_array_cont = lda.local_density_approximation(q_array,
+        #                  snmd.n_lambda, 'n', contributions='q_contributions')
+    
+        # Proton contributions
+        n_p_total_array = n_p_array_cont[:, 0]
+        n_p_1_array = n_p_array_cont[:, 1]
+        n_p_delU_array = n_p_array_cont[:, 2]
+        n_p_delU2_array = n_p_array_cont[:, 3]
+    
+        # # Neutron contributions
+        # n_n_total_array = n_n_array_cont[:, 0]
+        # n_n_1_array = n_n_array_cont[:, 1]
+        # n_n_delU_array = n_n_array_cont[:, 2]
+        # n_n_delU2_array = n_n_array_cont[:, 3]
+    
+        # Compute normalizations here
+        # Proton
+        factor = 4*np.pi/(2*np.pi)**3
+        p_total_norm = factor * np.sum(q_array**2 * q_weights * n_p_total_array)
+        p_1_norm = factor * np.sum(q_array**2 * q_weights * n_p_1_array)
+        p_delU_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU_array)
+        p_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_p_delU2_array)
+        # Neutron
+        # n_total_norm = factor * np.sum(q_array**2 * q_weights * n_n_total_array)
+        # n_1_norm = factor * np.sum(q_array**2 * q_weights * n_n_1_array)
+        # n_delU_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU_array)
+        # n_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_n_delU2_array)
+        # Proton above/below dividing point in momentum
+        # q_split = 1.0
+        # q_split_index = op.find_q_index(q_split, q_array)
+        # low_norm = factor * np.sum( (q_array**2 * q_weights *
+        #                              n_p_total_array)[:q_split_index] )
+        # high_norm = factor * np.sum( (q_array**2 * q_weights *
+        #                               n_p_total_array)[q_split_index:] )
+    
+        # Print normalizations
+        print('-'*50)
+        print(nucleus_name)
+        print('Total proton normalization = %.5f' % p_total_norm)
+        print('1 term proton normalization = %.5f' % p_1_norm)
+        print('\delta U term proton normalization = %.5f' % p_delU_norm)
+        print('\delta U^2 term proton normalization = %.5f' % p_delU2_norm)
+        # print('-'*50)
+        # print('Total neutron normalization = %.5f' % n_total_norm)
+        # print('1 term neutron normalization = %.5f' % n_1_norm)
+        # print('\delta U term neutron normalization = %.5f' % n_delU_norm)
+        # print('\delta U^2 term neutron normalization = %.5f\n' % n_delU2_norm)
+        # print('-'*50)
+        # print( 'Normalization below %.3f fm^-1 = %.5f' % (q_array[q_split_index],
+        #                                                   low_norm) )
+        # print( 'Normalization above %.3f fm^-1 = %.5f' % (q_array[q_split_index],
+        #                                                   high_norm) )
+    
+        # Plot with respect to AV18 data
+        plt.close('all')
+        f, ax = plt.subplots(figsize=figure_size)
         
-    # Set axes labels and legend
-    ax.legend(loc=legend_location, frameon=False, fontsize=legend_size)
-    ax.set_xlabel(x_label, fontsize=x_label_size)
-    ax.set_ylabel(y_label, fontsize=y_label_size)
+        # Add curve to figure
+        ax.set_yscale('log')
+        ax.plot(q_array, n_p_total_array/Z, color='xkcd:grey', label='total',
+                linewidth=curve_width)
+        ax.plot(q_array, n_p_1_array/Z, color='xkcd:blue', label='1',
+                linestyle='dotted', linewidth=curve_width)
+        ax.plot(q_array, abs(n_p_delU_array)/Z, color='xkcd:green',
+                label=r'$|\delta U|$', linestyle='dashed', linewidth=curve_width)
+        ax.plot(q_array, n_p_delU2_array/Z, color='xkcd:red', linestyle='dashdot',
+                label=r'$\delta U \delta U^{\dagger}$', linewidth=curve_width)
+        
+        # Add AV18 data with error bars
+        if nucleus_name in ('C12', 'O16', 'Ca40'):
+            av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt' % nucleus_name)
+            q_array_av18 = av18_data[:, 0] # fm^-1
+            n_p_array_av18 = av18_data[:, 1] / Z
+            error_bars_array_av18 = av18_data[:, 2] / Z
+                
+            # AV18 data with error bars
+            ax.errorbar(q_array_av18, n_p_array_av18, yerr=error_bars_array_av18,
+                        color='xkcd:black', label='AV18', linestyle='', marker='.')
+        
+            # # Proton above/below dividing point in momentum
+            # q_split_index_av18 = op.find_q_index(q_split, q_array_av18)
+            # low_norm_av18 = factor * np.sum( (q_array_av18**2 * 0.1 *
+            #                                   n_p_array_av18*Z)[:q_split_index_av18] )
+            # high_norm_av18 = factor * np.sum( (q_array_av18**2 * 0.1 *
+            #                                    n_p_array_av18*Z)[q_split_index_av18:] )
+        
+            # print('-'*50)
+            # print( 'AV18 normalization below %.3f fm^-1 = %.5f' %
+            #       (q_array_av18[q_split_index_av18], low_norm_av18) )
+            # print( 'AV18 normalization above %.3f fm^-1 = %.5f' %
+            #       (q_array_av18[q_split_index_av18], high_norm_av18) )
+
+        # Specify axes limits
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
     
-    plt.show()
+        # Title of plot
+        # plot_title = ff.nuclei_label_conversion(nucleus_name) # Labels the nucleus
+        plot_title = ff.nuclei_label_conversion(nucleus_name) + ' and ' + \
+                     ff.lambda_label_conversion(lamb)
+        ax.set_title(plot_title, fontsize=title_size)
+        
+        # Set axes labels and legend
+        ax.legend(loc=legend_location, frameon=False, fontsize=legend_size)
+        ax.set_xlabel(x_label, fontsize=x_label_size)
+        ax.set_ylabel(y_label, fontsize=y_label_size)
+        
+        plt.show()
