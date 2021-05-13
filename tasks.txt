@@ -1,14 +1,11 @@
 
 --- SRC ---
 
+ * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
+   - Test script
+
  * Updates to SRC paper
    - Add S-wave dominance table 
-   - n_\lambda equation with respect to partial waves?
-   - 1 term with Skyrme wave functions
-
- * iPad notes on U U^\dagger check
-
- * Update SRC notes with new figures
 
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
@@ -18,6 +15,10 @@
    - Attach codes and figures
    - Add normalizations
    - Correct iPad notes?
+
+ * Check that angle-averaging gives the same result as analytic for N=Z
+
+ * Update SRC notes with new figures
 
  * Finalize extra functions in SRC notebooks
    - A/C12 ratio
