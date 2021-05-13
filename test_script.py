@@ -106,3 +106,7 @@ delU2_unitless = delta_U_matrix_unitless @ delta_U_matrix_unitless.T
 cancel_matrix_unitless = delta_U_matrix_unitless + \
                          delta_U_matrix_unitless.T + delU2_unitless
 print(cancel_matrix_unitless)
+
+# Notes for next test
+# 1. Compare deuteron LDA vs deuteron exact (plot and calculation
+# normalizations)
