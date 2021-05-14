@@ -1,22 +1,21 @@
 
 --- SRC ---
 
- * Update snmd.py to account for q \dot K angle
-
- * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
-   - Test script
-
- * Updates to SRC paper
-   - Add S-wave dominance table 
-
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
    - Focus on practicality and how you can make this clear to others
      (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures
-   - Add normalizations
    - Correct iPad notes?
+
+ * Updates to SRC paper
+   - Add S-wave dominance table
+
+ * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
+
+ * Update snmd.py to account for q \dot K angle
+   - Create table of n_N(q, kF_1, kF_2) and make an interpolating function using RegularGridInterpolator
 
  * Check that angle-averaging gives the same result as analytic for N=Z
 
