@@ -364,10 +364,12 @@ class single_nucleon_momentum_distributions(object):
 
         # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
         q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
+        # TESTING
+        # change this to an angle-dependent part
         
         # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array, indexing='ij')
+        k_grid, q_K_grid = np.meshgrid(self.k_array, q_K_array, indexing='ij')
         
         # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
         # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
