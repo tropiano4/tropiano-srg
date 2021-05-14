@@ -1,6 +1,8 @@
 
 --- SRC ---
 
+ * Update snmd.py to account for q \dot K angle
+
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
    - Test script
 
