@@ -326,7 +326,9 @@ class deuteron_momentum_distributions(object):
 
             # Integrate over k where the factor of 2 is for combining the
             # second and third terms
-            deltaU_factor = 2 * 2/np.pi * 2**2
+            # deltaU_factor = 2 * 2/np.pi * 2**2
+            # TESTING
+            deltaU_factor = 8 * 2 * 2/np.pi * 2**2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -337,17 +339,31 @@ class deuteron_momentum_distributions(object):
         
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
         
-        # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
-        q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
+        # # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
+        # q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
         
-        # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array, indexing='ij')
+        # # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
+        # # \delta U^\dagger( abs(q_vec - K_vec/2), k )
+        # k_grid, q_K_grid, = np.meshgrid(self.k_array, q_K_array, indexing='ij')
         
-        # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
-        # and np if kF_1 corresponds to a neutron)
-        deltaU2_array = self.deltaU2_func.ev(k_grid, q_K_grid)
+        # # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
+        # # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
+        # # and np if kF_1 corresponds to a neutron)
+        # deltaU2_array = self.deltaU2_func.ev(k_grid, q_K_grid)
+        
+        # TESTING
+        # Dimensions (ntot, Ntot, xtot)
+        q_K_grid = np.sqrt( q**2 + self.K_grid_3d**2/4 - 
+                            q*self.K_grid_3d*self.x_grid_3d )
+        
+        # Evaluate \delta U^2( k, \abs(q_vec + K_vec/2) ) and integrate over
+        # angles
+        deltaU2_x = self.deltaU2_func.ev(self.k_grid_3d, q_K_grid) * \
+                    self.x_weights_3d
+        
+        # Integrate over angles
+        # These are now (ntot, Ntot)
+        deltaU2_array = np.sum(deltaU2_x, axis=-1)/2
         
         # Build x-dependent part and integrate with resized K
         
@@ -583,7 +599,7 @@ class deuteron_momentum_distributions(object):
         Returns
         -------
         output : float or tuple
-            Pair momentum distribution [unitless] evaluated at momentum q
+            Pair momentum distribution [fm^3] evaluated at momentum q
             [fm^-1]. (Note, this function will return a tuple of floats if
             contributions is not 'total'.)
 
