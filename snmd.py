@@ -362,20 +362,35 @@ class single_nucleon_momentum_distributions(object):
         
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
 
-        # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
-        q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
+        # # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
+        # q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
+        
+        # # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
+        # # \delta U^\dagger( abs(q_vec - K_vec/2), k )
+        # k_grid, q_K_grid = np.meshgrid(self.k_array, q_K_array, indexing='ij')
+        
+        # # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
+        # # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
+        # # and np if kF_1 corresponds to a neutron)
+        # deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
+        # deltaU2_pn_array = self.deltaU2_pn_func.ev(k_grid, q_K_grid)
+        
         # TESTING
-        # change this to an angle-dependent part
+        # Dimensions (ntot, Ntot, xtot)
+        q_K_grid = np.sqrt( q**2 + self.K_grid_3d**2/4 - 
+                            q*self.K_grid_3d*self.x_grid_3d )
         
-        # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        k_grid, q_K_grid = np.meshgrid(self.k_array, q_K_array, indexing='ij')
+        # Evaluate \delta U^2( k, \abs(q_vec + K_vec/2) ) and integrate over
+        # angles
+        deltaU2_pp_x = self.deltaU2_pp_func.ev(self.k_grid_3d, q_K_grid) * \
+                       self.x_weights_3d
+        deltaU2_pn_x = self.deltaU2_pn_func.ev(self.k_grid_3d, q_K_grid) * \
+                       self.x_weights_3d
         
-        # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
-        # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
-        # and np if kF_1 corresponds to a neutron)
-        deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
-        deltaU2_pn_array = self.deltaU2_pn_func.ev(k_grid, q_K_grid)
+        # Integrate over angles
+        # These are now (ntot, Ntot)
+        deltaU2_pp_array = np.sum(deltaU2_pp_x, axis=-1)/2
+        deltaU2_pn_array = np.sum(deltaU2_pn_x, axis=-1)/2
         
         # Build x-dependent part and integrate with resized K
         
@@ -393,14 +408,13 @@ class single_nucleon_momentum_distributions(object):
         # k: (ntot, Ktot, xtot) -> (ntot, Ktot)
             
         # \int dx/2 \theta_pp (or \theta_nn)
-        theta_kF1_kF1_K_k = ( np.sum( 
-                              theta_kF1_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) ) / 2
+        theta_kF1_kF1_K_k = np.sum(theta_kF1_K_plus_k_x*theta_kF1_K_minus_k_x,
+                                   axis=-1) / 2
         # \int dx/2 \theta_pn (or \theta_np)
-        theta_kF1_kF2_K_k = ( np.sum( 
+        theta_kF1_kF2_K_k = np.sum( 
                               theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
                               theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
-                              axis=-1 ) ) / 2
+                              axis=-1 ) / 2
         
         # Overall factor in front of \delta U^2 term
         deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
