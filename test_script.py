@@ -130,10 +130,6 @@ n_tot_exact_array = np.zeros(ntot)
 n_1_exact_array = np.zeros(ntot)
 n_delU_exact_array = np.zeros(ntot)
 n_delU2_exact_array = np.zeros(ntot)
-n_tot_lda_array = np.zeros(ntot)
-n_1_lda_array = np.zeros(ntot)
-n_delU_lda_array = np.zeros(ntot)
-n_delU2_lda_array = np.zeros(ntot)
 
 for iq, q in enumerate(q_array):
     
@@ -144,12 +140,14 @@ for iq, q in enumerate(q_array):
     n_delU_exact_array[iq] = n_delU_exact
     n_delU2_exact_array[iq] = n_delU2_exact
     
-    expectation_values = dmd.local_density_approximation(q_array, 'pair',
-                                               contributions='q_contributions')
-    n_tot_lda_array[iq] = expectation_values[iq, 0]
-    n_1_lda_array[iq] = expectation_values[iq, 1]
-    n_delU_lda_array[iq] = expectation_values[iq, 2]
-    n_delU2_lda_array[iq] = expectation_values[iq, 3]
+# expectation_values = dmd.local_density_approximation(q_array, 'pair',
+#                                             contributions='q_contributions')
+expectation_values = dmd.local_density_approximation(q_array, 'single-nucleon',
+                                                contributions='q_contributions')
+n_tot_lda_array = expectation_values[:, 0]
+n_1_lda_array = expectation_values[:, 1]
+n_delU_lda_array = expectation_values[:, 2]
+n_delU2_lda_array = expectation_values[:, 3]
     
 # Print normalizations
 print('_'*50)
@@ -181,6 +179,11 @@ plt.semilogy(q_array, abs(n_delU_lda_array)*factor_diff, linestyle='dashed',
 plt.semilogy(q_array, n_delU2_lda_array*factor_diff, linestyle='dashed',
              color='tab:red', label='LDA ' + r'$\delta U^2$')
 
+# Show AV18 deuteron
+av18_data = np.loadtxt('av18_deuteron.txt')
+plt.semilogy(av18_data[:, 0], av18_data[:, 3]*factor_diff, label='AV18 data',
+             linestyle='', marker='.', color='gray')
+
 # legend_size = 14
 # legend_location = 'upper left'
 # plt.legend(bbox_to_anchor=(1.05, 1), loc=legend_location, borderaxespad=0.,
@@ -195,5 +198,7 @@ plt.ylabel(r'$n_d(q)$'+' [fm'+r'$^3$' + ']')
 
 plt.xlim((0.0, 6.0))
 plt.ylim((1e-5, 1e3))
+# plt.xlim((0.0, 9.0))
+# plt.ylim((1e-8, 1e3))
 
 plt.show()
