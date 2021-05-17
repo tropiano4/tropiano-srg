@@ -9,9 +9,6 @@
    - Attach codes and figures
    - Correct iPad notes?
 
- * Updates to SRC paper
-   - Add S-wave dominance table
-
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
 
  * Update snmd.py to account for q \dot K angle
