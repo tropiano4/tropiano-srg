@@ -10,6 +10,7 @@
    - Correct iPad notes?
 
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
+   - Do full derivation of single-nucleon calculation with |\psi_d> = a^\dagger a^\dagger |0> and |F>
 
  * Update snmd.py to account for q \dot K angle
    - Create table of n_N(q, kF_1, kF_2) and make an interpolating function using RegularGridInterpolator
