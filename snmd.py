@@ -400,7 +400,7 @@ class single_nucleon_momentum_distributions(object):
         # k_vec
         theta_kF1_K_plus_k_x = self.theta_deltaU2(kF_1, sign=1)
         theta_kF1_K_minus_k_x = self.theta_deltaU2(kF_1, sign=-1)
-        theta_kF2_K_plus_k_x = self.theta_deltaU2(kF_2, sign=1)
+        # theta_kF2_K_plus_k_x = self.theta_deltaU2(kF_2, sign=1)
         theta_kF2_K_minus_k_x = self.theta_deltaU2(kF_2, sign=-1)
             
         # Integrate over x first
@@ -410,11 +410,20 @@ class single_nucleon_momentum_distributions(object):
         # \int dx/2 \theta_pp (or \theta_nn)
         theta_kF1_kF1_K_k = np.sum(theta_kF1_K_plus_k_x*theta_kF1_K_minus_k_x,
                                    axis=-1) / 2
+        # # \int dx/2 \theta_pn (or \theta_np)
+        # theta_kF1_kF2_K_k = np.sum( 
+        #                       theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
+        #                       theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
+        #                       axis=-1 ) / 2
+        
+        # TESTING
         # \int dx/2 \theta_pn (or \theta_np)
-        theta_kF1_kF2_K_k = np.sum( 
-                              theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
-                              theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
+        # Take out the extra 1/2 in the isospin CG's and remove this 2 for
+        # better clarity
+        theta_kF1_kF2_K_k = 2 * np.sum( 
+                              theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x,
                               axis=-1 ) / 2
+        
         
         # Overall factor in front of \delta U^2 term
         deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
