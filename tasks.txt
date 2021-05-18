@@ -2,8 +2,12 @@
 --- SRC ---
 
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
-   - Do full derivation of single-nucleon calculation with |\psi_d> = a^\dagger a^\dagger |0> and compare to first-quantized
-   - Then compare to full derivation with |F>
+   - Go through expansion of momentum distribution operators for single-nucleon and pair
+   - Evaluate with respect to |F> and |\psi_d>
+   - Checks: 
+     1. SNMD vs PMD with |\psi_d>
+     2. Cancellation of \delta U + \delta U^\dagger + \int \delta U^2 for |\psi_d>
+     3. |F> vs |\psi_d> with SNMD (or PMD whatever is easier to see)
 
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
