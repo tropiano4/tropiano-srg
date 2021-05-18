@@ -2,7 +2,8 @@
 --- SRC ---
 
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
-   - Do full derivation of single-nucleon calculation with |\psi_d> = a^\dagger a^\dagger |0> and |F>
+   - Do full derivation of single-nucleon calculation with |\psi_d> = a^\dagger a^\dagger |0> and compare to first-quantized
+   - Then compare to full derivation with |F>
 
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
@@ -13,6 +14,7 @@
    - Correct iPad notes?
 
  * Update snmd.py to account for q \dot K angle
+   - Update to have one double \theta function evaluation for pn
    - Create table of n_N(q, kF_1, kF_2) and make an interpolating function using RegularGridInterpolator
 
  * Check that angle-averaging gives the same result as analytic for N=Z
