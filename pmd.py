@@ -218,7 +218,8 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pp[q_index, q_index]
             
@@ -237,9 +238,11 @@ class pair_momentum_distributions(object):
         # Index of where to stop the integral in the momentum mesh k_array
         # (This is from \theta(kFp-k))
         kF_cutoff = find_q_index(kF, self.k_array)
+        # kF_cutoff = find_q_index(kF, self.k_array) + 1
                       
         # Integrate over k
-        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**2
         term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
         
         # Add up each term for total
