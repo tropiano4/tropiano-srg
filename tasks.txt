@@ -1,6 +1,16 @@
 
 --- SRC ---
 
+ * Derive pair momentum distribution before partial waving then check asymptotic relation
+
+ * Cancellation of \delta U terms: try interpolating n(q, kF) first for each q in q_array and kF in q_array up to ~1.5 fm^-1
+ 
+ * Correct first term in pair \int d3r d3r'
+ 
+ * Compare pair to C12 AV18
+
+ * Add derivations to Overleaf
+
  * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
    - Go through expansion of momentum distribution operators for single-nucleon and pair
    - Evaluate with respect to |F> and |\psi_d>
