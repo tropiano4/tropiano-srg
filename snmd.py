@@ -275,6 +275,7 @@ class single_nucleon_momentum_distributions(object):
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
         theta_K_k = ( K_k_magnitude < kF ) * 1
+        # theta_K_k = ( K_k_magnitude < ( kF + 0.1 ) ) * 1
 
         # Return the 3-D array with x integration weights
         return theta_K_k * self.x_weights_3d
@@ -351,7 +352,8 @@ class single_nucleon_momentum_distributions(object):
             # second and third terms
             # deltaU_factor = 2 * 2/np.pi * 2**2
             # TESTING
-            deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
+            # deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
+            deltaU_factor = 8 * 2 * 2/np.pi * 2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -365,11 +367,11 @@ class single_nucleon_momentum_distributions(object):
         # # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
         # q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
         
-        # # Create a grid for evaluation of \delta( k, abs(q_vec - K_vec/2) ) *
-        # # \delta U^\dagger( abs(q_vec - K_vec/2), k )
+        # # Create a grid for evaluation of \delta U( k, abs(q_vec - K_vec/2) )
+        # # * \delta U^\dagger( abs(q_vec - K_vec/2), k )
         # k_grid, q_K_grid = np.meshgrid(self.k_array, q_K_array, indexing='ij')
         
-        # # Evaluate \delta( k, abs(q_vec - K_vec/2) ) *
+        # # Evaluate \delta U( k, abs(q_vec - K_vec/2) ) *
         # # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
         # # and np if kF_1 corresponds to a neutron)
         # deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
@@ -426,7 +428,8 @@ class single_nucleon_momentum_distributions(object):
         
         
         # Overall factor in front of \delta U^2 term
-        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
+        # deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
+        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
         
         # Split pp and np up to isolate contributions
         if contributions == 'NN_contributions':
