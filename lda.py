@@ -102,7 +102,7 @@ class LDA(object):
     
         Parameters
         ----------
-        q : 1-D ndarray
+        q_array : 1-D ndarray
             High momentum values [fm^-1].
         func_q : func
             Function that depends on q and, possibly more than 1, k_F.
