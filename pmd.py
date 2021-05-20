@@ -25,8 +25,10 @@
 
 import numpy as np
 # Scripts made by A.T.
+from Misc.integration import gaussian_quadrature_mesh
 from operators import find_q_index
 from Potentials.vsrg_macos import vnn
+from scipy.interpolate import RectBivariateSpline
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
@@ -173,7 +175,14 @@ class pair_momentum_distributions(object):
         # < k | \delta U \delta U^\dagger | k' >
         self.deltaU2_pp = deltaU2_pp
         self.deltaU2_pn = deltaU2_pn
-
+        
+        # Interpolate < k | \delta U \delta U^\dagger | k' > for integration
+        # over \int dk k^2 from 0 to kF(r)
+        self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
+                                                   deltaU2_pp)
+        self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
+                                                   deltaU2_pn)
+        
 
     def n_lambda_pp(self, q, kF, contributions='total'):
         """
@@ -218,8 +227,8 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
-            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2
+            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pp[q_index, q_index]
             
@@ -231,19 +240,45 @@ class pair_momentum_distributions(object):
 
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
         
+        # # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
+        # # dk k^2
+        # integrand_k = self.deltaU2_pp[:, q_index] * self.k_integration_measure
+
+        # # Index of where to stop the integral in the momentum mesh k_array
+        # # (This is from \theta(kFp-k))
+        # kF_cutoff = find_q_index(kF, self.k_array)
+        # # kF_cutoff = find_q_index(kF, self.k_array) + 1
+                      
+        # # Integrate over k
+        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        # # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**2
+        # term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
+        
+        # TESTING
+        if kF >= 1.2:
+            ntot_low = 60
+        elif 1.2 > kF >= 1.0:
+            ntot_low = 50
+        elif 1.0 > kF >= 0.8:
+            ntot_low = 40
+        elif 0.8 > kF >= 0.6:
+            ntot_low = 30
+        elif 0.6 > kF >= 0.4:
+            ntot_low = 20
+        else:
+            ntot_low = 10
+        k_array_low, k_weights_low = gaussian_quadrature_mesh(kF, ntot_low)
+        k_integration_measure = k_weights_low * k_array_low**2
+        
         # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
         # dk k^2
-        integrand_k = self.deltaU2_pp[:, q_index] * self.k_integration_measure
-
-        # Index of where to stop the integral in the momentum mesh k_array
-        # (This is from \theta(kFp-k))
-        kF_cutoff = find_q_index(kF, self.k_array)
-        # kF_cutoff = find_q_index(kF, self.k_array) + 1
-                      
+        
+        integrand_k = self.deltaU2_pp_func.ev(k_array_low, q) * \
+                      k_integration_measure
+        
         # Integrate over k
-        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
-        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**2
-        term_deltaU2 = deltaU2_factor * np.sum( integrand_k[:kF_cutoff] )
+        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
         # Add up each term for total
         total = term_1 + term_deltaU + term_deltaU2

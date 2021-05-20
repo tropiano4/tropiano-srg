@@ -110,10 +110,12 @@ q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
 # Loop over lambda
 for lamb in lambda_array:
     
-    # # Initialize single-nucleon momentum distributions class for given
-    # # potential
+    # Initialize single-nucleon momentum distributions class for given
+    # potential
     # snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-    #                                              kmid, ntot)
+    #                                               kmid, ntot, interp=True)
+    # snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+    #                                               kmid, ntot, interp=False)
     
     # Initialize pair momentum distributions class for given potential
     pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
@@ -138,6 +140,8 @@ for lamb in lambda_array:
         # Calculate nuclear-averaged momentum distributions
         # n_array_cont = lda.local_density_approximation(q_array,
         #                   snmd.n_lambda, 'p', contributions='q_contributions')
+        # n_array_cont = lda.local_density_approximation(q_array,
+        #                   snmd.n_lambda_interp, 'p', contributions='q_contributions')
         n_array_cont = lda.local_density_approximation(q_array, 
                           pmd.n_lambda_pp, 'pp', contributions='q_contributions')
     
@@ -178,9 +182,10 @@ for lamb in lambda_array:
         ax.plot(q_array, n_delU2_array/Z, color='xkcd:red', linestyle='dashdot',
                 label=r'$\delta U \delta U^{\dagger}$', linewidth=curve_width)
         
-        # Add AV18 data with error bars
+        # # Add AV18 data with error bars
         # if nucleus_name in ('C12', 'O16', 'Ca40'):
-        #     av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt' % nucleus_name)
+        #     av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt'
+        #                            % nucleus_name)
         #     q_array_av18 = av18_data[:, 0] # fm^-1
         #     n_p_array_av18 = av18_data[:, 1] / Z
         #     error_bars_array_av18 = av18_data[:, 2] / Z
@@ -192,6 +197,8 @@ for lamb in lambda_array:
         # Specify axes limits
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
+        # ax.set_xlim((2,4))
+        # ax.set_ylim((0.002,0.004))
     
         # Title of plot
         # plot_title = ff.nuclei_label_conversion(nucleus_name) # Labels the nucleus

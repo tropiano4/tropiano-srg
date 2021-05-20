@@ -32,9 +32,12 @@
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
-from scipy.interpolate import RectBivariateSpline
+from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
+import time
 # Scripts made by A.T.
+from Figures import figures_functions as ff
 from Misc.integration import gaussian_quadrature_mesh
+import operators as op
 from Potentials.vsrg_macos import vnn
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
@@ -42,7 +45,8 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 class single_nucleon_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, channels, lamb, kmax=0.0, kmid=0.0, ntot=0):
+    def __init__(self, kvnn, channels, lamb, kmax=0.0, kmid=0.0, ntot=0,
+                 interp=True):
         """
         Saves momentum arrays, grids, and matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -62,6 +66,9 @@ class single_nucleon_momentum_distributions(object):
             Mid-point value in the momentum mesh [fm^-1].
         ntot : int, optional
             Number of momentum points in mesh.
+        interp : bool, optional
+            Option to use interpolated n(q, kF_1, kF_2) function before
+            nuclear-averaging.
             
         """
         
@@ -80,6 +87,7 @@ class single_nucleon_momentum_distributions(object):
         k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
         if ntot == 0:
             ntot = len(k_array) # Make sure ntot is the number of k-points
+            kmax = round( max(k_array), 0 )
         self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
         self.k_integration_measure = k_weights * k_array**2
         
@@ -212,7 +220,65 @@ class single_nucleon_momentum_distributions(object):
         _, _, self.x_weights_3d = np.meshgrid(k_array, K_array, x_weights,
                                               indexing='ij')
         _, self.K_weights_2d = np.meshgrid(k_array, K_weights, indexing='ij')
+        
+        
+        # --- File names for interpolation table --- #
+        
+        self.data_directory = 'Data/snmd'
+        
+        file_name = 'snmd_kvnn_%d_channels' % kvnn
+        for channel in channels:
+            file_name += '_%s' % channel
+        file_name += '_lamb_%s_kmax_%.1f.dat' % ( 
+                     ff.convert_number_to_string(lamb), kmax )
+        self.file_name = file_name
+        
+        
+        # -- Interpolate table --- #
+        
+        # Set-up kF_array with upper limit being 1.6 fm^-1
+        kF_max_index = op.find_q_index(1.6, k_array)
+        self.kF_array = k_array[:kF_max_index]
+        kF_tot = len(self.kF_array)
+        
+        if interp:
 
+            data = np.loadtxt(self.data_directory + '/' + file_name)
+            
+            # Reshape such that data_reshaped[i, j, k] returns the momentum
+            # distribution for k_array[i], kF_1_array[j], and kF_1_array[k]
+            # and do this for each contribution
+            
+            # Total
+            data_reshaped_total = np.reshape( data[:, 3], (ntot, kF_tot,
+                                                           kF_tot) )
+            self.n_lambda_total_interp = RegularGridInterpolator( (k_array,
+                                         self.kF_array, self.kF_array),
+                                         data_reshaped_total,
+                                         bounds_error=False, fill_value=0.0 )
+            
+            # 1 term
+            data_reshaped_1 = np.reshape( data[:, 4], (ntot, kF_tot, kF_tot) )
+            self.n_lambda_1_interp = RegularGridInterpolator( (k_array,
+                                     self.kF_array, self.kF_array),
+                                     data_reshaped_1, bounds_error=False,
+                                     fill_value=0.0 )
+
+            # \delta U term
+            data_reshaped_delU = np.reshape( data[:, 5], (ntot, kF_tot,
+                                                          kF_tot) )
+            self.n_lambda_delU_interp = RegularGridInterpolator( (k_array,
+                                        self.kF_array, self.kF_array),
+                                        data_reshaped_delU, bounds_error=False,
+                                        fill_value=0.0 )
+            
+            # \delta U^2 term
+            data_reshaped_delU2 = np.reshape( data[:, 6], (ntot, kF_tot,
+                                                           kF_tot) )
+            self.n_lambda_delU2_interp = RegularGridInterpolator( (k_array,
+                                         self.kF_array, self.kF_array),
+                                         data_reshaped_delU2,
+                                         bounds_error=False, fill_value=0.0 )
 
     def theta_deltaU(self, kF, q):
         """
@@ -275,7 +341,6 @@ class single_nucleon_momentum_distributions(object):
         # This returns a (ntot, Ntot, xtot) array of boolean values at every
         # point converted to 1's or 0's by multiplying 1
         theta_K_k = ( K_k_magnitude < kF ) * 1
-        # theta_K_k = ( K_k_magnitude < ( kF + 0.1 ) ) * 1
 
         # Return the 3-D array with x integration weights
         return theta_K_k * self.x_weights_3d
@@ -350,10 +415,9 @@ class single_nucleon_momentum_distributions(object):
 
             # Integrate over k where the factor of 2 is for combining the
             # second and third terms
-            # deltaU_factor = 2 * 2/np.pi * 2**2
             # TESTING
-            # deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
-            deltaU_factor = 8 * 2 * 2/np.pi * 2
+            deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
+            # deltaU_factor = 8 * 2 * 2/np.pi * 2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -364,20 +428,8 @@ class single_nucleon_momentum_distributions(object):
         
         # High-q term: \deltaU * n(q) * \deltaU^\dagger
 
-        # # Approximate abs(q_vec - K_vec/2) as \sqrt(q^2 + K^2/4)
-        # q_K_array = np.sqrt( q**2 + self.K_array**2/4 ) # (Ntot, 1)
-        
-        # # Create a grid for evaluation of \delta U( k, abs(q_vec - K_vec/2) )
-        # # * \delta U^\dagger( abs(q_vec - K_vec/2), k )
-        # k_grid, q_K_grid = np.meshgrid(self.k_array, q_K_array, indexing='ij')
-        
-        # # Evaluate \delta U( k, abs(q_vec - K_vec/2) ) *
-        # # \delta U^\dagger( abs(q_vec - K_vec/2), k ) for pp and pn (or nn
-        # # and np if kF_1 corresponds to a neutron)
-        # deltaU2_pp_array = self.deltaU2_pp_func.ev(k_grid, q_K_grid)
-        # deltaU2_pn_array = self.deltaU2_pn_func.ev(k_grid, q_K_grid)
-        
-        # TESTING
+        # Create a grid for evaluation of \delta U( k, abs(q_vec - K_vec/2) )
+        # * \delta U^\dagger( abs(q_vec - K_vec/2), k )
         # Dimensions (ntot, Ntot, xtot)
         q_K_grid = np.sqrt( q**2 + self.K_grid_3d**2/4 - 
                             q*self.K_grid_3d*self.x_grid_3d )
@@ -417,19 +469,16 @@ class single_nucleon_momentum_distributions(object):
         #                       theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
         #                       theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
         #                       axis=-1 ) / 2
-        
-        # TESTING
-        # \int dx/2 \theta_pn (or \theta_np)
         # Take out the extra 1/2 in the isospin CG's and remove this 2 for
-        # better clarity
+        # better clarity?
         theta_kF1_kF2_K_k = 2 * np.sum( 
                               theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x,
                               axis=-1 ) / 2
         
         
         # Overall factor in front of \delta U^2 term
-        # deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
-        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
+        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
+        # deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
         
         # Split pp and np up to isolate contributions
         if contributions == 'NN_contributions':
@@ -482,3 +531,135 @@ class single_nucleon_momentum_distributions(object):
                 return total, term_1, term_deltaU, term_deltaU2
             else: # Default
                 return total
+            
+            
+    def create_table(self):
+        """
+        Create a table of n(q, kF_1, kF_2) value for interpolation purposes.
+        This table will show the total, 1 term, \delta U, and \delta U^2 terms
+        for each q, kF_1, and kF_2.
+
+        """
+        
+        # Open file in Data/snmd
+        f = open(self.data_directory + '/' + self.file_name, 'w')
+        
+        # Write header
+        header = '#' + '{:^17s}{:^18s}{:^18s}{:^18s}{:^18s}{:^18s}{:^18s}'.format(
+                 'q', 'kF_1', 'kF_2', 'total', '1', '\delta U', '\delta U^2')
+        f.write(header + '\n')
+        
+        # Write n(q, kF_1, kF_2) for each value of q, kF_1, kF_2
+        for iq, q in enumerate(self.k_array):
+            for kF_1 in self.kF_array:
+                for kF_2 in self.kF_array:
+                    
+                    # Evaluate each contribution
+                    total, term_1, term_deltaU, term_deltaU2 = self.n_lambda(q, 
+                                   kF_1, kF_2, contributions='q_contributions')
+                    
+                    line = '{:^18.8e}{:^18.8e}{:^18.8e}{:^18.8e}{:^18.8e}{:^18.8e}{:^18.8e}'.format(
+                           q, kF_1, kF_2, total, term_1, term_deltaU, term_deltaU2)
+                    f.write('\n' + line)
+                    
+            percentage = iq/self.ntot*100
+            print('%.2f percent done.' % percentage)
+                    
+        f.close()
+        
+        
+    def n_lambda_interp(self, q, kF_1, kF_2, contributions='total'):
+        """
+        Single-nucleon momentum distribution where kF_1 specifies proton or
+        neutron and kF_2 accounts for correlations to the opposite nucleon.
+        (Note, q is not a relative momentum.) This function is an interpolation
+        of the table created by create_table. This will only work if
+        interp=True when calling the class.
+        
+        Parameters
+        ----------
+        q : float
+            Momentum value [fm^-1].
+        kF_1 : float
+            Fermi momentum [fm^-1] for the corresponding nucleon momentum
+            distribution.
+        kF_2 : float
+            Fermi momentum [fm^-1] for the correlated nucleon. If kF_1
+            corresponds to a proton, then kF_2 corresponds to a neutron (and
+            vice versa).
+        contributions : str, optional
+            Option to return different contributions to the momentum
+            distribution.
+            1. Default is 'total' which only returns the total momentum
+               distribution.
+            2. Specify 'q_contributions' for total, 1, \delta U, and 
+               \delta U \delta U^\dagger.
+            
+        Return
+        ------
+        output : float or tuple
+            Single-nucleon momentum distribution [unitless] evaluated at
+            momentum q [fm^-1]. (Note, this function will return a tuple of
+            floats if contributions is not 'total'.)
+            
+        """
+        
+        # Return contributions and total or just total
+        if contributions == 'q_contributions':
+            total = self.n_lambda_total_interp(np.array([q, kF_1, kF_2]))
+            term_1 = self.n_lambda_1_interp(np.array([q, kF_1, kF_2]))
+            term_deltaU = self.n_lambda_delU_interp(np.array([q, kF_1, kF_2]))
+            term_deltaU2 = self.n_lambda_delU2_interp(np.array([q, kF_1, kF_2]))
+            return total, term_1, term_deltaU, term_deltaU2
+        else: # Default
+            return self.n_lambda_total_interp( np.array([q, kF_1, kF_2]) )
+        
+        
+if __name__ == '__main__':
+    
+    kvnn = 6
+    channels = ('1S0', '3S1')
+    lamb = 1.35
+    kmax, kmid, ntot = 15.0, 3.0, 120
+    
+    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+                                                 kmid, ntot, interp=False)
+    
+    # # Create table of n(q, kF_1, kF_2) for interpolation
+    # t0 = time.time() # Start time
+    # snmd.create_table()
+    # t1 = time.time() # Stop time
+    # mins = round( (t1 - t0) / 60.0, 5) # Minutes elapsed
+    # print('%.5f minutes elasped' % mins)
+    
+    # if this ends up working then do all kvnns, channels, lambdas (will take
+    # all night) and the update revision history
+    
+    from lda import load_density, LDA
+    
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    
+    # Initialize pair momentum distributions class for given potential
+    snmd_int = single_nucleon_momentum_distributions(kvnn, channels, lamb,
+                                                     kmax, kmid, ntot,
+                                                     interp=True)
+    
+    # Load r values and nucleonic densities (the r_array's are the same)
+    r_array, rho_p_array = load_density('O16', 'proton', 8, 8)
+    r_array, rho_n_array = load_density('O16', 'neutron', 8, 8)
+    
+    # Call LDA class
+    lda = LDA(r_array, rho_p_array, rho_n_array)
+    
+    # Calculate nuclear-averaged momentum distribution
+    n_p_array_int = lda.local_density_approximation(q_array,
+                                                    snmd_int.n_lambda_interp,
+                                                    'p')
+    print('done with n_p_array_int')
+    n_p_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'p')
+
+    for q, i, j in zip(q_array, n_p_array, n_p_array_int):
+        print(q, i, j)
+
+
+    
