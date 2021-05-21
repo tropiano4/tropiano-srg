@@ -1,32 +1,20 @@
 
 --- SRC ---
 
- * Derive pair momentum distribution again
-
- * Compare pair to C12 AV18
-
- * Correct first term in pair \int d3r d3r' (ask DF about this)?
-
  * Cancellation of \delta U terms
-   - Once you're confident that the pair momentum distribution is correct, come back to this
+   - Go to partial waves using Dickhoff expression
+ 
+ * Check cancellation for particular kF(r)
  
  * Add derivations to Overleaf
 
- * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA?
-   - Go through expansion of momentum distribution operators for single-nucleon and pair
-   - Evaluate with respect to |F> and |\psi_d>
-   - Checks:
-     1. SNMD vs PMD with |\psi_d>
-     2. Cancellation of \delta U + \delta U^\dagger + \int \delta U^2 for |\psi_d>
-     3. |F> vs |\psi_d> with SNMD (or PMD whatever is easier to see)
+ * Revamp pmd.py and lda.py (What's the best way to do this? Probably one script added to pmd.py?)
+   - Correct first term in pair \int d3r d3r'
 
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
-   - Focus on practicality and how you can make this clear to others
-     (the goal is to figure out where mistakes are being made!)
    - Attach codes and figures
-   - Correct iPad notes?
 
  * Update snmd.py to account for q \dot K angle
    - Update to have one double \theta function evaluation for pn
@@ -34,6 +22,7 @@
  * Check that angle-averaging gives the same result as analytic for N=Z
 
  * Update SRC notes with new figures
+   - Write files again
 
  * Finalize extra functions in SRC notebooks
    - A/C12 ratio
@@ -42,6 +31,8 @@
    - Numerically check asymptotic relation of SNMD and PMD
 
  * Add 'Integrate' option to pmd.py
+
+ * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes
@@ -63,10 +54,7 @@
  * Renormalization textbook
  * EFT paper (Epelbaum primer)
  * Scattering theory textbook
- * Nikheff paper
- * Bethe paper
 
 --- Misc. ---
  * Phase shift corrector function
  * Implementing Loguru, snoop, and heart rate?
- * Read QFT textbook
