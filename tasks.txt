@@ -1,10 +1,21 @@
 
 --- SRC ---
 
- * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA
+ * Derive pair momentum distribution again
+
+ * Compare pair to C12 AV18
+
+ * Correct first term in pair \int d3r d3r' (ask DF about this)?
+
+ * Cancellation of \delta U terms
+   - Once you're confident that the pair momentum distribution is correct, come back to this
+ 
+ * Add derivations to Overleaf
+
+ * Compare \delta U and \delta U^2 cancellation for deuteron exact vs LDA?
    - Go through expansion of momentum distribution operators for single-nucleon and pair
    - Evaluate with respect to |F> and |\psi_d>
-   - Checks: 
+   - Checks:
      1. SNMD vs PMD with |\psi_d>
      2. Cancellation of \delta U + \delta U^\dagger + \int \delta U^2 for |\psi_d>
      3. |F> vs |\psi_d> with SNMD (or PMD whatever is easier to see)
@@ -19,7 +30,6 @@
 
  * Update snmd.py to account for q \dot K angle
    - Update to have one double \theta function evaluation for pn
-   - Create table of n_N(q, kF_1, kF_2) and make an interpolating function using RegularGridInterpolator
 
  * Check that angle-averaging gives the same result as analytic for N=Z
 

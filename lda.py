@@ -102,7 +102,7 @@ class LDA(object):
     
         Parameters
         ----------
-        q : 1-D ndarray
+        q_array : 1-D ndarray
             High momentum values [fm^-1].
         func_q : func
             Function that depends on q and, possibly more than 1, k_F.
@@ -134,7 +134,7 @@ class LDA(object):
             axes = 1
         # Return total, pp (nn), and pn (np) contributions at each q
         elif contributions == 'NN_contributions':
-            axes = 3 
+            axes = 3
         # Return total, 1, \delta U, and \delta U^2 contributions at each q
         elif contributions == 'q_contributions':
             axes = 4
