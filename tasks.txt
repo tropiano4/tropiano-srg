@@ -1,12 +1,12 @@
 
 --- SRC ---
 
- * Cancellation of \delta U terms
-   - Go to partial waves using Dickhoff expression
- 
- * Check cancellation for particular kF(r)
- 
- * Add derivations to Overleaf
+ * Generate data for everything except SNMD again and update figures
+   - Update pair momentum distribution figures
+
+ * Cancellation of \delta U terms in SNMD
+   - Try analytic \theta's instead of angle-averaging
+   - How to do k_mesh and K_mesh?
 
  * Revamp pmd.py and lda.py (What's the best way to do this? Probably one script added to pmd.py?)
    - Correct first term in pair \int d3r d3r'
