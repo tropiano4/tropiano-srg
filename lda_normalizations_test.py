@@ -108,10 +108,10 @@ for lamb in lambda_array:
     
     # Initialize single-nucleon momentum distributions class for given
     # potential
-    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                  kmid, ntot, interp=True)
     # snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-    #                                               kmid, ntot, interp=False)
+    #                                               kmid, ntot, interp=True)
+    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+                                                  kmid, ntot, interp=False)
     
     print('_'*50)
     print( 'lambda = %s fm^-1\n' % ff.convert_number_to_string(lamb) )

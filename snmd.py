@@ -158,7 +158,7 @@ class single_nucleon_momentum_distributions(object):
                 # First L of coupled-channel
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
-                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
+                deltaU2_pn += (2*J+1)/2 * ( delta_U_matrix[:ntot, :ntot]**2 + \
                                             delta_U_matrix[:ntot, ntot:]**2 )
 
                 # Isospin CG's=1 for pp
@@ -173,7 +173,7 @@ class single_nucleon_momentum_distributions(object):
                 # in channels)
                 if vnn.channel_L_value(channel) + 2 <= highest_L:
                     deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
-                    deltaU2_pn += (2*J+1)/4 * ( \
+                    deltaU2_pn += (2*J+1)/2 * ( \
                                   delta_U_matrix[ntot:, :ntot]**2 + \
                                   delta_U_matrix[ntot:, ntot:]**2 )
                         
@@ -187,7 +187,7 @@ class single_nucleon_momentum_distributions(object):
                 
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix
-                deltaU2_pn += (2*J+1)/4 * delta_U_matrix**2
+                deltaU2_pn += (2*J+1)/2 * delta_U_matrix**2
                 
                 # Isospin CG's=1 for pp
                 if channel in pp_channels:
@@ -414,10 +414,11 @@ class single_nucleon_momentum_distributions(object):
                               self.deltaU_pn_k * theta_kF2_k_vector )
 
             # Integrate over k where the factor of 2 is for combining the
-            # second and third terms
+            # \delta U and \delta U^\dagger terms
             # TESTING
-            deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
-            # deltaU_factor = 8 * 2 * 2/np.pi * 2
+            # deltaU_factor = 8 * 2 * 2/np.pi * 2**2 # 8 from d3K \delta(K/2-...)
+            # Using expression from Dickhoff and Overleaf appendix
+            deltaU_factor = 2 * 8 * 2/np.pi * 2
             term_deltaU = deltaU_factor * np.sum(integrand_k)
             
         # q > kF_1
@@ -469,16 +470,17 @@ class single_nucleon_momentum_distributions(object):
         #                       theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x +
         #                       theta_kF2_K_plus_k_x * theta_kF1_K_minus_k_x,
         #                       axis=-1 ) / 2
-        # Take out the extra 1/2 in the isospin CG's and remove this 2 for
-        # better clarity?
-        theta_kF1_kF2_K_k = 2 * np.sum( 
-                              theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x,
-                              axis=-1 ) / 2
+        # Take out the extra 1/2 in the isospin CG's and remove second term in
+        # theta_kF1_kF2_K_k for better clarity
+        theta_kF1_kF2_K_k = np.sum( 
+                            theta_kF1_K_plus_k_x * theta_kF2_K_minus_k_x,
+                            axis=-1 ) / 2
         
         
         # Overall factor in front of \delta U^2 term
-        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
-        # deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
+        # deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**4
+        # Using expression from Dickhoff and Overleaf appendix
+        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
         
         # Split pp and np up to isolate contributions
         if contributions == 'NN_contributions':

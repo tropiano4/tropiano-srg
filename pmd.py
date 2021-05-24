@@ -132,7 +132,7 @@ class pair_momentum_distributions(object):
                 # First L of coupled-channel
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
-                deltaU2_pn += (2*J+1)/4 * ( delta_U_matrix[:ntot, :ntot]**2 + \
+                deltaU2_pn += (2*J+1)/2 * ( delta_U_matrix[:ntot, :ntot]**2 + \
                                             delta_U_matrix[:ntot, ntot:]**2 )
 
                 # Isospin CG's=1 for pp
@@ -147,7 +147,7 @@ class pair_momentum_distributions(object):
                 # in channels)
                 if vnn.channel_L_value(channel) + 2 <= highest_L:
                     deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
-                    deltaU2_pn += (2*J+1)/4 * ( \
+                    deltaU2_pn += (2*J+1)/2 * ( \
                                   delta_U_matrix[ntot:, :ntot]**2 + \
                                   delta_U_matrix[ntot:, ntot:]**2 )
                         
@@ -161,7 +161,7 @@ class pair_momentum_distributions(object):
                 
                 # Isospin CG's=1/\sqrt(2) for pn
                 deltaU_pn += (2*J+1)/2 * delta_U_matrix
-                deltaU2_pn += (2*J+1)/4 * delta_U_matrix**2
+                deltaU2_pn += (2*J+1)/2 * delta_U_matrix**2
                 
                 # Isospin CG's=1 for pp
                 if channel in pp_channels:
@@ -227,8 +227,10 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
-            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2
+            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            deltaU_factor =  1 * 2 * 2/np.pi * 1/(4*np.pi)
+            # Need to include 1/\sqrt(2) factors from Dickhoff expression
+            # Matches what is in the text of appendix
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pp[q_index, q_index]
             
@@ -276,7 +278,9 @@ class pair_momentum_distributions(object):
                       k_integration_measure
         
         # Integrate over k
-        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        # See comment by deltaU factor
+        deltaU2_factor = 1/4 * 2**2 * (2/np.pi)**2 * 1/(4*np.pi)
         term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
         # Add up each term for total
@@ -335,7 +339,10 @@ class pair_momentum_distributions(object):
             
             term_1 = 2 # \sum_{\sigma, \sigma'} 1/2 = 2
             
-            deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            # deltaU_factor =  2/np.pi * 1/(4*np.pi) * 2**2
+            deltaU_factor =  1 * 2 * 2/np.pi * 1/(4*np.pi)
+            # Need to include 1/\sqrt(2) factors from Dickhoff expression
+            # Matches what is in the text of appendix
             # delta U evaluated at q
             term_deltaU = deltaU_factor * self.deltaU_pn[q_index, q_index]
             
@@ -382,8 +389,9 @@ class pair_momentum_distributions(object):
                       k_integration_measure
         
         # Integrate over k
-        # Last factor of 2 is for \theta^p \theta^n + \theta^p \theta^n
-        deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4 * 2
+        # deltaU2_factor = 1/4 * (2/np.pi)**2 * 1/(4*np.pi) * 2**4
+        # See comment above near \delta U factor
+        deltaU2_factor = 1/4 * 2**2 * (2/np.pi)**2 * 1/(4*np.pi)
         term_deltaU2 = deltaU2_factor * np.sum(integrand_k)
         
         # Add up each term for total
