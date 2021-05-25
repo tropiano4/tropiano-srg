@@ -1,28 +1,20 @@
 
 --- SRC ---
 
- * Generate data for everything except SNMD again and update figures
-   - Update pair momentum distribution figures
-
  * Cancellation of \delta U terms in SNMD
    - Try analytic \theta's instead of angle-averaging
    - How to do k_mesh and K_mesh?
 
  * Revamp pmd.py and lda.py (What's the best way to do this? Probably one script added to pmd.py?)
    - Correct first term in pair \int d3r d3r'
+   - Update pair momentum distribution figures
+
+ * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
 
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
    - Attach codes and figures
-
- * Update snmd.py to account for q \dot K angle
-   - Update to have one double \theta function evaluation for pn
-
- * Check that angle-averaging gives the same result as analytic for N=Z
-
- * Update SRC notes with new figures
-   - Write files again
 
  * Finalize extra functions in SRC notebooks
    - A/C12 ratio
