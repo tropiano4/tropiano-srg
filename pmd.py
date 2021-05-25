@@ -258,23 +258,23 @@ class pair_momentum_distributions(object):
         
         # TESTING
         if kF >= 1.2:
-            ntot_low = 60
+            ntot_k = 60
         elif 1.2 > kF >= 1.0:
-            ntot_low = 50
+            ntot_k = 50
         elif 1.0 > kF >= 0.8:
-            ntot_low = 40
+            ntot_k = 40
         elif 0.8 > kF >= 0.6:
-            ntot_low = 30
+            ntot_k = 30
         elif 0.6 > kF >= 0.4:
-            ntot_low = 20
+            ntot_k = 20
         else:
-            ntot_low = 10
-        k_array_low, k_weights_low = gaussian_quadrature_mesh(kF, ntot_low)
-        k_integration_measure = k_weights_low * k_array_low**2
+            ntot_k = 10
+        k_array, k_weights = gaussian_quadrature_mesh(kF, ntot_k)
+        k_integration_measure = k_weights * k_array**2
         
         # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
         # dk k^2
-        integrand_k = self.deltaU2_pp_func.ev(k_array_low, q) * \
+        integrand_k = self.deltaU2_pp_func.ev(k_array, q) * \
                       k_integration_measure
         
         # Integrate over k
@@ -369,23 +369,23 @@ class pair_momentum_distributions(object):
         
         # TESTING
         if kF >= 1.2:
-            ntot_low = 60
+            ntot_k = 60
         elif 1.2 > kF >= 1.0:
-            ntot_low = 50
+            ntot_k = 50
         elif 1.0 > kF >= 0.8:
-            ntot_low = 40
+            ntot_k = 40
         elif 0.8 > kF >= 0.6:
-            ntot_low = 30
+            ntot_k = 30
         elif 0.6 > kF >= 0.4:
-            ntot_low = 20
+            ntot_k = 20
         else:
-            ntot_low = 10
-        k_array_low, k_weights_low = gaussian_quadrature_mesh(kF, ntot_low)
-        k_integration_measure = k_weights_low * k_array_low**2
+            ntot_k = 10
+        k_array, k_weights = gaussian_quadrature_mesh(kF, ntot_k)
+        k_integration_measure = k_weights * k_array**2
         
         # Evaluate \delta(k, q) * \delta U^\dagger(q, k) and multiply by
         # dk k^2
-        integrand_k = self.deltaU2_pn_func.ev(k_array_low, q) * \
+        integrand_k = self.deltaU2_pn_func.ev(k_array, q) * \
                       k_integration_measure
         
         # Integrate over k
