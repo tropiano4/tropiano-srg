@@ -6,6 +6,10 @@
    - Try analytic \theta's instead of angle-averaging
    - How to do k_mesh and K_mesh?
 
+ * Check asymptotic relation between SNMD and PMD again
+
+ * Update dmd.py as well
+
  * Revamp pmd.py and lda.py (What's the best way to do this? Probably one script added to pmd.py?)
    - Correct first term in pair \int d3r d3r'
    - Update pair momentum distribution figures
@@ -25,6 +29,8 @@
 
  * Add 'Integrate' option to pmd.py
 
+ * Monte Carlo integrals for angle-averaging
+
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
 --- Potentials ---
@@ -42,6 +48,7 @@
    - High lambda (10 fm^-1) potential evolution bug?
 
 --- Read ---
+ * Read Lepage How to Renormalize
  * QFT textbook
  * Many-body textbook
  * Renormalization textbook
