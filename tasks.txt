@@ -2,6 +2,7 @@
 --- SRC ---
 
  * Cancellation of \delta U terms in SNMD
+   - Check DF notes and implement \theta(kF-|q-2k|) into snmd.py
    - Try analytic \theta's instead of angle-averaging
    - How to do k_mesh and K_mesh?
 
