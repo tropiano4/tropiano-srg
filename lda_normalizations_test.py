@@ -59,6 +59,7 @@ from Figures import figures_functions as ff
 from lda import load_density, LDA
 from Potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
+from snmd_v1 import single_nucleon_momentum_distributions as snmd_v1
 
 
 # Load data from the following directory
@@ -108,10 +109,9 @@ for lamb in lambda_array:
     
     # Initialize single-nucleon momentum distributions class for given
     # potential
-    # snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-    #                                               kmid, ntot, interp=True)
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                  kmid, ntot, interp=False)
+                                                  kmid, ntot)
+    # snmd = snmd_v1(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
     
     print('_'*50)
     print( 'lambda = %s fm^-1\n' % ff.convert_number_to_string(lamb) )
@@ -132,9 +132,9 @@ for lamb in lambda_array:
     
         # Calculate nuclear-averaged momentum distributions
         n_array_cont = lda.local_density_approximation(q_array,
-                          snmd.n_lambda, 'p', contributions='q_contributions')
+                          snmd.n_lambda_temp, 'p', contributions='q_contributions')
         # n_array_cont = lda.local_density_approximation(q_array,
-        #                   snmd.n_lambda_interp, 'p', contributions='q_contributions')
+        #                   snmd.n_lambda, 'p', contributions='q_contributions')
     
         # Proton contributions
         n_total_array = n_array_cont[:, 0]

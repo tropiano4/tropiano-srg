@@ -1,18 +1,21 @@
 
 --- SRC ---
 
- * Cancellation of \delta U terms in SNMD
-   - Check DF notes and implement \theta(kF-|q-2k|) into snmd.py
-   - Try analytic \theta's instead of angle-averaging
-   - How to do k_mesh and K_mesh?
+ * Update Figs. 8 and 10, table
+   - Write files over night
+   - COMPARE FILES IN REPOSITORY (NEW) TO FILES IN DROPBOX (OLD)
+   - Copy/paste new files
 
- * Check asymptotic relation between SNMD and PMD again
-
- * Update dmd.py as well
-
- * Revamp pmd.py and lda.py (What's the best way to do this? Probably one script added to pmd.py?)
+ * Revamp momentum distribution codes
+   - First make lda.py -> densities.py with just load_density function and tests below
    - Correct first term in pair \int d3r d3r'
+   - Update single-nucleon momentum distribution figures
    - Update pair momentum distribution figures
+
+ CHECKS
+ * Compare analytic \theta evaluation to numerical
+ * Check asymptotic relation between SNMD and PMD again
+ * Deuteron: Compare LDA pair vs LDA single-nucleon
 
  * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
 
