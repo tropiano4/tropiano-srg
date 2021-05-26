@@ -13,7 +13,7 @@
    - Update pair momentum distribution figures
 
  CHECKS
- * Compare analytic \theta evaluation to numerical
+ * Compare analytic \theta evaluation to numerical (analytic gives (4\pi)^2 kF^6 / 9)
  * Check asymptotic relation between SNMD and PMD again
  * Deuteron: Compare LDA pair vs LDA single-nucleon
 
