@@ -1,10 +1,10 @@
 
 --- SRC ---
 
- * Update Figs. 8 and 10, table
-   - Write files over night
-   - COMPARE FILES IN REPOSITORY (NEW) TO FILES IN DROPBOX (OLD)
-   - Copy/paste new files
+ * Submit paper Friday before 2pm
+   - Compare data first to make sure it's correct
+   - Update figures
+   - Submit paper to arXiv
 
  * Revamp momentum distribution codes
    - First make lda.py -> densities.py with just load_density function and tests below
@@ -25,14 +25,10 @@
    - Attach codes and figures
 
  * Finalize extra functions in SRC notebooks
-   - A/C12 ratio
    - GCF contacts: ratios and absolute
    - Factorization in other partial waves (e.g., U_1P1(k_i, q) / U_1P1(k_0, q)
-   - Numerically check asymptotic relation of SNMD and PMD
 
  * Add 'Integrate' option to pmd.py
-
- * Monte Carlo integrals for angle-averaging
 
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
