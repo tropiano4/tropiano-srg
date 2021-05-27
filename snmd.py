@@ -186,12 +186,6 @@ class single_nucleon_momentum_distributions(object):
                                                    deltaU2_pn)
         
         
-        # # --- Save the r values and nucleonic densities --- #
-        # self.r_array = r_array
-        # self.rho_p_array = rho_p_array
-        # self.rho_n_array = rho_n_array
-        
-        
     def select_number_integration_points(self, k_max):
         """
         Select the number of integration points over momenta k given the upper
@@ -281,16 +275,21 @@ class single_nucleon_momentum_distributions(object):
         return theta_deltaU
 
 
-    def theta_deltaU2(self, kF, K, k_array, ntot_k):
+    def theta_deltaU2(self, kF_1, kF_2, K, k_array, ntot_k):
         """
-        Evaluates \theta( k_F - \abs(K_vec/2 + k_vec) ) \times
-        \theta( k_F - \abs(K_vec/2 - k_vec) ) for every momentum k.
+        Evaluates \theta( kF_1 - \abs(K_vec/2 + k_vec) ) \times
+        \theta( kF_2 - \abs(K_vec/2 - k_vec) ) for every momentum k.
         This function appears in the \delta U \delta U^\dagger term.
 
         Parameters
         ----------
-        kF : float
-            Fermi momentum [fm^-1].
+        kF_1 : float
+            Fermi momentum [fm^-1] for the corresponding nucleon momentum
+            distribution.
+        kF_2 : float
+            Fermi momentum [fm^-1] for the correlated nucleon. If kF_1
+            corresponds to a proton, then kF_2 corresponds to a neutron (and
+            vice versa).
         K : float
             C.o.M. momentum [fm^-1].
         k_array : 1-D ndarray
@@ -306,9 +305,9 @@ class single_nucleon_momentum_distributions(object):
             
         Notes
         -----
-        This function assumes that the k_array does not exceed kF - K/2
-        which is the maximum limit given by the \theta function, q < kF_1
-        (with the kF in this function corresponding to kF_2), and that K < 2kF.
+        This function assumes that the k_array does not exceed
+        \sqrt( 1/2 * ( kF_1^2 + kF_2^2 ) - K^2/4 ), and that 
+        K does not exceed \sqrt( 2*( kF_1^2 + kF_2^2 ) ).
 
         """
     
@@ -316,20 +315,30 @@ class single_nucleon_momentum_distributions(object):
         # k_array
         theta_deltaU2 = np.zeros(ntot_k)
         
-        # Loop over each momenta k and go through the two inequalities
+        # Loop over each momenta k and go through the four cases
         for i, k in enumerate(k_array):
-                
-            # Case 1: k < kF-K/2 F(K,k) = 1
-            if k < kF-K/2:
+            
+            # Case 1: 2k+K < 2kF_1 and 2k+K < 2kF_2
+            if 2*k+K <= 2*kF_1 and 2*k+K <= 2*kF_2:
                 theta_deltaU2[i] = 1
                 
-            # Case 2: kF-K/2 < k < \sqrt(kF^2-K^2/4)
-            # -> F(K,k) = ( kF^2 - k^2 - K^2/4 ) / (k*K)
-            elif kF-K/2 < k < np.sqrt(kF**2-K**2/4):
-                theta_deltaU2[i] = ( kF**2 - k**2 - K**2/4 ) / ( k*K )
-
-            # Otherwise, k > \sqrt(kF^2-K^2/4) and F(K,k) = 0
+            # Case 2: 2k+K > 2kF_1 and 2k+K > 2kF_2 and 
+            # 4k^2+K^2 < 2(kF_1^2+kF_2^2)
+            elif 2*k+K > 2*kF_1 and 2*k+K > 2*kF_2 and \
+                 4*k**2 + K**2 <= 2*(kF_1**2 + kF_2**2):
+                theta_deltaU2[i] = ( 2*(kF_1**2 + kF_2**2) - 4*k**2 - K**2 ) \
+                                    / (4*k*K)
+                            
+            # Case 3: 2k+K < 2kF_2 and -4 < (4k^2 - 4kF_1^2 + K^2)/(kK) < 4
+            elif 2*k+K <= 2*kF_2 and -4 < (4*k**2-4*kF_1**2+K**2)/(k*K) <= 4:
+                theta_deltaU2[i] = ( 4*kF_1**2 - (K-2*k)**2 ) / (8*k*K)
                 
+            # Case 4: 2k+K < 2kF_1 and -4 < (4k^2 - 4kF_2^2 + K^2)/(kK) < 4
+            elif 2*k+K <= 2*kF_1 and -4 < (4*k**2-4*kF_2**2+K**2)/(k*K) <= 4:
+                theta_deltaU2[i] = ( 4*kF_2**2 - (K-2*k)**2 ) / (8*k*K)
+                
+            # Otherwise, F(K,k) = 0
+            
         return theta_deltaU2
     
     
@@ -434,7 +443,7 @@ class single_nucleon_momentum_distributions(object):
             return 0
 
 
-    def n_deltaU2_K(self, q, K, kF):
+    def n_deltaU2_K(self, q, K, kF_1, kF_2):
         """
         Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger
         up to integration over \int dK K^2.
@@ -445,8 +454,13 @@ class single_nucleon_momentum_distributions(object):
             Momentum value [fm^-1].
         K : float
             C.o.M. momentum [fm^-1].
-        kF : float
-            Fermi momentum [fm^-1].
+        kF_1 : float
+            Fermi momentum [fm^-1] for the corresponding nucleon momentum
+            distribution.
+        kF_2 : float
+            Fermi momentum [fm^-1] for the correlated nucleon. If kF_1
+            corresponds to a proton, then kF_2 corresponds to a neutron (and
+            vice versa).
 
         Returns
         -------
@@ -456,16 +470,20 @@ class single_nucleon_momentum_distributions(object):
             
         """
         
-        # Create integration mesh k_array up to \sqrt( kF^2 - K^2/4 ) which
-        # corresponds to the upper limit of \theta(kF(r)-|K_vec/2 +(-) k_vec|)
-        kmax_delU2 = np.sqrt(kF**2-K**2/4)
+        # Create integration mesh k_array from minimum and maximum k values
+        # corresponding to the limits of \theta(kF(r)-|K_vec/2 +(-) k_vec|)
+        kF_min = min(kF_1, kF_2)
+        kmin_delU2 = max(K/2 - kF_min, 0)
+        kmax_delU2 = min( np.sqrt( ( kF_1**2 + kF_2**2 )/2 - K**2/4 ),
+                          kF_min + K/2 )
 
         # Select number of integration points based on kmax_delU2
-        ntot_delU2 = self.select_number_integration_points(kmax_delU2)
+        ntot_delU2 = self.select_number_integration_points( kmax_delU2 -
+                                                            kmin_delU2 )
 
         # Get Gaussian quadrature mesh
         k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
-                                                                  ntot_delU2)
+                                         ntot_delU2, xmin=kmin_delU2)
         
         # Create a grid for evaluation of < k | \delta U | |q_vec-K_vec/2| >^2
         k_grid, x_grid = np.meshgrid(k_array_delU2, self.x_array,
@@ -491,7 +509,8 @@ class single_nucleon_momentum_distributions(object):
         # Average \theta(kF(r)-|K_vec/2 +(-) k_vec|) functions assuming
         # kF_1=kF_2
         # This is a (ntot_delU2, 1) array
-        theta_array = self.theta_deltaU2(kF, K, k_array_delU2, ntot_delU2)
+        theta_array = self.theta_deltaU2(kF_1, kF_2, K, k_array_delU2,
+                                         ntot_delU2)
         
         # Build integrand for k integration where we split terms according
         # to pp and pn (or nn and np if kF_1 corresponds to a neutron)
@@ -528,11 +547,10 @@ class single_nucleon_momentum_distributions(object):
             
         """
         
-        # For now use minimum kF value and assume symmetric nucleus (N=Z)
-        kF = min(kF_1, kF_2)
-        
-        # Create K_mesh from 0-2*kF
-        Kmax = 2*kF # Max momentum
+        # Create K_mesh from 0-\sqrt( 2*( kF_1^2 + kF_2^2 ) )
+        # Kmax = 2*kF # Max momentum
+        # Kmax = np.sqrt( 2 * (kF_1**2 + kF_2**2) )
+        Kmax = kF_1 + kF_2
         # Total number of points
         if Kmax >= 2.0:
             Ntot = 50
@@ -550,7 +568,7 @@ class single_nucleon_momentum_distributions(object):
         integrand_K = np.zeros(Ntot)
         for iK, K in enumerate(K_array):
             
-            integrand_K[iK] = self.n_deltaU2_K(q, K, kF)
+            integrand_K[iK] = self.n_deltaU2_K(q, K, kF_1, kF_2)
             
         # Attach integration measure
         integrand_K *= K_array**2 * K_weights
@@ -575,41 +593,76 @@ class single_nucleon_momentum_distributions(object):
             return total
         
         
-    # def n_lambda(self, q_array, r_array, rho_1_array, rho_2_array):
+    def n_lambda(self, q_array, r_array, rho_1_array, rho_2_array):
+        """
+        Single-nucleon momentum distribution where the nucleonic densities
+        specify the nucleus.
         
-    #     # Set shape of return array with 'axes'
-    #     axes = 4
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            High momentum values [fm^-1].
+        r_array : 1-D ndarray
+            Coordinates array [fm].
+        rho_1_array : 1-D ndarray
+            Densities as a function of r [fm^-3] for the corresponding nucleon
+            momentum distribution. For instance, if this array corresponds to
+            proton densities, then this function will give a proton momentum
+            distribution.
+        rho_2_array : 1-D ndarray
+            Densities as a function of r [fm^-3] for the correlated nucleon. If
+            rho_1_array corresponds to a proton, then rho_2_array corresponds
+            to a neutron (and vice versa).
             
-    #     # Number of r_array points
-    #     mtot = len(r_array)
-    #     r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
-    #     dr = 0.1 # Spacing between r-points
+        Returns
+        -------
+        n_lambda : 2-D ndarray
+            Array of contributions to the single-nucleon momentum distribution
+            ordered according to total, 1, \delta U, and \delta^2 [fm^3].
             
-    #     # Length of q_array
-    #     ntot = len(q_array)
+        """
         
-    #     # Evaluate f(q, kF) at each point in q_array and kF
-    #     expectation_values = np.zeros( (ntot, axes) )
+        # Number of columns for output array (total, 1, \delta U, \delta U^2)
+        axes = 4
+            
+        # Number of r_array points
+        mtot = len(r_array)
+        r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
+        dr = 0.1 # Spacing between r-points
+            
+        # Length of q_array
+        ntot = len(q_array)
+        
+        # Evaluate n_\lambda(q, kF) contributions at each point in q_array,
+        # rho_1_array, and rho_2_array
+        n_lambda = np.zeros( (ntot, axes) )
 
-    #     # Evaluate k_F at each point in r_array
-    #     kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
-    #     kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
+        # Evaluate kF values at each point in r_array
+        kF1_array = (3*np.pi**2 * rho_1_array)**(1/3)
+        kF2_array = (3*np.pi**2 * rho_2_array)**(1/3)
             
-    #     # Loop over q
-    #     for i, q in enumerate(q_array):
+        # Loop over q
+        for i, q in enumerate(q_array):
     
-    #         function_array = np.zeros( (mtot, axes) )
+            # n_lambda contributions before integrating over r
+            n_lambda_r = np.zeros( (mtot, axes) )
             
-    #         # Loop over r for k_F values
-    #         for j, (kFp, kFn) in enumerate( zip(kFp_array, kFn_array) ):
+            # Loop over kF values
+            for j, (kF_1, kF_2) in enumerate( zip(kF1_array, kF2_array) ):
+                
+                term_1 = self.n_1(q, kF_1)
+                term_deltaU = self.n_deltaU(q, kF_1, kF_2)
+                term_deltaU2 = self.n_deltaU2(q, kF_1, kF_2)
+                total = term_1 + term_deltaU + term_deltaU2
+                
+                n_lambda_r[j, :] = total, term_1, term_deltaU, term_deltaU2
 
-    #             function_array[j, :] = func_q(q, kFn, kFp,
-    #                                            contributions=contributions)
-
-    #             # Integrate over r for each contribution (summing over axis=0)
-    #             expectation_values[i, :] = 4*np.pi*dr * \
-    #                                        np.sum(r2_grid * function_array,
-    #                                               axis=0)
+            # Integrate over 4\pi \int dr r^2 for each contribution (summing
+            # over axis=0)
+            n_lambda[i, :] = 4*np.pi*dr * np.sum(r2_grid * n_lambda_r, axis=0)
+        
+        # Return (ntot, 4) array of contributions to n_\lambda^\tau(q)
+        return n_lambda
 
         
 if __name__ == '__main__':
@@ -681,78 +734,127 @@ if __name__ == '__main__':
     
     
     # # --- Test \theta function in \delta U^2 term --- #
-    # # kF = 1.35
-    # kF = 0.5
-    # # K = 0.1*kF
-    # # K = 1.0*kF
-    # K = 1.9*kF
-    # kmax_k = np.sqrt(kF**2-K**2/4)
-    # if kmax_k >= 1.2:
-    #     ntot_k = 60
-    # elif 1.2 > kmax_k >= 1.0:
-    #     ntot_k = 50
-    # elif 1.0 > kmax_k >= 0.8:
-    #     ntot_k = 40
-    # elif 0.8 > kmax_k >= 0.6:
-    #     ntot_k = 30
-    # elif 0.6 > kmax_k >= 0.4:
-    #     ntot_k = 20
-    # else:
-    #     ntot_k = 10
     
-    # k_array, k_weights = gaussian_quadrature_mesh(kmax_k, ntot_k)
-    # k_integration_measure = k_weights * k_array**2
+    # kF_values = np.array( [0.1, 0.5, 1.0, 1.3] )
     
-    # theta_delU2 = snmd.theta_deltaU2(kF, K, k_array, ntot_k)
-    # print(theta_delU2)
-    # print(len(theta_delU2))
+    # for kF_1 in kF_values:
+    #     for kF_2 in kF_values:
+    #         K_max = kF_1 + kF_2
+    #         K_values = K_max * np.array( [0.01, 0.1, 0.5, 0.95] )
+    #         for K in K_values:
+                
+    #             kF_min = min(kF_1, kF_2)
+    #             kmin_k = max(K/2 - kF_min, 0)
+    #             kmax_k = min( np.sqrt( ( kF_1**2 + kF_2**2 )/2 - K**2/4 ), 
+    #                           kF_min + K/2 )
+    #             if kmax_k-kmin_k >= 1.2:
+    #                 ntot_k = 60
+    #             elif 1.2 > kmax_k-kmin_k >= 1.0:
+    #                 ntot_k = 50
+    #             elif 1.0 > kmax_k-kmin_k >= 0.8:
+    #                 ntot_k = 40
+    #             elif 0.8 > kmax_k-kmin_k >= 0.6:
+    #                 ntot_k = 30
+    #             elif 0.6 > kmax_k-kmin_k >= 0.4:
+    #                 ntot_k = 20
+    #             else:
+    #                 ntot_k = 10
+    
+    #             k_array, k_weights = gaussian_quadrature_mesh(kmax_k, ntot_k, 
+    #                                                           xmin=kmin_k)
+    #             k_integration_measure = k_weights * k_array**2
+    
+    #             theta_delU2 = snmd.theta_deltaU2(kF_1, kF_2, K, k_array, 
+    #                                              ntot_k)
+    #             print(theta_delU2)
+    #             print(len(theta_delU2))
     
     
-    # --- Compare \delta U^2 term to old \delta U^2 term --- #
-    from snmd_v1 import single_nucleon_momentum_distributions as snmd_v1
-    import matplotlib.pyplot as plt
+    # # --- Compare \delta U^2 term to old \delta U^2 term --- #
+    # from snmd_v1 import single_nucleon_momentum_distributions as snmd_v1
+    # import matplotlib.pyplot as plt
+    # import time
+    
+    # q_array, _ = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    
+    # snmd_old = snmd_v1(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
+    
+    # n_new_array = np.zeros(ntot)
+    # n_old_array = np.zeros(ntot)
+    
+    # # kF = 0.5
+    # kF = 1.0
+    # # kF = 1.3
+
+    # t0 = time.time()
+    # for iq, q in enumerate(q_array):
+        
+    #     delU2_new = snmd.n_deltaU2(q, kF, kF)
+    #     n_new_array[iq] = delU2_new
+        
+    # t1 = time.time()
+    # mins = (t1-t0)/60
+    # print('%.2f mins'%mins)
+        
+    # t0 = time.time()
+    # for iq, q in enumerate(q_array):
+        
+    #     _, _, _, delU2_old = snmd_old.n_lambda(q, kF, kF, 'q_contributions')
+    #     n_old_array[iq] = delU2_old
+        
+    # t1 = time.time()
+    # mins = (t1-t0)/60
+    # print('%.2f mins'%mins)
+        
+    # for q, i, j in zip(q_array, n_new_array, n_old_array):
+    #     r = i/j
+    #     print(q, i, j, r)
+    
+    # plt.semilogy(q_array, n_new_array, label='New')
+    # plt.semilogy(q_array, n_old_array, label='Old')
+    # plt.xlabel('q')
+    # plt.ylabel('\delta U^2 term')
+    # plt.xlim((0.0, 6.0))
+    # #plt.ylim((-0.3, 0.1))
+    # plt.legend(loc='upper right')
+    # plt.show()
+    
+    
+    # --- Test n_lambda function --- #
+    from lda import load_density, LDA
     import time
     
-    q_array, _ = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    # OLD WAY
+    nucleus_name = 'C12'
+    Z = 6
+    N = 6
     
-    snmd_old = snmd_v1(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
+    q_array = np.array( [0.5, 1.0, 2.0, 3.0] )
     
-    n_new_array = np.zeros(ntot)
-    n_old_array = np.zeros(ntot)
+    # Load r values and nucleonic densities (the r_array's are the same)
+    r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
+    r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
     
-    # kF = 0.5
-    kF = 1.0
-    # kF = 1.3
-
+    # Call LDA class
+    lda = LDA(r_array, rho_p_array, rho_n_array)
+    
+    # Calculate nuclear-averaged momentum distributions
+#     n_p_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'p')
+#     n_n_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'n')
+    # temporary
     t0 = time.time()
-    for iq, q in enumerate(q_array):
-        
-        delU2_new = snmd.n_deltaU2(q, kF, kF)
-        n_new_array[iq] = delU2_new
-        
+    n_p_array_old = lda.local_density_approximation(q_array,
+                                                    snmd.n_lambda_temp, 'p')
     t1 = time.time()
     mins = (t1-t0)/60
-    print('%.2f mins'%mins)
-        
+    print('Old way: %.2f mins'%mins)
+    
     t0 = time.time()
-    for iq, q in enumerate(q_array):
-        
-        _, _, _, delU2_old = snmd_old.n_lambda(q, kF, kF, 'q_contributions')
-        n_old_array[iq] = delU2_old
-        
+    n_p_array_new = snmd.n_lambda(q_array, r_array, rho_p_array, rho_n_array)
     t1 = time.time()
     mins = (t1-t0)/60
-    print('%.2f mins'%mins)
-        
-    for q, i, j in zip(q_array, n_new_array, n_old_array):
-        r = i/j
-        print(q, i, j, r)
+    print('New way: %.2f mins'%mins)
     
-    plt.semilogy(q_array, n_new_array, label='New')
-    plt.semilogy(q_array, n_old_array, label='Old')
-    plt.xlabel('q')
-    plt.ylabel('\delta U^2 term')
-    plt.xlim((0.0, 6.0))
-    #plt.ylim((-0.3, 0.1))
-    plt.legend(loc='upper right')
-    plt.show()
+    for q, i, j in zip(q_array, n_p_array_old, n_p_array_new[:, 0]):
+        print(q, i, j)
+    
