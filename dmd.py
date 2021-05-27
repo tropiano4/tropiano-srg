@@ -439,7 +439,7 @@ class deuteron_momentum_distributions(object):
         # Evaluate 2-D < k | \delta U | |q_vec-K_vec/2| >^2
         # This is a (ntot_delU2, xtot) array
         deltaU2_k_x = self.deltaU2_func.ev(k_grid, q_K_grid) * \
-                         x_weights_grid
+                      x_weights_grid
         
         # Integrate over \int dx/2 -> (ntot_k, 1)
         deltaU2_k = np.sum(deltaU2_k_x, axis=-1)/2
