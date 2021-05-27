@@ -18,6 +18,10 @@
 #                from input function. For example, we can now input a function
 #                that returns the total, pp, and pn contributions, then average
 #                each contribution separately.
+#   05/27/21 --- Split up old lda.py code into this piece and added the
+#                averaging over \int dr r^2 to snmd.py and pmd.py separately.
+#                Renamed from lda.py to densities.py where lda.py is now in
+#                Old_codes.
 #
 #------------------------------------------------------------------------------
 

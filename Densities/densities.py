@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+
+#------------------------------------------------------------------------------
+# File: densities.py
+#
+# Author:   A. J. Tropiano (tropiano.4@osu.edu)
+# Date:     May 27, 2021
+# 
+# Loads nucleonic densities from Densities directory.
+#
+# Revision history:
+#   03/18/21 --- Added 12C data to Densities. Now shows \rho_proton(r) for
+#                12C in plots below.
+#   04/16/21 --- Added 56Fe data to Densities. Now shows \rho_proton(r) for
+#                56Fe in plots below.
+#   05/27/21 --- Split up old lda.py code into this piece and added the
+#                averaging over \int dr r^2 to snmd.py and pmd.py separately.
+#                Renamed from lda.py to densities.py where lda.py is now in
+#                Old_codes.
+#
+#------------------------------------------------------------------------------
+
+
+from os import getcwd, chdir
+import numpy as np
+
+
+def load_density(nucleus, nucleon, Z, N, potential='SLY4'):
+    """
+    Loads a nucleonic density for the given nucleus. Densities are normalized
+    according to 4*\pi \int_0^\infty dr r^2 \rho_A(r) = Z or N.
+    
+    Parameters
+    ----------
+    nucleus : str
+        Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+    nucleon : str
+        Specify 'proton' or 'neutron'.
+    Z : int
+        Proton number of the nucleus.
+    N : int
+        Neutron number of the nucleus.
+    potential : str, optional
+        Name of potential (e.g., 'SLY4').
+        
+    Returns
+    -------
+    r_array : 1-D ndarray
+        Coordinates array [fm].
+    rho_array : 1-D ndarray
+        Nucleonic density as a function of r [# of nucleons / vol].
+    
+    """
+
+    cwd = getcwd()
+
+    # Go to directory corresponding to specified nucleus
+    densities_directory = 'Densities/HFBRAD_%s/%s' % (potential, nucleus)
+    chdir(densities_directory)
+    
+    # Load .dens file
+    file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
+    table = np.loadtxt(file_name)
+
+    chdir(cwd) # Go back to current working directory
+    
+    r_array = table[:, 0]
+    rho_array = table[:, 1]
+    
+    return r_array, rho_array
+
+
+if __name__ == '__main__':
+    
+    
+    # --- Test densities --- #
+    
+    import matplotlib.pyplot as plt
+
+    # Details of example nuclei (format is (nuclei, Z, N) )
+    nuclei_details = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+                       ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
+    
+    # Plot densities as a function of r
+    plt.clf()
+    for i, nuclei_list in enumerate(nuclei_details):
+        
+        # Plot density for some nuclei here
+        nucleus = nuclei_list[0]
+        nucleon = 'proton'
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+
+        plt.plot(r_array, rho_array, label=nucleus)
+        
+        print( 4*np.pi*np.sum(0.1 * r_array**2 * rho_array) )
+        
+    plt.xlim( [0.0, 10.0] )
+    plt.legend(loc='upper right', frameon=False)
+    plt.xlabel('r [fm]')
+    plt.ylabel(r'$\rho_p(r)$' + ' [fm' + r'$^{-3}$' + ']')
+    plt.show()
+    
+    # Plot proton k_F for some nuclei as function of r
+    # rho = 2 / (3*\pi^2) k_F^3
+    plt.clf()
+    for j, nuclei_list in enumerate(nuclei_details):
+        
+        # Plot density for some nuclei here
+        nucleus = nuclei_list[0]
+        nucleon = 'proton'
+        Z = nuclei_list[1]
+        N = nuclei_list[2]
+        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
+
+        plt.plot(r_array, kF_array, label=nucleus)
+
+    plt.xlim( [0.0, 15.0] )
+    plt.legend(loc='upper right', frameon=False)
+    plt.xlabel('r [fm]')
+    plt.ylabel(r'$k_F(r)$' + ' [fm' + r'$^{-1}$' + ']')
+    plt.show()
