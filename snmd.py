@@ -548,8 +548,6 @@ class single_nucleon_momentum_distributions(object):
         """
         
         # Create K_mesh from 0-\sqrt( 2*( kF_1^2 + kF_2^2 ) )
-        # Kmax = 2*kF # Max momentum
-        # Kmax = np.sqrt( 2 * (kF_1**2 + kF_2**2) )
         Kmax = kF_1 + kF_2
         # Total number of points
         if Kmax >= 2.0:
@@ -825,9 +823,9 @@ if __name__ == '__main__':
     import time
     
     # OLD WAY
-    nucleus_name = 'C12'
-    Z = 6
-    N = 6
+    nucleus_name = 'Ca48'
+    Z = 20
+    N = 28
     
     q_array = np.array( [0.5, 1.0, 2.0, 3.0] )
     
@@ -839,22 +837,26 @@ if __name__ == '__main__':
     lda = LDA(r_array, rho_p_array, rho_n_array)
     
     # Calculate nuclear-averaged momentum distributions
-#     n_p_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'p')
-#     n_n_array = lda.local_density_approximation(q_array, snmd.n_lambda, 'n')
-    # temporary
     t0 = time.time()
+    # temporary
     n_p_array_old = lda.local_density_approximation(q_array,
                                                     snmd.n_lambda_temp, 'p')
+    n_n_array_old = lda.local_density_approximation(q_array,
+                                                    snmd.n_lambda_temp, 'n')
     t1 = time.time()
     mins = (t1-t0)/60
     print('Old way: %.2f mins'%mins)
     
     t0 = time.time()
-    n_p_array_new = snmd.n_lambda(q_array, r_array, rho_p_array, rho_n_array)
+    n_p_array_new = snmd.n_lambda(q_array, r_array, rho_p_array,
+                                  rho_n_array)[:, 0]
+    n_n_array_new = snmd.n_lambda(q_array, r_array, rho_n_array,
+                                  rho_p_array)[:, 0]
     t1 = time.time()
     mins = (t1-t0)/60
     print('New way: %.2f mins'%mins)
     
-    for q, i, j in zip(q_array, n_p_array_old, n_p_array_new[:, 0]):
+    for q, i, j, a, b in zip(q_array, n_p_array_old, n_p_array_new,
+                             n_n_array_old, n_n_array_new):
         print(q, i, j)
     
