@@ -2,15 +2,18 @@
 --- SRC ---
 
  * Submit paper Friday before 2pm
-   - Compare data first to make sure it's correct
-   - Update figures
+   - Update table
    - Submit paper to arXiv
 
  * Revamp momentum distribution codes
    - First make lda.py -> densities.py with just load_density function and tests below
    - Correct first term in pair \int d3r d3r'
-   - Update single-nucleon momentum distribution figures
-   - Update pair momentum distribution figures
+   - Update snmd.py
+   - Update pmd.py
+   - Update dmd.py
+   - Update src_physics_write_data.ipynb and generate all data again (add progress tracking prints)
+   - Update src_physics_fig.ipynb and generate all figures again (add to Dropbox)
+   - Delete data/figures that aren't correct (kvnn = 222, 224)
 
  CHECKS
  * Compare analytic \theta evaluation to numerical (analytic gives (4\pi)^2 kF^6 / 9)
