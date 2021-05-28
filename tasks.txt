@@ -2,8 +2,8 @@
 --- SRC ---
 
  * Submit paper Friday before 2pm
-   - Update table
-   - Submit paper to arXiv
+
+ * NUCLEI presentation
 
  * Revamp momentum distribution codes
    - First make lda.py -> densities.py with just load_density function and tests below
