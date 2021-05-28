@@ -1,8 +1,6 @@
 
 --- SRC ---
 
- * Submit paper Friday before 2pm
-
  * NUCLEI presentation
 
  * Revamp momentum distribution codes
