@@ -5,47 +5,53 @@ Short-range correlation physics at low RG resolution
 1. Title slide
 
 2. Motivation
-  * Recent experiments have been able to isolate processes where short-range correlation (SRC) physics is dominant and well accounted for by SRC phenomenology.
-  * SRC physics at high RG resolution
-    - SRC pairs are components in the nuclear wave function with relative momenta above the Fermi momentum.
-    - FIG: Cartoon of SRC pairs in high-k tail.
-  * SRC physics at low RG resolution
-    - Using RG methods we can tune the scale to lower resolution (we refer to this as low RG resolution).
-    - SRC physics shifted into the reaction operators from the nuclear wave function.
-    - FIG: Cartoon of mean field nucleons and no high-k tail?
-  * FIG: Cartoon of high and low-resolution electron scattering.
-  * Punch line: same cross section but different interpretations.
+  * Background on SRCs
+  * High resolution and low RG resolution definitions
+  * Same observables, different interpretations
+  * Figure: electron scattering at high and low RG resolutions
+  * Figure: mean field and SRC tail of momentum distribution
 
-3. SRG formalism
-  * Unitarily evolve to low RG resolution keeping the same observables.
-  * SRG formalism.
-  * FIG: AV18 decoupling.
-  * FIG: AV deuteron wave function in coordinate space.
+3. Similarity Renormalization Group (SRG)
+  * Equations, unitarity, flow parameter
+  * Figure: Band-diagonal decoupling of AV18 potential
+  * Note: Maybe these two slides are unnecessary to save time?
 
-4. Computing momentum distributions at low RG resolution
-  * Very brief second quantized equations of U(k,k'), n(q), etc.
-  * Highlight factorization.
-  * FIG: Deuteron wave function contributions (step through).
-  * Evaluate A-body matrix elements under LDA (free Fermi gas).
+4. Deuteron wave function at low RG resolution
+  * Figure: Before/after of \psi_d(r)
+  * SRC -> no SRC, D-state probability suppressed
+  * Observables preserved
 
-5. LDA results
-  * FIG: high-q tail of momentum distributions. Universality.
-    - Scale up the 12C, 16O, 40Ca SNMD's by a factor based on 16O AV18 data.
-  * FIG: (pp+pn)/(nn+np) ratio.
-    - np dominance to scalar counting.
-  * FIG: 3S1-3D1 / 1S0 ratio.
-  * FIG: pp/np ratio.
-    - np dominance and weak A dependence from factorization.
-  * FIG: a2 factors.
-    - Equation and decent agreement with LCA calculations.
+5. Momentum distributions at low RG resolution
+  * SRC physics shifted from wave functions to operators
+  * SRG transformation in second quantization
+  * Figure: Deuteron wave function in momentum space, contributions example
+  * High-q dominated by \delta U \delta U^\dagger (which factorizes)
+  * Apply this strategy for nuclei using LDA
 
-6. Summary and outlook
-  * Summary.
-  * Move onto cross sections, scale/scheme dependence of extracted properties.
-  * Impact of FSI's, how physical interpretations depend on the RG scale.
-  * Knock-out reactions (high resolution operators with low resolution structure mixes scales).
-  * What if the probe is a nucleon? See MH talk!
+6. LDA results (single-nucleon momentum distributions)
+  * Universality: High-q tail collapses to universal function
+  * Figure: High-q tail
+  * Comparison to AV18: low RG resolution gets same answer as high RG resolution
+  * Works well for high-q and is systematically improvable
+  * Figure: C12, O16, Ca40 momentum distributions with AV18
 
-7. Extras
-  * Factorization figures.
-  * Extra equations on our formalism.
+7. LDA results (np dominance)
+  * Do we describe np dominance with low RG resolution?
+  * Figure: CLAS figure on np dominance
+  * Ratio of operators (and why this is what we look at)
+  * Figure: U(k_0,q) ratio of 3S1/1S0
+  * Figure: pp/pn ratios
+
+8. LDA results (N/Z dependence)
+  * Figure: pp+pn/nn+np
+  * Explain N/Z dependence
+
+9. LDA results (a_2 factors)
+  * Details of a_2 calculation
+  * Figure: a_2 factors
+  * Agreement with experiment and LCA
+
+10. Summary and outlook
+  * Takeaway: simple approximation works at low RG resolution
+  * Can analyze high energy reactions with low RG resolution structure
+  * Ongoing work: scale/scheme dependence of extracted properties, FSIs, physical interpretations, optical potentials
