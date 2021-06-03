@@ -2,6 +2,7 @@
 --- SRC ---
 
  * NUCLEI presentation
+   - Combine formalism slide with deuteron wave function slide
 
  * Revamp momentum distribution codes
    - First make lda.py -> densities.py with just load_density function and tests below

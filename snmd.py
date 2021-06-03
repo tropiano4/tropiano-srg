@@ -305,6 +305,7 @@ class single_nucleon_momentum_distributions(object):
             
         Notes
         -----
+        UPDATE THIS
         This function assumes that the k_array does not exceed
         \sqrt( 1/2 * ( kF_1^2 + kF_2^2 ) - K^2/4 ), and that 
         K does not exceed \sqrt( 2*( kF_1^2 + kF_2^2 ) ).
