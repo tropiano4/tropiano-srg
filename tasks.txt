@@ -2,10 +2,8 @@
 --- SRC ---
 
  * Revamp momentum distribution codes
-   - First make lda.py -> densities.py with just load_density function and tests below
-   - Correct first term in pair \int d3r d3r'
-   - Update snmd.py
-   - Update pmd.py
+   - Update snmd.py (Set-up interpolation of n(q) functions for each nuclei)
+   - Update pmd.py (Correct first term in pair \int d3r d3r')
    - Update dmd.py
    - Update src_physics_write_data.ipynb and generate all data again (add progress tracking prints)
    - Update src_physics_fig.ipynb and generate all figures again (add to Dropbox)

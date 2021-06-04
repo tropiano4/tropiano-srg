@@ -6,7 +6,8 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 27, 2021
 # 
-# Loads nucleonic densities from Densities directory.
+# Loads nucleonic densities from Densities directory. So far relying on only
+# Skyrme EDFs from SLy4 using HFBRAD code.
 #
 # Revision history:
 #   03/18/21 --- Added 12C data to Densities. Now shows \rho_proton(r) for
@@ -25,7 +26,7 @@ from os import getcwd, chdir
 import numpy as np
 
 
-def load_density(nucleus, nucleon, Z, N, potential='SLY4'):
+def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
     according to 4*\pi \int_0^\infty dr r^2 \rho_A(r) = Z or N.
@@ -40,8 +41,8 @@ def load_density(nucleus, nucleon, Z, N, potential='SLY4'):
         Proton number of the nucleus.
     N : int
         Neutron number of the nucleus.
-    potential : str, optional
-        Name of potential (e.g., 'SLY4').
+    edf : str, optional
+        Name of EDF (e.g., 'SLY4').
         
     Returns
     -------
@@ -55,14 +56,15 @@ def load_density(nucleus, nucleon, Z, N, potential='SLY4'):
     cwd = getcwd()
 
     # Go to directory corresponding to specified nucleus
-    densities_directory = 'Densities/HFBRAD_%s/%s' % (potential, nucleus)
+    densities_directory = 'Densities/HFBRAD_%s/%s' % (edf, nucleus)
     chdir(densities_directory)
     
     # Load .dens file
     file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
     table = np.loadtxt(file_name)
 
-    chdir(cwd) # Go back to current working directory
+    # Go back to current working directory
+    chdir(cwd)
     
     r_array = table[:, 0]
     rho_array = table[:, 1]
