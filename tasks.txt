@@ -27,6 +27,8 @@
 
  * Add 'Integrate' option to pmd.py
 
+ * Update \theta functions in snmd.py to match paper (even though they're the same)
+
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
 --- Potentials ---
