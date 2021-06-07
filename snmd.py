@@ -702,7 +702,7 @@ class single_nucleon_momentum_distributions(object):
         data_directory = 'Data/snmd/kvnn_%d' % self.kvnn
         
         # Create file name
-        file_name = '%s_channels' % nucleus
+        file_name = '%s_%s_channels' % (nucleus, nucleon)
         # Add each channel to file name
         for channel in self.channels:
             file_name += '_%s' % channel
@@ -769,8 +769,8 @@ class single_nucleon_momentum_distributions(object):
         # Directory for distributions data
         data_directory = 'Data/snmd/kvnn_%d' % self.kvnn
         
-        # Create file name
-        file_name = '%s_channels' % nucleus
+        # Get file name
+        file_name = '%s_%s_channels' % (nucleus, nucleon)
         # Add each channel to file name
         for channel in self.channels:
             file_name += '_%s' % channel
