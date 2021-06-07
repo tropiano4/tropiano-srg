@@ -34,7 +34,7 @@
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
-from scipy.interpolate import RectBivariateSpline, UnivariateSpline
+from scipy.interpolate import RectBivariateSpline, UnivariateSpline, interp1d
 # Scripts made by A.T.
 from densities import load_density
 from Figures import figures_functions as ff
@@ -787,11 +787,16 @@ class single_nucleon_momentum_distributions(object):
         n_delU_array = data[:, 3] # \delta U term
         n_delU2_array = data[:, 4] # \delta U^2 term
         
-        # Interpolate each array
-        n_total_func = UnivariateSpline(q_array, n_total_array)
-        n_1_func = UnivariateSpline(q_array, n_1_array)
-        n_delU_func = UnivariateSpline(q_array, n_delU_array)
-        n_delU2_func = UnivariateSpline(q_array, n_delU2_array)
+        # Interpolate each array (UnivariateSpline is for smoothing whereas
+        # interp1d gives closer value to actual calculate)
+        n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
+                                fill_value='extrapolate')
+        n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
+                            fill_value='extrapolate')
+        n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
+                               fill_value='extrapolate')
+        n_delU2_func = interp1d(q_array, n_delU2_array, bounds_error=False,
+                                fill_value='extrapolate')
         
         # Return all contributions with total first
         # Note, these are functions of q
