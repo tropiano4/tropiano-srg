@@ -103,8 +103,8 @@ nuclei_list = [ ['C12', 6, 6] ]
 # nuclei_list = ( ('C12', 6, 6), ('Ca40', 20, 20) )
 # nuclei_list = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
 #                 ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
-# channels = ('1S0', '3S1')
-channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '1D2', '3D2')
+channels = ('1S0', '3S1')
+# channels = ('1S0', '3S1', '3P0', '1P1', '3P1', '1D2', '3D2')
 
 # Load momentum (channel argument doesn't matter here)
 q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
