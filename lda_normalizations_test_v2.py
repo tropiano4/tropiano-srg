@@ -56,7 +56,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
 from Figures import figures_functions as ff
-from lda import load_density, LDA
+from densities import load_density
 from Potentials.vsrg_macos import vnn
 from pmd import pair_momentum_distributions
 
@@ -89,7 +89,7 @@ curve_width = 2.0
 
 # Axes limits
 xlim = (0.0, 5.0)
-ylim = (1e-2, 1e6)
+ylim = (6e-2, 1e6)
 
 # Set potential and other inputs
 kvnn = 6
@@ -128,20 +128,14 @@ for lamb in lambda_array:
         # Load r values and nucleonic densities (the r_array's are the same)
         r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
         r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
-    
-        # Call LDA class
-        lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-        # Calculate nuclear-averaged momentum distributions
+        
         if case == 'pp':
-            n_array_cont = lda.local_density_approximation(q_array, 
-                           pmd.n_lambda_pp, 'pp',
-                           contributions='q_contributions')
-        else:
+            n_array_cont = pmd.n_lambda(q_array, r_array, rho_p_array)
+        elif case == 'pn':
             # Factor of 2 for adding pn+np where pn=np
-            n_array_cont = 2 * lda.local_density_approximation(q_array, 
-                           pmd.n_lambda_pn, 'pn',
-                           contributions='q_contributions')
+            n_array_cont = 2 * pmd.n_lambda(q_array, r_array, rho_p_array,
+                                        rho_n_array)
+        
         # Proton contributions
         n_total_array = n_array_cont[:, 0]
         n_1_array = n_array_cont[:, 1]
@@ -169,7 +163,8 @@ for lamb in lambda_array:
         f, ax = plt.subplots(figsize=figure_size)
         
         # Add curve to figure
-        fac = (2*np.pi)**3
+        # fac = (2*np.pi)**3
+        fac = 1
         ax.set_yscale('log')
         ax.plot(q_array, n_total_array*fac, color='xkcd:grey', label='total',
                 linewidth=curve_width)

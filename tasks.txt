@@ -2,8 +2,7 @@
 --- SRC ---
 
  * Revamp momentum distribution codes
-   - Updates to src_physics_write_data.ipynb
-   - Update pmd.py (Correct first term in pair \int d3r d3r')
+   - Update pmd.py (Figure out why things differ by a factor of (2\pi)^3)
      * Compare asymptotic relation in test_scipt.py with AV18 C12 data too
    - Update dmd.py
      * Generate data for single-nucleon
@@ -11,6 +10,8 @@
    - Update src_physics_fig.ipynb and generate all figures again (Dropbox first, then update GitHub version)
    - Delete data/figures that aren't correct (kvnn = 222, 224)
    - Update README.md
+
+ * Update curly brackets in appendix of paper
 
  Checks
  * Compare analytic \theta evaluation to numerical (analytic gives (4\pi)^2 kF^6 / 9) [test_script.py]
