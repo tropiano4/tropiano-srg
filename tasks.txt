@@ -4,7 +4,7 @@
  * Revamp momentum distribution codes
    - Update pmd.py (Figure out why things differ by a factor of (2\pi)^3)
      * Compare asymptotic relation in test_scipt.py with AV18 C12 data too
-   - Update dmd.py
+   - Update dmd.py (don't worry about pair distribution)
      * Generate data for single-nucleon
    - Update src_physics_write_data.ipynb and generate all data again
    - Update src_physics_fig.ipynb and generate all figures again (Dropbox first, then update GitHub version)
@@ -16,7 +16,6 @@
  Checks
  * Compare analytic \theta evaluation to numerical (analytic gives (4\pi)^2 kF^6 / 9) [test_script.py]
  * Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
- * Deuteron: Compare LDA pair vs LDA single-nucleon [dmd.py (under if __name__==...)]
 
  * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
 
