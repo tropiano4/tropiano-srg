@@ -807,6 +807,7 @@ if __name__ == '__main__':
     
 
     # Generate all data for single-nucleon momentum distributions
+    # Currently this takes about ~60 hours to run
     import time
     
     # Potentials
@@ -878,6 +879,3 @@ if __name__ == '__main__':
         t1_k = time.time()
         hours_k = (t1_k-t0_k)/3600
         print( 'Done with kvnn=%d after %.5f hours.\n' % (kvnn, hours_k) )
-        
-    # TEST: compare absolute calculate to interpolated result
-    # look at files in Figures/SRC_physics/Data compared to new files
