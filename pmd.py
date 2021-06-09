@@ -293,7 +293,7 @@ class pair_momentum_distributions(object):
             # Factor of 2 from \delta U + \delta U^\dagger
             # 2/\pi for two | k_vec > -> | k J L S ... > changes
             # 1/(4\pi) for averaging over \int d\Omega_q
-            deltaU_factor =  2 * 2/np.pi * 1/(4*np.pi)
+            deltaU_factor =  2 * 2/np.pi * (2*np.pi)**3/(4*np.pi)
         
             # Evaluate pp or pn < k | \delta U | k > matrix elements (or nn
             # and np if kF_1 corresponds to a neutron)
@@ -355,7 +355,7 @@ class pair_momentum_distributions(object):
         # combine to give 1
         # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
         # 1/(4\pi) for averaging over \int d\Omega_q
-        deltaU2_factor =  (2/np.pi)**2 * 1/(4*np.pi)
+        deltaU2_factor =  (2/np.pi)**2 * (2*np.pi)**3/(4*np.pi)
         
         # Integrate over k
         return deltaU2_factor * np.sum(integrand_k)
@@ -375,10 +375,11 @@ class pair_momentum_distributions(object):
         rho_1_array : 1-D ndarray
             Densities as a function of r [fm^-3] for the first nucleon
             corresponding to \tau.
-        rho_1_array : 1-D ndarray, optional
+        rho_2_array : 1-D ndarray, optional
             Densities as a function of r [fm^-3] for the second nucleon
             corresponding to \tau'. If empty array, function assumes a proton-
-            proton (or neutron-neutron) pair momentum distribution.
+            proton (or neutron-neutron) pair momentum distribution relying
+            only on rho_1_array.
             
         Returns
         -------
@@ -465,7 +466,7 @@ class pair_momentum_distributions(object):
             n_lambda[i, 1] = 2 * n_lambda_temp[i, 0] * n_lambda_temp[i, 1]
             
             # \delta U and \delta U^2 terms
-            n_lambda[i, 2:] = (2*np.pi)**3 * n_lambda_temp[i, 2:]
+            n_lambda[i, 2:] = n_lambda_temp[i, 2:]
             
             # Total
             n_lambda[i, 0] = n_lambda[i, 1] + n_lambda[i, 2] + n_lambda[i, 3]
