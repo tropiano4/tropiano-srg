@@ -632,7 +632,7 @@ class single_nucleon_momentum_distributions(object):
         -------
         n_lambda : 2-D ndarray
             Array of contributions to the single-nucleon momentum distribution
-            ordered according to total, 1, \delta U, and \delta^2 [fm^3].
+            ordered according to total, 1, \delta U, and \delta U^2 [fm^3].
             
         """
         
