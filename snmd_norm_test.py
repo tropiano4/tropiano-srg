@@ -55,11 +55,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
+from densities import load_density
 from Figures import figures_functions as ff
-from lda import load_density, LDA
 from Potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
-from snmd_v1 import single_nucleon_momentum_distributions as snmd_v1
 
 
 # Load data from the following directory
@@ -104,14 +103,16 @@ channels = ('1S0', '3S1')
 # Load momentum (channel argument doesn't matter here)
 q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
 
+# interp = True
+interp = False
+
 # Loop over lambda
 for lamb in lambda_array:
     
     # Initialize single-nucleon momentum distributions class for given
     # potential
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                  kmid, ntot)
-    # snmd = snmd_v1(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
+                                                 kmid, ntot, interp)
     
     print('_'*50)
     print( 'lambda = %s fm^-1\n' % ff.convert_number_to_string(lamb) )
@@ -123,24 +124,30 @@ for lamb in lambda_array:
         Z = nucleus[1]
         N = nucleus[2]
     
-        # Load r values and nucleonic densities (the r_array's are the same)
-        r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
-        r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
+        if interp:
+            
+            n_array_funcs = snmd.n_lambda_interp(nucleus_name, 'proton', Z, N)
+            
+            n_total_array = n_array_funcs[0](q_array)
+            n_1_array = n_array_funcs[1](q_array)
+            n_delU_array = n_array_funcs[2](q_array)
+            n_delU2_array = n_array_funcs[3](q_array)
+            
+        else:
+            
+            # Load r values and nucleonic densities (the r_array's are the same)
+            r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
+            r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
+            
+            # Calculate nuclear-averaged momentum distributions
+            n_array_cont = snmd.n_lambda(q_array, r_array, rho_p_array,
+                                     rho_n_array)
     
-        # Call LDA class
-        lda = LDA(r_array, rho_p_array, rho_n_array)
-    
-        # Calculate nuclear-averaged momentum distributions
-        n_array_cont = lda.local_density_approximation(q_array,
-                          snmd.n_lambda_temp, 'p', contributions='q_contributions')
-        # n_array_cont = lda.local_density_approximation(q_array,
-        #                   snmd.n_lambda, 'p', contributions='q_contributions')
-    
-        # Proton contributions
-        n_total_array = n_array_cont[:, 0]
-        n_1_array = n_array_cont[:, 1]
-        n_delU_array = n_array_cont[:, 2]
-        n_delU2_array = n_array_cont[:, 3]
+            # Proton contributions
+            n_total_array = n_array_cont[:, 0]
+            n_1_array = n_array_cont[:, 1]
+            n_delU_array = n_array_cont[:, 2]
+            n_delU2_array = n_array_cont[:, 3]
     
         # Compute normalizations here
         # Proton
