@@ -49,156 +49,162 @@
 #   05/04/21 --- Testing higher partial waves of SRG transformations: 3P2-3F2
 #                and 3D3-3G3 have numerical artifacts. Created
 #                high_partial_waves_srg_test.py in Old_codes.
+#   06/10/21 --- Verifying \theta functions averaging in snmd.py and dmd.py by
+#                comparing numerical functions to analytic evaluation of 
+#                \int d3K \int d3k \theta(kF-|K/2+k|) \theta(kF-|K/2-k|).
+#                Created theta_functions_test.py in Old_codes.
 #
 #------------------------------------------------------------------------------
 
 
 # Description of this test:
-#   Test cancellation of
-#     \delta U + \delta U^\dagger + 1/2 \sum \delta U \delta U^\dagger
-#   for 1S0 and 3S1-3D1 channels.
+#   Test evaluation of F_2(Q,k) in paper compared to analytic result.
+#   Integration of \int d3K \int d3k \theta(kF-|K/2+k|) \theta(kF-|K/2-k|)
+#   where k and K are vectors should give (4*\pi)^2 kF^6 / 9.
 
 
-import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
-from Potentials.vsrg_macos import vnn
-# from SRG.srg_unitary_transformation import SRG_unitary_transformation
-from dmd import deuteron_momentum_distributions
+from Misc.integration import gaussian_quadrature_mesh
 
 
-# # Set up
-# kvnn = 6
-# channel = '1S0'
-# # channel = '3S1'
-# kmax, kmid, ntot = 15.0, 3.0, 120
-# lamb = 1.35
+def select_number_integration_points(k_max, k_min=0.0):
 
-# # Load momentum and weights
-# k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
-# # For dividing out momenta/weights
-# factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
-# # For coupled-channel matrices
-# if vnn.coupled_channel(channel):
-#     factor_array = np.concatenate( (factor_array, factor_array) )
+    # Interval of integration
+    interval = k_max - k_min
+    
+    # Basing these numbers off expected kF values
+    if interval >= 1.2:
+        ntot_k = 60
+    elif 1.2 > interval >= 1.0:
+        ntot_k = 50
+    elif 1.0 > interval >= 0.8:
+        ntot_k = 40
+    elif 0.8 > interval >= 0.6:
+        ntot_k = 30
+    elif 0.6 > interval >= 0.4:
+        ntot_k = 20
+    else:
+        ntot_k = 10
+            
+    return ntot_k
+
+
+def theta_deltaU2_diff(kF_1, kF_2, K, k_array, ntot_k):
+    
+    # Make \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) the same length as
+    # k_array
+    theta_deltaU2 = np.zeros(ntot_k)
         
-# # Load SRG transformation
-# H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-# H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, method='srg',
-#                                  generator='Wegner', lamb=lamb)
-# # Load U(k, k') [unitless]
-# U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
+    # Loop over each momenta k and go through the four cases
+    for i, k in enumerate(k_array):
+            
+        # Case 1: 2k+K < 2kF_1 and 2k+K < 2kF_2
+        if 2*k+K <= 2*kF_1 and 2*k+K <= 2*kF_2:
+            theta_deltaU2[i] = 1
+                
+        # Case 2: 2k+K > 2kF_1 and 2k+K > 2kF_2 and 
+        # 4k^2+K^2 < 2(kF_1^2+kF_2^2)
+        elif 2*k+K > 2*kF_1 and 2*k+K > 2*kF_2 and \
+             4*k**2 + K**2 <= 2*(kF_1**2 + kF_2**2):
+            theta_deltaU2[i] = ( 2*(kF_1**2 + kF_2**2) - 4*k**2 - K**2 ) \
+                               / (4*k*K)
+                            
+        # Case 3: 2k+K < 2kF_2 and -4 < (4k^2 - 4kF_1^2 + K^2)/(kK) < 4
+        elif 2*k+K <= 2*kF_2 and -4 < (4*k**2-4*kF_1**2+K**2)/(k*K) <= 4:
+            theta_deltaU2[i] = ( 4*kF_1**2 - (K-2*k)**2 ) / (8*k*K)
+                
+        # Case 4: 2k+K < 2kF_1 and -4 < (4k^2 - 4kF_2^2 + K^2)/(kK) < 4
+        elif 2*k+K <= 2*kF_1 and -4 < (4*k**2-4*kF_2**2+K**2)/(k*K) <= 4:
+            theta_deltaU2[i] = ( 4*kF_2**2 - (K-2*k)**2 ) / (8*k*K)
+                
+        # Otherwise, F(K,k) = 0
+            
+    return theta_deltaU2
 
-# # Isolate 2-body term and convert to fm^3
-# if vnn.coupled_channel(channel):
-#     I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
-# else:
-#     I_matrix_unitless = np.eye(ntot, ntot)
-# row, col = np.meshgrid(factor_array, factor_array)
 
-# delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
-# # delta_U_matrix = delta_U_matrix_unitless / row / col
-
-# # Compute \delta U \delta U^\dagger term
-# delU2_unitless = delta_U_matrix_unitless @ delta_U_matrix_unitless.T
-# # delU2 = delU2_unitless / row / col
-
-# # Calculate part that should cancel
-# # Factor of 1/2?
-# cancel_matrix_unitless = delta_U_matrix_unitless + \
-#                          delta_U_matrix_unitless.T + delU2_unitless
-# print(cancel_matrix_unitless)
-
-# Notes for next test
-# 1. Compare deuteron LDA vs deuteron exact (plot and calculation
-# normalizations)
-
-kvnn = 6
-kmax, kmid, ntot = 15.0, 3.0, 120
-lamb = 1.35
-
-# Load momentum and weights
-q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
-factor_array_exact = 2/np.pi * q_weights * q_array**2
-factor_array_lda = 4*np.pi/(2*np.pi)**3 * q_weights * q_array**2
-factor_diff = 4*np.pi/(2*np.pi)**3 * np.pi/2
-
-dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
-
-# Initialize arrays
-n_tot_exact_array = np.zeros(ntot)
-n_1_exact_array = np.zeros(ntot)
-n_delU_exact_array = np.zeros(ntot)
-n_delU2_exact_array = np.zeros(ntot)
-
-for iq, q in enumerate(q_array):
+def theta_deltaU2_same(kF, K, k_array, ntot_k):
     
-    n_tot_exact, n_1_exact, n_delU_exact, n_delU2_exact = dmd.n_lambda_pair_exact(
-                                            q, contributions='q_contributions')
-    n_tot_exact_array[iq] = n_tot_exact
-    n_1_exact_array[iq] = n_1_exact
-    n_delU_exact_array[iq] = n_delU_exact
-    n_delU2_exact_array[iq] = n_delU2_exact
+    # Make \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) the same length as k_array
+    theta_deltaU2 = np.zeros(ntot_k)
+        
+    # Loop over each momenta k and go through the two inequalities
+    for i, k in enumerate(k_array):
+                
+        # Case 1: k < kF-K/2 F(K,k) = 1
+        if k < kF-K/2:
+            theta_deltaU2[i] = 1
+                
+        # Case 2: kF-K/2 < k < \sqrt(kF^2-K^2/4)
+        # -> F(K,k) = ( kF^2 - k^2 - K^2/4 ) / (k*K)
+        elif kF-K/2 < k < np.sqrt(kF**2-K**2/4):
+            theta_deltaU2[i] = ( kF**2 - k**2 - K**2/4 ) / ( k*K )
+
+        # Otherwise, k > \sqrt(kF^2-K^2/4) and F(K,k) = 0
+                
+    return theta_deltaU2
+
+
+def integrand_K(kF_1, kF_2, K, k_array, k_weights, ntot_k, case='snmd'):
     
-# expectation_values = dmd.local_density_approximation(q_array, 'pair',
-#                                             contributions='q_contributions')
-expectation_values = dmd.local_density_approximation(q_array, 'single-nucleon',
-                                                contributions='q_contributions')
-n_tot_lda_array = expectation_values[:, 0]
-n_1_lda_array = expectation_values[:, 1]
-n_delU_lda_array = expectation_values[:, 2]
-n_delU2_lda_array = expectation_values[:, 3]
+    if case == 'snmd':
+        theta_k = theta_deltaU2_diff(kF_1, kF_2, K, k_array, ntot_k)
+    elif case == 'dmd':
+        kF = kF_1
+        theta_k = theta_deltaU2_same(kF, K, k_array, ntot_k)
+    integration_measure = 4*np.pi*k_weights*k_array**2
+    return np.sum(theta_k*integration_measure)
+
+
+def integral(kF_1, kF_2, K_array, K_weights, ntot_K, case='snmd'):
     
-# Print normalizations
-print('_'*50)
-print('Exact total = %.5f' % np.sum(n_tot_exact_array*factor_array_exact))
-print('Exact 1 term = %.5f' % np.sum(n_1_exact_array*factor_array_exact))
-print('Exact \delta U term = %.5f' % np.sum(n_delU_exact_array*factor_array_exact))
-print('Exact \delta U^2 term = %.5f' % np.sum(n_delU2_exact_array*factor_array_exact))
-print('LDA total = %.5f' % np.sum(n_tot_lda_array*factor_array_lda))
-print('LDA 1 term = %.5f' % np.sum(n_1_lda_array*factor_array_lda))
-print('LDA \delta U term = %.5f' % np.sum(n_delU_lda_array*factor_array_lda))
-print('LDA \delta U^2 term = %.5f' % np.sum(n_delU2_lda_array*factor_array_lda))
+    integrand = np.zeros(ntot_K)
+    for iK, K in enumerate(K_array):
+        
+        kF_min = min(kF_1, kF_2)
+        kmin = max(K/2 - kF_min, 0)
+        kmax = min( np.sqrt( ( kF_1**2 + kF_2**2 )/2 - K**2/4 ), kF_min + K/2 )
 
-plt.clf()
-plt.semilogy(q_array, n_tot_exact_array, label='Exact total',
-             linestyle='solid', color='k')
-plt.semilogy(q_array, n_1_exact_array, label='Exact 1', linestyle='dotted',
-             color='b')
-plt.semilogy(q_array, abs(n_delU_exact_array), linestyle='dotted', color='g',
-             label='Exact ' + r'$|\delta U|$')
-plt.semilogy(q_array, n_delU2_exact_array, linestyle='dotted', color='r',
-             label='Exact ' + r'$\delta U^2$')
+        # Select number of integration points based on kmax_delU2
+        ntot_k = select_number_integration_points(kmax, kmin)
 
-plt.semilogy(q_array, n_tot_lda_array*factor_diff, label='LDA total',
-             linestyle='dashdot', color='tab:gray')
-plt.semilogy(q_array, n_1_lda_array*factor_diff, label='LDA 1', linestyle='dashed',
-             color='tab:blue')
-plt.semilogy(q_array, abs(n_delU_lda_array)*factor_diff, linestyle='dashed',
-             color='tab:green', label='LDA ' + r'$|\delta U|$')
-plt.semilogy(q_array, n_delU2_lda_array*factor_diff, linestyle='dashed',
-             color='tab:red', label='LDA ' + r'$\delta U^2$')
-
-# Show AV18 deuteron
-av18_data = np.loadtxt('av18_deuteron.txt')
-plt.semilogy(av18_data[:, 0], av18_data[:, 3]*factor_diff, label='AV18 data',
-             linestyle='', marker='.', color='gray')
-
-# legend_size = 14
-# legend_location = 'upper left'
-# plt.legend(bbox_to_anchor=(1.05, 1), loc=legend_location, borderaxespad=0.,
-#            fontsize=legend_size)
-legend_size = 12
-legend_location = 'upper right'
-plt.legend(loc=legend_location, fontsize=legend_size, ncol=2)
-
-x_label = 'q [fm' + r'$^{-1}$' + ']'
-plt.xlabel(x_label)
-plt.ylabel(r'$n_d(q)$'+' [fm'+r'$^3$' + ']')
-
-plt.xlim((0.0, 6.0))
-plt.ylim((1e-5, 1e3))
-# plt.xlim((0.0, 9.0))
-# plt.ylim((1e-8, 1e3))
-
-plt.show()
+        # Get Gaussian quadrature mesh
+        k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot_k, xmin=kmin)
+        
+        integrand[iK] = integrand_K(kF_1, kF_2, K, k_array, k_weights, ntot_k,
+                                    case)
+        
+    integrand *= 4*np.pi*K_weights*K_array**2
+    return np.sum(integrand)
+    
+if __name__ == '__main__':
+    
+    # kF = 0.1
+    # kF = 0.5
+    # kF = 1.0
+    kF = 1.3
+    kF_1 = kF
+    kF_2 = kF
+    # case = 'snmd'
+    case = 'dmd'
+    
+    # Create meshes
+    Kmax = kF_1 + kF_2
+    # Total number of points
+    if Kmax >= 2.0:
+        Ntot = 50
+    elif 2.0 > Kmax >= 1.6:
+        Ntot = 40
+    elif 1.6 > Kmax >= 1.2:
+        Ntot = 30
+    elif 1.2 > Kmax >= 0.8:
+        Ntot = 20
+    else:
+        Ntot = 10
+    K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot)
+    
+    value = integral(kF_1, kF_2, K_array, K_weights, Ntot, case)
+    
+    exact = (4*np.pi)**2 * kF**6/9
+    print('Numerical = %.5f' % value )
+    print('Exact = %.5f' % exact)
