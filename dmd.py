@@ -36,14 +36,18 @@
 #                single-nucleon distribution.
 #   05/26/21 --- Saving older version as dmd_v1.py with new updates: angle-
 #                averaging, etc.
+#   06/10/21 --- Including interpolating option to speed up code. Replacing
+#                UnivariateSpline with interp1d for better accuracy, though
+#                RectBivariateSpline works well for 2-D interpolations.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
-from scipy.interpolate import RectBivariateSpline, UnivariateSpline, interp1d
+from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
+from Figures import figures_functions as ff
 from Misc.fourier_transform import hankel_transformation_k2r
 from Misc.integration import gaussian_quadrature_mesh
 import observables as ob
@@ -82,7 +86,7 @@ class deuteron_momentum_distributions(object):
         # Part of the data directory name
         self.kvnn = kvnn
         # Part of the file name
-        self.lamb
+        self.lamb = lamb
         self.kmax = kmax
         
         # Calculate directly and/or generate data files
@@ -140,7 +144,10 @@ class deuteron_momentum_distributions(object):
                               delta_U_matrix[ntot:, ntot:]**2 )
 
             # Interpolate < k | \delta U | k > matrix elements
-            self.deltaU_func = UnivariateSpline( k_array, np.diag(deltaU) )
+            # self.deltaU_func = UnivariateSpline( k_array, np.diag(deltaU) )
+            self.deltaU_func = interp1d( k_array, np.diag(deltaU),
+                                         bounds_error=False,
+                                         fill_value='extrapolate' )
 
             # Interpolate < k | \delta U \delta U^{\dagger} | k' > matrix
             # elements to evaluate at |q_vec-K_vec/2|
@@ -355,12 +362,13 @@ class deuteron_momentum_distributions(object):
             
         """
 
-        # Initial \theta( kF_1(r) - q )
+        # Initial \theta( kF(r) - q )
         if q < kF:
 
-            # Create integration mesh k_array up to kF + q where kF + q
-            # corresponds to the upper limit of \theta(kF(r)-|q_vec-2k_vec|)
-            kmax_delU = kF + q
+            # Create integration mesh k_array up to (kF + q)/2 where
+            # (kF + q)/2 corresponds to the upper limit of 
+            # \theta(kF(r)-|q_vec-2k_vec|)
+            kmax_delU = (kF + q)/2
 
             # Select number of integration points based on kmax_delU
             ntot_delU = self.select_number_integration_points(kmax_delU)
@@ -379,9 +387,11 @@ class deuteron_momentum_distributions(object):
             integrand_k = k_array_delU**2 * k_weights_delU * deltaU_k * \
                           theta_array
 
-            # Overall factor in front of integral where the first factor of 2
-            # is for combining the \delta U and \delta U^\dagger terms and the
-            # factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+            # Factor of 2 from \delta U + \delta U^\dagger
+            # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+            # 2/\pi for two | k_vec > -> | k J L S ... > changes
+            # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+            # combine to give 2
             deltaU_factor = 2 * 8 * 2/np.pi * 2
             
             # Integrate over \int dk k^2
@@ -414,16 +424,18 @@ class deuteron_momentum_distributions(object):
             
         """
         
-        # Create integration mesh k_array up to \sqrt( kF^2 - K^2/4 ) which
-        # corresponds to the upper limit of \theta(kF(r)-|K_vec/2 +(-) k_vec|)
-        kmax_delU2 = np.sqrt(kF**2-K**2/4)
+        # Create integration mesh k_array from minimum and maximum k values
+        # corresponding to the limits of \theta(kF(r)-|K_vec/2 +(-) k_vec|)
+        kmin_delU2 = max(K/2 - kF, 0)
+        kmax_delU2 = min( np.sqrt( kF**2 - K**2/4 ), kF + K/2 )
 
         # Select number of integration points based on kmax_delU2
-        ntot_delU2 = self.select_number_integration_points(kmax_delU2)
+        ntot_delU2 = self.select_number_integration_points( kmax_delU2,
+                                                            kmin_delU2 )
 
         # Get Gaussian quadrature mesh
         k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
-                                                                  ntot_delU2)
+                                         ntot_delU2, xmin=kmin_delU2)
         
         # Create a grid for evaluation of < k | \delta U | |q_vec-K_vec/2| >^2
         k_grid, x_grid = np.meshgrid(k_array_delU2, self.x_array,
@@ -443,13 +455,11 @@ class deuteron_momentum_distributions(object):
         # Integrate over \int dx/2 -> (ntot_k, 1)
         deltaU2_k = np.sum(deltaU2_k_x, axis=-1)/2
         
-        # Average \theta(kF(r)-|K_vec/2 +(-) k_vec|) functions assuming
-        # kF_1=kF_2
+        # Average \theta(kF(r)-|K_vec/2 +(-) k_vec|) functions
         # This is a (ntot_delU2, 1) array
         theta_array = self.theta_deltaU2(kF, K, k_array_delU2, ntot_delU2)
         
-        # Build integrand for k integration where we split terms according
-        # to pp and pn (or nn and np if kF_1 corresponds to a neutron)
+        # Build integrand for k integration
         integrand_k = k_array_delU2**2 * k_weights_delU2 * deltaU2_k * \
                       theta_array
 
@@ -495,6 +505,8 @@ class deuteron_momentum_distributions(object):
         
         # Calculate K-integrand which is a (Ntot, 1) array
         integrand_K = np.zeros(Ntot)
+
+        # Loop over K
         for iK, K in enumerate(K_array):
             
             integrand_K[iK] = self.n_deltaU2_K(q, K, kF)
@@ -502,8 +514,10 @@ class deuteron_momentum_distributions(object):
         # Attach integration measure
         integrand_K *= K_array**2 * K_weights
         
-        # Overall factor in front of integral
-        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
+        # Contractions of a's, 1/4 factors, and [ 1 - (-1)^(L+S+T) ] factors
+        # combine to give 2
+        # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
+        deltaU2_factor = 2 * (2/np.pi)**2
         
         # Integrate over \int dK K^2
         return deltaU2_factor * np.sum(integrand_K)
@@ -511,8 +525,7 @@ class deuteron_momentum_distributions(object):
 
     def n_lambda(self, q_array, r_array):
         """
-        Evaluates the nuclear-averaged single-nucleon momentum distribution in
-        deuteron assuming LDA.
+        Deuteron single-nucleon momentum distribution under LDA.
 
         Parameters
         ----------
@@ -524,29 +537,28 @@ class deuteron_momentum_distributions(object):
         Returns
         -------
         n_lambda : 2-D ndarray
-            Array of contributions to the single-nucleon momentum distribution
+            Array of contributions to the deuteron momentum distribution
             ordered according to total, 1, \delta U, and \delta U^2 [fm^3].
 
         """
         
         # Number of columns for output array (total, 1, \delta U, \delta U^2)
         axes = 4
-            
-        # Get momentum points, weights, and r points
-        k_array = self.k_array
-        k_weights = self.k_weights
-        ntot = self.ntot
-        r_array = self.r_array
         
+        # First compute deuteron density in coordinate space
+        
+        # Get momentum mesh from before
+        k_array, k_weights, ntot_k = self.k_array, self.k_weights, self.ntot
+
         # Transform to coordinate space
         hank_trans_3S1 = hankel_transformation_k2r('3S1', k_array, k_weights,
                                                    r_array)
         hank_trans_3D1 = hankel_transformation_k2r('3D1', k_array, k_weights,
                                                    r_array)
     
-        # Get 3S1 and 3D1 waves [fm^-3/2]
-        psi_r_3S1 = hank_trans_3S1 @ self.psi_k[:ntot]
-        psi_r_3D1 = hank_trans_3D1 @ self.psi_k[ntot:]
+        # Get 3S1 and 3D1 waves [fm^-3/2] in coordinate-space
+        psi_r_3S1 = hank_trans_3S1 @ self.psi_k[:ntot_k]
+        psi_r_3D1 = hank_trans_3D1 @ self.psi_k[ntot_k:]
     
         # Calculate the deuteron nucleonic density [fm^-3]
         rho_array = psi_r_3S1**2 + psi_r_3D1**2
@@ -557,11 +569,11 @@ class deuteron_momentum_distributions(object):
         dr = 0.1 # Spacing between r-points
             
         # Length of q_array
-        ntot = len(q_array)
+        ntot_q = len(q_array)
         
         # Evaluate n_\lambda(q, kF) contributions at each point in q_array
         # and rho_array
-        n_lambda = np.zeros( (ntot, axes) )
+        n_lambda = np.zeros( (ntot_q, axes) )
     
         # kF values for each point in r_array
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
@@ -586,7 +598,6 @@ class deuteron_momentum_distributions(object):
             # any factor of 4*\pi
             # For nucleus A, normalization would be
             #     4*\pi \int dr r^2 \rho_A(r) = Z or N depending on nucleon
-            # So taking ratios A/d are consistent
             
             # Integrate over \int dr r^2 for each contribution
             n_lambda[i, :] = dr * np.sum(r2_grid * n_lambda_r, axis=0)
@@ -595,17 +606,100 @@ class deuteron_momentum_distributions(object):
         return n_lambda
     
     
-    def n_lambda_pair_exact(self, q, contributions='total'):
+    def write_files(self):
         """
-        Computes the exact pair momentum distribution in deuteron using the
-        wave function from the input Hamiltonian.
+        Write deuteron momentum distribution files for interpolation purposes.
+        Split things into total, 1, \delta U, and \delta U^2 contributions.
+
+        """
+        
+        # Directory for distributions data
+        data_directory = 'Data/dmd/kvnn_%d' % self.kvnn
+        
+        # Create file name
+        file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        file_name = ff.replace_periods(file_name) + '.dat'
+        
+        # Use r_array in accordance with densities code from densities.py
+        r_array = np.linspace(0.1, 20.0, 200)
+
+        # Calculate n_\lambda^d(k) for each k in k_array
+        n_array = self.n_lambda(self.k_array, r_array)
+    
+        # Open file and write header where we allocate roughly 18 centered
+        # spaces for each label
+        f = open(data_directory + '/' + file_name, 'w')
+        header = '#' + '{:^17s}{:^18s}{:^18s}{:^18s}{:^18s}'.format('q',
+                 'total', '1', '\delta U', '\delta U^2')
+        f.write(header + '\n')
+    
+        # Loop over momenta k
+        for ik, k in enumerate(self.k_array):
+
+            # Write to data file following the format from the header
+            line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( k,
+                       n_array[ik, 0], n_array[ik, 1], n_array[ik, 2],
+                       n_array[ik, 3] )
+            f.write('\n' + line)
+            
+            
+    def n_lambda_interp(self):
+        """
+        Interpolate the deuteron momentum distribution for the specified file.
+
+        Returns
+        -------
+        output : tuple
+            Tuple of functions that depend only on momentum q [fm^-1] where
+            each function corresponds to contributions to n_\lambda(q): total,
+            1, \delta U, and \delta U^2.
+
+        """
+        
+        # Directory for distributions data
+        data_directory = 'Data/dmd/kvnn_%d' % self.kvnn
+        
+        # Get file name
+        file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        file_name = ff.replace_periods(file_name) + '.dat'
+        
+        # Load data which includes all contributions to n_\lambda(q)
+        data = np.loadtxt(data_directory + '/' + file_name)
+        
+        # Split data into 1-D arrays for each column
+        q_array = data[:, 0] # Momentum in fm^-1
+        n_total_array = data[:, 1] # Total distribution
+        n_1_array = data[:, 2] # 1 term
+        n_delU_array = data[:, 3] # \delta U term
+        n_delU2_array = data[:, 4] # \delta U^2 term
+        
+        # Interpolate each array (UnivariateSpline is for smoothing whereas
+        # interp1d gives closer value to the actual calculation)
+        n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
+                                fill_value='extrapolate')
+        n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
+                            fill_value='extrapolate')
+        n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
+                               fill_value='extrapolate')
+        n_delU2_func = interp1d(q_array, n_delU2_array, bounds_error=False,
+                                fill_value='extrapolate')
+        
+        # Return all contributions with total first
+        # Note, these are functions of q
+        return n_total_func, n_1_func, n_delU_func, n_delU2_func
+    
+    
+    def n_lambda_exact(self, q, contributions='total'):
+        """
+        Computes the exact deuteron momentum distribution using the wave
+        function from the input Hamiltonian.
 
         Parameters
         ----------
         q : float
             Momentum value [fm^-1].
         contributions : str, optional
-            Option to return different contributions to the pair momentum
+            Option to return different contributions to the momentum
             distribution.
             1. Default is 'total' which only returns the total momentum
                distribution.
@@ -629,8 +723,7 @@ class deuteron_momentum_distributions(object):
         
         # Load bare momentum projection operator [fm^3]
         bare_operator = momentum_projection_operator(q, self.k_array,
-                                                      self.k_weights, '3S1',
-                                                      smeared=False)
+                        self.k_weights, '3S1', smeared=False)
         
         # Term 1: 1 * n(q) * 1
         term_1 = psi_vector.T @ bare_operator @ psi_vector
@@ -648,7 +741,7 @@ class deuteron_momentum_distributions(object):
                        
         if contributions == 'partial_wave_ratio':
             
-            # Find index of q
+            # Length of q_array
             ntot = self.ntot
             
             # 3S1-3S1 only
@@ -699,13 +792,14 @@ class deuteron_momentum_distributions(object):
         else: # Default
             return total
     
-    
+
 if __name__ == '__main__':
     
     
-    # --- Compare pair momentum distribution to wave function result --- #
+    # --- Compare LDA momentum distribution to wave function result --- #
     
     import matplotlib.pyplot as plt
+    import time
     
     channel = '3S1'
     
@@ -726,41 +820,76 @@ if __name__ == '__main__':
                           psi_exact_unitless[ntot:]**2 ) / factor_array
         
     # Calculate using LDA
-    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
-    # # Pair momentum distribution
-    # n_d_array = dmd.local_density_approximation(q_array, 'pair')
-    # Nucleon momentum distribution
-    n_d_N_array = dmd.local_density_approximation(q_array, 'single-nucleon')
+    t0 = time.time()
+    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot, False)
+    r_array = np.linspace(0.1, 20.0, 200)
+    n_d_array_full = dmd.n_lambda(q_array, r_array)
+    t1 = time.time()
+    
+    # Print minutes elapsed
+    mins = (t1-t0)/60
+    print('%.5f minutes elapsed.' % mins)
+    
+    # Get just the total
+    n_d_array = n_d_array_full[:, 0]
     
     # Normalization of wave function
     norm = np.sum(factor_array * psi_squared_exact)
     print('Normalization of exact: \dq q^2 n_d(q) = %.5f' % norm)
-    tail = np.sum( (factor_array * psi_squared_exact)[59:] )
-    print('Normalization of exact (2 fm^-1 up): \dq q^2 n_d(q) = %.5f' % tail)
     
-    # # Normalization of LDA pair momentum distribution
+    # Normalization of LDA deuteron momentum distribution
     lda_factor = 4*np.pi * 1/(2*np.pi)**3
-    # norm_lda = lda_factor * np.sum(factor_array * n_d_array)
-    # print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d(q)> = %.5f'
-    #       % norm_lda)
-    # tail_lda = lda_factor * np.sum( (factor_array * n_d_array)[59:] )
-    # print('Normalization of LDA (2 fm^-1 up): ' + \
-    #       '4\pi/(2\pi)^3 \dq q^2 <n_d(q)> = %.5f' % tail_lda)
-    
-    # Normalization of LDA nucleon momentum distribution
-    norm_lda_snmd = lda_factor * np.sum(factor_array * n_d_N_array)
+    norm_lda = lda_factor * np.sum(factor_array * n_d_array)
     print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d^N(q)> = %.5f'
-          % norm_lda_snmd) 
+          % norm_lda) 
     
     # Plot pair momentum distributions
-    plt.semilogy(q_array, psi_squared_exact, label='AV18')
-    # plt.semilogy(q_array, n_d_array, label='LDA pair')
-    # plt.semilogy(q_array, n_d_array * lda_factor,
-    #              label=r'$4\pi \times 1/(2\pi)^3 \times$'+'LDA pair')
-    plt.semilogy(q_array, n_d_N_array * lda_factor,
-                  label=r'$4\pi \times 1/(2\pi)^3 \times$'+'LDA nucleon')
+    plt.semilogy(q_array, psi_squared_exact, label='AV18 wave function')
+    plt.semilogy(q_array, n_d_array * lda_factor, label='LDA')
     plt.xlim( (0.0, 5.0) )
     plt.ylim( (1e-5, 1e4) )
     plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
     plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
     plt.legend(loc=0)
+    
+    
+    # # --- Generate all data for deuteron momentum distributions --- #
+    # # Currently this takes about ~60 hours to run
+    
+    # import time
+    
+    # # Potentials
+    # kvnns_list = [6, 222, 224]
+    
+    # # SRG \lambda values
+    # lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
+    
+    # # Momentum mesh details
+    # kmax, kmid, ntot = 15.0, 3.0, 120 # Default
+    
+    # # Loop over every case generating data files
+    # for kvnn in kvnns_list:
+        
+    #     t0_k = time.time()
+
+    #     for lamb in lambdas_list:
+                
+    #         t0_l = time.time()
+
+    #         # Initialize class
+    #         dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot,
+    #                                               interp=False)
+
+    #         # Write deuteron file
+    #         dmd.write_files()
+
+    #         # Time for each \lambda to run   
+    #         t1_l = time.time()
+    #         mins_l = (t1_l-t0_l)/60
+    #         print( '\n\tDone with \lambda=%s after %.5f minutes.\n' % (
+    #                ff.convert_number_to_string(lamb), mins_l) )
+        
+    #     # Time for each potential to run
+    #     t1_k = time.time()
+    #     mins_k = (t1_k-t0_k)/60
+    #     print( 'Done with kvnn=%d after %.5f mins.\n' % (kvnn, mins_k) )
