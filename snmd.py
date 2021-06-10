@@ -28,13 +28,15 @@
 #   05/25/21 --- Saving older version as snmd_v1.py with new updates: angle-
 #                averaging, etc.
 #   06/04/21 --- Including interpolating option to speed up code.
+#   06/10/21 --- Replacing UnivariateSpline with interp1d for better accuracy,
+#                though RectBivariateSpline works well for 2-D interpolations.
 #
 #------------------------------------------------------------------------------
 
 
 import numpy as np
 from numpy.polynomial.legendre import leggauss
-from scipy.interpolate import RectBivariateSpline, UnivariateSpline, interp1d
+from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
 from densities import load_density
 from Figures import figures_functions as ff
@@ -191,10 +193,12 @@ class single_nucleon_momentum_distributions(object):
                         deltaU2_pp += (2*J+1) * delta_U_matrix**2
 
             # Interpolate pp and pn < k | \delta U | k > matrix elements
-            self.deltaU_pp_func = UnivariateSpline( k_array,
-                                                    np.diag(deltaU_pp) )
-            self.deltaU_pn_func = UnivariateSpline( k_array,
-                                                    np.diag(deltaU_pn) )
+            self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
+                                            bounds_error=False,
+                                            fill_value='extrapolate' )
+            self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
+                                            bounds_error=False,
+                                            fill_value='extrapolate' )
         
             # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
             # matrix elements
@@ -457,10 +461,12 @@ class single_nucleon_momentum_distributions(object):
             integrand_k = k_array_delU**2 * k_weights_delU * ( \
                               deltaU_pp_k * theta_pp_array + \
                               deltaU_pn_k * theta_pn_array )
-
-            # Overall factor in front of integral where the first factor of 2
-            # is for combining the \delta U and \delta U^\dagger terms and the
-            # factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+                
+            # Factor of 2 from \delta U + \delta U^\dagger
+            # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+            # 2/\pi for two | k_vec > -> | k J L S ... > changes
+            # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+            # combine to give 2
             deltaU_factor = 2 * 8 * 2/np.pi * 2
             
             # Integrate over \int dk k^2
@@ -600,8 +606,10 @@ class single_nucleon_momentum_distributions(object):
         # Attach integration measure
         integrand_K *= K_array**2 * K_weights
         
-        # Overall factor in front of integral
-        deltaU2_factor = 1/2 * (2/np.pi)**2 * 2**2
+        # Contractions of a's, 1/4 factors, and [ 1 - (-1)^(L+S+T) ] factors
+        # combine to give 2
+        # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
+        deltaU2_factor = 2 * (2/np.pi)**2
         
         # Integrate over \int dK K^2
         return deltaU2_factor * np.sum(integrand_K)
@@ -788,7 +796,7 @@ class single_nucleon_momentum_distributions(object):
         n_delU2_array = data[:, 4] # \delta U^2 term
         
         # Interpolate each array (UnivariateSpline is for smoothing whereas
-        # interp1d gives closer value to actual calculate)
+        # interp1d gives closer value to the actual calculation)
         n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
                                 fill_value='extrapolate')
         n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
