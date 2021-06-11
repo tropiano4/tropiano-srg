@@ -258,7 +258,6 @@ class deuteron_momentum_distributions(object):
         return theta_deltaU
     
     
-    # CHECK THIS AGAINST KF_1=KF_2 FORMULA IN MATHEMATICA
     def theta_deltaU2(self, kF, K, k_array, ntot_k):
         """
         Evaluates \theta( k_F - \abs(K_vec/2 + k_vec) ) \times
@@ -796,100 +795,100 @@ class deuteron_momentum_distributions(object):
 if __name__ == '__main__':
     
     
-    # --- Compare LDA momentum distribution to wave function result --- #
+    # # --- Compare LDA momentum distribution to wave function result --- #
     
-    import matplotlib.pyplot as plt
-    import time
-    
-    channel = '3S1'
-    
-    kvnn = 6
-    lamb = 1.35
-    kmax, kmid, ntot = 15.0, 3.0, 120
-    
-    # Load momentum and weights
-    q_array, q_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
-    factor_array = q_array**2 * q_weights
-    
-    # Load hamiltonian
-    H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-    
-    # Load exact wave function [unitless]
-    psi_exact_unitless = ob.wave_function(H_matrix)
-    psi_squared_exact = ( psi_exact_unitless[:ntot]**2 + \
-                          psi_exact_unitless[ntot:]**2 ) / factor_array
-        
-    # Calculate using LDA
-    t0 = time.time()
-    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot, False)
-    r_array = np.linspace(0.1, 20.0, 200)
-    n_d_array_full = dmd.n_lambda(q_array, r_array)
-    t1 = time.time()
-    
-    # Print minutes elapsed
-    mins = (t1-t0)/60
-    print('%.5f minutes elapsed.' % mins)
-    
-    # Get just the total
-    n_d_array = n_d_array_full[:, 0]
-    
-    # Normalization of wave function
-    norm = np.sum(factor_array * psi_squared_exact)
-    print('Normalization of exact: \dq q^2 n_d(q) = %.5f' % norm)
-    
-    # Normalization of LDA deuteron momentum distribution
-    lda_factor = 4*np.pi * 1/(2*np.pi)**3
-    norm_lda = lda_factor * np.sum(factor_array * n_d_array)
-    print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d^N(q)> = %.5f'
-          % norm_lda) 
-    
-    # Plot pair momentum distributions
-    plt.semilogy(q_array, psi_squared_exact, label='AV18 wave function')
-    plt.semilogy(q_array, n_d_array * lda_factor, label='LDA')
-    plt.xlim( (0.0, 5.0) )
-    plt.ylim( (1e-5, 1e4) )
-    plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
-    plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
-    plt.legend(loc=0)
-    
-    
-    # # --- Generate all data for deuteron momentum distributions --- #
-    # # Currently this takes about ~60 hours to run
-    
+    # import matplotlib.pyplot as plt
     # import time
     
-    # # Potentials
-    # kvnns_list = [6, 222, 224]
+    # channel = '3S1'
     
-    # # SRG \lambda values
-    # lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
+    # kvnn = 6
+    # lamb = 1.35
+    # kmax, kmid, ntot = 15.0, 3.0, 120
     
-    # # Momentum mesh details
-    # kmax, kmid, ntot = 15.0, 3.0, 120 # Default
+    # # Load momentum and weights
+    # q_array, q_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
+    # factor_array = q_array**2 * q_weights
     
-    # # Loop over every case generating data files
-    # for kvnn in kvnns_list:
+    # # Load hamiltonian
+    # H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+    
+    # # Load exact wave function [unitless]
+    # psi_exact_unitless = ob.wave_function(H_matrix)
+    # psi_squared_exact = ( psi_exact_unitless[:ntot]**2 + \
+    #                       psi_exact_unitless[ntot:]**2 ) / factor_array
         
-    #     t0_k = time.time()
+    # # Calculate using LDA
+    # t0 = time.time()
+    # dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot, False)
+    # r_array = np.linspace(0.1, 20.0, 200)
+    # n_d_array_full = dmd.n_lambda(q_array, r_array)
+    # t1 = time.time()
+    
+    # # Print minutes elapsed
+    # mins = (t1-t0)/60
+    # print('%.5f minutes elapsed.' % mins)
+    
+    # # Get just the total
+    # n_d_array = n_d_array_full[:, 0]
+    
+    # # Normalization of wave function
+    # norm = np.sum(factor_array * psi_squared_exact)
+    # print('Normalization of exact: \dq q^2 n_d(q) = %.5f' % norm)
+    
+    # # Normalization of LDA deuteron momentum distribution
+    # lda_factor = 4*np.pi * 1/(2*np.pi)**3
+    # norm_lda = lda_factor * np.sum(factor_array * n_d_array)
+    # print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d^N(q)> = %.5f'
+    #       % norm_lda) 
+    
+    # # Plot pair momentum distributions
+    # plt.semilogy(q_array, psi_squared_exact, label='AV18 wave function')
+    # plt.semilogy(q_array, n_d_array * lda_factor, label='LDA')
+    # plt.xlim( (0.0, 5.0) )
+    # plt.ylim( (1e-5, 1e4) )
+    # plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
+    # plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
+    # plt.legend(loc=0)
+    
+    
+    # --- Generate all data for deuteron momentum distributions --- #
+    # Currently this takes about ~60 hours to run
+    
+    import time
+    
+    # Potentials
+    kvnns_list = [6, 222, 224]
+    
+    # SRG \lambda values
+    lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
+    
+    # Momentum mesh details
+    kmax, kmid, ntot = 15.0, 3.0, 120 # Default
+    
+    # Loop over every case generating data files
+    for kvnn in kvnns_list:
+        
+        t0_k = time.time()
 
-    #     for lamb in lambdas_list:
+        for lamb in lambdas_list:
                 
-    #         t0_l = time.time()
+            t0_l = time.time()
 
-    #         # Initialize class
-    #         dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot,
-    #                                               interp=False)
+            # Initialize class
+            dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot,
+                                                  interp=False)
 
-    #         # Write deuteron file
-    #         dmd.write_files()
+            # Write deuteron file
+            dmd.write_files()
 
-    #         # Time for each \lambda to run   
-    #         t1_l = time.time()
-    #         mins_l = (t1_l-t0_l)/60
-    #         print( '\n\tDone with \lambda=%s after %.5f minutes.\n' % (
-    #                ff.convert_number_to_string(lamb), mins_l) )
+            # Time for each \lambda to run   
+            t1_l = time.time()
+            mins_l = (t1_l-t0_l)/60
+            print( '\tDone with \lambda=%s after %.5f minutes.' % (
+                    ff.convert_number_to_string(lamb), mins_l) )
         
-    #     # Time for each potential to run
-    #     t1_k = time.time()
-    #     mins_k = (t1_k-t0_k)/60
-    #     print( 'Done with kvnn=%d after %.5f mins.\n' % (kvnn, mins_k) )
+        # Time for each potential to run
+        t1_k = time.time()
+        mins_k = (t1_k-t0_k)/60
+        print( 'Done with kvnn=%d after %.5f mins.\n' % (kvnn, mins_k) )
