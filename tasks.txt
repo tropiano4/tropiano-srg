@@ -24,6 +24,8 @@
 
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
+ * Cython momentum distributions code
+
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes
   - Not finding lapack or blas
