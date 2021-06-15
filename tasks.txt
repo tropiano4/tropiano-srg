@@ -1,13 +1,15 @@
 
 --- SRC ---
 
+ * Figure out why things differ by a factor of (2\pi)^3 in pmd.py
+
  * Revamp momentum distribution codes
-   - Figure out why things differ by a factor of (2\pi)^3 in pmd.py
-   - Generate data for single-nucleon and deuteron again
    - Update src_physics_write_data.ipynb and generate all data again
    - Update src_physics_fig.ipynb and generate all figures again (Dropbox first, then update GitHub version)
-   - Delete data/figures that aren't correct (kvnn = 222, 224)
+   - Delete out-dated data/figures
    - Update README.md
+
+ * Finish editing paper
 
  * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
 
