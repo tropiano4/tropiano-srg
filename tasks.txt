@@ -3,12 +3,6 @@
 
  * Figure out why things differ by a factor of (2\pi)^3 in pmd.py
 
- * Revamp momentum distribution codes
-   - Update src_physics_write_data.ipynb and generate all data again
-   - Update src_physics_fig.ipynb and generate all figures again (Dropbox first, then update GitHub version)
-   - Delete out-dated data/figures
-   - Update README.md
-
  * Finish editing paper
 
  * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
