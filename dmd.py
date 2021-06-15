@@ -59,7 +59,7 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 class deuteron_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0, interp=True ):
+    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0, interp=True):
         """
         Saves momentum arrays, grids, and matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
