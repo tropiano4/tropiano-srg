@@ -853,7 +853,7 @@ if __name__ == '__main__':
     
     
     # --- Generate all data for deuteron momentum distributions --- #
-    # Currently this takes about ~60 hours to run
+    # Currently this takes about ... hours to run
     
     import time
     
