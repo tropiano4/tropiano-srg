@@ -28,7 +28,7 @@ Description of major codes:
 
 * Jupyter notebooks titled with an extension fig.ipynb are used to generate figures which go to the __Figures__ folder.
 
-* lda.py - Nuclear-averages momentum distributions using a local density approximation (LDA) with densities from the __Densities__ folder.
+* densities.py - Loads nucleonic densities from the __Densities__ folder. These densities are used in conjunction with snmd.py, pmd.py, and dmd.py.
 
 * observables.py - Calculates NN observables and wave functions.
 
