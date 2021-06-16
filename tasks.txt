@@ -1,10 +1,6 @@
 
 --- SRC ---
 
- * Figure out why things differ by a factor of (2\pi)^3 in pmd.py
-
- * Finish editing paper
-
  * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
 
  * Updates to momentum distributions file
@@ -24,7 +20,7 @@
 
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
- * Cython momentum distributions code
+ * Cython momentum distributions code or np.sum everywhere
 
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes
