@@ -40,4 +40,4 @@ Description of major codes:
 
 * snmd.py, pmd.py, dmd.py - Calculates single-nucleon, pair, and deuteron momentum distributions in LDA.
 
-* test.py - Script used for testing purposes.
+* test_script.py and test_notebook.ipynb - Script and Jupyter notebook used for testing purposes.
