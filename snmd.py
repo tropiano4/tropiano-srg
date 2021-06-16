@@ -288,14 +288,14 @@ class single_nucleon_momentum_distributions(object):
                 theta_deltaU[i] = 1
             
             # Case 2: q < kF and kF-q < 2k < kF+q
-            # -> h(q,k) = 1/2 * ( kF^2 - (q-2k)^2 ) / (4*q*k)
+            # -> h(q,k) = ( kF^2 - (q-2k)^2 ) / (8*q*k)
             elif q < kF and kF-q < 2*k < kF+q:
-                theta_deltaU[i] = 0.5 * ( kF**2 - ( q - 2*k )**2 ) / ( 4*k*q )
+                theta_deltaU[i] = ( kF**2 - ( q - 2*k )**2 ) / ( 8*k*q )
                 
             # Case 3: q-kF < 2k < kF+q
-            # -> h(q,k) = 1/2 * ( kF^2 - (q-2k)^2 ) / (4*q*k)
+            # -> h(q,k) = ( kF^2 - (q-2k)^2 ) / (8*q*k)
             elif q-kF < 2*k < kF+q:
-                theta_deltaU[i] = 0.5 * ( kF**2 - ( q - 2*k )**2 ) / ( 4*k*q )
+                theta_deltaU[i] = ( kF**2 - ( q - 2*k )**2 ) / ( 8*k*q )
                 
             # Otherwise, h(q,k) = 0
                 
