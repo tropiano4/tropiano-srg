@@ -1,15 +1,10 @@
 
 --- SRC ---
 
- * Read QMC papers in Slack: Marino_2021 and Stoitsov_2010
-
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
    - Attach codes and figures
-
- * Finalize extra functions in SRC notebooks
-   - Factorization in other partial waves (e.g., U_1P1(k_i, q) / U_1P1(k_0, q)
 
  * Add 'Integrate' option to pmd.py
    - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
@@ -37,7 +32,6 @@
    - High lambda (10 fm^-1) potential evolution bug?
 
 --- Read ---
- * Read Lepage How to Renormalize
  * QFT textbook
  * Many-body textbook
  * Renormalization textbook
