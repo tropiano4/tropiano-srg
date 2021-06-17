@@ -18,6 +18,7 @@
 #                averaging over \int dr r^2 to snmd.py and pmd.py separately.
 #                Renamed from lda.py to densities.py where lda.py is now in
 #                Old_codes.
+#   06/17/21 --- Added He3 from www.phy.anl.gov/theory/research/density/.
 #
 #------------------------------------------------------------------------------
 
@@ -56,11 +57,17 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     cwd = getcwd()
 
     # Go to directory corresponding to specified nucleus
-    densities_directory = 'Densities/HFBRAD_%s/%s' % (edf, nucleus)
+    if edf == 'SLY4':
+        densities_directory = 'Densities/HFBRAD_%s/%s' % (edf, nucleus)
+        file_extension = '.dens'
+    # Densities from www.phy.anl.gov/theory/research/density/
+    elif edf == 'AV18':
+        densities_directory = 'Densities/%s/%s' % (edf, nucleus)
+        file_extension = '.txt'
     chdir(densities_directory)
     
     # Load .dens file
-    file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
+    file_name = '%s_%d_%d%s' % (nucleon, N, Z, file_extension)
     table = np.loadtxt(file_name)
 
     # Go back to current working directory
@@ -80,8 +87,9 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     # Details of example nuclei (format is (nuclei, Z, N) )
-    nuclei_details = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-                       ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
+    nuclei_details = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8),
+                       ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
+                       ('Pb208', 82, 126) )
     
     # Plot densities as a function of r
     plt.clf()
@@ -92,7 +100,10 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        if nucleus == 'He4':
+            r_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
+        else:
+            r_array, rho_array = load_density(nucleus, nucleon, Z, N)
 
         plt.plot(r_array, rho_array, label=nucleus)
         
@@ -114,7 +125,10 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        r_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        if nucleus == 'He4':
+            r_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
+        else:
+            r_array, rho_array = load_density(nucleus, nucleon, Z, N)
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
 
         plt.plot(r_array, kF_array, label=nucleus)
