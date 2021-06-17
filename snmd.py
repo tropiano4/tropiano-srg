@@ -687,7 +687,7 @@ class single_nucleon_momentum_distributions(object):
         return n_lambda
     
     
-    def write_files(self, nucleus, nucleon, Z, N):
+    def write_files(self, nucleus, nucleon, Z, N, edf='SLY4'):
         """
         Write single-nucleon momentum distribution files for interpolation
         purposes. Split things into total, 1, \delta U, and \delta U^2
@@ -703,6 +703,8 @@ class single_nucleon_momentum_distributions(object):
             Proton number of the nucleus.
         N : int
             Neutron number of the nucleus.
+        edf : str, optional
+            Name of EDF (e.g., 'SLY4').
 
         """
         
@@ -718,8 +720,11 @@ class single_nucleon_momentum_distributions(object):
         file_name = ff.replace_periods(file_name) + '.dat'
         
         # Load r values and nucleonic densities (the r_array's are the same)
-        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-        r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N, edf)
+        if edf == 'AV18':
+            rho_n_array = rho_p_array
+        else:
+            r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
 
         # Calculate n_\lambda^\tau(k) for each k in k_array
         if nucleon == 'proton':
@@ -831,8 +836,9 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 15.0, 3.0, 120 # Default
 
     # Nuclei to calculate
-    nuclei_list = [ ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-                    ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) ]
+    nuclei_list = [ ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8),
+                    ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
+                    ('Pb208', 82, 126) ]
     
     # Loop over every case generating data files
     for kvnn in kvnns_list:
@@ -856,12 +862,16 @@ if __name__ == '__main__':
                            channels, lamb, kmax, kmid, ntot, interp=False)
 
                     nucleus = nuclei[0]
+                    if nucleus == 'He4':
+                        edf = 'AV18'
+                    else:
+                        edf = 'SLY4'
                     Z = nuclei[1]
                     N = nuclei[2]
                     
                     # Write proton and neutron file for given nucleus
-                    snmd.write_files(nucleus, 'proton', Z, N)
-                    snmd.write_files(nucleus, 'neutron', Z, N)
+                    snmd.write_files(nucleus, 'proton', Z, N, edf)
+                    snmd.write_files(nucleus, 'neutron', Z, N, edf)
                     
                     # Time for each nucleus to run
                     t1_N = time.time()
