@@ -1,21 +1,25 @@
 
 --- SRC ---
 
- * Updates to momentum distributions file
-   - Figure out consistent continuum and partial wave basis normalizations
-     * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
-   - Attach codes and figures
-
  * Add 'Integrate' option to pmd.py
    - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
 
- * He4 distributions and contacts
+ * n^p_\lambda(q_i) for fixed q_i = 1.5, 2, ... with respect to \lambda
+
+ * Do He8 distributions
+
+ * Derive pair momentum distribution with 3-body terms
+
+ * Contact ratios
 
  * Read QE electron scattering references
 
  * Would it be a better approximation to use block-diagonal decoupling with LDA?
 
- * Cython momentum distributions code or np.sum everywhere
+ * Updates to momentum distributions file
+   - Figure out consistent continuum and partial wave basis normalizations
+     * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
+   - Attach codes and figures
 
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes
@@ -40,4 +44,4 @@
 
 --- Misc. ---
  * Phase shift corrector function
- * Implementing Loguru, snoop, and heart rate?
+ * Implementing Loguru, snoop, and heart rate
