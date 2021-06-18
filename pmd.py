@@ -450,18 +450,6 @@ class pair_momentum_distributions(object):
             # 1, \delta U, and \delta U^2 where the 1 term includes two r-
             # integrations
             
-            # QUESTIONS:
-            # 1. Why do the 1 term and \delta U terms differ by a factor of
-            # (2*\pi)^3?
-            # 2. What should the normalization of \int d3q give with Q=0?
-            
-            # # 1 term
-            # n_lambda[i, 1] = 1/(2*np.pi)**3 * 2 * n_lambda_temp[i, 0] * \
-            #                   n_lambda_temp[i, 1]
-            
-            # # \delta U and \delta U^2 terms
-            # n_lambda[i, 2:] = n_lambda_temp[i, 2:]
-            
             # 1 term
             n_lambda[i, 1] = 2 * n_lambda_temp[i, 0] * n_lambda_temp[i, 1]
             
