@@ -8,6 +8,8 @@
  * Add 'Integrate' option to pmd.py
    - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
 
+ * Outline for new paper
+
  * Do He8 distributions
 
  * Derive pair momentum distribution with 3-body terms
