@@ -3,6 +3,8 @@
 
  * Add updated paper from arXiv to repository
 
+ * \lambda dependence: add \lambda values (10, 8, etc.) to n_{\lambda}^A(q) vs q figures
+
  * Add 'Integrate' option to pmd.py
    - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
 
