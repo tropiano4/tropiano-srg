@@ -18,7 +18,7 @@
 #                averaging over \int dr r^2 to snmd.py and pmd.py separately.
 #                Renamed from lda.py to densities.py where lda.py is now in
 #                Old_codes.
-#   06/17/21 --- Added He3 from www.phy.anl.gov/theory/research/density/.
+#   06/17/21 --- Added He4 from www.phy.anl.gov/theory/research/density/.
 #
 #------------------------------------------------------------------------------
 
