@@ -633,6 +633,8 @@ if __name__ == '__main__':
         
         
     # --- Test normalization of n(q, Q) --- #
+    import matplotlib.pyplot as plt
+    from Figures import figures_functions as ff
     from densities import load_density
     import time
     
@@ -640,16 +642,24 @@ if __name__ == '__main__':
     Q_array, Q_weights = gaussian_quadrature_mesh(3.0, Ntot)
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     
-    nucleus = 'C12'
-    Z = 6
-    N = 6
+    # nucleus = 'C12'
+    # Z = 6
+    # N = 6
     
-    r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+    nucleus = 'He4'
+    Z = 2
+    N = 2
+    
+    if nucleus == 'He4':
+        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
+        rho_n_array = rho_p_array
+    else:
+        r_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+        r_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
     
     # Get n_\lambda(q, Q) for each q and Q
     n_lambda_2d = np.zeros( (ntot, Ntot) )
-    factor = 4*np.pi/(2*np.pi**3)
+    factor = 4*np.pi/(2*np.pi)**3
     
     t0 = time.time()
     for iQ, Q in enumerate(Q_array):
@@ -668,3 +678,59 @@ if __name__ == '__main__':
     normalization = factor * np.sum(q_array**2*q_weights*n_lambda_1d)
     
     print('Normalization = %.5f' % normalization)
+    
+    # Figure size
+    row_number = 1
+    col_number = 1
+    figure_size = (4*col_number, 4*row_number)
+
+    # Axes labels and fontsize
+    x_label = 'q [fm' + r'$^{-1}$' + ']'
+    y_label = r'$n_{\lambda}^A(q)$' + ' [fm' + r'$^3$' + ']'
+
+    # Axes limits
+    xlim = (0.0, 5)
+    ylim = (1e-3, 1e4)
+
+    # Initialize figure
+    plt.close('all')
+    f, ax = plt.subplots(figsize=figure_size)
+    
+    # Set y-axis to log scale
+    ax.set_yscale('log')
+    
+    # Add curve to figure
+    ax.plot(q_array, 2*n_lambda_1d, color='xkcd:red',
+            label=ff.nuclei_label_conversion(nucleus) + ' pn')
+        
+    # Add AV18 data with error bars
+    av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd_q.txt' % nucleus)
+    # av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd_q_av18.txt' % nucleus)
+    q_array_av18 = av18_data[:, 0] # fm^-1
+    n_pn_array_av18 = av18_data[:, 1]
+    pn_error_bars_array_av18 = av18_data[:, 2]
+    
+    print(factor*np.sum(q_array_av18**2*0.1*n_pn_array_av18))
+            
+    # AV18 data with error bars
+    ax.errorbar(q_array_av18, n_pn_array_av18, yerr=pn_error_bars_array_av18,
+                color='xkcd:black', label='AV18 pn', linestyle='', marker='.')
+    
+    # Shade gray from 0 to \lambda value on plot
+    ax.fill_betweenx(ylim, 0.0, lamb, edgecolor='xkcd:grey', facecolor='xkcd:grey', alpha=0.3)
+
+    # Specify axes limits
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+        
+    # Set axes labels
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+
+    # Add legend
+    legend_location = 'upper right'
+    ax.legend(loc=legend_location, frameon=False)
+    
+    plt.show()
+    
+    
