@@ -5,6 +5,9 @@
 
  * Add 'Integrate' option to pmd.py
    - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
+   - Try C12
+
+ * Read Neff/Feldmeyer paper
 
  * Outline for new paper
 
