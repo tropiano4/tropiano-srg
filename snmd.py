@@ -265,7 +265,7 @@ class single_nucleon_momentum_distributions(object):
 
         Returns
         -------
-        output : 1-D ndarray
+        theta_deltaU : 1-D ndarray
             \theta function evaluated at each momenta k. This is a unitless
             array of length ntot where ntot = len(k_array).
             
@@ -326,7 +326,7 @@ class single_nucleon_momentum_distributions(object):
 
         Returns
         -------
-        output : 1-D ndarray
+        theta_deltaU2 : 1-D ndarray
             \theta function evaluated at each momenta k. This is a unitless
             array of length ntot where ntot = len(k_array).
             
@@ -355,7 +355,7 @@ class single_nucleon_momentum_distributions(object):
             # Case 2: 2k+K > 2kF_1 and 2k+K > 2kF_2 and 
             # 4k^2+K^2 < 2(kF_1^2+kF_2^2)
             elif 2*k+K > 2*kF_1 and 2*k+K > 2*kF_2 and \
-                  4*k**2 + K**2 <= 2*(kF_1**2 + kF_2**2):
+                 4*k**2 + K**2 <= 2*(kF_1**2 + kF_2**2):
                 theta_deltaU2[i] = ( 2*(kF_1**2 + kF_2**2) - 4*k**2 - K**2 ) \
                                     / (4*k*K)
                             
