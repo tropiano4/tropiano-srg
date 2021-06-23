@@ -8,8 +8,7 @@
 # 
 # Calculates SRG-evolved single-nucleon momentum distributions for nuclei
 # assuming the evolved wave function is given by a free Fermi gas. (Note,
-# 'snmd' stands for single-nucleon momentum distribution.) This script is based
-# off single_particle_momentum_dist.py and snmd_v1.py in Old_codes.
+# 'snmd' stands for single-nucleon momentum distribution.)
 #
 # Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 # screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!

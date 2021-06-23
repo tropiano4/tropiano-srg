@@ -7,9 +7,7 @@
 # Date:     March 30, 2021
 # 
 # Calculates SRG-evolved deuteron momentum distributions. (Note, 'dmd' stands
-# for deuteron momentum distribution.) Combine these functions with lda.py for
-# nuclear-averaged momentum distributions which can then be used for
-# calculation of A/d ratios with snmd.py.
+# for deuteron momentum distribution.)
 #
 # Notes on normalizations:
 #   1. The deuteron wave function describing relative position or momentum is
