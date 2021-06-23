@@ -354,8 +354,7 @@ class pair_momentum_distributions(object):
         return theta_mesh
     
     
-    def n_I(self, q_array, q_weights, Q_array, Q_weights, R_array, dR,
-            kF1_array, kF2_array):
+    def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array):
         """
         Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
 
@@ -363,12 +362,8 @@ class pair_momentum_distributions(object):
         ----------
         q_array : 1-D ndarray
             Relative momentum values [fm^-1].
-        q_weights : 1-D ndarray
-            Relative momentum weights [fm^-1].
         Q_array : 1-D ndarray
             C.o.M. momentum values [fm^-1].
-        Q_weights : 1-D ndarray
-            C.o.M. momentum weights [fm^-1].
         R_array : 1-D ndarray
             C.o.M. coordinates [fm].
         dR : float
@@ -391,13 +386,23 @@ class pair_momentum_distributions(object):
         q_mesh, Q_mesh, R_mesh, Rp_mesh = np.meshgrid(q_array, Q_array,
                                                       R_array, R_array,
                                                       indexing='ij')
-        # Get kF1(R) and kF2(R') meshes
+        # Get 4-D kF1(R) and kF2(R') meshes
+        _, _, kF1_mesh, kF2_mesh = np.meshgrid(q_array, Q_array, kF1_array,
+                                               kF2_array, indexing='ij')
         
-        return 2 * self.theta_1_deltaU(kF_1, kF_2, q, Q)
+        # Evaluate angle-average of \theta-functions in I term
+        theta_mesh = self.theta_I(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        
+        # Integrate over R'
+        integrand_R = 4*np.pi * np.sum(theta_mesh * Rp_mesh**2 * dR, axis=-1)
+        
+        # Integrate over R (factor of 2 for sum over spin projections)
+        # This is a (ntot_q, ntot_Q) size array
+        return 2 * 4*np.pi * np.sum(integrand_R * R_mesh**2 * dR, axis=-1)
     
     
-    def n_deltaU(self, q_array, q_weights, Q_array, Q_weights, R_array, dR,
-                 kF1_array, kF2_array, distribution='pn'):
+    def n_deltaU(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array,
+                 distribution='pn'):
         """
         Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
         we are combining \delta U and \delta U^\dagger, hence the factor of 2.
@@ -406,12 +411,8 @@ class pair_momentum_distributions(object):
         ----------
         q_array : 1-D ndarray
             Relative momentum values [fm^-1].
-        q_weights : 1-D ndarray
-            Relative momentum weights [fm^-1].
         Q_array : 1-D ndarray
             C.o.M. momentum values [fm^-1].
-        Q_weights : 1-D ndarray
-            C.o.M. momentum weights [fm^-1].
         R_array : 1-D ndarray
             C.o.M. coordinates [fm].
         dR : float
@@ -435,11 +436,24 @@ class pair_momentum_distributions(object):
 
         """
         
-        # Evaluate \theta( kF_1(r) - |Q/2+q| ) \theta( kF_2(r) - |Q/2-q| )
-        theta = self.theta_1_deltaU(kF_1, kF_2, q, Q)
+        # Initialize 3-D meshgrids (q, Q, R)
+        q_mesh, Q_mesh, R_mesh = np.meshgrid(q_array, Q_array, R_array,
+                                             indexing='ij')
         
-        # Find index of q in k_array
-        q_index = find_q_index(q, self.k_array)
+        # Get 3-D kF1(R) and kF2(R) meshes
+        _, _, kF1_mesh = np.meshgrid(q_array, Q_array, kF1_array,
+                                     indexing='ij')
+        _, _, kF2_mesh = np.meshgrid(q_array, Q_array, kF2_array,
+                                     indexing='ij')
+        
+        # Evaluate angle-average of \theta-functions in \delta U term
+        theta_mesh = self.theta_deltaU(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        
+        # Evaluate < q | \delta U | q >
+        if distribution == 'pp':
+            deltaU_mesh = self.deltaU_pp_func(q_mesh)
+        elif distribution == 'pn':
+            deltaU_mesh = self.deltaU_pn_func(q_mesh)
 
         # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
         # combine to give 1
@@ -448,16 +462,16 @@ class pair_momentum_distributions(object):
         # 1/(4\pi) for averaging over \int d\Omega_q
         deltaU_factor =  2 * 2/np.pi * (2*np.pi)**3/(4*np.pi)
         
-        # Evaluate pp or pn < k | \delta U | k > matrix elements (or nn and np
-        # if kF_1 corresponds to a neutron)
-        if distribution == 'pp':
-            return deltaU_factor * self.deltaU_pp[q_index, q_index] * theta
-        elif distribution == 'pn':
-            return deltaU_factor * self.deltaU_pn[q_index, q_index] * theta
+        # Calculate R integrand (ntot_q, ntot_Q, ntot_R)
+        integrand_R = deltaU_factor * deltaU_mesh * theta_mesh
+        
+        # Integrate over R
+        # This is a (ntot_q, ntot_Q) size array
+        return 4*np.pi * np.sum(integrand_R * R_mesh**2 * dR, axis=-1)
         
     
-    def n_deltaU2(self, q_array, q_weights, Q_array, Q_weights, R_array, dR,
-                  kF1_array, kF2_array, distribution='pn'):
+    def n_deltaU2(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array,
+                  distribution='pn'):
         """
         Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
 
@@ -465,12 +479,8 @@ class pair_momentum_distributions(object):
         ----------
         q_array : 1-D ndarray
             Relative momentum values [fm^-1].
-        q_weights : 1-D ndarray
-            Relative momentum weights [fm^-1].
         Q_array : 1-D ndarray
             C.o.M. momentum values [fm^-1].
-        Q_weights : 1-D ndarray
-            C.o.M. momentum weights [fm^-1].
         R_array : 1-D ndarray
             C.o.M. coordinates [fm].
         dR : float
@@ -494,51 +504,81 @@ class pair_momentum_distributions(object):
 
         """
         
-        # Create integration mesh k_array from minimum and maximum k values
-        # corresponding to the limits of \theta(kF(r)-|Q_vec/2 +(-) k_vec|)
-        kF_min = min(kF_1, kF_2)
-        kmin_delU2 = max(Q/2 - kF_min, 0)
-        if Q**2/4 < ( kF_1**2 + kF_2**2 )/2:
-            kmax_delU2 = min( np.sqrt( ( kF_1**2 + kF_2**2 )/2 - Q**2/4 ),
-                              kF_min + Q/2 )
-        else:
-            kmax_delU2 = kF_min + Q/2
-
-        # Select number of integration points based on kmax_delU2
-        ntot_delU2 = self.select_number_integration_points( kmax_delU2,
-                                                            kmin_delU2 )
-
-        # Get Gaussian quadrature mesh
-        k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
-                                         ntot_delU2, xmin=kmin_delU2)
+        # Set number of k points for integration over k
+        self.ntot_k = 60
         
-        # Evaluate \theta( kF_1(r) - |Q/2+k| ) \theta( kF_2(r) - |Q/2-k| )
-        theta_array = self.theta_deltaU2(kF_1, kF_2, Q, k_array_delU2,
-                                         ntot_delU2)
-          
-        # Evaluate pp or pn < k | \delta U | q >^2 matrix elements (or nn and
-        # np if kF_1 corresponds to a neutron)
+        # Initialize 4-D meshgrids (q, Q, R, k) with k values equal to 0
+        q_mesh, Q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, Q_array, R_array,
+                                                     np.zeros(self.ntot_k),
+                                                     indexing='ij')
+        
+        # Get 4-D kF1(R) and kF2(R) meshes and initialize k weights mesh
+        _, _, kF1_mesh, dk_mesh = np.meshgrid(q_array, Q_array, kF1_array,
+                                              np.zeros(self.ntot_k),
+                                              indexing='ij')
+        _, _, kF2_mesh, _ = np.meshgrid(q_array, Q_array, kF2_array,
+                                        np.zeros(self.ntot_k), indexing='ij')
+
+        # Loop over q, Q, and R to find limits of k integration and then create
+        # k array using Gaussian quadrature
+        # Is there a faster way to do this?
+        for iq in range(self.ntot_q):
+            for iQ, Q in enumerate(Q_array):
+                for iR, R in enumerate(R_array):
+                
+                    kF1, kF2 = kF1_array[iR], kF2_array[iR]
+                
+                    # Minimum kF value
+                    kF_min = min(kF1, kF2)
+                
+                    # Lower limit of integration
+                    k_min = max(Q/2 - kF_min, 0)
+                
+                    # Upper limit of integration
+                    if Q**2/4 < (kF1**2 + kF2**2)/2:
+                        k_max = min( np.sqrt( ( kF1**2 + kF2**2 )/2 - Q**2/4 ),
+                                     kF_min + Q/2 )
+                    else:
+                        k_max = kF_min + Q/2
+                    
+                    # Get Gaussian quadrature mesh
+                    k_array, k_weights = gaussian_quadrature_mesh(k_max,
+                                                                  self.ntot_k,
+                                                                  xmin=k_min)
+                
+                    # Fill in k_mesh and dk_mesh given the specific k_array
+                    k_mesh[iq, iQ, iR, :] = k_array
+                    dk_mesh[iq, iQ, iR, :] = k_weights
+                    
+                    
+        # Evaluate angle-average of \theta-functions in \delta U^2 term
+        theta_mesh = self.theta_deltaU2(Q_mesh, kF1_mesh, kF2_mesh, k_mesh)
+        
+        # Evaluate < k | \delta U | q > < q | \delta U^\dagger | k >
         if distribution == 'pp':
-            deltaU2 = self.deltaU2_pp_func.ev(k_array_delU2, q)
+            deltaU2_mesh = self.deltaU2_pp_func.ev(k_mesh, q_mesh)
         elif distribution == 'pn':
-            deltaU2 = self.deltaU2_pn_func.ev(k_array_delU2, q)
-        
-        # Build integrand for k integration
-        integrand_k = k_array_delU2**2 * k_weights_delU2 * deltaU2 * \
-                      theta_array
-                      
+            deltaU2_mesh = self.deltaU2_pn_func(k_mesh, q_mesh)
+
         # Contractions of a's, 1/4 factors, and [ 1 - (-1)^(L+S+T) ] factors
         # combine to give 1
         # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
         # 1/(4\pi) for averaging over \int d\Omega_q
         deltaU2_factor =  (2/np.pi)**2 * (2*np.pi)**3/(4*np.pi)
         
-        # Integrate over k
-        return deltaU2_factor * np.sum(integrand_k)
-    
-    
-    def n_total(self, q_array, q_weights, Q_array, Q_weights, R_array, dR,
-                rho_1_array, rho_2_array=np.empty(0)):
+        # Calculate k integrand (ntot_q, ntot_Q, ntot_R, ntot_k)
+        integrand_k = deltaU2_factor * deltaU2_mesh * theta_mesh
+        
+        # Integrate over k leaving R integrand
+        integrand_R = np.sum(integrand_k * k_mesh**2 * dk_mesh, axis=-1)
+
+        # Integrate over R
+        # This is a (ntot_q, ntot_Q) size array
+        return 4*np.pi * np.sum(integrand_R * R_mesh**2 * dR, axis=-1)
+
+
+    def n_total(self, q_array, Q_array, R_array, dR, rho_1_array,
+                rho_2_array=np.empty(0)):
         """
         Pair momentum distribution where the nucleonic densities specify the
         nucleus and distribution type (e.g., O16 and pn).
@@ -547,12 +587,8 @@ class pair_momentum_distributions(object):
         ----------
         q_array : 1-D ndarray
             Relative momentum values [fm^-1].
-        q_weights : 1-D ndarray
-            Relative momentum weights [fm^-1].
         Q_array : 1-D ndarray
             C.o.M. momentum values [fm^-1].
-        Q_weights : 1-D ndarray
-            C.o.M. momentum weights [fm^-1].
         R_array : 1-D ndarray
             C.o.M. coordinates [fm].
         dR : float
@@ -573,67 +609,36 @@ class pair_momentum_distributions(object):
 
         """
         
-        # Number of columns for output array (total, 1, \delta U, \delta U^2)
-        axes = 4
-            
-        # Number of r_array points
-        mtot = len(r_array)
-        r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
-        dr = 0.1 # Spacing between r-points
-            
-        # Length of q_array
-        ntot = len(q_array)
-        
-        # Evaluate n_\lambda(q, kF) contributions at each point in q_array,
-        # rho_1_array, and rho_2_array
-        n_lambda = np.zeros( (ntot, axes) )
+        # Save lengths of q_array, Q_array, and R_array
+        self.ntot_q = len(q_array)
+        self.ntot_Q = len(Q_array)
+        self.ntot_R = len(R_array)
 
-        # Evaluate kF values at each point in r_array
+        # Evaluate kF values at each point in R_array
         kF1_array = (3*np.pi**2 * rho_1_array)**(1/3)
-        # Calculate kF_2 array if pn or np distribution
+        # Calculate kF2 array if pn or np distribution
         if rho_2_array.any():
             kF2_array = (3*np.pi**2 * rho_2_array)**(1/3)
             distribution = 'pn'
-        # Otherwise set kF_2 to kF_1 where previous functions will give pp or
-        # nn distributions (depending on kF_1)
+        # Otherwise set kF2=kF1 where previous functions will give pp or nn
+        # distributions (depending on kF_1)
         else:
             kF2_array = kF1_array
             distribution = 'pp'
             
-        # Loop over q
-        for i, q in enumerate(q_array):
-    
-            # n_lambda contributions before integrating over r
-            n_lambda_r = np.zeros( (mtot, axes) )
-            
-            # Loop over kF values
-            for j, (kF_1, kF_2) in enumerate( zip(kF1_array, kF2_array) ):
-                
-                # Two r integrations for 1 * n(q) * 1 term
-                term_1_rp = np.zeros(mtot)
-                for ikF2, kF2 in enumerate(kF2_array):
-                    # r' integrand
-                    term_1_rp[ikF2] = self.n_1(q, Q, kF_1, kF2)
-                    
-                # Integrate over d3r' for term I (haven't done d3r here)
-                term_1 = 4*np.pi*dr * np.sum(r_array**2 * term_1_rp)
-                # Set-up r integrand for other contributions as well
-                term_deltaU = self.n_deltaU(q, Q, kF_1, kF_2, distribution)
-                term_deltaU2 = self.n_deltaU2(q, Q, kF_1, kF_2, distribution)
-                total = term_1 + term_deltaU + term_deltaU2
-                
-                n_lambda_r[j, :] = total, term_1, term_deltaU, term_deltaU2
-
-            # Integrate over 4\pi \int dr r^2 for each contribution (summing
-            # over axis=0)
-            n_lambda[i, :] = 4*np.pi*dr * np.sum(r2_grid * n_lambda_r, axis=0)
-
-        # Return (ntot, 4) array of contributions to n_\lambda^\tau(q)
-        return n_lambda
+        # Get each contribution with respect to q and Q
+        n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
+        n_deltaU = self.n_deltaU(q_array, Q_array, R_array, dR, kF1_array,
+                                 kF2_array, distribution)
+        n_deltaU2 = self.n_deltaU2(q_array, Q_array, R_array, dR, kF1_array,
+                                   kF2_array, distribution)
+        
+        # Return total (ntot_q, ntot_Q)
+        return n_I + n_deltaU + n_deltaU2
     
     
-    def n_contributions(self, q_array, q_weights, Q_array, Q_weights, R_array,
-                        dR, rho_1_array, rho_2_array=np.empty(0)):
+    def n_contributions(self, q_array, Q_array, R_array, dR, rho_1_array,
+                        rho_2_array=np.empty(0)):
         """
         Contributions to the pair momentum distribution where the nucleonic
         densities specify the nucleus and distribution type (e.g., O16 and pn).
@@ -644,12 +649,8 @@ class pair_momentum_distributions(object):
         ----------
         q_array : 1-D ndarray
             Relative momentum values [fm^-1].
-        q_weights : 1-D ndarray
-            Relative momentum weights [fm^-1].
         Q_array : 1-D ndarray
             C.o.M. momentum values [fm^-1].
-        Q_weights : 1-D ndarray
-            C.o.M. momentum weights [fm^-1].
         R_array : 1-D ndarray
             C.o.M. coordinates [fm].
         dR : float
@@ -672,7 +673,33 @@ class pair_momentum_distributions(object):
 
         """
         
-        return None
+        # Save lengths of q_array, Q_array, and R_array
+        self.ntot_q = len(q_array)
+        self.ntot_Q = len(Q_array)
+        self.ntot_R = len(R_array)
+
+        # Evaluate kF values at each point in R_array
+        kF1_array = (3*np.pi**2 * rho_1_array)**(1/3)
+        # Calculate kF2 array if pn or np distribution
+        if rho_2_array.any():
+            kF2_array = (3*np.pi**2 * rho_2_array)**(1/3)
+            distribution = 'pn'
+        # Otherwise set kF2=kF1 where previous functions will give pp or nn
+        # distributions (depending on kF_1)
+        else:
+            kF2_array = kF1_array
+            distribution = 'pp'
+            
+        # Get each contribution with respect to q and Q
+        n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
+        n_deltaU = self.n_deltaU(q_array, Q_array, R_array, dR, kF1_array,
+                                 kF2_array, distribution)
+        n_deltaU2 = self.n_deltaU2(q_array, Q_array, R_array, dR, kF1_array,
+                                   kF2_array, distribution)
+        
+        # Return tuple of contributions ( (ntot_q, ntot_Q), ... )
+        return n_I, n_deltaU, n_deltaU2
+    
         
 if __name__ == '__main__':
     
