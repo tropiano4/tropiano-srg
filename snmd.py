@@ -206,6 +206,15 @@ class single_nucleon_momentum_distributions(object):
             self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
                                                        deltaU2_pn)
             
+            # print(deltaU_pp)
+            # print(deltaU_pn)
+            # print(deltaU2_pp)
+            # print(deltaU2_pn)
+            print(self.deltaU_pp_func(2.0))
+            print(self.deltaU2_pp_func.ev(2.0, 2.0))
+            print(self.deltaU_pn_func(2.0))
+            print(self.deltaU2_pn_func.ev(2.0, 2.0))
+            
 
     def select_number_integration_points(self, k_max, k_min=0.0):
         """

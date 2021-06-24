@@ -25,10 +25,10 @@
 
 
 import numpy as np
+from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
 from Misc.integration import gaussian_quadrature_mesh
 from Potentials.vsrg_macos import vnn
-from scipy.interpolate import interp1d, RectBivariateSpline
 from SRG.srg_unitary_transformation import SRG_unitary_transformation
 
 
@@ -152,7 +152,7 @@ class pair_momentum_distributions(object):
                     deltaU_pp += (2*J+1) * delta_U_matrix
                     deltaU2_pp += (2*J+1) * delta_U_matrix**2
 
-        # Interpolate pp and pn < k | \delta U | k > matrix elements
+        # Interpolate pp and pn < k | \delta U | k >
         self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
                                         bounds_error=False,
                                         fill_value='extrapolate' )
@@ -161,7 +161,6 @@ class pair_momentum_distributions(object):
                                         fill_value='extrapolate' )
         
         # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
-        # matrix elements
         self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
                                                    deltaU2_pp)
         self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
@@ -215,7 +214,7 @@ class pair_momentum_distributions(object):
                  ( 2*q_mesh + Q_mesh > 2*kF2_mesh ) * \
                  ( 4*q_mesh**2 + Q_mesh**2 <= 2*(kF1_mesh**2 + kF2_mesh**2) )    
         theta_mesh[case_2] = ( ( 2*(kF1_mesh**2+kF2_mesh**2) - 4*q_mesh**2 - \
-                             Q_mesh**2 ) / (4*q_mesh*Q_mesh) )[case_2]
+                               Q_mesh**2 ) / (4*q_mesh*Q_mesh) )[case_2]
                             
         # Case 3: 2q+Q < 2kF2 and -4 < (4q^2 - 4kF1^2 + Q^2)/(qQ) < 4
         case_3 = ( 2*q_mesh + Q_mesh <= 2*kF2_mesh ) * \
@@ -224,7 +223,7 @@ class pair_momentum_distributions(object):
                  ( (4*q_mesh**2-4*kF1_mesh**2+Q_mesh**2) / \
                  (q_mesh*Q_mesh) <= 4 )
         theta_mesh[case_3] = ( ( 4*kF1_mesh**2 - (Q_mesh-2*q_mesh)**2 ) / \
-                             (8*q_mesh*Q_mesh) )[case_3]
+                               (8*q_mesh*Q_mesh) )[case_3]
                 
         # Case 4: 2q+Q < 2kF1 and -4 < (4q^2 - 4kF2^2 + Q^2)/(qQ) < 4
         case_4 = ( 2*q_mesh + Q_mesh <= 2*kF1_mesh ) * \
@@ -233,7 +232,7 @@ class pair_momentum_distributions(object):
                  ( (4*q_mesh**2-4*kF2_mesh**2+Q_mesh**2) / \
                  (q_mesh*Q_mesh) <= 4 )
         theta_mesh[case_4] = ( ( 4*kF2_mesh**2 - (Q_mesh-2*q_mesh)**2 ) / \
-                             (8*q_mesh*Q_mesh) )[case_4]
+                               (8*q_mesh*Q_mesh) )[case_4]
         
         # This is a (ntot_q, ntot_Q, ntot_R, ntot_R) size array
         return theta_mesh
@@ -286,7 +285,7 @@ class pair_momentum_distributions(object):
                  ( 2*q_mesh + Q_mesh > 2*kF2_mesh ) * \
                  ( 4*q_mesh**2 + Q_mesh**2 <= 2*(kF1_mesh**2 + kF2_mesh**2) )    
         theta_mesh[case_2] = ( ( 2*(kF1_mesh**2+kF2_mesh**2) - 4*q_mesh**2 - \
-                             Q_mesh**2 ) / (4*q_mesh*Q_mesh) )[case_2]
+                               Q_mesh**2 ) / (4*q_mesh*Q_mesh) )[case_2]
                             
         # Case 3: 2q+Q < 2kF2 and -4 < (4q^2 - 4kF1^2 + Q^2)/(qQ) < 4
         case_3 = ( 2*q_mesh + Q_mesh <= 2*kF2_mesh ) * \
@@ -295,7 +294,7 @@ class pair_momentum_distributions(object):
                  ( (4*q_mesh**2-4*kF1_mesh**2+Q_mesh**2) / \
                  (q_mesh*Q_mesh) <= 4 )
         theta_mesh[case_3] = ( ( 4*kF1_mesh**2 - (Q_mesh-2*q_mesh)**2 ) / \
-                             (8*q_mesh*Q_mesh) )[case_3]
+                               (8*q_mesh*Q_mesh) )[case_3]
                 
         # Case 4: 2q+Q < 2kF1 and -4 < (4q^2 - 4kF2^2 + Q^2)/(qQ) < 4
         case_4 = ( 2*q_mesh + Q_mesh <= 2*kF1_mesh ) * \
@@ -304,7 +303,7 @@ class pair_momentum_distributions(object):
                  ( (4*q_mesh**2-4*kF2_mesh**2+Q_mesh**2) / \
                  (q_mesh*Q_mesh) <= 4 )
         theta_mesh[case_4] = ( ( 4*kF2_mesh**2 - (Q_mesh-2*q_mesh)**2 ) / \
-                             (8*q_mesh*Q_mesh) )[case_4]
+                               (8*q_mesh*Q_mesh) )[case_4]
         
         # This is a (ntot_q, ntot_Q, ntot_R) size array
         return theta_mesh
@@ -360,7 +359,7 @@ class pair_momentum_distributions(object):
                  ( 2*k_mesh + Q_mesh > 2*kF2_mesh ) * \
                  ( 4*k_mesh**2 + Q_mesh**2 <= 2*(kF1_mesh**2 + kF2_mesh**2) )    
         theta_mesh[case_2] = ( ( 2*(kF1_mesh**2+kF2_mesh**2) - 4*k_mesh**2 - \
-                             Q_mesh**2 ) / (4*k_mesh*Q_mesh) )[case_2]
+                               Q_mesh**2 ) / (4*k_mesh*Q_mesh) )[case_2]
                             
         # Case 3: 2k+Q < 2kF2 and -4 < (4k^2 - 4kF1^2 + Q^2)/(kQ) < 4
         case_3 = ( 2*k_mesh + Q_mesh <= 2*kF2_mesh ) * \
@@ -369,7 +368,7 @@ class pair_momentum_distributions(object):
                  ( (4*k_mesh**2-4*kF1_mesh**2+Q_mesh**2) / \
                  (k_mesh*Q_mesh) <= 4 )
         theta_mesh[case_3] = ( ( 4*kF1_mesh**2 - (Q_mesh-2*k_mesh)**2 ) / \
-                             (8*k_mesh*Q_mesh) )[case_3]
+                               (8*k_mesh*Q_mesh) )[case_3]
                 
         # Case 4: 2k+Q < 2kF1 and -4 < (4k^2 - 4kF2^2 + Q^2)/(kQ) < 4
         case_4 = ( 2*k_mesh + Q_mesh <= 2*kF1_mesh ) * \
@@ -378,7 +377,7 @@ class pair_momentum_distributions(object):
                  ( (4*k_mesh**2-4*kF2_mesh**2+Q_mesh**2) / \
                  (k_mesh*Q_mesh) <= 4 )
         theta_mesh[case_4] = ( ( 4*kF2_mesh**2 - (Q_mesh-2*k_mesh)**2 ) / \
-                             (8*k_mesh*Q_mesh) )[case_4]
+                               (8*k_mesh*Q_mesh) )[case_4]
         
         # This is a (ntot_q, ntot_Q, ntot_R, ntot_k) size array
         return theta_mesh
@@ -539,7 +538,7 @@ class pair_momentum_distributions(object):
         """
         
         # Set number of k points for integration over k
-        self.ntot_k = 60
+        self.ntot_k = 50
         
         # Initialize 4-D meshgrids (q, Q, R, k) with k values equal to 0
         q_mesh, Q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, Q_array, R_array,
@@ -809,37 +808,37 @@ if __name__ == '__main__':
     pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
     
     
-    # # --- Compare to old pmd_new.py --- #
-    # from pmd_v2 import pair_momentum_distributions as pmd_v2
-    # from densities import load_density
-    # import time
+    # --- Compare to old pmd_new.py --- #
+    from pmd_v2 import pair_momentum_distributions as pmd_v2
+    from densities import load_density
+    import time
     
-    # nucleus = 'C12'
-    # Z = 6
-    # N = 6
+    nucleus = 'C12'
+    Z = 6
+    N = 6
     
-    # R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    # R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    # dR = 0.1
+    R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+    R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+    dR = R_array[1] - R_array[0]
     
-    # ntot_Q = 10
-    # Q_array, Q_weights = gaussian_quadrature_mesh(3.0, ntot_Q)
-    # q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    ntot_Q = 6
+    Q_array, Q_weights = gaussian_quadrature_mesh(3.0, ntot_Q)
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     
-    # t0 = time.time()
-    # n_total_new = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
-    #                           rho_n_array)
-    # t1 = time.time()
-    # print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
+    t0 = time.time()
+    n_total_new = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
+                              rho_n_array)
+    t1 = time.time()
+    print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
     
-    # t2 = time.time()
-    # pmd_old = pmd_v2(kvnn, channels, lamb, kmax, kmid, ntot)
-    # n_total_old = np.zeros( (ntot, ntot_Q) )
-    # for iQ, Q in enumerate(Q_array):
-    #     n_total_old[:, iQ] = pmd_old.n_lambda(q_array, Q, R_array, rho_p_array,
-    #                                           rho_n_array)[:, 0]
-    # t3 = time.time()
-    # print( '%.5f minutes elapsed.' % ( (t3-t2)/60 ) )
+    t2 = time.time()
+    pmd_old = pmd_v2(kvnn, channels, lamb, kmax, kmid, ntot)
+    n_total_old = np.zeros( (ntot, ntot_Q) )
+    for iQ, Q in enumerate(Q_array):
+        n_total_old[:, iQ] = pmd_old.n_lambda(q_array, Q, R_array, rho_p_array,
+                                              rho_n_array)[:, 0]
+    t3 = time.time()
+    print( '%.5f minutes elapsed.' % ( (t3-t2)/60 ) )
     
     
     # # --- Q = 0 comparison to old code --- #
