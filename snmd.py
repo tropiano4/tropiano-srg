@@ -405,12 +405,17 @@ class single_nucleon_momentum_distributions(object):
         # summing over particle spin projection \sigma
         if q < kF_1:
             
-            return 2
+            t = 2
+            # return 2
         
         else:
+            t = 0
+            # return 0
             
-            return 0
-        
+        # TESTING
+        print(t, kF_1)
+        return t
+    
         
     def n_deltaU(self, q, kF_1, kF_2):
         """
