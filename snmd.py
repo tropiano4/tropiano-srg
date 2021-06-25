@@ -7,7 +7,7 @@
 # Date:     March 25, 2021
 # 
 # Calculates SRG-evolved single-nucleon momentum distributions for nuclei
-# assuming the evolved wave function is given by a free Fermi gas. (Note,
+# assuming the evolved wave function is given by HF treated in LDA. (Note,
 # 'snmd' stands for single-nucleon momentum distribution.)
 #
 # Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are

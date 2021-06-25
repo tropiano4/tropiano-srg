@@ -7,7 +7,7 @@
 # Date:     March 31, 2021
 # 
 # Calculates SRG-evolved pair momentum distributions for nuclei assuming the
-# evolved wave function is given by a free Fermi gas. (Note, 'pmd' stands for
+# evolved wave function is given by HF treated in LDA. (Note, 'pmd' stands for
 # pair momentum distribution.)
 #
 # Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are

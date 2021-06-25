@@ -7,7 +7,7 @@
 # Date:     March 25, 2021
 # 
 # Calculates SRG-evolved single-nucleon momentum distributions for nuclei
-# assuming the evolved wave function is given by a free Fermi gas. (Note,
+# assuming the evolved wave function is given by HF treated in LDA. (Note,
 # 'snmd' stands for single-nucleon momentum distribution.)
 #
 # Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
@@ -181,15 +181,6 @@ class single_nucleon_momentum_distributions(object):
                                                    deltaU2_pp)
         self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
                                                    deltaU2_pn)
-        
-        # print(deltaU_pp)
-        # print(deltaU_pn)
-        # print(deltaU2_pp)
-        # print(deltaU2_pn)
-        print(self.deltaU_pp_func(2.0))
-        print(self.deltaU2_pp_func.ev(2.0, 2.0))
-        print(self.deltaU_pn_func(2.0))
-        print(self.deltaU2_pn_func.ev(2.0, 2.0))
 
 
     def theta_I(self, q_mesh, kF1_mesh):

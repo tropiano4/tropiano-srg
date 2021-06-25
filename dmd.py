@@ -14,7 +14,7 @@
 #      normalized according to
 #        \int dr r^2 ( |\psi_3S1(r)|^2 + |\psi_3D1(r)|^2 ) = 1,
 #        2/\pi * \int dk k^2 ( |\psi_{3S1}(k)|^2 + |\psi_{3D1}(k)|^2 ) = 1.
-#   2. Under LDA, we adopt the normalization
+#   2. Under HF+LDA, we adopt the normalization
 #        4\pi / (2\pi)^3 \int dk k^2 < n_d^N(k) > = 1,
 #        4\pi / (2\pi)^3 \int dk k^2 < n_d^{pn}(k) > = 1,
 #      where angled-brackets indicate nuclear-averaging.
