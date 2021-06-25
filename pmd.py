@@ -154,10 +154,10 @@ class pair_momentum_distributions(object):
 
         # Interpolate pp and pn < k | \delta U | k >
         self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
-                                        bounds_error=False,
+                                        kind='cubic', bounds_error=False,
                                         fill_value='extrapolate' )
         self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
-                                        bounds_error=False,
+                                        kind='cubic', bounds_error=False,
                                         fill_value='extrapolate' )
         
         # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
@@ -822,7 +822,7 @@ if __name__ == '__main__':
     dR = R_array[1] - R_array[0]
     
     ntot_Q = 6
-    Q_array, Q_weights = gaussian_quadrature_mesh(3.0, ntot_Q)
+    Q_array, Q_weights = gaussian_quadrature_mesh(2.5, ntot_Q)
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     
     t0 = time.time()

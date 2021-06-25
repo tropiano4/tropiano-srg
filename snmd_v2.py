@@ -169,6 +169,12 @@ class single_nucleon_momentum_distributions(object):
                     deltaU2_pp += (2*J+1) * delta_U_matrix**2
 
         # Interpolate pp and pn < k | \delta U | k >
+        # self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
+        #                                 kind='cubic', bounds_error=False,
+        #                                 fill_value='extrapolate' )
+        # self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
+        #                                 kind='cubic', bounds_error=False,
+        #                                 fill_value='extrapolate' )
         self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
                                         bounds_error=False,
                                         fill_value='extrapolate' )
@@ -208,9 +214,6 @@ class single_nucleon_momentum_distributions(object):
         # Gives 1 if q < kF1(R)
         theta_mesh[ q_mesh < kF1_mesh ] = 1
         
-        # TESTING: print values for theta_mesh at first q value
-        print(theta_mesh[0, :], kF1_mesh[0, :])
-        
         # This is a (ntot_q, ntot_R) size array
         return theta_mesh
         
@@ -249,23 +252,30 @@ class single_nucleon_momentum_distributions(object):
         # This applies to each case: q < kF1
         case_all = q_mesh < kF1_mesh
         
-        # Case 1: q < kF and 2k < kF-q
-        case_1 = case_all * ( q_mesh < kF2_mesh ) * \
-                 ( 2*k_mesh < kF2_mesh - q_mesh )
-        theta_mesh[case_1] = 1
-        
+        # Case 3: q-kF < 2k < kF+q
+        case_3 = case_all * ( q_mesh - kF2_mesh < 2*k_mesh ) * \
+                 ( 2*k_mesh < kF2_mesh + q_mesh )
+        theta_mesh[case_3] = ( ( kF2_mesh**2 - ( q_mesh - 2*k_mesh )**2 ) / \
+                               ( 8*k_mesh*q_mesh ) )[case_3]
+            
         # Case 2: q < kF and kF-q <= 2k < kF+q
         case_2 = case_all * ( q_mesh < kF2_mesh ) * \
                  ( kF2_mesh - q_mesh <= 2*k_mesh ) * \
                  ( 2*k_mesh < kF2_mesh + q_mesh )
         theta_mesh[case_2] = ( ( kF2_mesh**2 - ( q_mesh - 2*k_mesh )**2 ) / \
                                ( 8*k_mesh*q_mesh ) )[case_2]
-
-        # Case 3: q-kF < 2k < kF+q
-        case_3 = case_all * ( q_mesh - kF2_mesh < 2*k_mesh ) * \
-                 ( 2*k_mesh < kF2_mesh + q_mesh )
-        theta_mesh[case_3] = ( ( kF2_mesh**2 - ( q_mesh - 2*k_mesh )**2 ) / \
-                               ( 8*k_mesh*q_mesh ) )[case_3]
+        
+        # Case 1: q < kF and 2k < kF-q
+        case_1 = case_all * ( q_mesh < kF2_mesh ) * \
+                 ( 2*k_mesh < kF2_mesh - q_mesh )
+        theta_mesh[case_1] = 1
+            
+        # if kF2_mesh[0, 0, 0] == 1.3403121216955933:
+        #     print('kF = %.5f'%1.3403121216955933)
+        #     print(theta_mesh[0, 0, :])
+        
+        #     print('kF = %.5f'%3.4911565982475844e-06)
+        #     print(theta_mesh[0, -1, :])
 
         # This is a (ntot_q, ntot_R, ntot_k) size array
         return theta_mesh
@@ -300,33 +310,14 @@ class single_nucleon_momentum_distributions(object):
 
         """
         
+        # Figure out why case 4 happens when case 1 is true
+        
         # Initialize 4-D array
         theta_mesh = np.zeros( (self.ntot_q, self.ntot_R, self.ntot_K,
                                 self.ntot_k) )
         
         # Evaluate each boolean case and use these to fill in the theta_mesh
-
-        # Case 1: 2k+K < 2kF1 and 2k+K < 2kF2
-        case_1 = ( 2*k_mesh + K_mesh <= 2*kF1_mesh ) * \
-                 ( 2*k_mesh + K_mesh <= 2*kF2_mesh )
-        theta_mesh[case_1] = 1
-     
-        # Case 2: 2k+K > 2kF1 and 2k+K > 2kF2 and 4k^2+K^2 < 2(kF1^2+kF2^2)
-        case_2 = ( 2*k_mesh + K_mesh > 2*kF1_mesh ) * \
-                 ( 2*k_mesh + K_mesh > 2*kF2_mesh ) * \
-                 ( 4*k_mesh**2 + K_mesh**2 <= 2*(kF1_mesh**2 + kF2_mesh**2) )    
-        theta_mesh[case_2] = ( ( 2*(kF1_mesh**2+kF2_mesh**2) - 4*k_mesh**2 - \
-                                 K_mesh**2 ) / (4*k_mesh*K_mesh) )[case_2]
-                            
-        # Case 3: 2k+K < 2kF2 and -4 < (4k^2 - 4kF1^2 + K^2)/(kQ) < 4
-        case_3 = ( 2*k_mesh + K_mesh <= 2*kF2_mesh ) * \
-                 ( -4 < (4*k_mesh**2-4*kF1_mesh**2+K_mesh**2) / \
-                 (k_mesh*K_mesh) ) * \
-                 ( (4*k_mesh**2-4*kF1_mesh**2+K_mesh**2) / \
-                 (k_mesh*K_mesh) <= 4 )
-        theta_mesh[case_3] = ( ( 4*kF1_mesh**2 - (K_mesh-2*k_mesh)**2 ) / \
-                               (8*k_mesh*K_mesh) )[case_3]
-                
+        
         # Case 4: 2k+K < 2kF1 and -4 < (4k^2 - 4kF2^2 + K^2)/(kK) < 4
         case_4 = ( 2*k_mesh + K_mesh <= 2*kF1_mesh ) * \
                  ( -4 < (4*k_mesh**2-4*kF2_mesh**2+K_mesh**2) / \
@@ -335,6 +326,27 @@ class single_nucleon_momentum_distributions(object):
                  (k_mesh*K_mesh) <= 4 )
         theta_mesh[case_4] = ( ( 4*kF2_mesh**2 - (K_mesh-2*k_mesh)**2 ) / \
                                (8*k_mesh*K_mesh) )[case_4]
+            
+        # Case 3: 2k+K < 2kF2 and -4 < (4k^2 - 4kF1^2 + K^2)/(kQ) < 4
+        case_3 = ( 2*k_mesh + K_mesh <= 2*kF2_mesh ) * \
+                 ( -4 < (4*k_mesh**2-4*kF1_mesh**2+K_mesh**2) / \
+                 (k_mesh*K_mesh) ) * \
+                 ( (4*k_mesh**2-4*kF1_mesh**2+K_mesh**2) / \
+                 (k_mesh*K_mesh) <= 4 )
+        theta_mesh[case_3] = ( ( 4*kF1_mesh**2 - (K_mesh-2*k_mesh)**2 ) / \
+                               (8*k_mesh*K_mesh) )[case_3]
+            
+        # Case 2: 2k+K > 2kF1 and 2k+K > 2kF2 and 4k^2+K^2 < 2(kF1^2+kF2^2)
+        case_2 = ( 2*k_mesh + K_mesh > 2*kF1_mesh ) * \
+                 ( 2*k_mesh + K_mesh > 2*kF2_mesh ) * \
+                 ( 4*k_mesh**2 + K_mesh**2 <= 2*(kF1_mesh**2 + kF2_mesh**2) )    
+        theta_mesh[case_2] = ( ( 2*(kF1_mesh**2+kF2_mesh**2) - 4*k_mesh**2 - \
+                                 K_mesh**2 ) / (4*k_mesh*K_mesh) )[case_2]
+
+        # Case 1: 2k+K < 2kF1 and 2k+K < 2kF2
+        case_1 = ( 2*k_mesh + K_mesh <= 2*kF1_mesh ) * \
+                 ( 2*k_mesh + K_mesh <= 2*kF2_mesh )
+        theta_mesh[case_1] = 1
         
         # This is a (ntot_q, ntot_R, ntot_K, ntot_k) size array
         return theta_mesh
@@ -848,8 +860,8 @@ if __name__ == '__main__':
     # Test functions in single-nucleon momentum distributions
     
     kvnn = 6
-    # channels = ('1S0', '3S1')
-    channels = [ '1S0' ]
+    channels = ('1S0', '3S1')
+    # channels = [ '1S0' ]
     lamb = 1.35
     kmax, kmid, ntot = 15.0, 3.0, 120
     
@@ -877,22 +889,27 @@ if __name__ == '__main__':
     R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
     dR = R_array[1] - R_array[0] # Assuming linear spacing
     
-    # # q_array = q_array[:20]
+    q_array = q_array[:10]
     # q_array = q_array[-10:]
     
-    # t0 = time.time()
-    # # n_p_array = snmd.n_total(q_array, R_array, dR, rho_p_array, rho_n_array)
-    # n_I_array, n_delU_array, n_delU2_array = snmd.n_contributions(q_array,
-    #                                      R_array, dR, rho_p_array, rho_n_array)
-    # t1 = time.time()
-    # mins = (t1-t0)/60
-    # print('%.5f minutes elapsed.' % mins)
-    
-    # for q, n_I, n_delU, n_delU2 in zip(q_array, n_I_array, n_delU_array,
-    #                                    n_delU2_array):
-    #     print(q, n_I+n_delU+n_delU2, n_I, n_delU, n_delU2)
+    t0 = time.time()
+    # n_p_array = snmd.n_total(q_array, R_array, dR, rho_p_array, rho_n_array)
+    n_I_array, n_delU_array, n_delU2_array = snmd.n_contributions(q_array,
+                                          R_array, dR, rho_p_array, rho_n_array)
+    t1 = time.time()
+    mins = (t1-t0)/60
+    print('%.5f minutes elapsed.' % mins)
     
     from snmd import single_nucleon_momentum_distributions as snmd_old
     
+    for q, n_I, n_delU, n_delU2 in zip(q_array, n_I_array, n_delU_array,
+                                        n_delU2_array):
+        print(q, n_I+n_delU+n_delU2, n_I, n_delU, n_delU2)
+        
     print('')
     snmd_v1 = snmd_old(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
+    n_lambda_old = snmd_v1.n_lambda(q_array, R_array, rho_p_array, rho_n_array)
+    
+    for q, n_I, n_delU, n_delU2 in zip(q_array, n_lambda_old[:, 1],
+                                       n_lambda_old[:, 2], n_lambda_old[:, 3]):
+        print(q, n_I+n_delU+n_delU2, n_I, n_delU, n_delU2)

@@ -206,15 +206,6 @@ class single_nucleon_momentum_distributions(object):
             self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
                                                        deltaU2_pn)
             
-            # print(deltaU_pp)
-            # print(deltaU_pn)
-            # print(deltaU2_pp)
-            # print(deltaU2_pn)
-            print(self.deltaU_pp_func(2.0))
-            print(self.deltaU2_pp_func.ev(2.0, 2.0))
-            print(self.deltaU_pn_func(2.0))
-            print(self.deltaU2_pn_func.ev(2.0, 2.0))
-            
 
     def select_number_integration_points(self, k_max, k_min=0.0):
         """
@@ -306,7 +297,13 @@ class single_nucleon_momentum_distributions(object):
                 theta_deltaU[i] = ( kF**2 - ( q - 2*k )**2 ) / ( 8*k*q )
                 
             # Otherwise, h(q,k) = 0
-                
+            
+        # # TESTING
+        # if q == 1.1848151588461E-03 and \
+        # ( (1.3402 < kF < 1.3404) or kF < 3.5e-06 ):
+        #     print('kF = %.5f'%kF)
+        #     print(theta_deltaU[:])
+        
         return theta_deltaU
 
 
@@ -405,16 +402,11 @@ class single_nucleon_momentum_distributions(object):
         # summing over particle spin projection \sigma
         if q < kF_1:
             
-            t = 2
-            # return 2
+            return 2
         
         else:
-            t = 0
-            # return 0
-            
-        # TESTING
-        print(t, kF_1)
-        return t
+
+            return 0
     
         
     def n_deltaU(self, q, kF_1, kF_2):
@@ -525,8 +517,10 @@ class single_nucleon_momentum_distributions(object):
                           kF_min + K/2 )
 
         # Select number of integration points based on kmax_delU2
-        ntot_delU2 = self.select_number_integration_points( kmax_delU2,
-                                                            kmin_delU2 )
+        # ntot_delU2 = self.select_number_integration_points( kmax_delU2,
+        #                                                     kmin_delU2 )
+        # TESTING
+        ntot_delU2 = 50
 
         # Get Gaussian quadrature mesh
         k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
@@ -606,6 +600,9 @@ class single_nucleon_momentum_distributions(object):
             Ntot = 20
         else:
             Ntot = 10
+            
+        # TESTING
+        Ntot = 50
         K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot)
         
         # Calculate K-integrand which is a (Ntot, 1) array
