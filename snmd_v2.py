@@ -208,6 +208,9 @@ class single_nucleon_momentum_distributions(object):
         # Gives 1 if q < kF1(R)
         theta_mesh[ q_mesh < kF1_mesh ] = 1
         
+        # TESTING: print values for theta_mesh at first q value
+        print(theta_mesh[0, :], kF1_mesh[0, :])
+        
         # This is a (ntot_q, ntot_R) size array
         return theta_mesh
         
