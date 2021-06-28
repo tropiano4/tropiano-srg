@@ -808,37 +808,37 @@ if __name__ == '__main__':
     pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
     
     
-    # --- Compare to old pmd_new.py --- #
-    from pmd_v2 import pair_momentum_distributions as pmd_v2
-    from densities import load_density
-    import time
+    # # --- Compare to old pmd_new.py --- #
+    # from pmd_v2 import pair_momentum_distributions as pmd_v2
+    # from densities import load_density
+    # import time
     
-    nucleus = 'C12'
-    Z = 6
-    N = 6
+    # nucleus = 'C12'
+    # Z = 6
+    # N = 6
     
-    R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    dR = R_array[1] - R_array[0]
+    # R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+    # R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+    # dR = R_array[1] - R_array[0]
     
-    ntot_Q = 6
-    Q_array, Q_weights = gaussian_quadrature_mesh(2.5, ntot_Q)
-    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    # ntot_Q = 6
+    # Q_array, Q_weights = gaussian_quadrature_mesh(2.5, ntot_Q)
+    # q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     
-    t0 = time.time()
-    n_total_new = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
-                              rho_n_array)
-    t1 = time.time()
-    print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
+    # t0 = time.time()
+    # n_total_new = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
+    #                           rho_n_array)
+    # t1 = time.time()
+    # print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
     
-    t2 = time.time()
-    pmd_old = pmd_v2(kvnn, channels, lamb, kmax, kmid, ntot)
-    n_total_old = np.zeros( (ntot, ntot_Q) )
-    for iQ, Q in enumerate(Q_array):
-        n_total_old[:, iQ] = pmd_old.n_lambda(q_array, Q, R_array, rho_p_array,
-                                              rho_n_array)[:, 0]
-    t3 = time.time()
-    print( '%.5f minutes elapsed.' % ( (t3-t2)/60 ) )
+    # t2 = time.time()
+    # pmd_old = pmd_v2(kvnn, channels, lamb, kmax, kmid, ntot)
+    # n_total_old = np.zeros( (ntot, ntot_Q) )
+    # for iQ, Q in enumerate(Q_array):
+    #     n_total_old[:, iQ] = pmd_old.n_lambda(q_array, Q, R_array, rho_p_array,
+    #                                           rho_n_array)[:, 0]
+    # t3 = time.time()
+    # print( '%.5f minutes elapsed.' % ( (t3-t2)/60 ) )
     
     
     # # --- Q = 0 comparison to old code --- #
@@ -874,101 +874,107 @@ if __name__ == '__main__':
     #     print(iq, i_nlamb_new, i_nlamb_old)
         
         
-    # # --- Test normalization of n(q, Q) --- #
-    # import matplotlib.pyplot as plt
-    # from Figures import figures_functions as ff
-    # from densities import load_density
-    # import time
+    # --- Test normalization of n(q, Q) --- #
+    import matplotlib.pyplot as plt
+    from Figures import figures_functions as ff
+    from densities import load_density
+    import time
     
-    # nucleus = 'C12'
-    # Z = 6
-    # N = 6
+    nucleus = 'C12'
+    Z = 6
+    N = 6
     
-    # # nucleus = 'He4'
-    # # Z = 2
-    # # N = 2
+    # nucleus = 'He4'
+    # Z = 2
+    # N = 2
     
-    # if nucleus == 'He4':
-    #     R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
-    #     rho_n_array = rho_p_array
-    # else:
-    #     R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
-    #     R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    # dR = 0.1
+    if nucleus == 'He4':
+        R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
+        rho_n_array = rho_p_array
+    else:
+        R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
+        R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
+    dR = 0.1
     
-    # q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    # Evaluate kF values at each point in R_array to set max value of Q
+    kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
+    kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
+    
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     # Q_max = 3.0
-    # ntot_Q = 50
-    # Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
+    Q_max = max(kFp_array) + max(kFn_array)
+    print('Max Q = %.5f fm^-1' % Q_max)
+    ntot_Q = 50
+    Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
     
-    # # Get n_\lambda(q, Q) for each q and Q
-    # t0 = time.time()
-    # n_lambda_2d = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
-    #                           rho_n_array)
-    # t1 = time.time()
-    # print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
+    # Get n_\lambda(q, Q) for each q and Q
+    t0 = time.time()
+    n_lambda_2d = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
+                              rho_n_array)
+    t1 = time.time()
+    print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
     
-    # factor = 4*np.pi/(2*np.pi)**3
+    factor = 4*np.pi/(2*np.pi)**3
     
-    # _, Q_mesh = np.meshgrid(q_array, Q_array**2*Q_weights, indexing='ij')
+    _, Q_mesh = np.meshgrid(q_array, Q_array**2*Q_weights, indexing='ij')
     
-    # n_lambda_1d = factor * np.sum(Q_mesh * n_lambda_2d, axis=-1)
+    n_lambda_1d = factor * np.sum(Q_mesh * n_lambda_2d, axis=-1)
     
-    # # Figure size
-    # row_number = 1
-    # col_number = 1
-    # figure_size = (4*col_number, 4*row_number)
+    # Figure size
+    row_number = 1
+    col_number = 1
+    figure_size = (4*col_number, 4*row_number)
 
-    # # Axes labels and fontsize
-    # x_label = 'q [fm' + r'$^{-1}$' + ']'
-    # y_label = r'$n_{\lambda}^A(q)$' + ' [fm' + r'$^3$' + ']'
+    # Axes labels and fontsize
+    x_label = 'q [fm' + r'$^{-1}$' + ']'
+    y_label = r'$n_{\lambda}^A(q)$' + ' [fm' + r'$^3$' + ']'
 
-    # # Axes limits
-    # xlim = (0.0, 5)
-    # ylim = (1e-3, 1e4)
+    # Axes limits
+    xlim = (0.0, 5)
+    ylim = (1e-3, 2e4)
 
-    # # Initialize figure
-    # plt.close('all')
-    # f, ax = plt.subplots(figsize=figure_size)
+    # Initialize figure
+    plt.close('all')
+    f, ax = plt.subplots(figsize=figure_size)
     
-    # # Set y-axis to log scale
-    # ax.set_yscale('log')
+    # Set y-axis to log scale
+    ax.set_yscale('log')
     
-    # # Add curve to figure
-    # ax.plot(q_array, 2*n_lambda_1d, color='xkcd:red',
-    #         label=ff.nuclei_label_conversion(nucleus) + ' pn')
+    # Add curve to figure
+    ax.plot(q_array, 2*n_lambda_1d, color='xkcd:red',
+            label=ff.nuclei_label_conversion(nucleus) + ' pn')
     
-    # normalization = factor * np.sum(q_array**2*q_weights*n_lambda_1d)
+    normalization = 2*factor * np.sum(q_array**2*q_weights*n_lambda_1d)
     
-    # print('Normalization = %.5f' % normalization)
+    print('Normalization = %.5f' % normalization)
         
-    # # Add AV18 data with error bars
-    # av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd_q.txt' % nucleus)
-    # q_array_av18 = av18_data[:, 0] # fm^-1
-    # n_pn_array_av18 = av18_data[:, 1]
-    # pn_error_bars_array_av18 = av18_data[:, 2]
+    # Add AV18 data with error bars
+    av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd_q.txt' % nucleus)
+    q_array_av18 = av18_data[:, 0] # fm^-1
+    n_pn_array_av18 = av18_data[:, 1]
+    pn_error_bars_array_av18 = av18_data[:, 2]
     
-    # print(factor*np.sum(q_array_av18**2*0.1*n_pn_array_av18))
+    print(factor*np.sum(q_array_av18**2*0.1*n_pn_array_av18))
             
-    # # AV18 data with error bars
-    # ax.errorbar(q_array_av18, n_pn_array_av18, yerr=pn_error_bars_array_av18,
-    #             color='xkcd:black', label='AV18 pn', linestyle='', marker='.')
+    # AV18 data with error bars
+    ax.errorbar(q_array_av18, n_pn_array_av18, yerr=pn_error_bars_array_av18,
+                color='xkcd:black', label='AV18 pn', linestyle='', marker='.')
     
-    # # Shade gray from 0 to \lambda value on plot
-    # ax.fill_betweenx(ylim, 0.0, lamb, edgecolor='xkcd:grey', facecolor='xkcd:grey', alpha=0.3)
+    # Shade gray from 0 to \lambda value on plot
+    ax.fill_betweenx(ylim, 0.0, lamb, edgecolor='xkcd:grey', facecolor='xkcd:grey', alpha=0.3)
 
-    # # Specify axes limits
-    # ax.set_xlim(xlim)
-    # ax.set_ylim(ylim)
+    # Specify axes limits
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
         
-    # # Set axes labels
-    # ax.set_xlabel(x_label)
-    # ax.set_ylabel(y_label)
+    # Set axes labels
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
 
-    # # Add legend
-    # legend_location = 'upper right'
-    # ax.legend(loc=legend_location, frameon=False)
+    # Add legend
+    legend_location = 'upper right'
+    ax.legend(loc=legend_location, frameon=False)
     
-    # plt.show()
+    plt.show()
     
     
