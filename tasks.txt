@@ -3,9 +3,11 @@
 
  * \lambda dependence: add \lambda values (10, 8, etc.) to n_{\lambda}^A(q) vs q figures
 
- * Add 'Integrate' option to pmd.py
-   - Check asymptotic relation between SNMD and PMD again [src_physics_figs.ipynb]
-   - Try C12
+ * Update dmd.py, snmd.py, and all related files
+
+ * Why does He4 disagree?
+
+ * Make src_physics_fig_v1.ipynb, src_physics_write_data_v1.ipynb and src_physics_fig.ipynb, src_physics_write_data.ipynb
 
  * Add q=0 case to pmd.py
 
