@@ -297,13 +297,7 @@ class single_nucleon_momentum_distributions(object):
                 theta_deltaU[i] = ( kF**2 - ( q - 2*k )**2 ) / ( 8*k*q )
                 
             # Otherwise, h(q,k) = 0
-            
-        # # TESTING
-        # if q == 1.1848151588461E-03 and \
-        # ( (1.3402 < kF < 1.3404) or kF < 3.5e-06 ):
-        #     print('kF = %.5f'%kF)
-        #     print(theta_deltaU[:])
-        
+
         return theta_deltaU
 
 
@@ -517,10 +511,8 @@ class single_nucleon_momentum_distributions(object):
                           kF_min + K/2 )
 
         # Select number of integration points based on kmax_delU2
-        # ntot_delU2 = self.select_number_integration_points( kmax_delU2,
-        #                                                     kmin_delU2 )
-        # TESTING
-        ntot_delU2 = 50
+        ntot_delU2 = self.select_number_integration_points( kmax_delU2,
+                                                            kmin_delU2 )
 
         # Get Gaussian quadrature mesh
         k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
@@ -551,7 +543,9 @@ class single_nucleon_momentum_distributions(object):
         # This is a (ntot_delU2, 1) array
         theta_array = self.theta_deltaU2(kF_1, kF_2, K, k_array_delU2,
                                          ntot_delU2)
-        
+        # There should be two \theta array's here, correct? \theta_pp_array
+        # and \theta_pn_array. Fixed in new version of snmd.py.
+
         # Build integrand for k integration where we split terms according
         # to pp and pn (or nn and np if kF_1 corresponds to a neutron)
         integrand_k = k_array_delU2**2 * k_weights_delU2 * ( \
@@ -600,9 +594,7 @@ class single_nucleon_momentum_distributions(object):
             Ntot = 20
         else:
             Ntot = 10
-            
-        # TESTING
-        Ntot = 50
+
         K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot)
         
         # Calculate K-integrand which is a (Ntot, 1) array
@@ -620,7 +612,7 @@ class single_nucleon_momentum_distributions(object):
         # combine to give 2
         # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
         deltaU2_factor = 2 * (2/np.pi)**2
-        
+
         # Integrate over \int dK K^2
         return deltaU2_factor * np.sum(integrand_K)
         

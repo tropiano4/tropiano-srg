@@ -269,13 +269,6 @@ class single_nucleon_momentum_distributions(object):
         case_1 = case_all * ( q_mesh < kF2_mesh ) * \
                  ( 2*k_mesh < kF2_mesh - q_mesh )
         theta_mesh[case_1] = 1
-            
-        # if kF2_mesh[0, 0, 0] == 1.3403121216955933:
-        #     print('kF = %.5f'%1.3403121216955933)
-        #     print(theta_mesh[0, 0, :])
-        
-        #     print('kF = %.5f'%3.4911565982475844e-06)
-        #     print(theta_mesh[0, -1, :])
 
         # This is a (ntot_q, ntot_R, ntot_k) size array
         return theta_mesh
@@ -576,7 +569,7 @@ class single_nucleon_momentum_distributions(object):
                                  kF_min + K/2 )
                 else:
                     k_max = kF_min + K/2
-                    
+
                 # Get Gaussian quadrature mesh
                 k_array, k_weights = gaussian_quadrature_mesh(k_max,
                                                               self.ntot_k,
@@ -620,7 +613,7 @@ class single_nucleon_momentum_distributions(object):
                       dK_mesh * R_mesh**2 * dR * ( \
                       deltaU2_pp_mesh * theta_pp_mesh + \
                       deltaU2_pn_mesh * theta_pn_mesh )
-        
+
         # Integrate over k leaving K integrand (ntot_q, ntot_R, ntot_K)
         integrand_K = np.sum(integrand_k, axis=-1)
         
@@ -880,10 +873,15 @@ if __name__ == '__main__':
     from densities import load_density
     import time
     
-    nucleus = 'Ca48'
+    # nucleus = 'Ca48'
+    # nucleon = 'proton'
+    # Z = 20
+    # N = 28
+    
+    nucleus = 'C12'
     nucleon = 'proton'
-    Z = 20
-    N = 28
+    Z = 6
+    N = 6
     
     R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
     R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
@@ -902,14 +900,20 @@ if __name__ == '__main__':
     
     from snmd import single_nucleon_momentum_distributions as snmd_old
     
+    t0 = time.time()
+    snmd_v1 = snmd_old(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
+    n_lambda_old = snmd_v1.n_lambda(q_array, R_array, rho_p_array, rho_n_array)
+    t1 = time.time()
+    mins = (t1-t0)/60
+    print('%.5f minutes elapsed.' % mins)
+    
     for q, n_I, n_delU, n_delU2 in zip(q_array, n_I_array, n_delU_array,
                                         n_delU2_array):
         print(q, n_I+n_delU+n_delU2, n_I, n_delU, n_delU2)
         
     print('')
-    snmd_v1 = snmd_old(kvnn, channels, lamb, kmax, kmid, ntot, interp=False)
-    n_lambda_old = snmd_v1.n_lambda(q_array, R_array, rho_p_array, rho_n_array)
     
     for q, n_I, n_delU, n_delU2 in zip(q_array, n_lambda_old[:, 1],
-                                       n_lambda_old[:, 2], n_lambda_old[:, 3]):
+                                        n_lambda_old[:, 2], n_lambda_old[:, 3]):
         print(q, n_I+n_delU+n_delU2, n_I, n_delU, n_delU2)
+        
