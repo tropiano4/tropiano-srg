@@ -30,7 +30,7 @@
 #   06/10/21 --- Replacing UnivariateSpline with interp1d for better accuracy,
 #                though RectBivariateSpline works well for 2-D interpolations.
 #   06/24/21 --- Speeding up code by switching from loops to np.sum() to do
-#                integrations.
+#                integrations. Saved old version as snmd_v1.py in Old_codes.
 #
 #------------------------------------------------------------------------------
 

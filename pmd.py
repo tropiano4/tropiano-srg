@@ -17,9 +17,10 @@
 #   04/26/21 --- Correcting overall factors in front of \delta U and
 #                \delta U^2 terms.
 #   06/08/21 --- Corrected "I" term to have additional integration over R'.
-#   06/22/21 --- Generalizing distribution to n(q, Q) from n(q, 0).
+#   06/22/21 --- Generalizing distribution to n(q, Q) from n(q, 0). Saved old
+#                version as pmd_v1.py in Old_codes.
 #   06/23/21 --- Speeding up code by switching from loops to np.sum() to do
-#                integrations.
+#                integrations. Saved old version as pmd_v2.py in Old_codes. 
 #
 #------------------------------------------------------------------------------
 

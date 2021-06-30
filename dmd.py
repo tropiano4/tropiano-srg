@@ -38,7 +38,7 @@
 #                UnivariateSpline with interp1d for better accuracy, though
 #                RectBivariateSpline works well for 2-D interpolations.
 #   06/30/21 --- Speeding up code by switching from loops to np.sum() to do
-#                integrations.
+#                integrations. Saved old version as dmd_v1.py in Old_codes. 
 #
 #------------------------------------------------------------------------------
 
