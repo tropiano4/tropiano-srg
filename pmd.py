@@ -819,7 +819,7 @@ if __name__ == '__main__':
     
     # R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
     # R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    # dR = R_array[1] - R_array[0]
+    # dR = R_array[2] - R_array[1]
     
     # ntot_Q = 6
     # Q_array, Q_weights = gaussian_quadrature_mesh(2.5, ntot_Q)

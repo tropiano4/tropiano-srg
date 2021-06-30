@@ -775,7 +775,7 @@ class single_nucleon_momentum_distributions(object):
             rho_n_array = rho_p_array
         else: # e.g., AV18 He8 densities
             R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
-        dR = R_array[1] - R_array[0] # Assuming linear spacing
+        dR = R_array[2] - R_array[1] # Assuming linear spacing
 
         # Calculate n_\lambda^\tau(k) for each k in k_array
         if nucleon == 'proton':
@@ -868,3 +868,86 @@ class single_nucleon_momentum_distributions(object):
         # Return all contributions with total first
         # Note, these are functions of q
         return n_total_func, n_1_func, n_delU_func, n_delU2_func
+
+
+if __name__ == '__main__':
+    
+
+    # Generate all data for single-nucleon momentum distributions
+    # Currently this takes about ~XX hours to run
+    import time
+    
+    # Potentials
+    kvnns_list = [6, 222, 224]
+    
+    # Channels to include in calculation (S-waves only or higher partial waves)
+    channels_list = [ ('1S0', '3S1'), ('1S0', '3S1', '3P0', '1P1', '3P1') ]
+    
+    # SRG \lambda values
+    lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
+    
+    # Momentum mesh details
+    kmax, kmid, ntot = 15.0, 3.0, 120 # Default
+
+    # Nuclei to calculate
+    nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('C12', 6, 6), ('O16', 8, 8),
+                    ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
+                    ('Pb208', 82, 126) ]
+    
+    # Loop over every case generating data files
+    for kvnn in kvnns_list:
+        
+        t0_k = time.time()
+        
+        for ic, channels in enumerate(channels_list):
+            
+            t0_c = time.time()
+            
+            for lamb in lambdas_list:
+                
+                t0_l = time.time()
+                
+                for nuclei in nuclei_list:
+                    
+                    t0_N = time.time()
+                    
+                    # Initialize class
+                    snmd = single_nucleon_momentum_distributions(kvnn,
+                           channels, lamb, kmax, kmid, ntot, interp=False)
+
+                    nucleus = nuclei[0]
+                    if nucleus == 'He4' or nucleus == 'He8':
+                        edf = 'AV18'
+                    else:
+                        edf = 'SLY4'
+                    Z = nuclei[1]
+                    N = nuclei[2]
+                    
+                    # Write proton and neutron file for given nucleus
+                    snmd.write_file(nucleus, 'proton', Z, N, edf)
+                    snmd.write_file(nucleus, 'neutron', Z, N, edf)
+                    
+                    # Time for each nucleus to run
+                    t1_N = time.time()
+                    mins_N = (t1_N-t0_N)/60
+                    print('\t\t\tDone with %s after %.5f minutes.' % (nucleus,
+                                                                mins_N) )
+            
+                # Time for each \lambda to run   
+                t1_l = time.time()
+                mins_l = (t1_l-t0_l)/60
+                print( '\n\t\tDone with \lambda=%s after %.5f minutes.\n' % (
+                       ff.convert_number_to_string(lamb), mins_l) )
+               
+            # Time for each channels to run
+            t1_c = time.time()
+            hours_c = (t1_c-t0_c)/3600
+            if ic == 0:
+                print('\tDone with S-waves after %.3f hours.\n' % hours_c)
+            else:
+                print('\tDone with all channels after %.3f hours.\n' % hours_c)
+        
+        # Time for each potential to run
+        t1_k = time.time()
+        hours_k = (t1_k-t0_k)/3600
+        print( 'Done with kvnn=%d after %.5f hours.\n' % (kvnn, hours_k) )
