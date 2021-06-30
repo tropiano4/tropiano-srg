@@ -1,11 +1,10 @@
 
 --- SRC ---
 
- * \lambda dependence: add \lambda values (10, 8, etc.) to n_{\lambda}^A(q) vs q figures
-
- * Update dmd.py, snmd.py, and all related files
-
  * Why does He4 disagree?
+   - Use pmd.py and snmd_v2.py
+
+ * Update dmd.py, pmd.py, old files to Old_codes, test notebooks
 
  * Make src_physics_fig_v1.ipynb, src_physics_write_data_v1.ipynb and src_physics_fig.ipynb, src_physics_write_data.ipynb
 
@@ -14,8 +13,6 @@
  * Read Neff/Feldmeyer paper
 
  * Outline for new paper
-
- * Do He8 distributions
 
  * Derive pair momentum distribution with 3-body terms
 
