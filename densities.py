@@ -19,6 +19,7 @@
 #                Renamed from lda.py to densities.py where lda.py is now in
 #                Old_codes.
 #   06/17/21 --- Added He4 from www.phy.anl.gov/theory/research/density/.
+#   06/30/21 --- Added He8 from www.phy.anl.gov/theory/research/density/.
 #
 #------------------------------------------------------------------------------
 
@@ -58,23 +59,37 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
 
     # Go to directory corresponding to specified nucleus
     if edf == 'SLY4':
+        
         densities_directory = 'Densities/HFBRAD_%s/%s' % (edf, nucleus)
-        file_extension = '.dens'
+        file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
+        column_number = 1
+        
     # Densities from www.phy.anl.gov/theory/research/density/
     elif edf == 'AV18':
+        
         densities_directory = 'Densities/%s/%s' % (edf, nucleus)
-        file_extension = '.txt'
+        file_name = 'densities_%d_%d.txt' % (N, Z)
+        
+        # AV18 files either have single \rho column for N=Z nuclei or
+        # two columns for proton (1) and neutron (3)
+        if N == Z:
+            column_number = 1
+        else:
+            if nucleon == 'proton':
+                column_number = 1
+            elif nucleon == 'neutron':
+                column_number = 3 
+        
     chdir(densities_directory)
     
     # Load file
-    file_name = '%s_%d_%d%s' % (nucleon, N, Z, file_extension)
     table = np.loadtxt(file_name)
 
     # Go back to current working directory
     chdir(cwd)
     
     R_array = table[:, 0]
-    rho_array = table[:, 1]
+    rho_array = table[:, column_number]
     
     return R_array, rho_array
 
