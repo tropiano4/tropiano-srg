@@ -535,11 +535,11 @@ class deuteron_momentum_distributions(object):
         -------
         n_lambda : 2-D ndarray
             Array of contributions to the deuteron momentum distribution
-            ordered according to total, 1, \delta U, and \delta U^2 [fm^3].
+            ordered according to total, I, \delta U, and \delta U^2 [fm^3].
 
         """
         
-        # Number of columns for output array (total, 1, \delta U, \delta U^2)
+        # Number of columns for output array (total, I, \delta U, \delta U^2)
         axes = 4
         
         # First compute deuteron density in coordinate space
