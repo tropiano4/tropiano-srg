@@ -37,6 +37,8 @@
 #   06/10/21 --- Including interpolating option to speed up code. Replacing
 #                UnivariateSpline with interp1d for better accuracy, though
 #                RectBivariateSpline works well for 2-D interpolations.
+#   06/30/21 --- Speeding up code by switching from loops to np.sum() to do
+#                integrations.
 #
 #------------------------------------------------------------------------------
 
@@ -57,12 +59,10 @@ from SRG.srg_unitary_transformation import SRG_unitary_transformation
 class deuteron_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0, interp=True):
+    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0, interp=False):
         """
-        Saves momentum arrays, grids, and matrix elements of \delta U and
+        Evaluates and saves 3S1-3D1 matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
-        Evaluates and saves matrix elements. Computes nucleonic density in
-        deuteron given wave function.
         
         Parameters
         ----------
@@ -71,7 +71,8 @@ class deuteron_momentum_distributions(object):
         lamb : float
             SRG evolution parameter lambda [fm^-1].
         kmax : float, optional
-            Maximum value in the momentum mesh [fm^-1].
+            Maximum value in the momentum mesh [fm^-1]. (Default of zero
+            automatically selects default mesh based on kvnn.)
         kmid : float, optional
             Mid-point value in the momentum mesh [fm^-1].
         ntot : int, optional
@@ -81,55 +82,55 @@ class deuteron_momentum_distributions(object):
             
         """
         
-        # Part of the data directory name
-        self.kvnn = kvnn
-        # Part of the file name
+        # Get relevant info for file and directory names
+        # Part of data directory name
+        self.kvnn = kvnn 
+        # Part of file name
         self.lamb = lamb
         self.kmax = kmax
         
-        # Calculate directly and/or generate data files
+        # Set-up for calculation
         if interp == False:
-        
+            
             # Channel is 3S1-3D1 for deuteron
             channel = '3S1'
-        
-            # Relative momentum k [fm^-1]
+
+            # Load and save momentum arrays
             k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid,
                                                    ntot)
-            self.k_array, self.k_weights = k_array, k_weights
+            # Make sure you get actual size of momentum array
             if ntot == 0:
-                ntot = len(k_array) # Make sure ntot is the number of k-points
-            self.ntot = ntot
-        
-            # cos(\theta) angles for averaging
-            xtot = 9
-            x_array, x_weights = leggauss(xtot)
-            self.x_array, self.x_weights, self.xtot = x_array, x_weights, xtot
-        
+                ntot = len(k_array)
+            # Save k_array, k_weights, ntot
+            self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
+            
             # For dividing out momenta/weights
             factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
             # For coupled-channel matrices
             factor_array_cc = np.concatenate( (factor_array, factor_array) )
-        
-        
-            # --- Evaluate matrix elements for each channel --- #
 
             # Load SRG transformation
             H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-            H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 
-                                             method='srg', generator='Wegner', 
+            H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
+                                             method='srg', generator='Wegner',
                                              lamb=lamb)
             # Load U(k, k') [unitless]
-            U_matrix_unitless = SRG_unitary_transformation(H_initial,
+            U_matrix_unitless = SRG_unitary_transformation(H_initial, 
                                                            H_evolved)
+            
+            # Unitless wave function in momentum space
+            psi_k_unitless = ob.wave_function(H_initial, U=U_matrix_unitless)
+            self.psi = psi_k_unitless
+            # Divide out momenta/weights and save
+            self.psi_k = psi_k_unitless / factor_array_cc # [fm^3/2]
 
-            # Isolate 2-body term, save, and convert to fm^3
+            # Isolate 2-body term and convert to fm^3
             I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
             row, col = np.meshgrid(factor_array_cc, factor_array_cc)
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
             # Save for exact unitary calculation
             self.delta_U_matrix = delta_U_matrix_unitless
-            delta_U_matrix = delta_U_matrix_unitless / row / col
+            delta_U_matrix = delta_U_matrix_unitless / row / col # fm^3
             
             # No 2*J+1 factor since we're fixing M_J for deuteron
             
@@ -141,474 +142,513 @@ class deuteron_momentum_distributions(object):
                               delta_U_matrix[ntot:, :ntot]**2 + \
                               delta_U_matrix[ntot:, ntot:]**2 )
 
-            # Interpolate < k | \delta U | k > matrix elements
-            # self.deltaU_func = UnivariateSpline( k_array, np.diag(deltaU) )
+            # Interpolate < k | \delta U | k >
             self.deltaU_func = interp1d( k_array, np.diag(deltaU),
-                                         bounds_error=False,
+                                         kind='cubic', bounds_error=False,
                                          fill_value='extrapolate' )
 
-            # Interpolate < k | \delta U \delta U^{\dagger} | k' > matrix
-            # elements to evaluate at |q_vec-K_vec/2|
+            # Interpolate < k | \delta U \delta U^{\dagger} | k' >
             self.deltaU2_func = RectBivariateSpline(k_array, k_array, deltaU2)
-        
-        
-            # --- Set up deuteron density for averaging --- #
-        
-            # Unitless wave function in momentum space
-            psi_k_unitless = ob.wave_function(H_initial, U=U_matrix_unitless)
-            self.psi = psi_k_unitless
-    
-            # Divide out momenta/weights and save
-            self.psi_k = psi_k_unitless / factor_array_cc # [fm^3/2]
 
-        
-    def select_number_integration_points(self, k_max, k_min=0.0):
+
+    def theta_I(self, q_mesh, kF_mesh):
         """
-        Select the number of integration points over momenta k given the upper
-        limit of integration. Assumes Gaussian quadrature integration.
-        
+        Evaluates \theta( kF(R) - q ). This function appears in the I term.
+
         Parameters
         ----------
-        k_max : float
-            Upper limit of integration over momentum [fm^-1].
-        k_min : float, optional
-            Lower limit of integration over momentum [fm^-1]. Default is zero.
-            
+        q_mesh : 4-D ndarray
+            Momentum values [fm^-1].
+        kF_mesh : 4-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+
         Returns
         -------
-        ntot_k : int
-            Number of integration points in Gaussian quadrature mesh.
-        
+        theta_mesh : 2-D ndarray
+            \theta function [unitless] evaluated for each q and kF(R).
+
         """
         
-        # Interval of integration
-        interval = k_max - k_min
+        # Initialize 2-D array
+        theta_mesh = np.zeros( (self.ntot_q, self.ntot_R) )
         
-        # Basing these numbers off expected kF values
-        if interval >= 1.2:
-            ntot_k = 60
-        elif 1.2 > interval >= 1.0:
-            ntot_k = 50
-        elif 1.0 > interval >= 0.8:
-            ntot_k = 40
-        elif 0.8 > interval >= 0.6:
-            ntot_k = 30
-        elif 0.6 > interval >= 0.4:
-            ntot_k = 20
-        else:
-            ntot_k = 10
-            
-        return ntot_k
+        # Gives 1 if q < kF(R)
+        theta_mesh[ q_mesh < kF_mesh ] = 1
         
+        # This is a (ntot_q, ntot_R) size array
+        return theta_mesh
         
-    def theta_deltaU(self, kF, q, k_array, ntot_k):
+
+    def theta_deltaU(self, q_mesh, kF_mesh, k_mesh):
         """
-        Evaluates \theta( k_F - \abs(q_vec - 2k_vec) ) for every momentum k.
-        This function appears in the \delta U term.
+        Evaluates angle-average of \theta( kF(R) - \abs(q - 2k) ). This
+        function appears in the \delta U term.
 
         Parameters
         ----------
-        kF : float
-            Fermi momentum [fm^-1].
-        q : float
-            Single-nucleon momentum [fm^-1].
-        k_array : 1-D ndarray
-            Momentum values [fm^-1] of \int dk k^2 integral in \delta U term.
-        ntot_k : int
-            Number of momentum points in momentum mesh k_array.
+        q_mesh : 3-D ndarray
+            Momentum values [fm^-1].
+        kF_mesh : 4-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+        k_mesh : 3-D ndarray
+            Relative momentum values [fm^-1].
+
+        Returns
+        -------
+        theta_mesh : 3-D ndarray
+            \theta function [unitless] evaluated for each q, kF(R), and k.
+            
+        Notes
+        -----
+        Not sure why the cases had to be computed in reverse order. Does that
+        mean there is an overlap of truth values in case 3 and case 1 when
+        there shouldn't be?
+
+        """
+        
+        # Initialize 3-D array
+        theta_mesh = np.zeros( (self.ntot_q, self.ntot_R, self.ntot_k) )
+        
+        # Evaluate each boolean case and use these to fill in the theta_mesh
+        
+        # This applies to each case: q < kF
+        case_all = q_mesh < kF_mesh
+        
+        # Case 3: q-kF < 2k < kF+q
+        case_3 = case_all * ( q_mesh - kF_mesh < 2*k_mesh ) * \
+                 ( 2*k_mesh < kF_mesh + q_mesh )
+        theta_mesh[case_3] = ( ( kF_mesh**2 - ( q_mesh - 2*k_mesh )**2 ) / \
+                               ( 8*k_mesh*q_mesh ) )[case_3]
+            
+        # Case 2: kF-q <= 2k < kF+q
+        case_2 = case_all * ( kF_mesh - q_mesh <= 2*k_mesh ) * \
+                 ( 2*k_mesh < kF_mesh + q_mesh )
+        theta_mesh[case_2] = ( ( kF_mesh**2 - ( q_mesh - 2*k_mesh )**2 ) / \
+                               ( 8*k_mesh*q_mesh ) )[case_2]
+        
+        # Case 1: 2k < kF-q
+        case_1 = case_all * ( 2*k_mesh < kF_mesh - q_mesh )
+        theta_mesh[case_1] = 1
+
+        # This is a (ntot_q, ntot_R, ntot_k) size array
+        return theta_mesh
+
+
+    def theta_deltaU2(self, kF_mesh, K_mesh, k_mesh):
+        """
+        Evaluates angle-average of \theta( kF(R) - \abs(K/2 + k) ) x
+        \theta( kF(R) - \abs(K/2 - k) ). This function appears in the
+        \delta U \delta U^\dagger term.
+
+        Parameters
+        ----------
+        kF_mesh : 4-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+        K_mesh : 4-D ndarray
+            C.o.M. momentum values [fm^-1].
+        k_mesh : 4-D ndarray
+            Relative momentum values [fm^-1].
+
+        Returns
+        -------
+        theta_mesh : 4-D ndarray
+            \theta function [unitless] evaluated for each q, kF(R), K, and k.
+            Note, this function does not depend on q but we need the array to
+            match the size of \delta U \delta U^\dagger matrix elements.
+
+        """
+        
+        # Initialize 4-D array
+        theta_mesh = np.zeros( (self.ntot_q, self.ntot_R, self.ntot_K,
+                                self.ntot_k) )
+
+        # Evaluate each boolean case and use these to fill in the theta_mesh
+        
+        # Case 2: 2k+K > 2kF and 4k^2+K^2 < 4kF^2
+        case_2 = ( 2*k_mesh + K_mesh > 2*kF_mesh ) * \
+                 ( 4*k_mesh**2 + K_mesh**2 <= 4*kF_mesh**2 )    
+        theta_mesh[case_2] = ( ( 4*kF_mesh**2 - 4*k_mesh**2 - K_mesh**2 ) / \
+                               (4*k_mesh*K_mesh) )[case_2]
+
+        # Case 1: 2k+K < 2kF
+        case_1 = ( 2*k_mesh + K_mesh <= 2*kF_mesh )
+        theta_mesh[case_1] = 1
+        
+        # This is a (ntot_q, ntot_R, ntot_K, ntot_k) size array
+        return theta_mesh
+    
+    
+    def n_I(self, q_array, R_array, dR, kF_array):
+        """
+        Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
 
         Returns
         -------
         output : 1-D ndarray
-            \theta function evaluated at each momenta k. This is a unitless
-            array of length ntot where ntot = len(k_array).
-            
-        Notes
-        -----
-        This function assumes that the k_array does not exceed (kF + q)/2
-        which is the maximum limit given by the \theta function, and that
-        q < kF_1 (with the kF in this function corresponding to kF_2).
+            Momentum distribution [fm^3] from I term as a function of q.
 
         """
         
-        # Make \theta( k_F - \abs(q_vec - 2k_vec) ) the same length as k_array
-        theta_deltaU = np.zeros(ntot_k)
+        # Initialize 2-D meshgrids (q, R)
+        q_mesh, R_mesh = np.meshgrid(q_array, R_array, indexing='ij')
         
-        # Loop over each momenta k and go through the three inequalities
-        for i, k in enumerate(k_array):
-            
-            # Case 1: q < kF and 2k < kF-q -> h(q,k) = 1
-            if q < kF and 2*k <= kF-q:
-                theta_deltaU[i] = 1
-            
-            # Case 2: q < kF and kF-q < 2k < kF+q
-            # -> h(q,k) = 1/2 * ( kF^2 - (q-2k)^2 ) / (4*q*k)
-            elif q < kF and kF-q < 2*k < kF+q:
-                theta_deltaU[i] = 0.5 * ( kF**2 - ( q - 2*k )**2 ) / ( 4*k*q )
-                
-            # Case 3: q-kF < 2k < kF+q
-            # -> h(q,k) = 1/2 * ( kF^2 - (q-2k)^2 ) / (4*q*k)
-            elif q-kF < 2*k < kF+q:
-                theta_deltaU[i] = 0.5 * ( kF**2 - ( q - 2*k )**2 ) / ( 4*k*q )
-                
-            # Otherwise, h(q,k) = 0
-                
-        return theta_deltaU
-    
-    
-    def theta_deltaU2(self, kF, K, k_array, ntot_k):
-        """
-        Evaluates \theta( k_F - \abs(K_vec/2 + k_vec) ) \times
-        \theta( k_F - \abs(K_vec/2 - k_vec) ) for every momentum k.
-        This function appears in the \delta U \delta U^\dagger term.
+        # Get 2-D kF(R) mesh
+        _, kF_mesh = np.meshgrid(q_array, kF_array, indexing='ij')
+        
+        # Evaluate the \theta-function in I term
+        theta_mesh = self.theta_I(q_mesh, kF_mesh)
+        
+        # Calculate R integrand (ntot_q, ntot_R)
+        integrand_R = theta_mesh * R_mesh**2 * dR
 
-        Parameters
-        ----------
-        kF : float
-            Fermi momentum [fm^-1].
-        K : float
-            C.o.M. momentum [fm^-1].
-        k_array : 1-D ndarray
-            Momentum values [fm^-1] of \int dk k^2 integral in \delta U term.
-        ntot_k : int
-            Number of momentum points in momentum mesh k_array.
-
-        Returns
-        -------
-        output : 1-D ndarray
-            \theta function evaluated at each momenta k. This is a unitless
-            array of length ntot where ntot = len(k_array).
-            
-        Notes
-        -----
-        This function assumes that the k_array does not exceed kF - K/2
-        which is the maximum limit given by the \theta function, q < kF_1
-        (with the kF in this function corresponding to kF_2), and that K < 2kF.
-
-        """
-    
-        # Make \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) the same length as
-        # k_array
-        theta_deltaU2 = np.zeros(ntot_k)
-        
-        # Loop over each momenta k and go through the two inequalities
-        for i, k in enumerate(k_array):
-                
-            # Case 1: k < kF-K/2 F(K,k) = 1
-            if k < kF-K/2:
-                theta_deltaU2[i] = 1
-                
-            # Case 2: kF-K/2 < k < \sqrt(kF^2-K^2/4)
-            # -> F(K,k) = ( kF^2 - k^2 - K^2/4 ) / (k*K)
-            elif kF-K/2 < k < np.sqrt(kF**2-K**2/4):
-                theta_deltaU2[i] = ( kF**2 - k**2 - K**2/4 ) / ( k*K )
-
-            # Otherwise, k > \sqrt(kF^2-K^2/4) and F(K,k) = 0
-                
-        return theta_deltaU2
+        # Integrate over R
+        # This is a (ntot_q, 1) size array
+        # Factor of 2 is overall factor
+        return 2 * 4*np.pi * np.sum(integrand_R, axis=-1)
     
     
-    def n_1(self, q, kF):
-        """
-        Evaluates first term in U n(q) U^\dagger ~ I n(q) I which gives
-        2 \theta( kF(r) - q ).
-        
-        Parameters
-        ----------
-        q : float
-            Single-nucleon momentum [fm^-1].
-        kF : float
-            Fermi momentum [fm^-1].
-            
-        Returns
-        -------
-        output : float
-            Momentum distribution from I term before integration over
-            \int dr r^2.
-        
-        """
-        
-        # This is simply a \theta function where the factor of two comes from
-        # summing over particle spin projection \sigma
-        if q < kF:
-            
-            return 2
-        
-        else:
-            
-            return 0
-        
-        
-    def n_deltaU(self, q, kF):
+    def n_deltaU(self, q_array, R_array, dR, kF_array):
         """
         Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
         we are combining \delta U and \delta U^\dagger, hence the factor of 2.
-        
+
         Parameters
         ----------
-        q : float
-            Momentum value [fm^-1].
-        kF : float
-            Fermi momentum [fm^-1].
-            
-        Returns
-        -------
-        output : float
-            Momentum distribution from \delta U term before integration over
-            \int dr r^2.
-            
-        """
-
-        # Initial \theta( kF(r) - q )
-        if q < kF:
-
-            # Create integration mesh k_array up to (kF + q)/2 where
-            # (kF + q)/2 corresponds to the upper limit of 
-            # \theta(kF(r)-|q_vec-2k_vec|)
-            kmax_delU = (kF + q)/2
-
-            # Select number of integration points based on kmax_delU
-            ntot_delU = self.select_number_integration_points(kmax_delU)
-
-            # Get Gaussian quadrature mesh
-            k_array_delU, k_weights_delU = gaussian_quadrature_mesh(kmax_delU,
-                                                                    ntot_delU)
-            
-            # Average \theta( kF - |q_vec-2k_vec| )
-            theta_array = self.theta_deltaU(kF, q, k_array_delU, ntot_delU)
-            
-            # Evaluate < k | \delta U | k > matrix elements
-            deltaU_k = self.deltaU_func(k_array_delU)
-            
-            # Build integrand for k integration
-            integrand_k = k_array_delU**2 * k_weights_delU * deltaU_k * \
-                          theta_array
-
-            # Factor of 2 from \delta U + \delta U^\dagger
-            # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
-            # 2/\pi for two | k_vec > -> | k J L S ... > changes
-            # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
-            # combine to give 2
-            deltaU_factor = 2 * 8 * 2/np.pi * 2
-            
-            # Integrate over \int dk k^2
-            return deltaU_factor * np.sum(integrand_k)
-        
-        else:
-            
-            return 0
-        
-        
-    def n_deltaU2_K(self, q, K, kF):
-        """
-        Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger
-        up to integration over \int dK K^2.
-        
-        Parameters
-        ----------
-        q : float
-            Momentum value [fm^-1].
-        K : float
-            C.o.M. momentum [fm^-1].
-        kF : float
-            Fermi momentum [fm^-1].
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
 
         Returns
         -------
-        output : float
-            Momentum distribution from \delta U \delta U^\dagger term before
-            integration over \int dr r^2 \int dK K^2.
-            
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U term as a function of q.
+
         """
         
-        # Create integration mesh k_array from minimum and maximum k values
-        # corresponding to the limits of \theta(kF(r)-|K_vec/2 +(-) k_vec|)
-        kmin_delU2 = max(K/2 - kF, 0)
-        kmax_delU2 = min( np.sqrt( kF**2 - K**2/4 ), kF + K/2 )
+        # Set number of k points for integration over k
+        self.ntot_k = 50
+        
+        # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
+        q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, R_array,
+                                             np.zeros(self.ntot_k),
+                                             indexing='ij')
+        
+        # Get 3-D kF(R) mesh and initialize k weights mesh
+        _, kF_mesh, dk_mesh = np.meshgrid(q_array, kF_array,
+                                           np.zeros(self.ntot_k),
+                                           indexing='ij')
 
-        # Select number of integration points based on kmax_delU2
-        ntot_delU2 = self.select_number_integration_points( kmax_delU2,
-                                                            kmin_delU2 )
+        # Loop over q and R to find limits of k integration and then create
+        # k_array using Gaussian quadrature
+        for iq, q in enumerate(q_array):
+            for iR, R in enumerate(R_array):
+                
+                kF = kF_array[iR]
 
-        # Get Gaussian quadrature mesh
-        k_array_delU2, k_weights_delU2 = gaussian_quadrature_mesh(kmax_delU2,
-                                         ntot_delU2, xmin=kmin_delU2)
+                # Create integration mesh k_array up to (kF + q)/2 which
+                # corresponds to the upper limit of \theta( kF2(R) - |q-2k| )
+                k_max = (kF + q)/2
+ 
+                # Get Gaussian quadrature mesh
+                k_array, k_weights = gaussian_quadrature_mesh(k_max,
+                                                              self.ntot_k)
+                
+                # Fill in k_mesh and dk_mesh given the specific k_array
+                k_mesh[iq, iR, :] = k_array
+                dk_mesh[iq, iR, :] = k_weights
         
-        # Create a grid for evaluation of < k | \delta U | |q_vec-K_vec/2| >^2
-        k_grid, x_grid = np.meshgrid(k_array_delU2, self.x_array,
-                                     indexing='ij')
-        # Get angle weights too
-        _, x_weights_grid = np.meshgrid(k_array_delU2, self.x_weights,
-                                        indexing='ij')
+        # Evaluate angle-average of \theta-functions in \delta U term
+        theta_mesh = self.theta_deltaU(q_mesh, kF_mesh, k_mesh)
         
-        # Create grid for |q_vec-K_vec/2| values
-        q_K_grid = np.sqrt( q**2 + K**2/4 - q*K*x_grid )
-        
-        # Evaluate 2-D < k | \delta U | |q_vec-K_vec/2| >^2
-        # This is a (ntot_delU2, xtot) array
-        deltaU2_k_x = self.deltaU2_func.ev(k_grid, q_K_grid) * \
-                      x_weights_grid
-        
-        # Integrate over \int dx/2 -> (ntot_k, 1)
-        deltaU2_k = np.sum(deltaU2_k_x, axis=-1)/2
-        
-        # Average \theta(kF(r)-|K_vec/2 +(-) k_vec|) functions
-        # This is a (ntot_delU2, 1) array
-        theta_array = self.theta_deltaU2(kF, K, k_array_delU2, ntot_delU2)
-        
-        # Build integrand for k integration
-        integrand_k = k_array_delU2**2 * k_weights_delU2 * deltaU2_k * \
-                      theta_array
+        # Evaluate < k | \delta U | k >
+        deltaU_mesh = self.deltaU_func(k_mesh)
 
-        # Integrate over \int dk k^2 leaving K-dependent part and keeping the
-        # overall factor in the n_deltaU2 function below
-        return np.sum(integrand_k)
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 2
+        # Factor of 2 from \delta U + \delta U^\dagger
+        # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+        # 2/\pi for two | k_vec > -> | k J L S ... > changes
+        deltaU_factor = 2 * 8 * 2/np.pi * 2
+        
+        # Calculate the k integrand where we split terms according to pp and
+        # pn (or nn and np if kF_1 corresponds to a neutron)
+        # (ntot_q, ntot_R, ntot_k)
+        integrand_k = deltaU_factor * k_mesh**2 * dk_mesh * R_mesh**2 * dR * \
+                      deltaU_mesh * theta_mesh
+        
+        # Integrate over k leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_k, axis=-1)
+
+        # Integrate over R
+        # This is a (ntot_q, 1) size array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
+
+
+    def n_deltaU2(self, q_array, R_array, dR, kF_array):
+        """
+        Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U \delta U^\dagger term as
+            a function of q.
+
+        """
+        
+        # Set number of K and k points for integration over K and k
+        self.ntot_K = 50
+        self.ntot_k = 50
+        
+        # y = cos(\theta) angles for averaging integration
+        ntot_y = 7
+        y_array, y_weights = leggauss(ntot_y)
+        
+        # Initialize 4-D meshgrids (q, R, K, k) with k and K equal to 0
+        q_mesh, R_mesh, K_mesh, k_mesh = np.meshgrid(q_array, R_array,
+                                                     np.zeros(self.ntot_K),
+                                                     np.zeros(self.ntot_k),
+                                                     indexing='ij')
+        
+        # Get 4-D kF(R) mesh and initialize K and k weights mesh
+        _, kF_mesh, dK_mesh, dk_mesh = np.meshgrid(q_array, kF_array,
+                                                    np.zeros(self.ntot_K),
+                                                    np.zeros(self.ntot_k),
+                                                    indexing='ij')
+
+        # Loop over q, R, and k to find limits of K integration and then create
+        # K_array using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+                
+            kF = kF_array[iR]
     
-    
-    def n_deltaU2(self, q, kF):
-        """
-        Evaluates integration over \int dK K^2 in fourth term in
-        U n(q) U^\dagger ~ \delta U \delta U^\dagger.
-        
-        Parameters
-        ----------
-        q : float
-            Momentum value [fm^-1].
-        kF : float
-            Fermi momentum [fm^-1].
-            
-        Returns
-        -------
-        output : float
-            Momentum distribution from \delta U \delta U^\dagger term before
-            integration over \int dr r^2.
-            
-        """
-        
-        # Create K_mesh from 0-2*kF
-        Kmax = 2*kF # Max momentum
-        # Total number of points
-        if Kmax >= 2.0:
-            Ntot = 50
-        elif 2.0 > Kmax >= 1.6:
-            Ntot = 40
-        elif 1.6 > Kmax >= 1.2:
-            Ntot = 30
-        elif 1.2 > Kmax >= 0.8:
-            Ntot = 20
-        else:
-            Ntot = 10
-        K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot)
-        
-        # Calculate K-integrand which is a (Ntot, 1) array
-        integrand_K = np.zeros(Ntot)
+            # K integration goes from 0 to 2*kF
+            K_max = 2*kF
+                
+            # Get Gaussian quadrature mesh for K integration
+            K_array, K_weights = gaussian_quadrature_mesh(K_max, self.ntot_K)
+              
+            # Loop over remaining variables and fill in 5-D array
+            for iq in range(self.ntot_q):
+                for ik in range(self.ntot_k):
+                    
+                    # Fill in K_mesh and dK_mesh given the specific K_array
+                    K_mesh[iq, iR, :, ik] = K_array
+                    dK_mesh[iq, iR, :, ik] = K_weights
 
-        # Loop over K
-        for iK, K in enumerate(K_array):
+        # Loop over q, R, and K to find limits of k integration and then create
+        # k_array using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+        
+            kF = kF_array[iR]
             
-            integrand_K[iK] = self.n_deltaU2_K(q, K, kF)
+            # K_array only depends on R, so loop over K_mesh[0, iR, :, 0]
+            for iK, K in enumerate( K_mesh[0, iR, :, 0] ):
+                
+                # Lower limit of k integration
+                k_min = max(K/2 - kF, 0)
+                
+                # Upper limit of k integration
+                if K**2/4 < kF**2:
+                    k_max = min( np.sqrt(kF**2 - K**2/4), kF + K/2 )
+                else:
+                    k_max = kF + K/2
+
+                # Get Gaussian quadrature mesh for k integration
+                k_array, k_weights = gaussian_quadrature_mesh(k_max,
+                                                              self.ntot_k,
+                                                              xmin=k_min)
+                
+                # Loop over remaining variables and fill in 4-D array    
+                for iq in range(self.ntot_q):
+                    
+                    # Fill in k_mesh and dk_mesh given the specific k_array
+                    k_mesh[iq, iR, iK, :] = k_array
+                    dk_mesh[iq, iR, iK, :] = k_weights
+                        
+        # Evaluate angle-average of \theta-functions in \delta U^2 term
+        theta_mesh = self.theta_deltaU2(kF_mesh, K_mesh, k_mesh)
+
+        # Evaluate 4-D < k | \delta U | |q_vec-K_vec/2| >^2 while also
+        # averaging over angle y
+        deltaU2_mesh = np.zeros_like(theta_mesh) # (q, R, K, k)
+        
+        # Integrate over y
+        for y, dy in zip(y_array, y_weights):
             
-        # Attach integration measure
-        integrand_K *= K_array**2 * K_weights
+            # Evaluate |q-K/2| mesh
+            q_K_mesh = np.sqrt( q_mesh**2 + K_mesh**2/4 - q_mesh*K_mesh*y )
+            
+            deltaU2_mesh += self.deltaU2_func.ev(k_mesh, q_K_mesh) * dy/2
         
         # Contractions of a's, 1/4 factors, and [ 1 - (-1)^(L+S+T) ] factors
         # combine to give 2
         # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
         deltaU2_factor = 2 * (2/np.pi)**2
+
+        # Calculate the k integrand
+        # (ntot_q, ntot_R, ntot_K, ntot_k)
+        integrand_k = deltaU2_factor * k_mesh**2 * dk_mesh * K_mesh**2 * \
+                      dK_mesh * R_mesh**2 * dR * deltaU2_mesh * theta_mesh
+
+        # Integrate over k leaving K integrand (ntot_q, ntot_R, ntot_K)
+        integrand_K = np.sum(integrand_k, axis=-1)
         
-        # Integrate over \int dK K^2
-        return deltaU2_factor * np.sum(integrand_K)
-
-
-    def n_lambda(self, q_array, r_array):
+        # Integrate over K leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_K, axis=-1)
+        
+        # Integrate over R
+        # This is a (ntot_q, 1) size array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
+            
+    
+    def n_total(self, q_array, R_array, dR):
         """
-        Deuteron single-nucleon momentum distribution under LDA.
+        Deuteron momentum distribution under HF+LDA.
 
         Parameters
         ----------
         q_array : 1-D ndarray
-            Momentum values [fm^-1]. These are not relative momenta.
-        r_array : 1-D ndarray
-            Coordinates array [fm].
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
 
         Returns
         -------
-        n_lambda : 2-D ndarray
-            Array of contributions to the deuteron momentum distribution
-            ordered according to total, I, \delta U, and \delta U^2 [fm^3].
+        n_total : 1-D ndarray
+            Deuteron momentum distribution [fm^3] for each q.
+            
+        Notes
+        -----
+        Should R_array be called r_array for relative coordinate?
 
         """
         
-        # Number of columns for output array (total, I, \delta U, \delta U^2)
-        axes = 4
+        # Save lengths of q_array and R_array
+        self.ntot_q = len(q_array)
+        self.ntot_R = len(R_array)
         
-        # First compute deuteron density in coordinate space
-        
-        # Get momentum mesh from before
+        # Get deuteron density
         k_array, k_weights, ntot_k = self.k_array, self.k_weights, self.ntot
-
-        # Transform to coordinate space
+        
+        # Transform wave function to coordinate space
         hank_trans_3S1 = hankel_transformation_k2r('3S1', k_array, k_weights,
-                                                   r_array)
+                                                   R_array)
         hank_trans_3D1 = hankel_transformation_k2r('3D1', k_array, k_weights,
-                                                   r_array)
+                                                   R_array)
     
         # Get 3S1 and 3D1 waves [fm^-3/2] in coordinate-space
-        psi_r_3S1 = hank_trans_3S1 @ self.psi_k[:ntot_k]
-        psi_r_3D1 = hank_trans_3D1 @ self.psi_k[ntot_k:]
+        psi_R_3S1 = hank_trans_3S1 @ self.psi_k[:ntot_k]
+        psi_R_3D1 = hank_trans_3D1 @ self.psi_k[ntot_k:]
     
         # Calculate the deuteron nucleonic density [fm^-3]
-        rho_array = psi_r_3S1**2 + psi_r_3D1**2
-        
-        # Number of r_array points
-        mtot = len(r_array)
-        r2_grid, _ = np.meshgrid(r_array**2, np.zeros(axes), indexing='ij')
-        dr = 0.1 # Spacing between r-points
-            
-        # Length of q_array
-        ntot_q = len(q_array)
-        
-        # Evaluate n_\lambda(q, kF) contributions at each point in q_array
-        # and rho_array
-        n_lambda = np.zeros( (ntot_q, axes) )
-    
-        # kF values for each point in r_array
-        kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
-        
-        # Loop over q
-        for i, q in enumerate(q_array):
-    
-            # n_lambda contributions before integrating over r
-            n_lambda_r = np.zeros( (mtot, axes) )
+        rho_array = psi_R_3S1**2 + psi_R_3D1**2
 
-            # Loop over kF values
-            for j, kF in enumerate(kF_array):
+        # Evaluate kF values at each point in R_array
+        kF_array = (3*np.pi**2 * rho_array)**(1/3)
+            
+        # Get each contribution with respect to q
+        n_I = self.n_I(q_array, R_array, dR, kF_array)
+        n_deltaU = self.n_deltaU(q_array, R_array, dR, kF_array)
+        n_deltaU2 = self.n_deltaU2(q_array, R_array, dR, kF_array)
 
-                term_1 = self.n_1(q, kF)
-                term_deltaU = self.n_deltaU(q, kF)
-                term_deltaU2 = self.n_deltaU2(q, kF)
-                total = term_1 + term_deltaU + term_deltaU2
-                
-                n_lambda_r[j, :] = total, term_1, term_deltaU, term_deltaU2
-                    
-            # Deuteron normalization is \int dr r^2 \rho_d(r) = 1 without
-            # any factor of 4*\pi
-            # For nucleus A, normalization would be
-            #     4*\pi \int dr r^2 \rho_A(r) = Z or N depending on nucleon
-            
-            # Integrate over \int dr r^2 for each contribution
-            n_lambda[i, :] = dr * np.sum(r2_grid * n_lambda_r, axis=0)
-            
-        # Return (ntot, 4) array of contributions to n_\lambda^d(q)
-        return n_lambda
+        # Return total (ntot_q, 1)
+        return n_I + n_deltaU + n_deltaU2
     
     
-    def write_files(self):
+    def n_contributions(self, q_array, R_array, dR):
         """
-        Write deuteron momentum distribution files for interpolation purposes.
-        Split things into total, 1, \delta U, and \delta U^2 contributions.
+        Contributions to the deuteron momentum distribution. This function
+        isolates the I, \delta U, and \delta U \delta U^\dagger terms.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+
+        Returns
+        -------
+        n_contributions : tuple
+            Tuple of 1-D ndarrays corresponding to the I, \delta U, and
+            \delta U^\dagger terms of the pair momentum distribution [fm^3] for
+            each q.
 
         """
+        
+        # Save lengths of q_array and R_array
+        self.ntot_q = len(q_array)
+        self.ntot_R = len(R_array)
+        
+        # Get deuteron density
+        k_array, k_weights, ntot_k = self.k_array, self.k_weights, self.ntot
+        
+        # Transform wave function to coordinate space
+        hank_trans_3S1 = hankel_transformation_k2r('3S1', k_array, k_weights,
+                                                   R_array)
+        hank_trans_3D1 = hankel_transformation_k2r('3D1', k_array, k_weights,
+                                                   R_array)
+    
+        # Get 3S1 and 3D1 waves [fm^-3/2] in coordinate-space
+        psi_R_3S1 = hank_trans_3S1 @ self.psi_k[:ntot_k]
+        psi_R_3D1 = hank_trans_3D1 @ self.psi_k[ntot_k:]
+    
+        # Calculate the deuteron nucleonic density [fm^-3]
+        rho_array = psi_R_3S1**2 + psi_R_3D1**2
+
+        # Evaluate kF values at each point in R_array
+        kF_array = (3*np.pi**2 * rho_array)**(1/3)
+            
+        # Get each contribution with respect to q
+        n_I = self.n_I(q_array, R_array, dR, kF_array)
+        n_deltaU = self.n_deltaU(q_array, R_array, dR, kF_array)
+        n_deltaU2 = self.n_deltaU2(q_array, R_array, dR, kF_array)
+        
+        # Return tuple of contributions ( (ntot_q, ntot_Q), ... )
+        return n_I, n_deltaU, n_deltaU2
+    
+    
+    def write_file(self):
+        """
+        Write deuteron momentum distribution file for interpolation purposes.
+        Split things into total, I, \delta U, and \delta U^2 contributions.
+
+        """
+        
+        # Get momentum values
+        q_array = self.k_array
         
         # Directory for distributions data
         data_directory = 'Data/dmd/kvnn_%d' % self.kvnn
@@ -617,39 +657,49 @@ class deuteron_momentum_distributions(object):
         file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
         file_name = ff.replace_periods(file_name) + '.dat'
         
-        # Use r_array in accordance with densities code from densities.py
-        r_array = np.linspace(0.1, 20.0, 200)
+        
+        # Use R values in accordance with densities code from densities.py
+        R_array = np.linspace(0.1, 20.0, 200)
+        dR = R_array[2] - R_array[1] # Assuming linear spacing
 
         # Calculate n_\lambda^d(k) for each k in k_array
-        n_array = self.n_lambda(self.k_array, r_array)
+        n_I_array, n_delU_array, n_delU2_array = self.n_contributions(q_array,
+                                                                      R_array,
+                                                                      dR)
+            
+        # Total momentum distribution
+        n_total_array = n_I_array + n_delU_array + n_delU2_array
     
         # Open file and write header where we allocate roughly 18 centered
         # spaces for each label
         f = open(data_directory + '/' + file_name, 'w')
         header = '#' + '{:^17s}{:^18s}{:^18s}{:^18s}{:^18s}'.format('q',
-                 'total', '1', '\delta U', '\delta U^2')
+                  'total', '1', '\delta U', '\delta U^2')
         f.write(header + '\n')
     
         # Loop over momenta k
-        for ik, k in enumerate(self.k_array):
+        for ik, k in enumerate(q_array):
 
             # Write to data file following the format from the header
             line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( k,
-                       n_array[ik, 0], n_array[ik, 1], n_array[ik, 2],
-                       n_array[ik, 3] )
+                            n_total_array[ik], n_I_array[ik], n_delU_array[ik],
+                            n_delU2_array[ik] )
             f.write('\n' + line)
-            
-            
+
+        # Close file
+        f.close()
+        
+        
     def n_lambda_interp(self):
         """
         Interpolate the deuteron momentum distribution for the specified file.
-
+    
         Returns
         -------
         output : tuple
             Tuple of functions that depend only on momentum q [fm^-1] where
             each function corresponds to contributions to n_\lambda(q): total,
-            1, \delta U, and \delta U^2.
+            I, \delta U, and \delta U^2.
 
         """
         
@@ -673,13 +723,13 @@ class deuteron_momentum_distributions(object):
         # Interpolate each array (UnivariateSpline is for smoothing whereas
         # interp1d gives closer value to the actual calculation)
         n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
-                                fill_value='extrapolate')
+                                kind='cubic', fill_value='extrapolate')
         n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
-                            fill_value='extrapolate')
+                            kind='cubic', fill_value='extrapolate')
         n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
-                               fill_value='extrapolate')
+                               kind='cubic', fill_value='extrapolate')
         n_delU2_func = interp1d(q_array, n_delU2_array, bounds_error=False,
-                                fill_value='extrapolate')
+                                kind='cubic', fill_value='extrapolate')
         
         # Return all contributions with total first
         # Note, these are functions of q
@@ -689,7 +739,8 @@ class deuteron_momentum_distributions(object):
     def n_lambda_exact(self, q, contributions='total'):
         """
         Computes the exact deuteron momentum distribution using the wave
-        function from the input Hamiltonian.
+        function from the input Hamiltonian. Note, set interp = False to use
+        this function.
 
         Parameters
         ----------
@@ -700,7 +751,7 @@ class deuteron_momentum_distributions(object):
             distribution.
             1. Default is 'total' which only returns the total momentum
                distribution.
-            2. Specify 'q_contributions' for 1, \delta U, and 
+            2. Specify 'q_contributions' for I, \delta U, and 
                \delta U \delta U^\dagger along with the total.
             3. Specify 'partial_wave_ratio' for the ratio of 3S1-3S1 to full
                3S1-3D1 along with the absolute total.
@@ -788,105 +839,3 @@ class deuteron_momentum_distributions(object):
             return total, numerator/denominator
         else: # Default
             return total
-    
-
-if __name__ == '__main__':
-    
-    
-    # # --- Compare LDA momentum distribution to wave function result --- #
-    
-    # import matplotlib.pyplot as plt
-    # import time
-    
-    # channel = '3S1'
-    
-    # kvnn = 6
-    # lamb = 1.35
-    # kmax, kmid, ntot = 15.0, 3.0, 120
-    
-    # # Load momentum and weights
-    # q_array, q_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
-    # factor_array = q_array**2 * q_weights
-    
-    # # Load hamiltonian
-    # H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-    
-    # # Load exact wave function [unitless]
-    # psi_exact_unitless = ob.wave_function(H_matrix)
-    # psi_squared_exact = ( psi_exact_unitless[:ntot]**2 + \
-    #                       psi_exact_unitless[ntot:]**2 ) / factor_array
-        
-    # # Calculate using LDA
-    # t0 = time.time()
-    # dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot, False)
-    # r_array = np.linspace(0.1, 20.0, 200)
-    # n_d_array_full = dmd.n_lambda(q_array, r_array)
-    # t1 = time.time()
-    
-    # # Print minutes elapsed
-    # mins = (t1-t0)/60
-    # print('%.5f minutes elapsed.' % mins)
-    
-    # # Get just the total
-    # n_d_array = n_d_array_full[:, 0]
-    
-    # # Normalization of wave function
-    # norm = np.sum(factor_array * psi_squared_exact)
-    # print('Normalization of exact: \dq q^2 n_d(q) = %.5f' % norm)
-    
-    # # Normalization of LDA deuteron momentum distribution
-    # lda_factor = 4*np.pi * 1/(2*np.pi)**3
-    # norm_lda = lda_factor * np.sum(factor_array * n_d_array)
-    # print('Normalization of LDA: 4\pi/(2\pi)^3 \dq q^2 <n_d^N(q)> = %.5f'
-    #       % norm_lda) 
-    
-    # # Plot pair momentum distributions
-    # plt.semilogy(q_array, psi_squared_exact, label='AV18 wave function')
-    # plt.semilogy(q_array, n_d_array * lda_factor, label='LDA')
-    # plt.xlim( (0.0, 5.0) )
-    # plt.ylim( (1e-5, 1e4) )
-    # plt.xlabel(r'$q$' + ' [fm' + r'$^{-1}$' + ']')
-    # plt.ylabel(r'$n_d(q)$' + ' [fm' + r'$^3$' + ']')
-    # plt.legend(loc=0)
-    
-    
-    # --- Generate all data for deuteron momentum distributions --- #
-    # Currently this takes about ... hours to run
-    
-    import time
-    
-    # Potentials
-    kvnns_list = [6, 222, 224]
-    
-    # SRG \lambda values
-    lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
-    
-    # Momentum mesh details
-    kmax, kmid, ntot = 15.0, 3.0, 120 # Default
-    
-    # Loop over every case generating data files
-    for kvnn in kvnns_list:
-        
-        t0_k = time.time()
-
-        for lamb in lambdas_list:
-                
-            t0_l = time.time()
-
-            # Initialize class
-            dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot,
-                                                  interp=False)
-
-            # Write deuteron file
-            dmd.write_files()
-
-            # Time for each \lambda to run   
-            t1_l = time.time()
-            mins_l = (t1_l-t0_l)/60
-            print( '\tDone with \lambda=%s after %.5f minutes.' % (
-                    ff.convert_number_to_string(lamb), mins_l) )
-        
-        # Time for each potential to run
-        t1_k = time.time()
-        mins_k = (t1_k-t0_k)/60
-        print( 'Done with kvnn=%d after %.5f mins.\n' % (kvnn, mins_k) )
