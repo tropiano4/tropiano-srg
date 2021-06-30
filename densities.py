@@ -67,8 +67,8 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     # Densities from www.phy.anl.gov/theory/research/density/
     elif edf == 'AV18':
         
-        densities_directory = 'Densities/%s/%s' % (edf, nucleus)
-        file_name = 'densities_%d_%d.txt' % (N, Z)
+        densities_directory = 'Densities/%s' % edf
+        file_name = '%s_densities_%d_%d.txt' % (nucleus, N, Z)
         
         # AV18 files either have single \rho column for N=Z nuclei or
         # two columns for proton (1) and neutron (3)
