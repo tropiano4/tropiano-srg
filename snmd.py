@@ -878,7 +878,8 @@ if __name__ == '__main__':
     import time
     
     # Potentials
-    kvnns_list = [6, 222, 224]
+    # kvnns_list = [6, 222, 224]
+    kvnns_list = [6]
     
     # Channels to include in calculation (S-waves only or higher partial waves)
     channels_list = [ ('1S0', '3S1'), ('1S0', '3S1', '3P0', '1P1', '3P1') ]
@@ -890,9 +891,11 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 15.0, 3.0, 120 # Default
 
     # Nuclei to calculate
-    nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('C12', 6, 6), ('O16', 8, 8),
-                    ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
-                    ('Pb208', 82, 126) ]
+    # nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('C12', 6, 6), ('O16', 8, 8),
+    #                 ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
+    #                 ('Pb208', 82, 126) ]
+    nuclei_list = [ ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+                    ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) ]
     
     # Loop over every case generating data files
     for kvnn in kvnns_list:
