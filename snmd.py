@@ -884,7 +884,7 @@ if __name__ == '__main__':
     channels_list = [ ('1S0', '3S1'), ('1S0', '3S1', '3P0', '1P1', '3P1') ]
     
     # SRG \lambda values
-    lambdas_list = [6.0, 3.0, 2.0, 1.5, 1.35]
+    lambdas_list = [1.35, 1.5, 2.0, 3.0, 6.0]
     
     # Momentum mesh details
     kmax, kmid, ntot = 15.0, 3.0, 120 # Default
