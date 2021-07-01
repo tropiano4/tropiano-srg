@@ -58,153 +58,64 @@
 
 
 # Description of this test:
-#   Test evaluation of F_2(Q,k) in paper compared to analytic result.
-#   Integration of \int d3K \int d3k \theta(kF-|K/2+k|) \theta(kF-|K/2-k|)
-#   where k and K are vectors should give (4*\pi)^2 kF^6 / 9.
+#   Looking for bug in He4, He8 snmd.py code.
 
 
 import numpy as np
+import time
 # Scripts made by A.T.
+from densities import load_density
 from Misc.integration import gaussian_quadrature_mesh
+from pmd import pair_momentum_distributions
+from Potentials.vsrg_macos import vnn
+from snmd import single_nucleon_momentum_distributions
 
 
-def select_number_integration_points(k_max, k_min=0.0):
+# Set-up
+kvnn = 6
+channels = ('1S0', '3S1')
+lamb = 1.35
+kmax, kmid, ntot = 15.0, 3.0, 120
 
-    # Interval of integration
-    interval = k_max - k_min
-    
-    # Basing these numbers off expected kF values
-    if interval >= 1.2:
-        ntot_k = 60
-    elif 1.2 > interval >= 1.0:
-        ntot_k = 50
-    elif 1.0 > interval >= 0.8:
-        ntot_k = 40
-    elif 0.8 > interval >= 0.6:
-        ntot_k = 30
-    elif 0.6 > interval >= 0.4:
-        ntot_k = 20
-    else:
-        ntot_k = 10
-            
-    return ntot_k
+# Initialize classes
+pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
+snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
+                                             ntot)
 
+# Get nucleonic densities
+nucleus = 'He4'
+Z = 2
+N = 2
+# nucleus = 'He8'
+# Z = 2
+# N = 6
+R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
+rho_n_array = rho_p_array
+dR = R_array[1] - R_array[0]
 
-def theta_deltaU2_diff(kF_1, kF_2, K, k_array, ntot_k):
-    
-    # Make \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) the same length as
-    # k_array
-    theta_deltaU2 = np.zeros(ntot_k)
-        
-    # Loop over each momenta k and go through the four cases
-    for i, k in enumerate(k_array):
-            
-        # Case 1: 2k+K < 2kF_1 and 2k+K < 2kF_2
-        if 2*k+K <= 2*kF_1 and 2*k+K <= 2*kF_2:
-            theta_deltaU2[i] = 1
-                
-        # Case 2: 2k+K > 2kF_1 and 2k+K > 2kF_2 and 
-        # 4k^2+K^2 < 2(kF_1^2+kF_2^2)
-        elif 2*k+K > 2*kF_1 and 2*k+K > 2*kF_2 and \
-             4*k**2 + K**2 <= 2*(kF_1**2 + kF_2**2):
-            theta_deltaU2[i] = ( 2*(kF_1**2 + kF_2**2) - 4*k**2 - K**2 ) \
-                               / (4*k*K)
-                            
-        # Case 3: 2k+K < 2kF_2 and -4 < (4k^2 - 4kF_1^2 + K^2)/(kK) < 4
-        elif 2*k+K <= 2*kF_2 and -4 < (4*k**2-4*kF_1**2+K**2)/(k*K) <= 4:
-            theta_deltaU2[i] = ( 4*kF_1**2 - (K-2*k)**2 ) / (8*k*K)
-                
-        # Case 4: 2k+K < 2kF_1 and -4 < (4k^2 - 4kF_2^2 + K^2)/(kK) < 4
-        elif 2*k+K <= 2*kF_1 and -4 < (4*k**2-4*kF_2**2+K**2)/(k*K) <= 4:
-            theta_deltaU2[i] = ( 4*kF_2**2 - (K-2*k)**2 ) / (8*k*K)
-                
-        # Otherwise, F(K,k) = 0
-            
-    return theta_deltaU2
+# Get momentum (channel argument doesn't matter here)
+q_array, _ = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
 
+# Evaluate kF values at each point in R_array to set max value of Q
+kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
+kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
 
-def theta_deltaU2_same(kF, K, k_array, ntot_k):
-    
-    # Make \theta( k_F - \abs(K_vec/2 +(-) k_vec) ) the same length as k_array
-    theta_deltaU2 = np.zeros(ntot_k)
-        
-    # Loop over each momenta k and go through the two inequalities
-    for i, k in enumerate(k_array):
-                
-        # Case 1: k < kF-K/2 F(K,k) = 1
-        if k < kF-K/2:
-            theta_deltaU2[i] = 1
-                
-        # Case 2: kF-K/2 < k < \sqrt(kF^2-K^2/4)
-        # -> F(K,k) = ( kF^2 - k^2 - K^2/4 ) / (k*K)
-        elif kF-K/2 < k < np.sqrt(kF**2-K**2/4):
-            theta_deltaU2[i] = ( kF**2 - k**2 - K**2/4 ) / ( k*K )
+# Get C.o.M. momentum for pair distribution
+Q_max = max(kFp_array) + max(kFn_array)
+ntot_Q = 50
+Q_array, _ = gaussian_quadrature_mesh(Q_max, ntot_Q)
 
-        # Otherwise, k > \sqrt(kF^2-K^2/4) and F(K,k) = 0
-                
-    return theta_deltaU2
+# Evaluate p distribution for each q
+t0 = time.time()
+n_p_array = snmd.n_total(q_array, R_array, dR, rho_p_array, rho_n_array)
+t1 = time.time()
+mins = (t1-t0)/60
+print('Proton momentum distribution done after %.5f minutes.' % mins)
 
-
-def integrand_K(kF_1, kF_2, K, k_array, k_weights, ntot_k, case='snmd'):
-    
-    if case == 'snmd':
-        theta_k = theta_deltaU2_diff(kF_1, kF_2, K, k_array, ntot_k)
-    elif case == 'dmd':
-        kF = kF_1
-        theta_k = theta_deltaU2_same(kF, K, k_array, ntot_k)
-    integration_measure = 4*np.pi*k_weights*k_array**2
-    return np.sum(theta_k*integration_measure)
-
-
-def integral(kF_1, kF_2, K_array, K_weights, ntot_K, case='snmd'):
-    
-    integrand = np.zeros(ntot_K)
-    for iK, K in enumerate(K_array):
-        
-        kF_min = min(kF_1, kF_2)
-        kmin = max(K/2 - kF_min, 0)
-        kmax = min( np.sqrt( ( kF_1**2 + kF_2**2 )/2 - K**2/4 ), kF_min + K/2 )
-
-        # Select number of integration points based on kmax_delU2
-        ntot_k = select_number_integration_points(kmax, kmin)
-
-        # Get Gaussian quadrature mesh
-        k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot_k, xmin=kmin)
-        
-        integrand[iK] = integrand_K(kF_1, kF_2, K, k_array, k_weights, ntot_k,
-                                    case)
-        
-    integrand *= 4*np.pi*K_weights*K_array**2
-    return np.sum(integrand)
-    
-if __name__ == '__main__':
-    
-    # kF = 0.1
-    # kF = 0.5
-    # kF = 1.0
-    kF = 1.3
-    kF_1 = kF
-    kF_2 = kF
-    # case = 'snmd'
-    case = 'dmd'
-    
-    # Create meshes
-    Kmax = kF_1 + kF_2
-    # Total number of points
-    if Kmax >= 2.0:
-        Ntot = 50
-    elif 2.0 > Kmax >= 1.6:
-        Ntot = 40
-    elif 1.6 > Kmax >= 1.2:
-        Ntot = 30
-    elif 1.2 > Kmax >= 0.8:
-        Ntot = 20
-    else:
-        Ntot = 10
-    K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ntot)
-    
-    value = integral(kF_1, kF_2, K_array, K_weights, Ntot, case)
-    
-    exact = (4*np.pi)**2 * kF**6/9
-    print('Numerical = %.5f' % value )
-    print('Exact = %.5f' % exact)
+# Evaluate pn distribution for each q and Q
+t0 = time.time()
+n_pn_array = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
+                         rho_n_array)
+t1 = time.time()
+mins = (t1-t0)/60
+print('pn pair momentum distribution done after %.5f minutes.' % mins)

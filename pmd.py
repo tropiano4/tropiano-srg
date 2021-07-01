@@ -881,13 +881,13 @@ if __name__ == '__main__':
     from densities import load_density
     import time
     
-    nucleus = 'C12'
-    Z = 6
-    N = 6
+    # nucleus = 'C12'
+    # Z = 6
+    # N = 6
     
-    # nucleus = 'He4'
-    # Z = 2
-    # N = 2
+    nucleus = 'He4'
+    Z = 2
+    N = 2
     
     if nucleus == 'He4':
         R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
@@ -904,7 +904,7 @@ if __name__ == '__main__':
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
     # Q_max = 3.0
     Q_max = max(kFp_array) + max(kFn_array)
-    print('Max Q = %.5f fm^-1' % Q_max)
+    # ('Max Q = %.5f fm^-1' % Q_max)
     ntot_Q = 50
     Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
     
@@ -950,7 +950,7 @@ if __name__ == '__main__':
     print('Normalization = %.5f' % normalization)
         
     # Add AV18 data with error bars
-    av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd_q.txt' % nucleus)
+    av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd.txt' % nucleus)
     q_array_av18 = av18_data[:, 0] # fm^-1
     n_pn_array_av18 = av18_data[:, 1]
     pn_error_bars_array_av18 = av18_data[:, 2]

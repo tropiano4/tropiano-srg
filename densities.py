@@ -52,6 +52,14 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
         C.o.M. coordinates [fm].
     rho_array : 1-D ndarray
         Nucleonic density as a function of R [# of nucleons / vol].
+                                              
+    Notes
+    -----
+    Momentum distributions code compute intermediate integration arrays in 
+    relative k and C.o.M. K which rely on kF(R) values. These values can be
+    zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
+    extremely small number so the codes run correctly to avoid zero division
+    errors. (This only happens for edf = 'AV18' densities.)
     
     """
 
@@ -90,6 +98,10 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     
     R_array = table[:, 0]
     rho_array = table[:, column_number]
+    
+    # Avoiding zero division errors
+    zero_case = rho_array == 0
+    rho_array[zero_case] = 1e-30
     
     return R_array, rho_array
 

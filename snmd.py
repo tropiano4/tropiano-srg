@@ -874,7 +874,6 @@ if __name__ == '__main__':
     
 
     # Generate all data for single-nucleon momentum distributions
-    # Currently this takes about ~XX hours to run
     import time
     
     # Potentials
@@ -894,8 +893,7 @@ if __name__ == '__main__':
     # nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('C12', 6, 6), ('O16', 8, 8),
     #                 ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
     #                 ('Pb208', 82, 126) ]
-    nuclei_list = [ ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-                    ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) ]
+    nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6) ]
     
     # Loop over every case generating data files
     for kvnn in kvnns_list:
