@@ -890,9 +890,9 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 15.0, 3.0, 120 # Default
 
     # Nuclei to calculate
-    # nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('C12', 6, 6), ('O16', 8, 8),
-    #                 ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
-    #                 ('Pb208', 82, 126) ]
+    # nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5), ('C12', 6, 6),
+    #                 ('O16', 8, 8), ('Ca40', 20, 20), ('Ca48', 20, 28),
+    #                 ('Fe56', 26, 30), ('Pb208', 82, 126) ]
     nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6) ]
     
     # Loop over every case generating data files
