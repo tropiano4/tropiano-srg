@@ -1,18 +1,17 @@
 
 --- SRC ---
 
- * Why does He4 disagree?
-   - Try adding more partial waves?
-
  * Update dmd.py, pmd.py, old files to Old_codes, test notebooks
 
  * Try profiler on snmd.py to figure out where its slowest?
 
  * Make src_physics_fig_v1.ipynb, src_physics_write_data_v1.ipynb and src_physics_fig.ipynb, src_physics_write_data.ipynb
 
- * Add q=0 case to pmd.py
-
  * Read Neff/Feldmeyer paper
+
+ * Read Sushant papers (reproduce results)
+
+ * Add q=0 case to pmd.py
 
  * Outline for new paper
 
