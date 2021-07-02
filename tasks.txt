@@ -10,8 +10,7 @@
  * Read Neff/Feldmeyer paper
 
  * Read Sushant papers (reproduce results)
-
- * Add q=0 case to pmd.py
+   - Questions for DF
 
  * Outline for new paper
 
