@@ -60,7 +60,7 @@ from srg.srg_unitary_transformation import SRG_unitary_transformation
 class deuteron_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, lamb, kmax=0.0, kmid=0.0, ntot=0, interp=False):
+    def __init__(self, kvnn, lamb, kmax, kmid, ntot, interp=False):
         """
         Evaluates and saves 3S1-3D1 matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -71,12 +71,12 @@ class deuteron_momentum_distributions(object):
             This number specifies the potential.
         lamb : float
             SRG evolution parameter lambda [fm^-1].
-        kmax : float, optional
+        kmax : float
             Maximum value in the momentum mesh [fm^-1]. (Default of zero
             automatically selects default mesh based on kvnn.)
-        kmid : float, optional
+        kmid : float
             Mid-point value in the momentum mesh [fm^-1].
-        ntot : int, optional
+        ntot : int
             Number of momentum points in mesh.
         interp : bool, optional
             Option to use interpolated n_\lambda(q) functions.
@@ -99,9 +99,6 @@ class deuteron_momentum_distributions(object):
             # Load and save momentum arrays
             k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid,
                                                    ntot)
-            # Make sure you get actual size of momentum array
-            if ntot == 0:
-                ntot = len(k_array)
             # Save k_array, k_weights, ntot
             self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
             
@@ -316,7 +313,7 @@ class deuteron_momentum_distributions(object):
         # Integrate over R
         # This is a (ntot_q, 1) size array
         # Factor of 2 is overall factor
-        return 2 * 4*np.pi * np.sum(integrand_R, axis=-1)
+        return 2 * np.sum(integrand_R, axis=-1)
     
     
     def n_deltaU(self, q_array, R_array, dR, kF_array):
@@ -398,7 +395,7 @@ class deuteron_momentum_distributions(object):
 
         # Integrate over R
         # This is a (ntot_q, 1) size array
-        return 4*np.pi * np.sum(integrand_R, axis=-1)
+        return np.sum(integrand_R, axis=-1)
 
 
     def n_deltaU2(self, q_array, R_array, dR, kF_array):
@@ -527,7 +524,7 @@ class deuteron_momentum_distributions(object):
         
         # Integrate over R
         # This is a (ntot_q, 1) size array
-        return 4*np.pi * np.sum(integrand_R, axis=-1)
+        return np.sum(integrand_R, axis=-1)
             
     
     def n_total(self, q_array, R_array, dR):
@@ -628,8 +625,6 @@ class deuteron_momentum_distributions(object):
     
         # Calculate the deuteron nucleonic density [fm^-3]
         rho_array = psi_R_3S1**2 + psi_R_3D1**2
-        for ir, irho in zip(R_array, rho_array):
-            print(ir, irho)
 
         # Evaluate kF values at each point in R_array
         kF_array = (3*np.pi**2 * rho_array)**(1/3)
@@ -666,7 +661,7 @@ class deuteron_momentum_distributions(object):
         R_array, _ = load_density('C12', 'proton', 6, 6)
         dR = R_array[2] - R_array[1] # Assuming linear spacing
 
-        # Calculate n_\lambda^d(k) for each k in k_array
+        # Calculate n_\lambda^d(q) for each q in q_array
         n_I_array, n_delU_array, n_delU2_array = self.n_contributions(q_array,
                                                                       R_array,
                                                                       dR)
@@ -681,13 +676,13 @@ class deuteron_momentum_distributions(object):
                   'total', '1', '\delta U', '\delta U^2')
         f.write(header + '\n')
     
-        # Loop over momenta k
-        for ik, k in enumerate(q_array):
+        # Loop over momenta q
+        for iq, q in enumerate(q_array):
 
             # Write to data file following the format from the header
-            line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( k,
-                            n_total_array[ik], n_I_array[ik], n_delU_array[ik],
-                            n_delU2_array[ik] )
+            line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( q,
+                            n_total_array[iq], n_I_array[iq], n_delU_array[iq],
+                            n_delU2_array[iq] )
             f.write('\n' + line)
 
         # Close file
@@ -720,7 +715,7 @@ class deuteron_momentum_distributions(object):
         # Split data into 1-D arrays for each column
         q_array = data[:, 0] # Momentum in fm^-1
         n_total_array = data[:, 1] # Total distribution
-        n_1_array = data[:, 2] # 1 term
+        n_I_array = data[:, 2] # 1 term
         n_delU_array = data[:, 3] # \delta U term
         n_delU2_array = data[:, 4] # \delta U^2 term
         
@@ -728,7 +723,7 @@ class deuteron_momentum_distributions(object):
         # interp1d gives closer value to the actual calculation)
         n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
                                 kind='cubic', fill_value='extrapolate')
-        n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
+        n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
                             kind='cubic', fill_value='extrapolate')
         n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
                                kind='cubic', fill_value='extrapolate')
@@ -737,7 +732,7 @@ class deuteron_momentum_distributions(object):
         
         # Return all contributions with total first
         # Note, these are functions of q
-        return n_total_func, n_1_func, n_delU_func, n_delU2_func
+        return n_total_func, n_I_func, n_delU_func, n_delU2_func
     
     
     def n_lambda_exact(self, q, contributions='total'):

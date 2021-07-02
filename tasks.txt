@@ -1,10 +1,6 @@
 
 --- SRC ---
 
- * Update dmd.py, pmd.py, old files to Old_codes, test notebooks
-
- * Try profiler on snmd.py to figure out where its slowest?
-
  * Make src_physics_fig_v1.ipynb, src_physics_write_data_v1.ipynb and src_physics_fig.ipynb, src_physics_write_data.ipynb
 
  * Read Neff/Feldmeyer paper
@@ -20,12 +16,16 @@
 
  * Read QE electron scattering references
 
- * Would it be a better approximation to use block-diagonal decoupling with LDA?
-
  * Updates to momentum distributions file
    - Figure out consistent continuum and partial wave basis normalizations
      * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
    - Attach codes and figures
+
+--- Momentum distributions ---
+* Figure bug in last Q point in pmd.py files
+* Try profiler on snmd.py to figure out where its slowest
+* q = 0 case in pmd.py
+* Would it be a better approximation to use block-diagonal decoupling with HF+LDA?
 
 --- Potentials ---
 * Fix Potentials Fortran/Perl codes

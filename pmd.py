@@ -21,6 +21,7 @@
 #                version as pmd_v1.py in Old_codes.
 #   06/23/21 --- Speeding up code by switching from loops to np.sum() to do
 #                integrations. Saved old version as pmd_v2.py in Old_codes. 
+#   07/02/21 --- Added interpolation option for n_{\lambda}(q, Q).
 #
 #------------------------------------------------------------------------------
 
@@ -28,6 +29,8 @@
 import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
+from densities import load_density
+from figures import figures_functions as ff
 from misc.integration import gaussian_quadrature_mesh
 from potentials.vsrg_macos import vnn
 from srg.srg_unitary_transformation import SRG_unitary_transformation
@@ -36,7 +39,7 @@ from srg.srg_unitary_transformation import SRG_unitary_transformation
 class pair_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, channels, lamb, kmax=0.0, kmid=0.0, ntot=0):
+    def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot, interp=False):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -49,123 +52,138 @@ class pair_momentum_distributions(object):
             Partial wave channels to include in the calculation.
         lamb : float
             SRG evolution parameter lambda [fm^-1].
-        kmax : float, optional
+        kmax : float
             Maximum value in the momentum mesh [fm^-1].
-        kmid : float, optional
+        kmid : float
             Mid-point value in the momentum mesh [fm^-1].
-        ntot : int, optional
+        ntot : int
             Number of momentum points in mesh.
+        interp : bool, optional
+            Option to use interpolated n_\lambda(q, Q) functions.
             
         """
-
-        # Save highest allowed L based on input channels
-        highest_L = 0
-        for channel in channels:
-            next_L = vnn.channel_L_value(channel)
-            if next_L > highest_L:
-                highest_L = next_L
         
-        # Load and save momentum arrays
-        k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-        # Make sure you get actual size of momentum array
-        if ntot == 0:
-            ntot = len(k_array)
-        
-        # For dividing out momenta/weights
-        factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
-        # For coupled-channel matrices
-        factor_array_cc = np.concatenate( (factor_array, factor_array) )
+        # Get relevant info for file and directory names
+        # Part of data directory name
+        self.kvnn = kvnn 
+        # Part of file name
+        self.channels = channels
+        self.lamb = lamb
+        self.kmax = kmax
+        self.ntot = ntot
 
-        # Initialize pp and pn matrix elements
-        deltaU_pp = np.zeros( (ntot, ntot) ) # \delta U linear term
-        deltaU_pn = np.zeros( (ntot, ntot) )
-        deltaU2_pp = np.zeros( (ntot, ntot) ) # \delta U \delta U^\dagger term
-        deltaU2_pn = np.zeros( (ntot, ntot) )
-        
-        # Allowed channels for pp (and nn) up through the D-waves
-        pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
-        
-        # Loop over channels and evaluate matrix elements
-        for channel in channels:
-
-            # Load SRG transformation
-            H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
-            H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 
-                                             method='srg', generator='Wegner', 
-                                             lamb=lamb)
-            # Load U(k, k') [unitless]
-            U_matrix_unitless = SRG_unitary_transformation(H_initial,
-                                                           H_evolved)
-
-            # Isolate 2-body term and convert to fm^3
-            if vnn.coupled_channel(channel):
-                I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
-                row, col = np.meshgrid(factor_array_cc, factor_array_cc)
-            else:
-                I_matrix_unitless = np.eye(ntot, ntot)
-                row, col = np.meshgrid(factor_array, factor_array)
-            delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
-            delta_U_matrix = delta_U_matrix_unitless / row / col # fm^3
+        if interp == False:
             
-            # 2J+1 factor
-            J = int( channel[-1] )
-            
-            # Add to the pp and pn terms
-            # Coupled-channel
-            if vnn.coupled_channel(channel):
-                    
-                # First L of coupled-channel
-                # Isospin CG's=1/\sqrt(2) for pn
-                deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
-                deltaU2_pn += (2*J+1)/2 * ( delta_U_matrix[:ntot, :ntot]**2 + \
-                                            delta_U_matrix[:ntot, ntot:]**2 )
+            # Save highest allowed L based on input channels
+            highest_L = 0
+            for channel in channels:
+                next_L = vnn.channel_L_value(channel)
+                if next_L > highest_L:
+                    highest_L = next_L
+        
+            # Load and save momentum arrays
+            k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+            # Save k_array for writing files
+            self.k_array = k_array
+        
+            # For dividing out momenta/weights
+            factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
+            # For coupled-channel matrices
+            factor_array_cc = np.concatenate( (factor_array, factor_array) )
 
-                # Isospin CG's=1 for pp
-                if channel in pp_channels:
-                    deltaU_pp += (2*J+1) * delta_U_matrix[:ntot, :ntot]
-                    deltaU2_pp += (2*J+1) * ( delta_U_matrix[:ntot, :ntot]**2 \
-                                            + delta_U_matrix[:ntot, ntot:]**2 )
+            # Initialize pp and pn matrix elements
+            deltaU_pp = np.zeros( (ntot, ntot) ) # \delta U linear term
+            deltaU_pn = np.zeros( (ntot, ntot) )
+            deltaU2_pp = np.zeros( (ntot, ntot) ) # \delta U \delta U^\dagger term
+            deltaU2_pn = np.zeros( (ntot, ntot) )
+        
+            # Allowed channels for pp (and nn) up through the D-waves
+            pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
+        
+            # Loop over channels and evaluate matrix elements
+            for channel in channels:
+
+                # Load SRG transformation
+                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                 ntot)
+                H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                 ntot, method='srg',
+                                                 generator='Wegner', lamb=lamb)
+                # Load U(k, k') [unitless]
+                U_matrix_unitless = SRG_unitary_transformation(H_initial,
+                                                               H_evolved)
+
+                # Isolate 2-body term and convert to fm^3
+                if vnn.coupled_channel(channel):
+                    I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
+                    row, col = np.meshgrid(factor_array_cc, factor_array_cc)
+                else:
+                    I_matrix_unitless = np.eye(ntot, ntot)
+                    row, col = np.meshgrid(factor_array, factor_array)
+                delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
+                delta_U_matrix = delta_U_matrix_unitless / row / col # fm^3
+            
+                # 2J+1 factor
+                J = int( channel[-1] )
+            
+                # Add to the pp and pn terms
+                # Coupled-channel
+                if vnn.coupled_channel(channel):
                     
-                # Decide whether to add second L based on highest allowed
-                # L value (e.g., 0 + 2 <= 2 meaning we include the 3D1-3D1
-                # part of the coupled 3S1-3D1 channel if we input D-waves
-                # in channels)
-                if vnn.channel_L_value(channel) + 2 <= highest_L:
-                    deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
+                    # First L of coupled-channel
+                    # Isospin CG's=1/\sqrt(2) for pn
+                    deltaU_pn += (2*J+1)/2 * delta_U_matrix[:ntot, :ntot]
                     deltaU2_pn += (2*J+1)/2 * ( \
-                                  delta_U_matrix[ntot:, :ntot]**2 + \
-                                  delta_U_matrix[ntot:, ntot:]**2 )
-                        
-                    if channel in pp_channels:
-                        deltaU_pp += (2*J+1) * delta_U_matrix[ntot:, ntot:]
-                        deltaU2_pp += (2*J+1) * ( \
-                                            delta_U_matrix[ntot:, :ntot]**2 + \
-                                            delta_U_matrix[ntot:, ntot:]**2 )
-            
-            else:
-                
-                # Isospin CG's=1/\sqrt(2) for pn
-                deltaU_pn += (2*J+1)/2 * delta_U_matrix
-                deltaU2_pn += (2*J+1)/2 * delta_U_matrix**2
-                
-                # Isospin CG's=1 for pp
-                if channel in pp_channels:
-                    deltaU_pp += (2*J+1) * delta_U_matrix
-                    deltaU2_pp += (2*J+1) * delta_U_matrix**2
+                                      delta_U_matrix[:ntot, :ntot]**2 + \
+                                      delta_U_matrix[:ntot, ntot:]**2 )
 
-        # Interpolate pp and pn < k | \delta U | k >
-        self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
-                                        kind='cubic', bounds_error=False,
-                                        fill_value='extrapolate' )
-        self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
-                                        kind='cubic', bounds_error=False,
-                                        fill_value='extrapolate' )
+                    # Isospin CG's=1 for pp
+                    if channel in pp_channels:
+                        deltaU_pp += (2*J+1) * delta_U_matrix[:ntot, :ntot]
+                        deltaU2_pp += (2*J+1) * ( \
+                                          delta_U_matrix[:ntot, :ntot]**2 \
+                                        + delta_U_matrix[:ntot, ntot:]**2 )
+                    
+                    # Decide whether to add second L based on highest allowed
+                    # L value (e.g., 0 + 2 <= 2 meaning we include the 3D1-3D1
+                    # part of the coupled 3S1-3D1 channel if we input D-waves
+                    # in channels)
+                    if vnn.channel_L_value(channel) + 2 <= highest_L:
+                        deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
+                        deltaU2_pn += (2*J+1)/2 * ( \
+                                          delta_U_matrix[ntot:, :ntot]**2 + \
+                                          delta_U_matrix[ntot:, ntot:]**2 )
+                        
+                        if channel in pp_channels:
+                            deltaU_pp += (2*J+1) * delta_U_matrix[ntot:, ntot:]
+                            deltaU2_pp += (2*J+1) * ( \
+                                              delta_U_matrix[ntot:, :ntot]**2 \
+                                            + delta_U_matrix[ntot:, ntot:]**2 )
+            
+                else:
+                
+                    # Isospin CG's=1/\sqrt(2) for pn
+                    deltaU_pn += (2*J+1)/2 * delta_U_matrix
+                    deltaU2_pn += (2*J+1)/2 * delta_U_matrix**2
+                
+                    # Isospin CG's=1 for pp
+                    if channel in pp_channels:
+                        deltaU_pp += (2*J+1) * delta_U_matrix
+                        deltaU2_pp += (2*J+1) * delta_U_matrix**2
+
+            # Interpolate pp and pn < k | \delta U | k >
+            self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
+                                            kind='cubic', bounds_error=False,
+                                            fill_value='extrapolate' )
+            self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
+                                            kind='cubic', bounds_error=False,
+                                            fill_value='extrapolate' )
         
-        # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
-        self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
-                                                   deltaU2_pp)
-        self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
-                                                   deltaU2_pn)
+            # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
+            self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
+                                                       deltaU2_pp)
+            self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
+                                                       deltaU2_pn)
 
 
     def theta_I(self, q_mesh, Q_mesh, kF1_mesh, kF2_mesh):
@@ -436,7 +454,7 @@ class pair_momentum_distributions(object):
     
     
     def n_deltaU(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array,
-                 distribution='pn'):
+                 pair):
         """
         Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
         we are combining \delta U and \delta U^\dagger, hence the factor of 2.
@@ -457,7 +475,7 @@ class pair_momentum_distributions(object):
         kF2_array : 1-D ndarray
             Fermi momentum [fm^-1] for the second nucleon corresponding to
             \tau' with respect to R.
-        distribution : str, optional
+        pair : str
             Type of pair momentum distribution ('pp' or 'pn'). This will tell
             the function to either set isospin CGs to 1 or 1/\sqrt(2) (no need
             to specify 'nn' or 'np').
@@ -484,9 +502,9 @@ class pair_momentum_distributions(object):
         theta_mesh = self.theta_deltaU(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
         
         # Evaluate < q | \delta U | q >
-        if distribution == 'pp':
+        if pair == 'pp':
             deltaU_mesh = self.deltaU_pp_func(q_mesh)
-        elif distribution == 'pn':
+        elif pair == 'pn':
             deltaU_mesh = self.deltaU_pn_func(q_mesh)
 
         # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
@@ -505,7 +523,7 @@ class pair_momentum_distributions(object):
         
     
     def n_deltaU2(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array,
-                  distribution='pn'):
+                  pair):
         """
         Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
 
@@ -525,7 +543,7 @@ class pair_momentum_distributions(object):
         kF2_array : 1-D ndarray
             Fermi momentum [fm^-1] for the second nucleon corresponding to
             \tau' with respect to R.
-        distribution : str, optional
+        pair : str
             Type of pair momentum distribution ('pp' or 'pn'). This will tell
             the function to either set isospin CGs to 1 or 1/\sqrt(2) (no need
             to specify 'nn' or 'np').
@@ -539,7 +557,7 @@ class pair_momentum_distributions(object):
         """
         
         # Set number of k points for integration over k
-        self.ntot_k = 50
+        self.ntot_k = 40
         
         # Initialize 4-D meshgrids (q, Q, R, k) with k values equal to 0
         q_mesh, Q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, Q_array, R_array,
@@ -587,9 +605,9 @@ class pair_momentum_distributions(object):
         theta_mesh = self.theta_deltaU2(Q_mesh, kF1_mesh, kF2_mesh, k_mesh)
         
         # Evaluate < k | \delta U | q > < q | \delta U^\dagger | k >
-        if distribution == 'pp':
+        if pair == 'pp':
             deltaU2_mesh = self.deltaU2_pp_func.ev(k_mesh, q_mesh)
-        elif distribution == 'pn':
+        elif pair == 'pn':
             deltaU2_mesh = self.deltaU2_pn_func.ev(k_mesh, q_mesh)
 
         # Contractions of a's, 1/4 factors, and [ 1 - (-1)^(L+S+T) ] factors
@@ -652,19 +670,19 @@ class pair_momentum_distributions(object):
         # Calculate kF2 array if pn or np distribution
         if rho_2_array.any():
             kF2_array = (3*np.pi**2 * rho_2_array)**(1/3)
-            distribution = 'pn'
+            pair = 'pn'
         # Otherwise set kF2=kF1 where previous functions will give pp or nn
         # distributions (depending on kF_1)
         else:
             kF2_array = kF1_array
-            distribution = 'pp'
+            pair = 'pp'
             
         # Get each contribution with respect to q and Q
         n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
         n_deltaU = self.n_deltaU(q_array, Q_array, R_array, dR, kF1_array,
-                                 kF2_array, distribution)
+                                 kF2_array, pair)
         n_deltaU2 = self.n_deltaU2(q_array, Q_array, R_array, dR, kF1_array,
-                                   kF2_array, distribution)
+                                   kF2_array, pair)
         
         # Return total (ntot_q, ntot_Q)
         return n_I + n_deltaU + n_deltaU2
@@ -716,26 +734,189 @@ class pair_momentum_distributions(object):
         # Calculate kF2 array if pn or np distribution
         if rho_2_array.any():
             kF2_array = (3*np.pi**2 * rho_2_array)**(1/3)
-            distribution = 'pn'
+            pair = 'pn'
         # Otherwise set kF2=kF1 where previous functions will give pp or nn
         # distributions (depending on kF_1)
         else:
             kF2_array = kF1_array
-            distribution = 'pp'
+            pair = 'pp'
             
         # Get each contribution with respect to q and Q
         n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
         n_deltaU = self.n_deltaU(q_array, Q_array, R_array, dR, kF1_array,
-                                 kF2_array, distribution)
+                                 kF2_array, pair)
         n_deltaU2 = self.n_deltaU2(q_array, Q_array, R_array, dR, kF1_array,
-                                   kF2_array, distribution)
+                                   kF2_array, pair)
         
         # Return tuple of contributions ( (ntot_q, ntot_Q), ... )
         return n_I, n_deltaU, n_deltaU2
     
     
-    def n_Q0(self, q_array, R_array, dR, rho_1_array,
-                       rho_2_array=np.empty(0)):
+    def write_file(self, nucleus, pair, Z, N, edf='SLY4'):
+        """
+        Write pair momentum distribution file for interpolation purposes.
+        Split things into total, I, \delta U, and \delta U^2 contributions.
+
+        Parameters
+        ----------
+        nucleus : str
+            Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+        pair : str
+            Specify 'pp', 'pn', or 'nn'.
+        Z : int
+            Proton number of the nucleus.
+        N : int
+            Neutron number of the nucleus.
+        edf : str, optional
+            Name of EDF (e.g., 'SLY4').
+            
+        Notes
+        -----
+        'pn' means \tau = +1/2 and \tau' = -1/2 and does NOT account for the
+        opposite case (np). Many references combine these two. Multiply by 2 to
+        match those references.
+
+        """
+        
+        # Get relative momentum values
+        q_array = self.k_array
+        
+        # Directory for distributions data
+        data_directory = 'data/pmd/kvnn_%d' % self.kvnn
+        
+        # Create file name
+        file_name = '%s_%s_channels' % (nucleus, pair)
+        # Add each channel to file name
+        for channel in self.channels:
+            file_name += '_%s' % channel
+        file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        file_name = ff.replace_periods(file_name) + '.dat'
+        
+        # Load R values and nucleonic densities (the R_array's are the same)
+        R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, edf)
+        if edf == 'AV18' and Z == N: # e.g., AV18 He4 densities
+            rho_n_array = rho_p_array
+        else: # e.g., AV18 He8 densities
+            R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
+        dR = R_array[2] - R_array[1] # Assuming linear spacing
+        
+        # Evaluate kF values to determine upper limit of Q
+        kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
+        kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
+        
+        # Set C.o.M. momentum values (note, these values will be different for
+        # each pair distribution)
+        if pair == 'pp':
+            Q_max = 2*max(kFp_array)
+        elif pair == 'nn':
+            Q_max = 2*max(kFn_array)
+        else:
+            Q_max = max(kFp_array) + max(kFn_array)
+        ntot_Q = 40
+        Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
+
+        # Calculate n_\lambda^\tau(q, Q) for each q in q_array and Q in Q_array
+        if pair == 'pp':
+            n_I_array, n_delU_array, n_delU2_array = self.n_contributions(
+                                    q_array, Q_array, R_array, dR, rho_p_array)
+        elif pair == 'nn':
+            n_I_array, n_delU_array, n_delU2_array = self.n_contributions(
+                                    q_array, Q_array, R_array, dR, rho_n_array)
+        else: # pn pair
+            n_I_array, n_delU_array, n_delU2_array = self.n_contributions(
+                       q_array, Q_array, R_array, dR, rho_p_array, rho_n_array)
+            
+        # Total momentum distribution
+        n_total_array = n_I_array + n_delU_array + n_delU2_array
+    
+        # Open file and write header where we allocate roughly 18 centered
+        # spaces for each label
+        f = open(data_directory + '/' + file_name, 'w')
+        header = '#' + '{:^17s}{:^18s}{:^18s}{:^18s}{:^18s}{:^18s}'.format('q',
+                 'Q', 'total', '1', '\delta U', '\delta U^2')
+        f.write(header + '\n')
+    
+        # Loop over momenta q and Q
+        for iq, q in enumerate(q_array):
+            for iQ, Q in enumerate(Q_array):
+
+                # Write to data file following the format from the header
+                line = '{:^18.6f}{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}' \
+                       .format( q, Q, n_total_array[iq, iQ], n_I_array[iq, iQ],
+                                n_delU_array[iq, iQ], n_delU2_array[iq, iQ] )
+                f.write('\n' + line)
+
+        # Close file
+        f.close()
+        
+        
+    def n_lambda_interp(self, nucleus, pair, Z, N):
+        """
+        Interpolate the pair momentum distribution for the specified file.
+
+        Parameters
+        ----------
+        nucleus : str
+            Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+        pair : str
+            Specify 'pp', 'pn', or 'nn'.
+        Z : int
+            Proton number of the nucleus.
+        N : int
+            Neutron number of the nucleus.
+        edf : str, optional
+            Name of EDF (e.g., 'SLY4').
+            
+        Notes
+        -----
+        'pn' means \tau = +1/2 and \tau' = -1/2 and does NOT account for the
+        opposite case (np). Many references combine these two. Multiply by 2 to
+        match those references.
+
+        """
+        
+        # Directory for distributions data
+        data_directory = 'data/pmd/kvnn_%d' % self.kvnn
+        
+        # Get file name
+        file_name = '%s_%s_channels' % (nucleus, pair)
+        # Add each channel to file name
+        for channel in self.channels:
+            file_name += '_%s' % channel
+        file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        file_name = ff.replace_periods(file_name) + '.dat'
+        
+        # Load data which includes all contributions to n_\lambda(q)
+        data = np.loadtxt(data_directory + '/' + file_name)
+
+        # Get C.o.M. and relative momentum values
+        ntot_Q = 40
+        ntot_q = self.ntot
+        q_array = np.reshape( data[:, 0], (ntot_q, ntot_Q) )[:, 0]
+        Q_array = np.reshape( data[:, 1], (ntot_q, ntot_Q) )[0, :]
+        
+        # Split data into 1-D arrays for each column
+        # Total distribution
+        n_total_array = np.reshape( data[:, 2], (ntot_q, ntot_Q) )
+        # 1 term
+        n_I_array = np.reshape( data[:, 3], (ntot_q, ntot_Q) )
+        # \delta U term
+        n_delU_array = np.reshape( data[:, 4], (ntot_q, ntot_Q) )
+        # \delta U^2 term
+        n_delU2_array = np.reshape( data[:, 5], (ntot_q, ntot_Q) )
+        
+        # Interpolate each array
+        n_total_func = RectBivariateSpline(q_array, Q_array, n_total_array)
+        n_I_func = RectBivariateSpline(q_array, Q_array, n_I_array)
+        n_delU_func = RectBivariateSpline(q_array, Q_array, n_delU_array)
+        n_delU2_func = RectBivariateSpline(q_array, Q_array, n_delU2_array)
+        
+        # Return all contributions with total first
+        # Note, these are functions of q and Q
+        return n_total_func, n_I_func, n_delU_func, n_delU2_func
+    
+    
+    def n_Q0(self, q_array, R_array, dR, rho_1_array, rho_2_array=np.empty(0)):
         """
         Pair momentum distribution evaluated at Q = 0 where the nucleonic
         densities specify the nucleus and distribution type (e.g., O16 and pn).
@@ -806,7 +987,9 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 15.0, 3.0, 120
     
     # Initialize class
-    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
+    # pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
+    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot,
+                                      interp=True)
     
     
     # # --- Compare to old pmd_new.py --- #
@@ -877,49 +1060,57 @@ if __name__ == '__main__':
         
     # --- Test normalization of n(q, Q) --- #
     import matplotlib.pyplot as plt
-    from figures import figures_functions as ff
-    from densities import load_density
     import time
     
-    # nucleus = 'C12'
-    # Z = 6
-    # N = 6
+    nucleus = 'C12'
+    Z = 6
+    N = 6
+    pair = 'pn'
+    # pair = 'pp'
     
-    nucleus = 'He4'
-    Z = 2
-    N = 2
+    # nucleus = 'He4'
+    # Z = 2
+    # N = 2
     
-    if nucleus == 'He4':
+    if Z < 6:
         R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
         rho_n_array = rho_p_array
     else:
         R_array, rho_p_array = load_density(nucleus, 'proton', Z, N)
         R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N)
-    dR = 0.1
+    dR = R_array[1] - R_array[0]
     
     # Evaluate kF values at each point in R_array to set max value of Q
     kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
     kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
     
     q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-    # Q_max = 3.0
-    Q_max = max(kFp_array) + max(kFn_array)
-    # ('Max Q = %.5f fm^-1' % Q_max)
-    ntot_Q = 50
+    # Set C.o.M. momentum values (note, these values will be different for
+    # each pair distribution)
+    if pair == 'pp':
+        Q_max = 2*max(kFp_array)
+    elif pair == 'nn':
+        Q_max = 2*max(kFn_array)
+    else:
+        Q_max = max(kFp_array) + max(kFn_array)
+    ntot_Q = 40
     Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
     
     # Get n_\lambda(q, Q) for each q and Q
     t0 = time.time()
-    n_lambda_2d = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
-                              rho_n_array)
+    # n_lambda_2d = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
+    #                           rho_n_array)
+    n_tot_func, _, _, _ = pmd.n_lambda_interp(nucleus, pair, Z, N)
     t1 = time.time()
     print( '%.5f minutes elapsed.' % ( (t1-t0)/60 ) )
     
     factor = 4*np.pi/(2*np.pi)**3
     
-    _, Q_mesh = np.meshgrid(q_array, Q_array**2*Q_weights, indexing='ij')
+    q_mesh, Q_mesh = np.meshgrid(q_array, Q_array, indexing='ij')
+    _, dQ_mesh = np.meshgrid(q_weights, Q_weights, indexing='ij')
+    n_lambda_2d = n_tot_func.ev(q_mesh, Q_mesh)
     
-    n_lambda_1d = factor * np.sum(Q_mesh * n_lambda_2d, axis=-1)
+    n_lambda_1d = factor * np.sum(Q_mesh**2 * Q_weights * n_lambda_2d, axis=-1)
     
     # Figure size
     row_number = 1
@@ -950,7 +1141,7 @@ if __name__ == '__main__':
     print('Normalization = %.5f' % normalization)
         
     # Add AV18 data with error bars
-    av18_data = np.loadtxt('Figures/SRC_physics/Data/AV18_%s_pmd.txt' % nucleus)
+    av18_data = np.loadtxt('data/qmc/AV18_%s_pmd_q.txt' % nucleus)
     q_array_av18 = av18_data[:, 0] # fm^-1
     n_pn_array_av18 = av18_data[:, 1]
     pn_error_bars_array_av18 = av18_data[:, 2]

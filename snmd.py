@@ -49,8 +49,7 @@ from srg.srg_unitary_transformation import SRG_unitary_transformation
 class single_nucleon_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, channels, lamb, kmax=0.0, kmid=0.0, ntot=0,
-                 interp=False):
+    def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot, interp=False):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -63,12 +62,12 @@ class single_nucleon_momentum_distributions(object):
             Partial wave channels to include in the calculation.
         lamb : float
             SRG evolution parameter lambda [fm^-1].
-        kmax : float, optional
+        kmax : float
             Maximum value in the momentum mesh [fm^-1]. (Default of zero
             automatically selects default mesh based on kvnn.)
-        kmid : float, optional
+        kmid : float
             Mid-point value in the momentum mesh [fm^-1].
-        ntot : int, optional
+        ntot : int
             Number of momentum points in mesh.
         interp : bool, optional
             Option to use interpolated n_\lambda(q) functions.
@@ -96,9 +95,6 @@ class single_nucleon_momentum_distributions(object):
             # Load and save momentum arrays
             k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid,
                                                    ntot)
-            # Make sure you get actual size of momentum array
-            if ntot == 0:
-                ntot = len(k_array)
             # Save k_array for writing files
             self.k_array = k_array
             
@@ -777,7 +773,7 @@ class single_nucleon_momentum_distributions(object):
             R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
         dR = R_array[2] - R_array[1] # Assuming linear spacing
 
-        # Calculate n_\lambda^\tau(k) for each k in k_array
+        # Calculate n_\lambda^\tau(q) for each q in q_array
         if nucleon == 'proton':
             n_I_array, n_delU_array, n_delU2_array = self.n_contributions(
                                 q_array, R_array, dR, rho_p_array, rho_n_array)
@@ -795,13 +791,13 @@ class single_nucleon_momentum_distributions(object):
                   'total', '1', '\delta U', '\delta U^2')
         f.write(header + '\n')
     
-        # Loop over momenta k
-        for ik, k in enumerate(q_array):
+        # Loop over momenta q
+        for iq, q in enumerate(q_array):
 
             # Write to data file following the format from the header
-            line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( k,
-                            n_total_array[ik], n_I_array[ik], n_delU_array[ik],
-                            n_delU2_array[ik] )
+            line = '{:^18.6f}{:^18.6e}{:^18.6e}{:^18.6e}{:^18.6e}'.format( q,
+                            n_total_array[iq], n_I_array[iq], n_delU_array[iq],
+                            n_delU2_array[iq] )
             f.write('\n' + line)
 
         # Close file
@@ -850,7 +846,7 @@ class single_nucleon_momentum_distributions(object):
         # Split data into 1-D arrays for each column
         q_array = data[:, 0] # Momentum in fm^-1
         n_total_array = data[:, 1] # Total distribution
-        n_1_array = data[:, 2] # 1 term
+        n_I_array = data[:, 2] # 1 term
         n_delU_array = data[:, 3] # \delta U term
         n_delU2_array = data[:, 4] # \delta U^2 term
         
@@ -858,7 +854,7 @@ class single_nucleon_momentum_distributions(object):
         # interp1d gives closer value to the actual calculation)
         n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
                                 kind='cubic', fill_value='extrapolate')
-        n_1_func = interp1d(q_array, n_1_array, bounds_error=False,
+        n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
                             kind='cubic', fill_value='extrapolate')
         n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
                                kind='cubic', fill_value='extrapolate')
@@ -867,7 +863,7 @@ class single_nucleon_momentum_distributions(object):
         
         # Return all contributions with total first
         # Note, these are functions of q
-        return n_total_func, n_1_func, n_delU_func, n_delU2_func
+        return n_total_func, n_I_func, n_delU_func, n_delU2_func
 
 
 if __name__ == '__main__':
