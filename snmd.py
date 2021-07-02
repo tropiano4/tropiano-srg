@@ -431,7 +431,7 @@ class single_nucleon_momentum_distributions(object):
         """
         
         # Set number of k points for integration over k
-        self.ntot_k = 50
+        self.ntot_k = 40 # Typical integration goes up to kF ~ 1.3 fm^-1
         
         # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
         q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, R_array,
@@ -523,8 +523,8 @@ class single_nucleon_momentum_distributions(object):
         """
         
         # Set number of K and k points for integration over K and k
-        self.ntot_K = 50
-        self.ntot_k = 50
+        self.ntot_K = 40
+        self.ntot_k = 40
         
         # y = cos(\theta) angles for averaging integration
         ntot_y = 7
@@ -877,8 +877,8 @@ if __name__ == '__main__':
     import time
     
     # Potentials
-    # kvnns_list = [6, 222, 224]
-    kvnns_list = [6]
+    kvnns_list = [6, 222, 224]
+    # kvnns_list = [6]
     
     # Channels to include in calculation (S-waves only or higher partial waves)
     channels_list = [ ('1S0', '3S1'), ('1S0', '3S1', '3P0', '1P1', '3P1') ]
@@ -890,10 +890,9 @@ if __name__ == '__main__':
     kmax, kmid, ntot = 15.0, 3.0, 120 # Default
 
     # Nuclei to calculate
-    # nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5), ('C12', 6, 6),
-    #                 ('O16', 8, 8), ('Ca40', 20, 20), ('Ca48', 20, 28),
-    #                 ('Fe56', 26, 30), ('Pb208', 82, 126) ]
-    nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6) ]
+    nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5), ('C12', 6, 6),
+                    ('O16', 8, 8), ('Ca40', 20, 20), ('Ca48', 20, 28),
+                    ('Fe56', 26, 30), ('Pb208', 82, 126) ]
     
     # Loop over every case generating data files
     for kvnn in kvnns_list:
@@ -917,7 +916,7 @@ if __name__ == '__main__':
                            channels, lamb, kmax, kmid, ntot, interp=False)
 
                     nucleus = nuclei[0]
-                    if nucleus == 'He4' or nucleus == 'He8':
+                    if nucleus in ['He4', 'He8', 'Be9']:
                         edf = 'AV18'
                     else:
                         edf = 'SLY4'
