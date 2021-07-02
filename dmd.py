@@ -47,6 +47,7 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
+from densities import load_density
 from Figures import figures_functions as ff
 from Misc.fourier_transform import hankel_transformation_k2r
 from Misc.integration import gaussian_quadrature_mesh
@@ -342,7 +343,7 @@ class deuteron_momentum_distributions(object):
         """
         
         # Set number of k points for integration over k
-        self.ntot_k = 50
+        self.ntot_k = 40
         
         # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
         q_mesh, R_mesh, k_mesh = np.meshgrid(q_array, R_array,
@@ -424,8 +425,8 @@ class deuteron_momentum_distributions(object):
         """
         
         # Set number of K and k points for integration over K and k
-        self.ntot_K = 50
-        self.ntot_k = 50
+        self.ntot_K = 40
+        self.ntot_k = 40
         
         # y = cos(\theta) angles for averaging integration
         ntot_y = 7
@@ -627,6 +628,8 @@ class deuteron_momentum_distributions(object):
     
         # Calculate the deuteron nucleonic density [fm^-3]
         rho_array = psi_R_3S1**2 + psi_R_3D1**2
+        for ir, irho in zip(R_array, rho_array):
+            print(ir, irho)
 
         # Evaluate kF values at each point in R_array
         kF_array = (3*np.pi**2 * rho_array)**(1/3)
@@ -659,7 +662,8 @@ class deuteron_momentum_distributions(object):
         
         
         # Use R values in accordance with densities code from densities.py
-        R_array = np.linspace(0.1, 20.0, 200)
+        # Nuclei arguments don't matter here - just getting R values
+        R_array, _ = load_density('C12', 'proton', 6, 6)
         dR = R_array[2] - R_array[1] # Assuming linear spacing
 
         # Calculate n_\lambda^d(k) for each k in k_array
