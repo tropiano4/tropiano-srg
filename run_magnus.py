@@ -17,9 +17,9 @@
 import numpy as np
 import time
 # Scripts made by A.T.
-from Potentials.vsrg_macos import vnn
-from Magnus import magnus_wegner
-from Magnus import magnus_kinetic_energy
+from potentials.vsrg_macos import vnn
+from magnus import magnus_wegner
+from magnus import magnus_kinetic_energy
 
 
 def run_magnus(kvnn, channel, kmax, kmid, ntot, generator, lambda_array,

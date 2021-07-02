@@ -16,7 +16,7 @@
 import numpy as np
 from scipy.special import spherical_jn
 # Scripts made by A.T.
-from Potentials.vsrg_macos import vnn
+from potentials.vsrg_macos import vnn
 
 
 def hankel_transformation_k2r(channel, k_array, k_weights, r_array):

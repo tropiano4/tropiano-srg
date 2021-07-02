@@ -28,9 +28,9 @@
 import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
-from Misc.integration import gaussian_quadrature_mesh
-from Potentials.vsrg_macos import vnn
-from SRG.srg_unitary_transformation import SRG_unitary_transformation
+from misc.integration import gaussian_quadrature_mesh
+from potentials.vsrg_macos import vnn
+from srg.srg_unitary_transformation import SRG_unitary_transformation
 
 
 class pair_momentum_distributions(object):
@@ -877,7 +877,7 @@ if __name__ == '__main__':
         
     # --- Test normalization of n(q, Q) --- #
     import matplotlib.pyplot as plt
-    from Figures import figures_functions as ff
+    from figures import figures_functions as ff
     from densities import load_density
     import time
     

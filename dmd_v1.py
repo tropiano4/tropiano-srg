@@ -45,13 +45,13 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
-from Figures import figures_functions as ff
-from Misc.fourier_transform import hankel_transformation_k2r
-from Misc.integration import gaussian_quadrature_mesh
+from figures import figures_functions as ff
+from misc.fourier_transform import hankel_transformation_k2r
+from misc.integration import gaussian_quadrature_mesh
 import observables as ob
 from operators import momentum_projection_operator
-from Potentials.vsrg_macos import vnn
-from SRG.srg_unitary_transformation import SRG_unitary_transformation
+from potentials.vsrg_macos import vnn
+from srg.srg_unitary_transformation import SRG_unitary_transformation
 
 
 class deuteron_momentum_distributions(object):
@@ -611,7 +611,7 @@ class deuteron_momentum_distributions(object):
         """
         
         # Directory for distributions data
-        data_directory = 'Data/dmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/dmd/kvnn_%d' % self.kvnn
         
         # Create file name
         file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
@@ -654,7 +654,7 @@ class deuteron_momentum_distributions(object):
         """
         
         # Directory for distributions data
-        data_directory = 'Data/dmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/dmd/kvnn_%d' % self.kvnn
         
         # Get file name
         file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)

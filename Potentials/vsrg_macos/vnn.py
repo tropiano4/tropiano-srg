@@ -6,7 +6,7 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     March 22, 2019
 # 
-# Loads potentials from Potentials/vsrg_macos directory. Potentials are 
+# Loads potentials from potentials/vsrg_macos directory. Potentials are 
 # organized by a kvnn number and the details of their momentum mesh (kmax, 
 # kmid, and ntot). Below are several examples of kvnn numbers:
 #
@@ -87,7 +87,7 @@ def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
         
-    potential_directory = 'Potentials/vsrg_macos/vsrg_kvnn_' + \
+    potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
     
@@ -161,7 +161,7 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
     
-    potential_directory = 'Potentials/vsrg_macos/vsrg_kvnn_' + \
+    potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
     
@@ -392,7 +392,7 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
     
-    potential_directory = 'Potentials/vsrg_macos/vsrg_kvnn_' + \
+    potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
     
@@ -477,7 +477,7 @@ def save_potential(k_array, k_weights, V, kvnn, channel, kmax=0.0, kmid=0.0,
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
         
-    potential_directory = 'Potentials/vsrg_macos/vsrg_kvnn_' + \
+    potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
     
@@ -612,7 +612,7 @@ def save_omega(k_array, O, kvnn, channel, kmax=0.0, kmid=0.0, ntot=0,
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
         
-    potential_directory = 'Potentials/vsrg_macos/vsrg_kvnn_' + \
+    potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
     
@@ -809,6 +809,11 @@ def mesh_specifications(kvnn):
     if kvnn in [900, 901, 902]:
         kmax = 30.0
         kmid = 4.0
+    
+    # AV18
+    elif kvnn == 6:
+        kmax = 15.0
+        kmid = 3.0
         
     # All new chiral potentials are generated with the following mesh
     # Set default mesh for AV18 to these values as well

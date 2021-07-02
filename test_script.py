@@ -16,43 +16,40 @@
 # Revision history:
 #   08/30/19 --- Testing how to use *args in Python functions. This may be
 #                useful for plotting codes. Created
-#                momentum_projection_operator_testv1.py in Old_codes based off
-#                last tests in this script.
+#                momentum_projection_operator_testv1.py based off last tests in
+#                this script.
 #   10/01/19 --- Testing SRG-evolution of an operator which is a constant at
 #                all values of k and k' (this is a delta function in
-#                coordinate-space). Created toy_operator_srg_evolution_v1.py in
-#                Old_codes.
+#                coordinate-space). Created toy_operator_srg_evolution_v1.py.
 #   10/14/19 --- Making a couple of plots for DNP 2019 meeting.
 #   03/16/20 --- Tested generalized NN operator conventions and mesh-
-#                dependence. Created operators_test.py in Old_codes.
+#                dependence. Created operators_test.py.
 #   04/08/20 --- Tested SRG changes in r^2 operator.
 #   05/22/20 --- Testing mesh-dependence in several operators. Created
-#                mesh_dependence_test.py in Old_codes.
+#                mesh_dependence_test.py.
 #   01/26/21 --- Renamed to test_script.py.
 #   03/16/21 --- Testing pair momentum distributions for different nuclei
 #                using LDA with simple filled Fermi sea single-particle
-#                momentum distributions. Created pmd_simple_test.py in
-#                Old_codes.
+#                momentum distributions. Created pmd_simple_test.py.
 #   03/16/21 --- Testing pair momentum distribution for deuteron starting from
 #                second quantization derivation and using expansion of
-#                U(k, k'). Created pmd_deuteron_test.py in Old_codes.
+#                U(k, k'). Created pmd_deuteron_test.py.
 #   03/16/21 --- Testing single-nucleon momentum distributions for different
-#                nuclei using LDA. Created single_particle_momentum_dist.py
-#                in Old_codes.
+#                nuclei using LDA. Created single_particle_momentum_dist.py.
 #   04/14/21 --- Creating AV18 SRG evolution figure for APS April Meeting
 #                presentation.
 #                potential_contours_kvnn_6_channel_1P1_Wegner_lamb_1p5.png in
-#                Figures/Operator_evolution/Old_figures/Potential_contours.
+#                figures/operator_evolution/old/potential_contours.
 #   04/28/21 --- Testing normalization and contributions of \delta U, etc. or
 #                pp/pn to single-nucleon momentun distributions. Created
-#                lda_normalizations_test.py in Old_codes.
+#                lda_normalizations_test.py.
 #   05/04/21 --- Testing higher partial waves of SRG transformations: 3P2-3F2
 #                and 3D3-3G3 have numerical artifacts. Created
-#                high_partial_waves_srg_test.py in Old_codes.
+#                high_partial_waves_srg_test.py.
 #   06/10/21 --- Verifying \theta functions averaging in snmd.py and dmd.py by
 #                comparing numerical functions to analytic evaluation of 
 #                \int d3K \int d3k \theta(kF-|K/2+k|) \theta(kF-|K/2-k|).
-#                Created theta_functions_test.py in Old_codes.
+#                Created theta_functions_test.py.
 #
 #------------------------------------------------------------------------------
 
@@ -65,9 +62,9 @@ import numpy as np
 import time
 # Scripts made by A.T.
 from densities import load_density
-from Misc.integration import gaussian_quadrature_mesh
+from misc.integration import gaussian_quadrature_mesh
 from pmd import pair_momentum_distributions
-from Potentials.vsrg_macos import vnn
+from potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
 
 

@@ -40,10 +40,10 @@ from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
 from densities import load_density
-from Figures import figures_functions as ff
-from Misc.integration import gaussian_quadrature_mesh
-from Potentials.vsrg_macos import vnn
-from SRG.srg_unitary_transformation import SRG_unitary_transformation
+from figures import figures_functions as ff
+from misc.integration import gaussian_quadrature_mesh
+from potentials.vsrg_macos import vnn
+from srg.srg_unitary_transformation import SRG_unitary_transformation
 
 
 class single_nucleon_momentum_distributions(object):
@@ -759,7 +759,7 @@ class single_nucleon_momentum_distributions(object):
         q_array = self.k_array
         
         # Directory for distributions data
-        data_directory = 'Data/snmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/snmd/kvnn_%d' % self.kvnn
         
         # Create file name
         file_name = '%s_%s_channels' % (nucleus, nucleon)
@@ -834,7 +834,7 @@ class single_nucleon_momentum_distributions(object):
         """
         
         # Directory for distributions data
-        data_directory = 'Data/snmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/snmd/kvnn_%d' % self.kvnn
         
         # Get file name
         file_name = '%s_%s_channels' % (nucleus, nucleon)

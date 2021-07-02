@@ -33,8 +33,8 @@
 
 import numpy as np
 # Scripts made by A.T.
-from Misc.fourier_transform import hankel_transformation_r2k
-from Potentials.vsrg_macos import vnn
+from misc.fourier_transform import hankel_transformation_r2k
+from potentials.vsrg_macos import vnn
 
 
 def find_q_index(q, k_array):

@@ -6,13 +6,13 @@
 # Author:   A. J. Tropiano (tropiano.4@osu.edu)
 # Date:     May 27, 2021
 # 
-# Loads nucleonic densities from Densities directory. So far relying on only
+# Loads nucleonic densities from densities directory. So far relying on only
 # Skyrme EDFs from SLy4 using HFBRAD code.
 #
 # Revision history:
-#   03/18/21 --- Added 12C data to Densities. Now shows \rho_proton(r) for
+#   03/18/21 --- Added 12C data to densities. Now shows \rho_proton(r) for
 #                12C in plots below.
-#   04/16/21 --- Added 56Fe data to Densities. Now shows \rho_proton(r) for
+#   04/16/21 --- Added 56Fe data to densities. Now shows \rho_proton(r) for
 #                56Fe in plots below.
 #   05/27/21 --- Split up old lda.py code into this piece and added the
 #                averaging over \int dr r^2 to snmd.py and pmd.py separately.
@@ -68,14 +68,14 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     # Go to directory corresponding to specified nucleus
     if edf == 'SLY4':
         
-        densities_directory = 'Densities/HFBRAD_%s/%s' % (edf, nucleus)
+        densities_directory = 'densities/HFBRAD_%s/%s' % (edf, nucleus)
         file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
         column_number = 1
         
     # Densities from www.phy.anl.gov/theory/research/density/
     elif edf == 'AV18':
         
-        densities_directory = 'Densities/%s' % edf
+        densities_directory = 'densities/%s' % edf
         file_name = '%s_densities_%d_%d.txt' % (nucleus, N, Z)
         
         # AV18 files either have single \rho column for N=Z nuclei or
@@ -112,11 +112,13 @@ if __name__ == '__main__':
     # --- Test densities --- #
     
     import matplotlib.pyplot as plt
+    # Scripts made by A.T.
+    from figures import figures_functions as ff
 
     # Details of example nuclei (format is (nuclei, Z, N) )
-    nuclei_details = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8),
-                       ('Ca40', 20, 20), ('Ca48', 20, 28), ('Fe56', 26, 30),
-                       ('Pb208', 82, 126) )
+    nuclei_details = ( ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5),
+                       ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+                       ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
     
     # Plot densities as a function of R
     plt.clf()
@@ -127,12 +129,14 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if nucleus == 'He4':
+        if Z < 6: # QMC files
             R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
         else:
             R_array, rho_array = load_density(nucleus, nucleon, Z, N)
+            
+        curve_color = ff.xkcd_colors(i)
 
-        plt.plot(R_array, rho_array, label=nucleus)
+        plt.plot(R_array, rho_array, label=nucleus, color=curve_color)
         
         print( 4*np.pi*np.sum(0.1 * R_array**2 * rho_array) )
         
@@ -152,13 +156,15 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if nucleus == 'He4':
+        if Z < 6: # QMC files
             R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
         else:
             R_array, rho_array = load_density(nucleus, nucleon, Z, N)
         kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
+        
+        curve_color = ff.xkcd_colors(j)
 
-        plt.plot(R_array, kF_array, label=nucleus)
+        plt.plot(R_array, kF_array, label=nucleus, color=curve_color)
 
     plt.xlim( [0.0, 15.0] )
     plt.legend(loc='upper right', frameon=False)
