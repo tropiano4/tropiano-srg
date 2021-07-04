@@ -55,64 +55,137 @@
 
 
 # Description of this test:
-#   Looking for bug in He4, He8 snmd.py code.
+#   Generating momentum distributions for all cases.
 
 
-import numpy as np
 import time
 # Scripts made by A.T.
-from densities import load_density
-from misc.integration import gaussian_quadrature_mesh
+from dmd import deuteron_momentum_distributions
+from figures import figures_functions as ff
 from pmd import pair_momentum_distributions
-from potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
 
 
-# Set-up
-kvnn = 6
-channels = ('1S0', '3S1')
-lamb = 1.35
-kmax, kmid, ntot = 15.0, 3.0, 120
+# - Set-up - #
+# Potentials
+kvnns_list = [6, 222, 224]
 
-# Initialize classes
-pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
-snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
-                                             ntot)
+# Generate single-nucleon and pair momentum distributions
+# expected to take ~28 hours
 
-# Get nucleonic densities
-nucleus = 'He4'
-Z = 2
-N = 2
-# nucleus = 'He8'
-# Z = 2
-# N = 6
-R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, 'AV18')
-rho_n_array = rho_p_array
-dR = R_array[1] - R_array[0]
+# Channels to include in calculation (S-waves only or higher partial waves)
+channels_list_av18 = [ ('1S0', '3S1'), ('1S0', '3S1', '3P0', '1P1', '3P1') ]
+channels_list_gez = [ ('1S0', '3S1') ]
 
-# Get momentum (channel argument doesn't matter here)
-q_array, _ = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+# SRG \lambda values
+lambdas_list_6_222 = [1.35, 1.5, 2.0, 3.0, 6.0]
+lambdas_list_224 = [1.35]
+    
+# Momentum mesh details
+kmax, kmid, ntot = 15.0, 3.0, 120 # Default
 
-# Evaluate kF values at each point in R_array to set max value of Q
-kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
-kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
+# Nuclei to calculate
+nuclei_list = [ ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5), ('C12', 6, 6),
+                ('O16', 8, 8), ('Ca40', 20, 20), ('Ca48', 20, 28),
+                ('Fe56', 26, 30), ('Pb208', 82, 126) ]
+    
 
-# Get C.o.M. momentum for pair distribution
-Q_max = max(kFp_array) + max(kFn_array)
-ntot_Q = 50
-Q_array, _ = gaussian_quadrature_mesh(Q_max, ntot_Q)
+# - Generate all data for single-nucleon and pair momentum distributions - #
+for kvnn in kvnns_list:
+        
+    if kvnn == 6:
+        channels_list = channels_list_av18
+    else:
+        channels_list = channels_list_gez
+    t0_k = time.time()
+    
+    for ic, channels in enumerate(channels_list):
+        
+        if kvnn == 224:
+            lambdas_list = lambdas_list_224
+        else:
+            lambdas_list = lambdas_list_6_222
+        t0_c = time.time()
+            
+        for lamb in lambdas_list:
+                
+            t0_l = time.time()
+            
+            # Initialize classes
+            snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb,
+                                                         kmax, kmid, ntot)
+            pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
+                                              ntot)
+                
+            for nuclei in nuclei_list:
+                    
+                t0_N = time.time()
 
-# Evaluate p distribution for each q
-t0 = time.time()
-n_p_array = snmd.n_total(q_array, R_array, dR, rho_p_array, rho_n_array)
-t1 = time.time()
-mins = (t1-t0)/60
-print('Proton momentum distribution done after %.5f minutes.' % mins)
-
-# Evaluate pn distribution for each q and Q
-t0 = time.time()
-n_pn_array = pmd.n_total(q_array, Q_array, R_array, dR, rho_p_array,
-                         rho_n_array)
-t1 = time.time()
-mins = (t1-t0)/60
-print('pn pair momentum distribution done after %.5f minutes.' % mins)
+                nucleus = nuclei[0]
+                Z = nuclei[1]
+                N = nuclei[2]
+                if Z < 6:
+                    edf = 'AV18'
+                else:
+                    edf = 'SLY4'
+                    
+                # Write single-nucleon files for given nucleus
+                snmd.write_file(nucleus, 'proton', Z, N, edf)
+                snmd.write_file(nucleus, 'neutron', Z, N, edf)
+                    
+                # Write pair files for given nucleus
+                pmd.write_file(nucleus, 'pp', Z, N, edf)
+                pmd.write_file(nucleus, 'nn', Z, N, edf)
+                pmd.write_file(nucleus, 'pn', Z, N, edf)
+                    
+                # Time for each nucleus to run
+                t1_N = time.time()
+                mins_N = (t1_N-t0_N)/60
+                print('\t\t\tDone with %s after %.5f minutes.' % (nucleus,
+                                                                  mins_N) )
+            
+            # Time for each \lambda to run   
+            t1_l = time.time()
+            mins_l = (t1_l-t0_l)/60
+            print( '\n\t\tDone with \lambda=%s after %.5f minutes.\n' % (
+                   ff.convert_number_to_string(lamb), mins_l) )
+               
+        # Time for each channels to run
+        t1_c = time.time()
+        hours_c = (t1_c-t0_c)/3600
+        if ic == 0:
+            print('\tDone with S-waves after %.3f hours.\n' % hours_c)
+        else:
+            print('\tDone with all channels after %.3f hours.\n' % hours_c)
+        
+    # Time for each potential to run
+    t1_k = time.time()
+    hours_k = (t1_k-t0_k)/3600
+    print( 'Done with kvnn=%d after %.5f hours.\n' % (kvnn, hours_k) )
+    
+    
+# - Generate all data for deuteron momentum distributions - #
+for kvnn in kvnns_list:
+        
+    t0_k = time.time()
+        
+    for lamb in lambdas_list_6_222:
+                
+        t0_l = time.time()
+        
+        # Initialize class
+        dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+        
+        # Write deuteron files
+        dmd.write_file()
+        
+        # Time for each \lambda to run   
+        t1_l = time.time()
+        mins_l = (t1_l-t0_l)/60
+        print( '\n\t\tDone with \lambda=%s after %.5f minutes.\n' % (
+               ff.convert_number_to_string(lamb), mins_l) )
+        
+    # Time for each potential to run
+    t1_k = time.time()
+    mins_k = (t1_k-t0_k)/60
+    print( 'Done with kvnn=%d after %.5f minutes.\n' % (kvnn, mins_k) )
