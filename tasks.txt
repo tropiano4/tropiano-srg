@@ -1,3 +1,6 @@
+Renaming directories in GitHub repository:
+https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-that-my-existing-links-arent-broken/10568
+
 
 --- SRC ---
 
