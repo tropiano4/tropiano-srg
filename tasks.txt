@@ -1,14 +1,20 @@
+Renaming directories in GitHub repository:
+https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-that-my-existing-links-arent-broken/10568
+
 
 --- SRC ---
 
- * Read Sushant papers (reproduce results)
-   - Questions for DF
+ * Try Q > 0 fixed in PMD
 
- * Outline for new paper
+ * Heatmaps of \delta U \delta U^\dagger
+
+ * Approximations for electrodisintegration
 
  * Derive pair momentum distribution with 3-body terms
 
- * Contact ratios
+ * Outline for new paper
+
+ * Contact ratios (once you have He4 working)
 
  * Read QE electron scattering references
 
