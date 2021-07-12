@@ -4,7 +4,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 --- SRC ---
 
- * Try Q > 0 fixed in PMD
+ * Fix high-Q, low-q bug in pmd.py (negative momentum distributions)
 
  * Heatmaps of \delta U \delta U^\dagger
 
