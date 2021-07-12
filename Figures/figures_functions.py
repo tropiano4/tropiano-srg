@@ -158,27 +158,24 @@ def convert_ticks_to_labels(ticks):
     
     for tick in ticks:
         
-        # Use convert_ticks_to_labels function instead
-        tick_labels.append( convert_number_to_string(tick) )
-        
-        # i = 0
-        # while abs( round(tick, i) - tick ) > 1e-5:
-        #     i += 1
+        i = 0
+        while abs( round(tick, i) - tick ) > 1e-5:
+            i += 1
             
-        # # If digits = 0, then display integers
-        # if i == 0:
-        #     tick_labels.append('%d' % tick)
-        # # Otherwise, display floats with the correct number of digits
-        # elif i == 1:
-        #     tick_labels.append('%.1f' % tick)
-        # elif i == 2:
-        #     tick_labels.append('%.2f' % tick)
-        # elif i == 3:
-        #     tick_labels.append('%.3f' % tick)
-        # elif i == 4:
-        #     tick_labels.append('%.4f' % tick)
-        # else:
-        #     tick_labels.append('%.f' % tick)
+        # If digits = 0, then display integers
+        if i == 0:
+            tick_labels.append('%d' % tick)
+        # Otherwise, display floats with the correct number of digits
+        elif i == 1:
+            tick_labels.append('%.1f' % tick)
+        elif i == 2:
+            tick_labels.append('%.2f' % tick)
+        elif i == 3:
+            tick_labels.append('%.3f' % tick)
+        elif i == 4:
+            tick_labels.append('%.4f' % tick)
+        else:
+            tick_labels.append('%.f' % tick)
         
     return tick_labels
 
