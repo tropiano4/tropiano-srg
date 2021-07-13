@@ -975,3 +975,52 @@ class pair_momentum_distributions(object):
         
         # Return total (ntot_q, 1)
         return ( n_I + n_deltaU + n_deltaU2 )[:, 0]
+    
+
+# Test out low-q/high-Q bug here
+if __name__ == '__main__':
+    
+    kvnn = 6
+    channels = ('1S0', '3S1')
+    lamb = 1.35
+    kmax, kmid, ntot = 15.0, 3.0, 120
+    
+    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+    
+    nucleus = 'Be9'
+    Z = 4
+    N = 5
+    pair = 'pn'
+    edf = 'SLY4'
+    # edf = 'Gogny'
+    R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, edf)
+    R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
+    dR = R_array[2] - R_array[1] # Assuming linear spacing
+        
+    # Evaluate kF values to determine upper limit of Q
+    kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
+    kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
+    
+    Q_max = max(kFp_array) + max(kFn_array)
+    ntot_Q = 40
+    Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
+    
+    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
+    
+    # Check \theta mesh values for I term and \delta U term vs q for highest Q
+    # and do integration(s) over R (and R')
+    # ...
+    # I term
+    # get theta_mesh then integrate over R', R, and fix Q -> gives array
+    # \delta U term
+    # get theta_mesh then integrate over R and fix Q -> gives array
+    
+    # Check matrix elements of \delta U^2 for low-q and high-Q (should never
+    # be negative as it is for Gogny Be9 densities!)
+    # ...
+    # get theta_mesh and check that all values are positive
+    # (ntot_q, ntot_Q, ntot_R, ntot_k)
+    # check if any elements of self.deltaU2_pp_func.ev(k_mesh, q_mesh) are < 0
+    
+    
+    
