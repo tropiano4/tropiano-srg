@@ -4,11 +4,11 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 --- SRC ---
 
- * Fix high-Q, low-q bug in pmd.py (negative momentum distributions)
-
- * Understand \lambda dependence plot: Comes from node in low-\lambda \delta U^2 around q=7.6 fm^-1
+ * DONE: \lambda dependence plot: Comes from node in low-\lambda \delta U^2 around q=7.6 fm^-1
 
  * Add Gogny densities to original figures
+
+ * Fix high-Q, low-q bug in pmd.py (negative momentum distributions)
 
  * Derive pair momentum distribution with 3-body terms
 

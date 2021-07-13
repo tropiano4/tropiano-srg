@@ -20,6 +20,7 @@
 #                Old_codes.
 #   06/17/21 --- Added He4 from www.phy.anl.gov/theory/research/density/.
 #   06/30/21 --- Added He8 from www.phy.anl.gov/theory/research/density/.
+#   07/13/21 --- Added Gogny densities to densities/Gogny.
 #
 #------------------------------------------------------------------------------
 
@@ -71,6 +72,15 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
         densities_directory = 'densities/HFBRAD_%s/%s' % (edf, nucleus)
         file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
         column_number = 1
+        
+    elif edf == 'Gogny':
+        
+        densities_directory = 'densities/%s/%s' % (edf, nucleus)
+        file_name = 'DensityQP.dat'
+        if nucleon == 'proton':
+            column_number = 1
+        elif nucleon == 'neutron':
+            column_number = 2
         
     # Densities from www.phy.anl.gov/theory/research/density/
     elif edf == 'AV18':
