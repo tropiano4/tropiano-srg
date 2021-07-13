@@ -1,0 +1,121 @@
+#FORTRAN=gfortran
+FORTRAN=ifort
+#FLAGS=-O0 -g -implicitnone
+FLAGS=-O -g -implicitnone
+
+all : main
+
+io.mod : io.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+input.mod : input.f90 io.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+lgfactor.mod : lgfactor.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+symd3t.mod : symd3t.f90 input.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+math.mod : math.f90 input.mod lgfactor.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symtalm.mod : symtalm.f90 input.mod lgfactor.mod math.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+gauss.mod : gauss.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+angmom.mod : angmom.f90 input.mod lgfactor.mod math.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+global.mod : global.f90 input.mod lgfactor.mod symd3t.mod math.mod \
+	symtalm.mod gauss.mod angmom.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+GLOBAL_OBJECTS = io.o input.o lgfactor.o symd3t.o math.o symtalm.o gauss.o \
+	angmom.o global.o
+
+r1r1.mod : r1r1.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+nucleus.mod : nucleus.f90 math.mod r1r1.mod \
+	name.f90 binding.f90 atomic.f90 mass.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+symfield.mod : symfield.f90 input.mod global.mod symd3t.mod symtalm.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symden.mod : symden.f90 input.mod math.mod global.mod symd3t.mod \
+	nucleus.mod symfield.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symgdhf.mod : symgdhf.f90 input.mod math.mod symd3t.mod symfield.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symgden.mod : symgden.f90 input.mod symd3t.mod nucleus.mod symfield.mod \
+	symden.mod symgdhf.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+eigenval.mod : eigenval.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+jacobi.mod : jacobi.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+indexx.mod : indexx.f90
+	$(FORTRAN) $(FLAGS) -c $<
+
+diagmeth.mod : diagmeth.f90 input.mod symd3t.mod r1r1.mod nucleus.mod \
+	symden.mod symgden.mod symgdhf.mod symke2b.mod symvbb.mod \
+	symvc.mod symvls.mod symgdd.mod selfc.mod wave.mod eigenval.mod \
+	brent_d1.f90 brent_d2.f90 jacobi.mod indexx.mod #brent.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symke2b.mod : symke2b.f90 input.mod global.mod symd3t.mod symfield.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+ibb.mod : ibb.f90 global.mod lgfactor.mod symtalm.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symvbb.mod : symvbb.f90 input.mod angmom.mod symd3t.mod symfield.mod ibb.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+ic.mod : ic.f90 global.mod lgfactor.mod symtalm.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symvc.mod : symvc.f90 input.mod angmom.mod symd3t.mod symfield.mod ic.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+ils.mod : ils.f90 symtalm.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symvls.mod : symvls.f90 input.mod global.mod math.mod symd3t.mod \
+	symfield.mod ils.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+symgdd.mod : symgdd.f90 input.mod global.mod symtalm.mod symfield.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+selfc.mod : selfc.f90 input.mod nucleus.mod symden.mod \
+	symke2b.mod symvbb.mod symvc.mod symvls.mod symgdd.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+genden.mod : genden.f90 input.mod math.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+wave.mod : wave.f90 nucleus.mod symfield.mod genden.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+main.o : main.f90 input.mod global.mod nucleus.mod symden.mod \
+	diagmeth.mod wave.mod
+	$(FORTRAN) $(FLAGS) -c $<
+
+main : main.o $(GLOBAL_OBJECTS) \
+	r1r1.o symden.o nucleus.o jacobi.o indexx.o diagmeth.o selfc.o \
+	symfield.o symke2b.o symvbb.o ibb.o ic.o ils.o symvc.o symvls.o \
+	symgdd.o symgden.o symgdhf.o eigenval.o wave.o genden.o # brent.o
+	$(FORTRAN) $(FLAGS) -o $@ $^
+
+clean :
+	rm -f *.o *.mod *~ main

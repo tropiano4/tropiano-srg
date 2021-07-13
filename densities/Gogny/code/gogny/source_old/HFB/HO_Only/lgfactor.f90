@@ -1,0 +1,119 @@
+ MODULE lgfactor
+
+	IMPLICIT NONE
+
+	DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: lnf, lng
+        DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: ddlnf, ddlng
+
+	INTEGER lnf_max, lng_max, ddlnf_max, ddlng_max
+
+	PRIVATE lnf, lng, ddlnf, ddlng
+	PRIVATE lnf_max, lng_max, ddlnf_max, ddlng_max
+
+ CONTAINS
+
+	SUBROUTINE LogFactorials_new(imax)
+		INTEGER, INTENT(IN) :: imax
+
+		INTEGER i
+
+		ALLOCATE(lnf(0:imax))
+		lnf_max = imax
+		lnf(0) = 0.0
+		DO i = 1, imax
+			lnf(i) = LOG(DBLE(i)) + lnf(i - 1)
+		END DO
+		RETURN
+	END SUBROUTINE LogFactorials_new
+
+	SUBROUTINE LogSemiFactorials_new(imax)
+		INTEGER, INTENT(IN) :: imax
+
+		INTEGER i
+
+		ALLOCATE(lng(0:imax))
+		lng_max = imax
+		lng(0) = -0.1207822376352452223455184
+		DO i = 1, imax
+			lng(i) = LOG(DBLE(i) + 0.5) + lng(i - 1)
+		END DO
+		RETURN
+	END SUBROUTINE LogSemiFactorials_new
+
+	! Functions giving ln( n! )
+
+	SUBROUTINE DDLogFactorials_new(imax)
+		INTEGER, INTENT(IN) :: imax
+
+		INTEGER i
+
+		ALLOCATE(ddlnf(0:imax))
+		ddlnf_max = imax
+		ddlnf(0) = 0.0
+		DO i = 1, imax
+			ddlnf(i) = LOG(DBLE(i)) + ddlnf(i - 1)
+		END DO
+		RETURN
+	END SUBROUTINE DDLogFactorials_new
+
+	FUNCTION DDLogFactorials(i)
+	        DOUBLE PRECISION :: DDLogFactorials
+		INTEGER, INTENT(IN) :: i
+
+		IF ((i .GE. 0) .AND. (i .LE. ddlnf_max)) THEN
+			DDLogFactorials = ddlnf(i)
+		ELSE
+			WRITE(*,'("Beyond range in DDLogFactorials - n = ",i8," nmax = ",I8)')  i, ddlnf_max
+			STOP "DDLogFactorials"
+		END IF
+		RETURN
+	END FUNCTION DDLogFactorials
+
+	! Functions giving ln( (n + 3/2)! )
+
+	SUBROUTINE DDLogSemiFactorials_new(imax)
+		INTEGER, INTENT(IN) :: imax
+
+                DOUBLE PRECISION :: pi
+		INTEGER i
+
+		ddlng_max = imax
+		
+		ALLOCATE(ddlng(0:imax))
+		
+		!ddlng(0) = -0.1207822376352452223455184
+		
+		! For n=0, we have (3/2)! = SQRT(PI) / 2 (Abramovitz, 6.1.9)
+		! We calculate ln ( (3/2)! ) at machine precision
+		
+		pi = 4.0*ATAN(1.0)
+		ddlng(0) = LOG(0.5*SQRT(pi))
+		
+		DO i = 1, imax
+			ddlng(i) = LOG(DBLE(i) + 0.5) + ddlng(i - 1)
+		END DO
+		
+		RETURN
+	END SUBROUTINE DDLogSemiFactorials_new
+
+	FUNCTION DDLogSemiFactorials(i)
+                DOUBLE PRECISION :: pi,  DDLogSemiFactorials
+		INTEGER, INTENT(IN) :: i
+
+		! For n=-1, we have (-1/2)! = SQRT(PI) (Abramovitz, 6.1.8)
+		! We calculate ln ( (1/2)! ) at machine precision
+		
+		IF (i .EQ. -1) THEN
+			pi = 4.0*ATAN(1.0)
+			DDLogSemiFactorials = LOG(SQRT(pi))		
+			!DDLogSemiFactorials = 0.5723649429247000870717137
+		ELSE IF ((i .GE. 0) .AND. (i .LE. ddlng_max)) THEN
+			DDLogSemiFactorials = ddlng(i)
+		ELSE
+			WRITE(*,'("Beyond range in DDLogSemiFactorials - n = ",i8," nmax = ",I8)')  i, ddlng_max
+			STOP "DDLogSemiFactorials"
+		END IF
+		RETURN
+	END FUNCTION DDLogSemiFactorials
+	
+END MODULE lgfactor

@@ -1,0 +1,4 @@
+       Parameter (imax=11,imax1=12,ixmax=11,iymax=11,izmax=11
+     *  ,izsrc=11,iyzsrc=  121,nfac=100,inqne= 161
+     *  ,inqno= 125,maxp=11,kdim=30)
+       Parameter (q0inf= 1.0000,p0inf= 1.0000,rn0inf= 10.1000)

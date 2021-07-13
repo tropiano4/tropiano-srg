@@ -1,0 +1,235 @@
+ MODULE symden_proj
+
+	USE input
+	USE math
+	USE global
+	USE symd3t_proj
+	USE nucleus
+	USE symfield_proj
+
+	IMPLICIT NONE
+
+	!---------------------------------------------------------------!
+	!    SymDensity is a type for objects associated to:		!
+	!	- a nucleus 						!
+	!       - a couple of mean-field and pairing field Gamma and 	!
+	!         Delta							!
+	!---------------------------------------------------------------!
+
+	TYPE SymDensityProj
+		TYPE (NucleusType) nucleus
+		TYPE (SymHartreeFockBogolFieldProj) field
+	END TYPE
+
+	INTERFACE ASSIGNMENT(=)
+		MODULE PROCEDURE SymDensityProj_assign
+	END INTERFACE
+
+ CONTAINS
+
+	SUBROUTINE SymDensityProj_new(density, N, Z)
+		! Recibe como parametros de entrada el registro de densidad
+		! y el numero de protones y electrones
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+		INTEGER, INTENT(IN) :: N, Z
+		DOUBLE PRECISION :: b
+
+		CALL SymHartreeFockBogolFieldProj_new(density%field)
+		CALL Nucleus_new(density%nucleus, N, Z, b)
+		
+		CALL SymDensityProj_read(density)
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_new
+
+	SUBROUTINE SymDensityProj_new_SymDensityProj(density_out, density_in)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density_out
+		TYPE (SymDensityProj), INTENT(IN) :: density_in
+
+		CALL SymHartreeFockBogolFieldProj_new(density_out%field)
+		CALL Nucleus_new_Nucleus(density_out%nucleus, density_in%nucleus)
+		
+		density_out%field%rho = density_in%field%rho
+		density_out%field%kap = density_in%field%kap
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_new_SymDensityProj
+
+	SUBROUTINE SymDensityProj_initialize(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		INTEGER :: ta, la, na, i, lower_bound
+		INTEGER :: nosc, fin_apa, ini_apa, num, den
+		DOUBLE PRECISION :: vv, vu
+
+		! Calculo de la densidad inicial
+		DO ta = 0, 1
+		
+			! Initialization of density matrices
+			density%field%rho%p(ta) = 0.0
+			density%field%rho%a(ta) = 0.0
+			density%field%kap%p(ta) = 0.0
+			density%field%kap%a(ta) = 0.0
+
+			! Actual number of particles for isospin ta
+			num = density%nucleus%np(ta)
+			i = 1
+			IF (N_0 .LE. 8) THEN
+				IF (num .GE. MagicNumber(N_0)) STOP "Abortado: SymDensity_initialize (num >= MagicNumber(N_0))"
+			END IF
+
+			DO WHILE (MagicNumber(i) .LE. num)
+				i = i + 1
+			END DO
+			fin_apa = i
+
+			IF (ta .EQ. 1) THEN
+				PRINT "(/A,I2,A,I3)", "Hay apareamiento de los ", density%nucleus%np(ta), " neutrones hasta el estado mas bajo de la capa ", i
+			ELSE
+				PRINT "(/A,I2,A,I3)", "Hay apareamiento de los ", density%nucleus%np(ta), " protones hasta el estado mas bajo de la capa ", i
+			END IF
+
+ 			den = MagicNumber(i)
+			vv = DBLE(num) / DBLE(den)
+   			vu = SQRT(vv) * SQRT(1.0 - vv)
+			DO nosc = i - 1, 0, -1
+				! Convenio u = (-) ^ l * |u|
+				vu = vu * PAR(nosc)
+				DO la = nosc, 0, -2
+					na = ((nosc - la) / 2) + 1
+					density%field%rho%p(ta)%d3tensor(la)%d2(na, na) = 2 * ((2 * la) + 1) * vv
+					density%field%kap%p(ta)%d3tensor(la)%d2(na, na) = 2 * ((2 * la) + 1) * vu
+				END DO
+			END DO
+
+			la = fin_apa
+			na = 1
+			density%field%rho%p(ta)%d3tensor(la)%d2(na, na) = 2 * (la + 1) * vv
+			density%field%rho%a(ta)%d3tensor(la)%d2(na, na) = vv
+			density%field%kap%p(ta)%d3tensor(la)%d2(na, na) = 2 * (la + 1) * vu
+			density%field%kap%a(ta)%d3tensor(la)%d2(na, na) = vu
+					
+			density%nucleus%actual_np(ta) = SymD3Tensor_trace(density%field%rho%p(ta))
+			write(*,'("Number of particle : ",F10.5)') density%nucleus%actual_np(ta)
+		END DO
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_initialize
+
+	SUBROUTINE SymDensityProj_read(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		IF (SymHartreeFockBogolFieldProj_read(density%field, density%nucleus%filename)) THEN
+			density%nucleus%actual_np(0) = SymD3Tensor_trace(density%field%rho%p(0))
+			density%nucleus%actual_np(1) = SymD3Tensor_trace(density%field%rho%p(1))
+		ELSE
+			CALL SymDensityProj_initialize(density)
+		END IF
+		RETURN
+	END SUBROUTINE SymDensityProj_read
+
+	SUBROUTINE SymDensityProj_save(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		CALL SymHartreeFockBogolFieldProj_write(density%field, density%nucleus%filename)
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_save
+
+	SUBROUTINE SymDensityProj_assign(density_out, density_in)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density_out
+		TYPE (SymDensityProj), INTENT(IN) :: density_in
+
+		density_out%field = density_in%field		
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_assign
+
+	SUBROUTINE SymDensityProj_store_actual_R2(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		DOUBLE PRECISION b2
+		INTEGER ta
+
+		b2 = Nucleus_get_b(density%nucleus) ** 2
+		
+		DO ta=0, 1
+			density%nucleus%actual_R2(ta) = R2Field * density%field%rho%p(ta) / density%nucleus%np(ta)
+		END DO
+		
+		density%nucleus%actual_R2(2) = &
+			 ((density%nucleus%np(0) * density%nucleus%actual_R2(0))  &
+			+ (density%nucleus%np(1) * density%nucleus%actual_R2(1))) &
+			/ (density%nucleus%np(0) + density%nucleus%np(1))
+			
+		RETURN
+	END SUBROUTINE SymDensityProj_store_actual_R2
+
+	SUBROUTINE SymDensityProj_shuffle(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		INTEGER ta, la, nosc
+		INTEGER i, fin_apa, ini_apa, num, den, na
+		DOUBLE PRECISION vv, vu
+
+		DO ta = 0, 1
+		
+			density%field%kap%p(ta) = 0.0
+			density%field%kap%a(ta) = 0.0
+			
+			num = density%nucleus%np(ta)
+			
+			IF (N_0 .LE. 8) THEN
+				IF (num .GE. MagicNumber(N_0)) STOP "Numero de particulas no valido"
+			END IF
+			i = 1
+			DO WHILE (MagicNumber(i) .LE. num)
+				i = i + 1
+			END DO
+			fin_apa = i
+
+			den = MagicNumber(i)
+			vv = DBLE(num) / den
+			vu = SQRT(vv) * SQRT(1.0 - vv)
+			
+			DO nosc = i - 1, 0, -1
+				vu = vu * PAR(nosc) ! convenio u = (-)^l * |u|
+				DO la = nosc, 0, -2
+					na = ((nosc - la) / 2) + 1
+					density%field%kap%p(ta)%d3tensor(la)%d2(na, na) = 2.0 * ((2.0 * la) + 1.0) * vu
+				END DO
+			END DO
+			la = fin_apa
+			na = 1
+
+			density%field%kap%p(ta)%d3tensor(la)%d2(na, na) = 2.0 * (la + 1.0) * vu
+			density%field%kap%a(ta)%d3tensor(la)%d2(na, na) = vu
+		END DO
+		RETURN
+	END SUBROUTINE SymDensityProj_shuffle
+
+	SUBROUTINE SymDensityProj_show_SpatialDistribution(density, ta)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+		INTEGER, INTENT(IN) :: ta
+
+!TODO
+		RETURN
+	END SUBROUTINE SymDensityProj_show_SpatialDistribution
+
+	SUBROUTINE SymDensityProj_show_ParticleDensity(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+!TODO Donde esta?
+		RETURN
+	END SUBROUTINE SymDensityProj_show_ParticleDensity
+
+	SUBROUTINE SymDensityProj_del(density)
+		TYPE (SymDensityProj), INTENT(INOUT) :: density
+
+		CALL Nucleus_del(density%nucleus)
+		CALL SymHartreeFockBogolFieldProj_del(density%field)
+		
+		RETURN
+	END SUBROUTINE SymDensityProj_del
+
+END MODULE symden_proj
