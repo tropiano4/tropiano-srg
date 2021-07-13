@@ -55,7 +55,7 @@
 
 
 # Description of this test:
-#   Generating momentum distributions for all cases.
+#   Generating momentum distributions for Gogny densities.
 
 
 import time
