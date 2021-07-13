@@ -782,7 +782,7 @@ class pair_momentum_distributions(object):
         q_array = self.k_array
         
         # Directory for distributions data
-        data_directory = 'data/pmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/pmd/kvnn_%d/%s' % (self.kvnn, edf)
         
         # Create file name
         file_name = '%s_%s_channels' % (nucleus, pair)
@@ -850,7 +850,7 @@ class pair_momentum_distributions(object):
         f.close()
         
         
-    def n_lambda_interp(self, nucleus, pair, Z, N):
+    def n_lambda_interp(self, nucleus, pair, Z, N, edf='SLY4'):
         """
         Interpolate the pair momentum distribution for the specified file.
 
@@ -876,7 +876,7 @@ class pair_momentum_distributions(object):
         """
         
         # Directory for distributions data
-        data_directory = 'data/pmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/pmd/kvnn_%d/%s' % (self.kvnn, edf)
         
         # Get file name
         file_name = '%s_%s_channels' % (nucleus, pair)

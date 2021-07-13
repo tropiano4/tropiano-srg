@@ -755,7 +755,7 @@ class single_nucleon_momentum_distributions(object):
         q_array = self.k_array
         
         # Directory for distributions data
-        data_directory = 'data/snmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/snmd/kvnn_%d/%s' % (self.kvnn, edf)
         
         # Create file name
         file_name = '%s_%s_channels' % (nucleus, nucleon)
@@ -804,7 +804,7 @@ class single_nucleon_momentum_distributions(object):
         f.close()
         
         
-    def n_lambda_interp(self, nucleus, nucleon, Z, N):
+    def n_lambda_interp(self, nucleus, nucleon, Z, N, edf='SLY4'):
         """
         Interpolate the single-nucleon momentum distribution for the specified
         file.
@@ -819,6 +819,8 @@ class single_nucleon_momentum_distributions(object):
             Proton number of the nucleus.
         N : int
             Neutron number of the nucleus.
+        edf : str, optional
+            Name of EDF (e.g., 'SLY4').
             
         Returns
         -------
@@ -830,7 +832,7 @@ class single_nucleon_momentum_distributions(object):
         """
         
         # Directory for distributions data
-        data_directory = 'data/snmd/kvnn_%d' % self.kvnn
+        data_directory = 'data/snmd/kvnn_%d/%s' % (self.kvnn, edf)
         
         # Get file name
         file_name = '%s_%s_channels' % (nucleus, nucleon)

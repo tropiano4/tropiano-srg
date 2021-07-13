@@ -108,6 +108,10 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     
     R_array = table[:, 0]
     rho_array = table[:, column_number]
+    # Don't take first point if R = 0 exactly
+    if R_array[0] == 0:
+        R_array = R_array[1:]
+        rho_array = rho_array[1:]
     
     # Avoiding zero division errors
     zero_case = rho_array == 0
