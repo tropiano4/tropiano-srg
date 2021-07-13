@@ -8,7 +8,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
  * Understand \lambda dependence plot: Comes from node in low-\lambda \delta U^2 around q=7.6 fm^-1
 
- * Add new densities to original figures
+ * Add Gogny densities to original figures
 
  * Derive pair momentum distribution with 3-body terms
 
