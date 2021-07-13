@@ -1,0 +1,423 @@
+Attention! Unknown parameter: IsoFacPair
+     DATA READ FROM INPUT
+     ====================
+
+Oscillator Length (b_0) ........:  2.038742165600
+Slowing factor .................:  0.60000
+Maximum Number of Iterations ...: 150
+Convergence in Energy ..........:  1.00E-12
+Optimization for BB Mat. Els. ..:   0
+Pairing Enhancement Factor .....:  1.00000
+Shift in Lagrange Parameter ....:  0.00000
+Isospin of the Basis WF ........:   1
+Index of the Wave-function .....:   1
+Pure HF Calculations (=1) ......:   0
+Number of shells (N_0) .........:   8
+Maximum Ang. Mom. (Lmax) .......:   8
+Maximum n (nmax) ...............:   8
+Maximum n for Unity ............:  28
+Index of the Wave-function .....:   1
+Cut-off energy (if > 0) ........: -1.00000
+Number of neutrons (N) .........:   8
+Number of protons  (Z) .........:   8
+Original Gogny interaction.......
+    - range1 ...................:  0.7000000
+    - range2 ...................:  1.2000000
+    - Parametrization ..........: D1S
+    - Both direct and exchange Coulomb terms switched off
+Type of Basis ..................:   1
+Compatibility with the HO ......:   1
+
+     DEFINING THE BASIS - CUT-OFFS
+     =============================
+
+Analytical HO basis ............. 
+Compatibility with the HO ......:   1
+Actual Cut-off Energy Ecut .....:     -1.000
+Maximum L value lmax ...........:       8
+Maximum n value ................:       8
+Maximum n-value for given l ....
+
+       L   n(HO)
+       0    5
+       1    4
+       2    4
+       3    3
+       4    3
+       5    2
+       6    2
+       7    1
+       8    1
+
+     PARAMETERS OF THE GOGNY FORCE
+     =============================
+
+Protons : W =   103.640 MeV
+        : B =  -163.480 MeV
+        : H =   162.810 MeV
+        : M =  -223.930 MeV
+
+Neutrons: W = -1720.300 MeV
+        : B =  1300.000 MeV
+        : H = -1813.530 MeV
+        : M =  1397.600 MeV
+
+WLS     :   130.000 MeV.fm5
+t_0     :  1390.600 MeV.fm4
+
+h2/2m   :    20.73667622931579   20.73667622931579 MeV
+
+     STARTING THE SELF-CONSISTENT CALCULATION
+     ========================================
+
+Numerical precision in Energy ..:   1.00E-12
+Oscillator length ..............:  2.03874216560
+Atomic number A ................:     16
+Largest Number .................:   0.1797693134862316+309
+Smallest Number ................:   0.2225073858507201-307
+
+ No se pudo leer el archivo: data/vLS8ph_HO.txt                                              
+ Calculation of the matrix elements of the spin-orbit term:
+ 11% calculated
+ 22% calculated
+ 33% calculated
+ 44% calculated
+ 55% calculated
+ 66% calculated
+ 77% calculated
+ 88% calculated
+100% calculated
+ No se pudo leer el archivo: data/vLS8pp_HO.txt                                              
+ Se van a calcular los elementos de matriz de apar de LS
+ 11% calculado
+ 22% calculado
+ 33% calculado
+ 44% calculado
+ 55% calculado
+ 66% calculado
+ 77% calculado
+ 88% calculado
+100% calculado
+ Impossible to read file: data/vBB8ph_HO.txt                                              
+ No se pudo leer el archivo: data/vBB8pp_HO.txt                                              
+ Impossible to read file: data/vBB8ph_HO.txt                                              
+ Brink-Boker terms: Particle-Hole Channel - Harmonic Oscillator Basis
+ 11% calculado
+ 22% calculado
+ 33% calculado
+ 44% calculado
+ 55% calculado
+ 66% calculado
+ 77% calculado
+ 88% calculado
+100% calculado
+ No se pudo leer el archivo: data/vBB8pp_HO.txt                                              
+ Brink-Boker terms: Particle-Particle Channel - Harmonic Oscillator Basis
+ 11% calculado
+ 22% calculado
+ 33% calculado
+ 44% calculado
+ 55% calculado
+ 66% calculado
+ 77% calculado
+ 88% calculado
+100% calculado
+ No se pudo leer el archivo: data/vC8ph_HO.txt                                               
+ No se pudo leer el archivo: data/vC8pp_HO.txt                                               
+ No se pudo leer el archivo: data/vC8ph_HO.txt                                               
+ Calculation of ph Coulomb matrix elements - Hamonic oscillator Basis
+ 11% calculado
+ 22% calculado
+ 33% calculado
+ 44% calculado
+ 55% calculado
+ 66% calculado
+ 77% calculado
+ 88% calculado
+100% calculado
+ No se pudo leer el archivo: data/vC8pp_HO.txt                                               
+ Calculation of pp Coulomb matrix elements - Harmonic Oscillator Basis
+ 11% calculado
+ 22% calculado
+ 33% calculado
+ 44% calculado
+ 55% calculado
+ 66% calculado
+ 77% calculado
+ 88% calculado
+100% calculado
+          k =    0 Difference of the densities :      0.04791367
+Iteration k =    1 HF Energy :   -142.00716392
+Iteration k =    2 HF Energy :   -142.03408599
+Iteration k =    3 HF Energy :   -142.05118069
+Iteration k =    4 HF Energy :   -142.06197793
+Iteration k =    5 HF Energy :   -142.06874178
+          k =    5 Difference of the densities :      0.00500790
+Iteration k =    6 HF Energy :   -142.07294792
+Iteration k =    7 HF Energy :   -142.07554782
+Iteration k =    8 HF Energy :   -142.07714708
+Iteration k =    9 HF Energy :   -142.07812692
+Iteration k =   10 HF Energy :   -142.07872532
+          k =   10 Difference of the densities :      0.00072811
+Iteration k =   11 HF Energy :   -142.07908978
+Iteration k =   12 HF Energy :   -142.07931126
+Iteration k =   13 HF Energy :   -142.07944561
+Iteration k =   14 HF Energy :   -142.07952697
+Iteration k =   15 HF Energy :   -142.07957618
+          k =   15 Difference of the densities :      0.00012135
+Iteration k =   16 HF Energy :   -142.07960590
+Iteration k =   17 HF Energy :   -142.07962384
+Iteration k =   18 HF Energy :   -142.07963466
+Iteration k =   19 HF Energy :   -142.07964118
+Iteration k =   20 HF Energy :   -142.07964511
+          k =   20 Difference of the densities :      0.00002179
+Iteration k =   21 HF Energy :   -142.07964747
+Iteration k =   22 HF Energy :   -142.07964889
+Iteration k =   23 HF Energy :   -142.07964975
+Iteration k =   24 HF Energy :   -142.07965026
+Iteration k =   25 HF Energy :   -142.07965057
+          k =   25 Difference of the densities :      0.00000407
+Iteration k =   26 HF Energy :   -142.07965076
+Iteration k =   27 HF Energy :   -142.07965087
+Iteration k =   28 HF Energy :   -142.07965094
+Iteration k =   29 HF Energy :   -142.07965098
+Iteration k =   30 HF Energy :   -142.07965100
+          k =   30 Difference of the densities :      0.00000077
+Iteration k =   31 HF Energy :   -142.07965102
+Iteration k =   32 HF Energy :   -142.07965102
+Iteration k =   33 HF Energy :   -142.07965103
+Iteration k =   34 HF Energy :   -142.07965103
+Iteration k =   35 HF Energy :   -142.07965103
+          k =   35 Difference of the densities :      0.00000015
+Iteration k =   36 HF Energy :   -142.07965104
+Iteration k =   37 HF Energy :   -142.07965104
+Iteration k =   38 HF Energy :   -142.07965104
+Iteration k =   39 HF Energy :   -142.07965104
+Iteration k =   40 HF Energy :   -142.07965104
+          k =   40 Difference of the densities :      0.00000003
+Iteration k =   41 HF Energy :   -142.07965104
+Iteration k =   42 HF Energy :   -142.07965104
+Iteration k =   43 HF Energy :   -142.07965104
+Iteration k =   44 HF Energy :   -142.07965104
+Iteration k =   45 HF Energy :   -142.07965104
+          k =   45 Difference of the densities :      0.00000001
+Iteration k =   46 HF Energy :   -142.07965104
+Iteration k =   47 HF Energy :   -142.07965104
+Iteration k =   48 HF Energy :   -142.07965104
+Iteration k =   49 HF Energy :   -142.07965104
+Iteration k =   50 HF Energy :   -142.07965104
+          k =   50 Difference of the densities :      0.00000000
+Iteration k =   51 HF Energy :   -142.07965104
+Iteration k =   52 HF Energy :   -142.07965104
+Iteration k =   53 HF Energy :   -142.07965104
+Iteration k =   54 HF Energy :   -142.07965104
+Iteration k =   55 HF Energy :   -142.07965104
+          k =   55 Difference of the densities :      0.00000000
+Iteration k =   56 HF Energy :   -142.07965104
+Iteration k =   57 HF Energy :   -142.07965104
+Iteration k =   58 HF Energy :   -142.07965104
+Iteration k =   59 HF Energy :   -142.07965104
+Iteration k =   60 HF Energy :   -142.07965104
+          k =   60 Difference of the densities :      0.00000000
+Iteration k =   61 HF Energy :   -142.07965104
+Iteration k =   62 HF Energy :   -142.07965104
+Iteration k =   63 HF Energy :   -142.07965104
+Iteration k =   64 HF Energy :   -142.07965104
+Iteration k =   65 HF Energy :   -142.07965104
+          k =   65 Difference of the densities :      0.00000000
+Iteration k =   66 HF Energy :   -142.07965104
+Iteration k =   67 HF Energy :   -142.07965104
+Iteration k =   68 HF Energy :   -142.07965104
+Iteration k =   69 HF Energy :   -142.07965104
+Iteration k =   70 HF Energy :   -142.07965104
+          k =   70 Difference of the densities :      0.00000000
+Iteration k =   71 HF Energy :   -142.07965104
+Iteration k =   72 HF Energy :   -142.07965104
+Iteration k =   73 HF Energy :   -142.07965104
+Iteration k =   74 HF Energy :   -142.07965104
+Iteration k =   75 HF Energy :   -142.07965104
+          k =   75 Difference of the densities :      0.00000000
+Iteration k =   76 HF Energy :   -142.07965104
+Energy =  -142.07965E+00 Precision =  0.00000E+00
+
+Elapsed time (seconds):   1.89E+00
+
+     SUMMARY OF THE RUN - ENERGIES
+     =============================
+
+                           Longitud del oscilador:        2.0387421656
+----------------------------------------------------------------------
+                                 Energia cinetica:      224.3420725823
+             Energia cinetica del centro de masas:        4.9124759499
+                    Energia local de Brink-Booker:     -671.0372491736
+                         Energia local de Coulomb:        0.0000000000
+           Energia de intercambio de Brink-Booker:      -57.3151753055
+                Energia de intercambio de Coulomb:        0.0000000000
+               Energia dependiente de la densidad:      357.7000749418
+                           Energia de spin-orbita:       -0.6818500327
+----------------------------------------------------------------------
+                    Energia total de Brink-Booker:     -728.3524244791
+                         Energia total de Coulomb:        0.0000000000
+                     Energia total (Hartree-Fock):     -142.0796510378
+----------------------------------------------------------------------
+                 Apareamiento del centro de masas:    0.0000000000E+00
+                     Apareamiento de Brink-Booker:   -0.1205202703E-12
+                          Apareamiento de Coulomb:    0.0000000000E+00
+                      Apareamiento de spin-orbita:    0.0000000000E+00
+----------------------------------------------------------------------
+                               Apareamiento total:   -0.1205202703E-12
+                            Apareamiento neutrons:   -0.1085288854E-20    0.0000000000E+00   -0.1085288854E-20    0.0000000000E+00
+                             Apareamiento protons:   -0.1205202692E-12    0.0000000000E+00   -0.1205202692E-12    0.0000000000E+00
+----------------------------------------------------------------------
+                                            TOTAL:     -142.0796510378
+
+                               Neutrones       Protones          Total
+              Particulas:        8.00000        8.00000       16.00000
+    Potenciales quimicos:      -10.30000       -8.10000
+                   Radio:        2.65605        2.65605        2.65605
+ Multiplicadores y error:        0.00000        0.00000        7.05460
+Average Delta for neutrons:   -0.0000000000
+
+     NEUTRON SINGLE-PARTICLE ENERGIES (CANONICAL BASIS)
+     ==================================================
+   1)   s 1/2    1.0000000   -38.794   0.000  28.494
+   2)   p 3/2    1.0000000   -21.601  -0.000  11.301
+   3)   p 1/2    1.0000000   -15.320  -0.000   5.020
+   4)   d 5/2    0.0000000    -5.336   0.000   4.964
+   5)   s 1/2   -0.0000000    -0.069   0.000  10.231
+   6)   d 3/2    0.0000000     4.057   0.000  14.357
+   7)   s 1/2    0.0000000     7.193   0.000  17.493
+   8)   p 3/2   -0.0000000     7.345  -0.000  17.645
+   9)   p 1/2    0.0000000     8.810  -0.000  19.110
+  10)   f 7/2    0.0000000     9.182  -0.000  19.482
+  11)   p 3/2    0.0000000    17.038  -0.000  27.338
+  12)   f 7/2    0.0000000    18.921  -0.000  29.221
+  13)   f 5/2    0.0000000    19.487  -0.000  29.787
+  14)   f 5/2    0.0000000    19.931  -0.000  30.231
+  15)   p 1/2    0.0000000    21.039  -0.000  31.339
+  16)   d 3/2    0.0000000    21.415   0.000  31.715
+  17)   g 9/2    0.0000000    21.605   0.000  31.905
+  18)   d 5/2    0.0000000    21.698   0.000  31.998
+  19)   g 7/2    0.0000000    22.115   0.000  32.415
+  20)   d 5/2    0.0000000    22.819   0.000  33.119
+  21)   h11/2    0.0000000    23.770  -0.000  34.070
+  22)   g 9/2    0.0000000    23.882   0.000  34.182
+  23)   s 1/2   -0.0000000    23.995   0.000  34.295
+  24)   h 9/2    0.0000000    24.716  -0.000  35.016
+  25)   i13/2    0.0000000    27.718   0.000  38.018
+  26)   i11/2    0.0000000    28.400   0.000  38.700
+  27)   f 7/2    0.0000000    28.440  -0.000  38.740
+  28)   d 3/2    0.0000000    28.744   0.000  39.044
+  29)   d 5/2    0.0000000    31.026   0.000  41.326
+  30)   p 1/2    0.0000000    32.013  -0.000  42.313
+  31)   g 9/2    0.0000000    33.382   0.000  43.682
+  32)   d 3/2    0.0000000    33.739   0.000  44.039
+  33)   f 5/2    0.0000000    33.843  -0.000  44.143
+  34)   p 3/2    0.0000000    33.867  -0.000  44.167
+  35)   g 7/2    0.0000000    33.959   0.000  44.259
+  36)   h11/2    0.0000000    34.692  -0.000  44.992
+  37)   g 7/2    0.0000000    37.903   0.000  48.203
+  38)   j15/2    0.0000000    38.278  -0.000  48.578
+  39)   j13/2    0.0000000    39.060  -0.000  49.360
+Average Delta for protons:   -0.0000002362
+
+     PROTON SINGLE-PARTICLE ENERGIES (CANONICAL BASIS)
+     =================================================
+   1)   s 1/2    1.0000000   -38.794   0.000
+   2)   p 3/2    1.0000000   -21.601  -0.000
+   3)   p 1/2    1.0000000   -15.320  -0.000
+   4)   d 5/2    0.0000000    -5.471   0.000
+   5)   s 1/2    0.0000000    -1.389   0.000
+   6)   d 3/2    0.0000000     3.479   0.000
+   7)   p 3/2    0.0000000     8.117  -0.000
+   8)   f 7/2    0.0000000     8.745  -0.000
+   9)   p 1/2    0.0000000    13.884  -0.000
+  10)   p 1/2   -0.0000000    14.425  -0.000
+  11)   s 1/2    0.0000000    18.727   0.000
+  12)   f 5/2    0.0000000    18.959  -0.000
+  13)   f 7/2    0.0000000    19.963  -0.000
+  14)   d 5/2    0.0000000    20.444   0.000
+  15)   f 5/2    0.0000000    20.707  -0.000
+  16)   g 9/2    0.0000000    22.369   0.000
+  17)   g 7/2    0.0000000    22.995   0.000
+  18)   g 9/2    0.0000000    23.382   0.000
+  19)   p 3/2    0.0000000    23.612  -0.000
+  20)   d 3/2    0.0000000    23.877   0.000
+  21)   h11/2    0.0000000    23.980  -0.000
+  22)   d 5/2    0.0000000    24.153   0.000
+  23)   s 1/2   -0.0000000    24.605   0.000
+  24)   h 9/2    0.0000000    25.039  -0.000
+  25)   d 3/2    0.0000000    26.278   0.000
+  26)   p 3/2    0.0000000    26.520  -0.000
+  27)   f 7/2    0.0000000    27.835  -0.000
+  28)   i13/2    0.0000000    27.936   0.000
+  29)   i11/2    0.0000000    28.691   0.000
+  30)   s 1/2    0.0000000    29.476   0.000
+  31)   d 5/2    0.0000000    31.082   0.000
+  32)   g 7/2    0.0000000    33.037   0.000
+  33)   g 9/2    0.0000000    33.117   0.000
+  34)   p 1/2    0.0000000    33.553  -0.000
+  35)   f 5/2    0.0000000    33.595  -0.000
+  36)   d 3/2    0.0000000    34.322   0.000
+  37)   h11/2    0.0000000    34.482  -0.000
+  38)   g 7/2    0.0000000    37.945   0.000
+  39)   j15/2    0.0000000    38.278  -0.000
+  40)   j13/2    0.0000000    39.060  -0.000
+Neutrons - Lowest QP (canonical basis) =     4.96404451 Delta =    0.00000 in =   18
+Protons  - Lowest QP (canonical basis) =     2.62893869 Delta =    0.00000 ip =   18
+toto =     8.00000000000002
+toto =     8.00000000000002
+Average pairing gap:    -0.00000000005030   -0.00000043460503
+
+     QUASI-PARTICLE-PARTICLE ENERGIES
+     ================================
+      EQP NEUT        V2               V2  EQP PROT
+   1)   10   11.3013    1.0000000   p 3/2    p 1/2    1.0000000    7.2205
+   2)    6    5.0205    1.0000000   p 1/2    p 3/2    1.0000000   13.5013
+   3)    3   28.4940    1.0000000   s 1/2    s 1/2    1.0000000   30.6940
+   4)   12   27.3573    0.0000000   p 3/2    s 1/2    0.0000000   31.2243
+   5)   24   53.2552    0.0000000   f 5/2    d 5/2    0.0000000    2.5665
+   6)    7   15.6882    0.0000000   p 1/2    p 3/2    0.0000000   12.8635
+   7)    5   53.9112    0.0000000   s 1/2    d 3/2    0.0000000    9.8726
+   8)    9   48.2364    0.0000000   p 1/2    s 1/2    0.0000000    5.8800
+   9)   20   33.6207    0.0000000   d 5/2    p 1/2    0.0000000   13.4882
+  10)   11   15.0635    0.0000000   p 3/2    f 7/2    0.0000000   14.2975
+  11)   25   16.4975    0.0000000   f 7/2    f 5/2    0.0000000   51.0552
+  12)   13   46.7286    0.0000000   p 3/2    p 3/2    0.0000000   44.5286
+  13)   14   12.0726    0.0000000   d 3/2    g 7/2    0.0000000   22.2606
+  14)   15   20.2959    0.0000000   d 3/2    d 3/2    0.0000000   18.0959
+  15)   17   60.1850    0.0000000   d 3/2    p 3/2    0.0000000   25.1573
+  16)   32   34.8582    0.0000000   g 9/2    f 5/2    0.0000000   17.9100
+  17)   18    4.7665    0.0000000   d 5/2    i13/2    0.0000000   33.9671
+  18)   19   18.4675    0.0000000   d 5/2    d 5/2    0.0000000   31.4207
+  19)   40   36.1671    0.0000000   i13/2    s 1/2    0.0000000   51.7112
+  20)   21   54.5529    0.0000000   d 5/2    d 5/2    0.0000000   52.3529
+  21)   22   20.1100    0.0000000   f 5/2    k15/2    0.0000000   52.1556
+  22)   23   30.7953    0.0000000   f 5/2    f 5/2    0.0000000   28.5953
+  23)   16   36.6022    0.0000000   d 3/2    d 5/2    0.0000000   16.2675
+  24)    8   28.8376    0.0000000   p 1/2    h11/2    0.0000000   29.7667
+  25)   26   26.2972    0.0000000   f 7/2    f 7/2    0.0000000   24.0972
+  26)   27   44.6488    0.0000000   f 7/2    f 7/2    0.0000000   42.4488
+  27)   28   24.4606    0.0000000   g 7/2    p 1/2    0.0000000   46.0364
+  28)   29   38.6802    0.0000000   g 7/2    g 7/2    0.0000000   36.4802
+  29)   30   61.7361    0.0000000   g 7/2    g 7/2    0.0000000   59.5361
+  30)   31   23.5705    0.0000000   g 9/2    g 9/2    0.0000000   21.3705
+  31)    4   33.4243    0.0000000   s 1/2    h 9/2    0.0000000   51.3179
+  32)   33   51.3398    0.0000000   g 9/2    h 9/2    0.0000000   29.9771
+  33)   34   32.1771    0.0000000   h 9/2    d 3/2    0.0000000   57.9850
+  34)   35   53.5179    0.0000000   h 9/2    g 9/2    0.0000000   49.1398
+  35)   36   31.9667    0.0000000   h11/2    g 9/2    0.0000000   32.6582
+  36)   37   47.0950    0.0000000   h11/2    h11/2    0.0000000   44.8950
+  37)   38   36.2612    0.0000000   i11/2    i11/2    0.0000000   34.0612
+  38)   39   60.7922    0.0000000   i11/2    i11/2    0.0000000   58.5922
+  39)    2   17.2037    0.0000000   s 1/2    d 3/2    0.0000000   34.4022
+  40)   41   56.4934    0.0000000   i13/2    i13/2    0.0000000   54.2934
+  41)   42   49.3600    0.0000000   j13/2    j13/2    0.0000000   47.1600
+  42)   43   48.5778    0.0000000   j15/2    j15/2    0.0000000   46.3778
+  43)   44   54.3556    0.0000000   k15/2    p 1/2    0.0000000   26.6376
+  44)   45   53.9294    0.0000000   k17/2    k17/2    0.0000000   51.7294
+  45)    1    8.0800    0.0000000   s 1/2    s 1/2    0.0000000   15.0037
+IndexWave =    1 IndxQP =   45 nIndx =    1
+Elapsed Time
+Seconds .............:            1.973000
+Clock cycles ........:        1973
