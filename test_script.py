@@ -140,13 +140,13 @@ for kvnn in kvnns_list:
                 edf = 'Gogny'
                     
                 # Write single-nucleon files for given nucleus
-                snmd.write_file(nucleus, 'proton', Z, N, edf)
-                snmd.write_file(nucleus, 'neutron', Z, N, edf)
+                # snmd.write_file(nucleus, 'proton', Z, N, edf)
+                # snmd.write_file(nucleus, 'neutron', Z, N, edf)
                     
                 # # Write pair files for given nucleus
-                # pmd.write_file(nucleus, 'pp', Z, N, edf)
-                # pmd.write_file(nucleus, 'nn', Z, N, edf)
-                # pmd.write_file(nucleus, 'pn', Z, N, edf)
+                pmd.write_file(nucleus, 'pp', Z, N, edf)
+                pmd.write_file(nucleus, 'nn', Z, N, edf)
+                pmd.write_file(nucleus, 'pn', Z, N, edf)
                     
                 # Time for each nucleus to run
                 t1_N = time.time()
