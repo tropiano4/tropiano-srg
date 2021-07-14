@@ -1,0 +1,9 @@
+# Data from K. Egiyan et al. (CLAS Collaboration), Phys. Rev. Lett. 96, 082501 (2006)
+# Mass number A    a2      error
+
+      3           2.13    0.04
+      4           3.60    0.10
+      9           3.91    0.12
+      12          4.75    0.16
+      63          5.21    0.20
+      197         5.16    0.22
