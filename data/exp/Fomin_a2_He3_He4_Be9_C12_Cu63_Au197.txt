@@ -1,4 +1,4 @@
-# Data from K. Egiyan et al. (CLAS Collaboration), Phys. Rev. Lett. 96, 082501 (2006)
+# Data from https://arxiv.org/pdf/1107.3583.pdf Table II
 # Mass number A    a2      error
 
       3           2.13    0.04
