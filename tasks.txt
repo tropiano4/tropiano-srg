@@ -11,6 +11,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
  * Fix high-Q, low-q bug in pmd.py (negative momentum distributions)
 
  * Derive pair momentum distribution with 3-body terms
+   - Read Bogner_2006pc and Jurgenson_2009qs
 
  * Approximations for electrodisintegration
 
