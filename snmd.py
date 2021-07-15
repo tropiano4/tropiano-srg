@@ -31,6 +31,9 @@
 #                though RectBivariateSpline works well for 2-D interpolations.
 #   06/24/21 --- Speeding up code by switching from loops to np.sum() to do
 #                integrations. Saved old version as snmd_v1.py in Old_codes.
+#   07/15/21 --- Switched interpolation functions interp1d and 
+#                RectBivariateSpline from cubic to linear since \delta U^2(k,q)
+#                was returning negative values.
 #
 #------------------------------------------------------------------------------
 
@@ -185,17 +188,17 @@ class single_nucleon_momentum_distributions(object):
 
             # Interpolate pp and pn < k | \delta U | k >
             self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
-                                            kind='cubic', bounds_error=False,
+                                            kind='linear', bounds_error=False,
                                             fill_value='extrapolate' )
             self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
-                                            kind='cubic', bounds_error=False,
+                                            kind='linear', bounds_error=False,
                                             fill_value='extrapolate' )
         
             # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
             self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
-                                                       deltaU2_pp)
+                                                       deltaU2_pp, kx=1, ky=1)
             self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
-                                                       deltaU2_pn)
+                                                       deltaU2_pn, kx=1, ky=1)
 
 
     def theta_I(self, q_mesh, kF1_mesh):

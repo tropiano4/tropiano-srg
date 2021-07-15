@@ -139,7 +139,7 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if Z < 6: # QMC files
+        if nucleus == 'He8' or nucleus == 'Be9': # QMC files
             R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
         else:
             R_array, rho_array = load_density(nucleus, nucleon, Z, N)
@@ -166,7 +166,7 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if Z < 6: # QMC files
+        if nucleus == 'He8' or nucleus == 'Be9': # QMC files
             R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
         else:
             R_array, rho_array = load_density(nucleus, nucleon, Z, N)

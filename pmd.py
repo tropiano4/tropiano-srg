@@ -22,6 +22,10 @@
 #   06/23/21 --- Speeding up code by switching from loops to np.sum() to do
 #                integrations. Saved old version as pmd_v2.py in Old_codes. 
 #   07/02/21 --- Added interpolation option for n_{\lambda}(q, Q).
+#   07/15/21 --- Switched interpolation functions interp1d and 
+#                RectBivariateSpline from cubic to linear since \delta U^2(k,q)
+#                was returning negative values. Also, setting Q_max to 2 fm^-1
+#                instead of max(kF1)+max(kF2) in file writing function.
 #
 #------------------------------------------------------------------------------
 
@@ -173,17 +177,17 @@ class pair_momentum_distributions(object):
 
             # Interpolate pp and pn < k | \delta U | k >
             self.deltaU_pp_func = interp1d( k_array, np.diag(deltaU_pp),
-                                            kind='cubic', bounds_error=False,
+                                            kind='linear', bounds_error=False,
                                             fill_value='extrapolate' )
             self.deltaU_pn_func = interp1d( k_array, np.diag(deltaU_pn),
-                                            kind='cubic', bounds_error=False,
+                                            kind='linear', bounds_error=False,
                                             fill_value='extrapolate' )
         
             # Interpolate pp and pn < k | \delta U \delta U^{\dagger} | k' > 
             self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
-                                                       deltaU2_pp)
+                                                       deltaU2_pp, kx=1, ky=1)
             self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
-                                                       deltaU2_pn)
+                                                       deltaU2_pn, kx=1, ky=1)
 
 
     def theta_I(self, q_mesh, Q_mesh, kF1_mesh, kF2_mesh):
@@ -800,18 +804,8 @@ class pair_momentum_distributions(object):
             R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
         dR = R_array[2] - R_array[1] # Assuming linear spacing
         
-        # Evaluate kF values to determine upper limit of Q
-        kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
-        kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
-        
-        # Set C.o.M. momentum values (note, these values will be different for
-        # each pair distribution)
-        if pair == 'pp':
-            Q_max = 2*max(kFp_array)
-        elif pair == 'nn':
-            Q_max = 2*max(kFn_array)
-        else:
-            Q_max = max(kFp_array) + max(kFn_array)
+        # Set C.o.M. momentum values
+        Q_max = 2.0 # Starts to get wonky at Q_max > 2.3 fm^-1
         ntot_Q = 40
         Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
 
@@ -975,52 +969,3 @@ class pair_momentum_distributions(object):
         
         # Return total (ntot_q, 1)
         return ( n_I + n_deltaU + n_deltaU2 )[:, 0]
-    
-
-# Test out low-q/high-Q bug here
-if __name__ == '__main__':
-    
-    kvnn = 6
-    channels = ('1S0', '3S1')
-    lamb = 1.35
-    kmax, kmid, ntot = 15.0, 3.0, 120
-    
-    q_array, q_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-    
-    nucleus = 'Be9'
-    Z = 4
-    N = 5
-    pair = 'pn'
-    edf = 'SLY4'
-    # edf = 'Gogny'
-    R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, edf)
-    R_array, rho_n_array = load_density(nucleus, 'neutron', Z, N, edf)
-    dR = R_array[2] - R_array[1] # Assuming linear spacing
-        
-    # Evaluate kF values to determine upper limit of Q
-    kFp_array = (3*np.pi**2 * rho_p_array)**(1/3)
-    kFn_array = (3*np.pi**2 * rho_n_array)**(1/3)
-    
-    Q_max = max(kFp_array) + max(kFn_array)
-    ntot_Q = 40
-    Q_array, Q_weights = gaussian_quadrature_mesh(Q_max, ntot_Q)
-    
-    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
-    
-    # Check \theta mesh values for I term and \delta U term vs q for highest Q
-    # and do integration(s) over R (and R')
-    # ...
-    # I term
-    # get theta_mesh then integrate over R', R, and fix Q -> gives array
-    # \delta U term
-    # get theta_mesh then integrate over R and fix Q -> gives array
-    
-    # Check matrix elements of \delta U^2 for low-q and high-Q (should never
-    # be negative as it is for Gogny Be9 densities!)
-    # ...
-    # get theta_mesh and check that all values are positive
-    # (ntot_q, ntot_Q, ntot_R, ntot_k)
-    # check if any elements of self.deltaU2_pp_func.ev(k_mesh, q_mesh) are < 0
-    
-    
-    
