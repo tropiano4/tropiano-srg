@@ -3,18 +3,20 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 
 --- SRC ---
+ 
+ * Check Egiyan reference
 
- * [DONE] He4 with SLy4: Much better agreement for \lambda=1.35 fm^-1
-
- * [DONE] \lambda dependence plot: Comes from node in low-\lambda \delta U^2 around q=7.6 fm^-1
-
- * [DONE] Add Gogny densities to original figures: SNMD looks basically the same, a2 looks good
-
+ * \lambda dependence plot
+   - Add \lambda = 10, 9.5, 9.0, update plots
+   - Do He4
+   
  * Fix high-Q, low-q bug in pmd.py (negative momentum distributions)
 
  * Derive pair momentum distribution with 3-body terms
 
  * Approximations for electrodisintegration
+
+ * Smear \theta functions? Fermi functions?
 
  * Outline for new paper
 
