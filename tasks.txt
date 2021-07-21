@@ -4,19 +4,19 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 --- SRC ---
 
- * Update asymptotic check notebook and data files/figures for SRC results
+ * [done] Update asymptotic check notebook and data files/figures for SRC results
 
  * \lambda dependence plot
    - Add \lambda = 10, 9.5, 9.0, update plots
    - Do He4
 
- * Derive pair momentum distribution with 3-body terms
+ * Derive pair momentum distribution with 3-body terms (iPad)
 
  * Contact ratios (once you have He4 working)
 
  * Approximations for electrodisintegration
 
- * Smear \theta functions? Fermi functions?
+ * Issues with Q > 0? Smear \theta functions? Fermi functions?
 
  * Outline for new paper
 
