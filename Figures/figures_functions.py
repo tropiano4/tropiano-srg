@@ -614,8 +614,10 @@ def xkcd_colors(curve_number):
     
     colors = ['xkcd:black', 'xkcd:red', 'xkcd:blue', 'xkcd:green',
               'xkcd:orange', 'xkcd:purple', 'xkcd:grey', 'xkcd:brown',
-              'xkcd:pink', 'xkcd:gold', 'xkcd:turquoise', 'xkcd:olive',
-              'xkcd:magenta', 'xkcd:tan', 'xkcd:indigo', 'xkcd:crimson']
+              'xkcd:pink', 'xkcd:turquoise', 'xkcd:olive', 'xkcd:gold',   
+              'xkcd:indigo', 'xkcd:magenta', 'xkcd:tan', 'xkcd:crimson',
+              'xkcd:navy', 'xkcd:lime', 'xkcd:plum', 'xkcd:chocolate',
+              'xkcd:coral', 'xkcd:darkgreen', 'xkcd:khaki']
     
     try:
         

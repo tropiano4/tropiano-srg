@@ -900,10 +900,13 @@ class pair_momentum_distributions(object):
         n_delU2_array = np.reshape( data[:, 5], (ntot_q, ntot_Q) )
         
         # Interpolate each array
-        n_total_func = RectBivariateSpline(q_array, Q_array, n_total_array)
-        n_I_func = RectBivariateSpline(q_array, Q_array, n_I_array)
-        n_delU_func = RectBivariateSpline(q_array, Q_array, n_delU_array)
-        n_delU2_func = RectBivariateSpline(q_array, Q_array, n_delU2_array)
+        n_total_func = RectBivariateSpline(q_array, Q_array, n_total_array,
+                                           kx=1, ky=1)
+        n_I_func = RectBivariateSpline(q_array, Q_array, n_I_array, kx=1, ky=1)
+        n_delU_func = RectBivariateSpline(q_array, Q_array, n_delU_array, kx=1,
+                                          ky=1)
+        n_delU2_func = RectBivariateSpline(q_array, Q_array, n_delU2_array,
+                                           kx=1, ky=1)
         
         # Return all contributions with total first
         # Note, these are functions of q and Q

@@ -726,13 +726,13 @@ class deuteron_momentum_distributions(object):
         # Interpolate each array (UnivariateSpline is for smoothing whereas
         # interp1d gives closer value to the actual calculation)
         n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
-                                kind='cubic', fill_value='extrapolate')
+                                kind='linear', fill_value='extrapolate')
         n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
-                            kind='cubic', fill_value='extrapolate')
+                            kind='linear', fill_value='extrapolate')
         n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
-                               kind='cubic', fill_value='extrapolate')
+                               kind='linear', fill_value='extrapolate')
         n_delU2_func = interp1d(q_array, n_delU2_array, bounds_error=False,
-                                kind='cubic', fill_value='extrapolate')
+                                kind='linear', fill_value='extrapolate')
         
         # Return all contributions with total first
         # Note, these are functions of q
