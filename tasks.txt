@@ -4,13 +4,20 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 --- SRC ---
 
- * [done] Update asymptotic check notebook and data files/figures for SRC results
+ * Changes to paper
+   - Add axes labels to Fig. 2
+   - Add p+n description for a2, Table I caption to distinguish proton dist.
+   - Add sources of disagreement near kF in Fig. 8: sharp Fermi surface cutoff, DME corrections, long-ranged correlations
+   - Update Fig. 8 without He3
+   - Go through a2 comment in more detail (iPad)
+   - Refer to supplementary material: factorization figures
+   - Do factorization figure at fixed k, vary q, no ratio?
 
- * \lambda dependence plot
-   - Add \lambda = 10, 9.5, 9.0, update plots
-   - Do He4
+ * Read Witek paper again?
 
  * Derive pair momentum distribution with 3-body terms (iPad)
+   -Diagrams
+   -3-body SRC physics at low resolution notes
 
  * Contact ratios (once you have He4 working)
 
