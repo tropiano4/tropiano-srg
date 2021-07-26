@@ -7,13 +7,16 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
  * Changes to paper
    - Check off things in Overleaf
    - Go through a2 comment in more detail (iPad)
+   - Reference A/d ratios in supplemental material
    - Do factorization figure at fixed k, vary q, no ratio?
 
  * Read Witek paper again?
 
  * Derive pair momentum distribution with 3-body terms (iPad)
-   - Diagrams
+   - Check each diagram and think of others
    - 3-body SRC physics at low resolution notes
+     * Diagrammatic analysis section
+     * \lambda dependence section
    - Think again why \lambda dependence is important. Summarize \lambda dependence results so far.
 
  * Contact ratios (once you have He4 working)
@@ -32,7 +35,6 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
    - Attach codes and figures
 
 --- Momentum distributions ---
-* Figure bug in last Q point in pmd.py files
 * Try profiler on snmd.py to figure out where its slowest
 * q = 0 case in pmd.py
 * Would it be a better approximation to use block-diagonal decoupling with HF+LDA?
