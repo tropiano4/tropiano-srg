@@ -11,7 +11,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
    - Reference A/d ratios in supplemental material
    - Do factorization figure at fixed k, vary q, no ratio?
 
- * Read Witek paper again?
+ * Read https://arxiv.org/pdf/2107.11675.pdf
 
  * Derive pair momentum distribution with 3-body terms (iPad)
    - Check each diagram and think of others
