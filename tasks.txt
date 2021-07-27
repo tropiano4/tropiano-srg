@@ -7,6 +7,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
  * Changes to paper
    - Check off things in Overleaf
    - Go through a2 comment in more detail (iPad)
+   - Check \int d3R \rho_\tau(R) \rho_\tau'(R) over A
    - Reference A/d ratios in supplemental material
    - Do factorization figure at fixed k, vary q, no ratio?
 
