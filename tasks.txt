@@ -5,7 +5,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 --- SRC ---
 
  * Changes to paper
-   - Check \int d3R \rho_\tau(R) \rho_\tau'(R) over A [done]
+   - Further test \int d3R but with correct factors and 1S0, etc.
    - Reference A/d ratios in supplemental material?
 
  * Read https://arxiv.org/pdf/2107.11675.pdf
