@@ -4,10 +4,6 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
 --- SRC ---
 
- * Changes to paper
-   - Further test \int d3R but with correct factors and 1S0, etc.
-   - Reference A/d ratios in supplemental material?
-
  * Read https://arxiv.org/pdf/2107.11675.pdf
 
  * Derive pair momentum distribution with 3-body terms (iPad)
@@ -23,14 +19,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
 
  * Issues with Q > 0? Smear \theta functions? Fermi functions?
 
- * Outline for new paper
-
  * Read QE electron scattering references
-
- * Updates to momentum distributions file
-   - Figure out consistent continuum and partial wave basis normalizations
-     * Organize notes on completeness, orthogonality, anti-symmetrized partial wave states
-   - Attach codes and figures
 
 --- Momentum distributions ---
 * Try profiler on snmd.py to figure out where its slowest
