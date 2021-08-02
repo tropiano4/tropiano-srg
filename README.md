@@ -5,23 +5,25 @@ This repository contains codes and files relevant to SRG work done by A.T.
 
 Description of each folder:
 
-* __Densities__ contains codes for computing the nucleonic densities of different nuclei.
+* __data__ contains data files for experimental quantities or numbers for interpolation purposes (e.g., momentum distributions).
 
-* __Figures__ contains research/results figures and a Python script figures_functions.py that has useful plotting oriented functions.
+* __densities__ contains codes for computing the nucleonic densities of different nuclei.
 
-* __Magnus__ contains codes for SRG-evolving a Hamiltonian via the Wegner or relative kinetic energy generator and using the Magnus expansion.
+* __figures__ contains research/results figures and a Python script figures_functions.py that has useful plotting oriented functions.
 
-* __Notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the arXiv version of the operator evolution paper, candidacy paper, etc.) and notes taken on iPad.
+* __magnus__ contains codes for SRG-evolving a Hamiltonian via the Wegner or relative kinetic energy generator and using the Magnus expansion.
 
-* __Old_codes__ stores all out-dated codes.
+* __notes__ contains notes relevant to some of the tools used in these codes. Add anything that does not qualify as a paper or presentation to this folder. Also contains sub-folders of LaTeX notes (e.g. the arXiv version of the operator evolution paper, candidacy paper, etc.) and notes taken on iPad.
 
-* __Papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
+* __old__ stores all out-dated codes.
 
-* __Potentials__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README for more information on how to generate potentials. Also stores the initial and evolved potentials, momenta and weights, and a Python script for loading and saving potentials called vnn.py. 
+* __papers__ contains all relevant papers. These papers are organized by the BibTeX article name (e.g., Tropiano:2018quk would be named Tropiano_2018quk.pdf). 
 
-* __Presentations__ contains all the files used for presentations for conferences or meetings.
+* __potentials__ contains all Fortran and Perl codes used to create chiral NN potentials. See the README for more information on how to generate potentials. Also stores the initial and evolved potentials, momenta and weights, and a Python script for loading and saving potentials called vnn.py. 
 
-* __SRG__ contains codes for SRG evolving a Hamiltonian via the Wegner, relative kinetic energy, or block-diagonal generator. Also contains a U(k,k') transformation function within srg_unitary_transformation.py.
+* __presentations__ contains all the files used for presentations for conferences or meetings.
+
+* __srg__ contains codes for SRG evolving a Hamiltonian via the Wegner, relative kinetic energy, or block-diagonal generator. Also contains a U(k,k') transformation function within srg_unitary_transformation.py.
 
 
 Description of major codes:
@@ -38,6 +40,6 @@ Description of major codes:
 
 * run_srg.py - SRG-evolves a specified Hamiltonian using scripts from the __SRG__ folder.
 
-* snmd.py, pmd.py, dmd.py - Calculates single-nucleon, pair, and deuteron momentum distributions in LDA.
+* snmd.py, pmd.py, dmd.py - Calculates single-nucleon, pair, and deuteron momentum distributions in HF+LDA.
 
 * test_script.py - Script used for testing purposes.
