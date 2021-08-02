@@ -5,6 +5,8 @@ This repository contains codes and files relevant to SRG work done by A.T.
 
 Description of each folder:
 
+* __data__ contains data files for experimental quantities or numbers for interpolation purposes (e.g., momentum distributions).
+
 * __densities__ contains codes for computing the nucleonic densities of different nuclei.
 
 * __figures__ contains research/results figures and a Python script figures_functions.py that has useful plotting oriented functions.
