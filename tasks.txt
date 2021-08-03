@@ -18,6 +18,11 @@
 
  * Read QE electron scattering references
 
+--- Reading list ---
+* vanKolck_2021rqu
+* Neff_2015xda
+* Wylie_2021uot
+
 --- Momentum distributions ---
 * Try profiler on snmd.py to figure out where its slowest
 * q = 0 case in pmd.py
