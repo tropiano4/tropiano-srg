@@ -1,14 +1,13 @@
 --- SRC ---
 
- * Read https://arxiv.org/pdf/2107.11675.pdf
-
- * Derive pair momentum distribution with 3-body terms (iPad)
+* Derive pair momentum distribution with 3-body terms (iPad)
    - Check each diagram and think of others
    - 3-body SRC physics at low resolution notes
      * Read Neff et al and your own paper again (summarize)
      * Diagrammatic analysis section
      * \lambda dependence section
    - Think again why \lambda dependence is important. Summarize \lambda dependence results so far.
+   - How can you approximate 3-body terms?
 
  * Contact ratios (once you have He4 working)
 
@@ -19,7 +18,6 @@
  * Read QE electron scattering references
 
 --- Reading list ---
-* vanKolck_2021rqu
 * Neff_2015xda
 * Wylie_2021uot
 
