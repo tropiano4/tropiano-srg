@@ -1,7 +1,3 @@
-Renaming directories in GitHub repository:
-https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-that-my-existing-links-arent-broken/10568
-
-
 --- SRC ---
 
  * Read https://arxiv.org/pdf/2107.11675.pdf
@@ -9,6 +5,7 @@ https://github.community/t/i-want-to-re-name-a-directory-how-do-i-redirect-so-th
  * Derive pair momentum distribution with 3-body terms (iPad)
    - Check each diagram and think of others
    - 3-body SRC physics at low resolution notes
+     * Read Neff et al and your own paper again (summarize)
      * Diagrammatic analysis section
      * \lambda dependence section
    - Think again why \lambda dependence is important. Summarize \lambda dependence results so far.
