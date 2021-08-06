@@ -1,5 +1,9 @@
 --- SRC ---
 
+* Gameplan
+  - Create 3-body SRC notebook
+  - Create deuteron electrodisintegration notebook? (Think about approximations)
+
 * Derive pair momentum distribution with 3-body terms (iPad)
    - Check each diagram and think of others
    - 3-body SRC physics at low resolution notes
