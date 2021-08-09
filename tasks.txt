@@ -23,6 +23,7 @@
 * Bogner_2009bt
 * Neff_2015xda
 * Jurgenson_2009qs
+* Gomez-Ramos_2021cvy
 * Wylie_2021uot
 
 --- Momentum distributions ---
