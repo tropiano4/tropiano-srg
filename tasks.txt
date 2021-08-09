@@ -1,28 +1,28 @@
 --- SRC ---
 
 * Gameplan
-  - Create 3-body SRC notebook
+  - Create 3-body SRC notebook (start with outline)
   - Create deuteron electrodisintegration notebook? (Think about approximations)
 
-* Derive pair momentum distribution with 3-body terms (iPad)
+* 3-body contributions in low RG SRC physics
+   - Read important section of Bogner_2009bt.
+   - Fill in code for 3-body notebook. Update figures.
+   - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
+   - Start Overleaf document with summary and results. Add diagrammatic analysis section.
    - Check each diagram and think of others
-   - 3-body SRC physics at low resolution notes
-     * Read Neff et al and your own paper again (summarize)
-     * Diagrammatic analysis section
-     * \lambda dependence section
-   - Think again why \lambda dependence is important. Summarize \lambda dependence results so far.
-   - How can you approximate 3-body terms?
+   - How can you approximate 3-body terms? Read Jurgenson_2009qs.
+   - Issues with Q > 0? Smear \theta functions? Fermi functions?
 
  * Contact ratios (once you have He4 working)
 
  * Approximations for electrodisintegration
 
- * Issues with Q > 0? Smear \theta functions? Fermi functions?
-
  * Read QE electron scattering references
 
 --- Reading list ---
+* Bogner_2009bt
 * Neff_2015xda
+* Jurgenson_2009qs
 * Wylie_2021uot
 
 --- Momentum distributions ---
