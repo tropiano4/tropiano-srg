@@ -119,14 +119,20 @@ def convert_number_to_string(number):
         to a string.
 
     """
+
+    # First check if the number is an integer
+    if number == int(number):
+        return str( int(number) )
+
+    else:
     
-    # Loop over i until the rounded number matches the input number
-    # then return the string of the rounded number
-    i = 0
-    while round(number, i) != number:
-        i += 1
+        # Loop over i until the rounded number matches the input number
+        # then return the string of the rounded number
+        i = 0
+        while round(number, i) != number:
+            i += 1
         
-    return str( round(number, i) )
+        return str( round(number, i) )
 
 
 def convert_ticks_to_labels(ticks):
