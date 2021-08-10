@@ -5,8 +5,7 @@
   - Create deuteron electrodisintegration notebook? (Think about approximations)
 
 * 3-body contributions in low RG SRC physics
-   - Read important section of Bogner_2009bt.
-   - Fill in code for 3-body notebook. Update figures.
+   - Fill in code for 3-body notebook. Update figures. Summarize results under each figure.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
    - Start Overleaf document with summary and results. Add diagrammatic analysis section.
    - Check each diagram and think of others
