@@ -3,7 +3,7 @@
 * 3-body contributions in low RG SRC physics
    - Start Overleaf document with summary and results. Add diagrammatic analysis section.
    - Check each diagram and think of others.
-   - Smear \theta functions? Fermi functions?
+   - Smear \theta functions? Fermi functions? snmd_new.py
    - 2nd term in DME.
    - Scheme dependence? Use block-diagonal decoupling.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
