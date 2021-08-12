@@ -1,16 +1,14 @@
 --- SRC ---
 
-* Gameplan
-  - Create 3-body SRC notebook (start with outline)
-  - Create deuteron electrodisintegration notebook? (Think about approximations)
-
 * 3-body contributions in low RG SRC physics
-   - Fill in code for 3-body notebook. Update figures. Summarize results under each figure.
-   - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
    - Start Overleaf document with summary and results. Add diagrammatic analysis section.
-   - Check each diagram and think of others
-   - How can you approximate 3-body terms? Read Jurgenson_2009qs.
-   - Issues with Q > 0? Smear \theta functions? Fermi functions?
+   - Check each diagram and think of others.
+   - Smear \theta functions? Fermi functions?
+   - 2nd term in DME.
+   - Scheme dependence? Use block-diagonal decoupling.
+   - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
+   - How can you approximate 3-body terms? Read Jurgenson_2009qs and Bogner_2007qb.
+   - Update notes after reading papers.
 
  * Contact ratios (once you have He4 working)
 
@@ -19,9 +17,9 @@
  * Read QE electron scattering references
 
 --- Reading list ---
-* Bogner_2009bt
 * Neff_2015xda
 * Jurgenson_2009qs
+* Bogner_2007qb
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
 
