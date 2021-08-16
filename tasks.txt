@@ -1,9 +1,12 @@
 --- SRC ---
 
-* 3-body contributions in low RG SRC physics
-   - Start Overleaf document with summary and results. Add diagrammatic analysis section.
-   - Check each diagram and think of others.
-   - Smear \theta functions? Fermi functions? snmd_new.py
+* Extensions to SRC physics at low RG resolution
+   - Check each diagram and think of others. Add to Overleaf.
+   - Smear \theta functions? Fermi functions? pmd_new.py (special case where Q=0?)
+     From wiki: H(x) = lim_{k->\infty} 1/(1+exp^(-2kx))
+     Take 2k = 2\beta and replace \theta(kF(R)-q) with 1 / ( 1+exp^( -2*\beta*(kF(R)-q) ) )
+     Take \beta at 10000 to check it's the same. Try other values.
+     Test \lambda dependence and compare to AV18 QMC C12 results.
    - 2nd term in DME.
    - Scheme dependence? Use block-diagonal decoupling.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
