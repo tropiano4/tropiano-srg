@@ -14,10 +14,10 @@
    - Update notes after reading papers.
 
  * Contact ratios (once you have He4 working)
-   - Inconsistency on how to extract? You can use single-nucleon probability distribution if you isolate the following pieces:
-     1S0/nn, 1S0/pp, 1S0/pn, 3S1/pn
-     Or alternatively, integrate 1/N \int_kF^\inf d3q / (2\pi)^3 \int d3Q / (2\pi)^3 n(q, Q)
-     where N is the total normalization of the pair momentum distribution
+   - Inconsistency on how to extract? You can use single-nucleon probability distribution if you
+     isolate the following pieces: 1S0/nn, 1S0/pp, 1S0/pn, 3S1/pn
+     Or alternatively, integrate 1/N \int_kF^\infty d3q / (2\pi)^3 \int d3Q / (2\pi)^3 n(q, Q)
+     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
  * Approximations for electrodisintegration
 
