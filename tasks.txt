@@ -27,6 +27,18 @@
 --- Reading list ---
 * Neff_2015xda
 * Jurgenson_2009qs
+  Summary
+  - Harmonic oscillator basis for A = 4 (He4)
+  - SRG does not reshuffle hierarchy of many-body terms in \chi^EFT
+  - \lambda = 2 fm^-1 is a good compromise between improved convergence from decoupling and
+    the growth of induced many-body interactions
+  - 2-body evolved operator gets no contribution from 3-body
+    3-body evolved operator gets contributions from 2-body but not 4-body
+  - Jacobi coordinate harmonic oscillator basis of NCSM
+  - NN-only fails and has \lambda dependence, NN+NNN induced is flat but off,
+    NN+NNN initial looks good
+  - Basis size convergence improved with SRG
+  - Net induced four-body contribution is smaller than truncation errors of the chiral interaction
 * Bogner_2007qb
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
