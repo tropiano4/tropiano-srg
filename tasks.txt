@@ -8,11 +8,8 @@
      Take \beta at 10000 to check it's the same. Try other values.
      Test \lambda dependence and compare to AV18 QMC C12 results.
    - 2nd term in DME.
-   - Scheme dependence? Use block-diagonal decoupling.
-     * Add takeaways in notebook and then Overleaf.
-     * Block-diagonal with SNMD (update snmd.py first and pmd.py), then create new cell.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
-   - How can you approximate 3-body terms? Read Jurgenson_2009qs and Bogner_2007qb.
+   - How can you approximate 3-body terms? Read Bogner_2007qb.
    - Update notes after reading papers.
 
  * Contact ratios (once you have He4 working)
