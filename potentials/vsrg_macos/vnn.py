@@ -71,11 +71,6 @@ def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
         Momentum weights [fm^-1].
         
     """
-    
-    # Get current working directory
-    cwd = getcwd()
-    
-    # Go to directory of specified potential
 
     # Convert kvnn to string
     if kvnn < 10:
@@ -86,25 +81,21 @@ def load_momentum(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0):
     # Set default mesh specifications if necessary
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
-        
+    
+    # Get potential directory
     potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
-    
-    chdir(potential_directory)
 
     # Load mesh file
     mesh_file = 'vsrg_%s_kvnn_%s_lam12.0_reg_0_3_0_mesh.out' % \
                 (channel, kvnn_string)    
-    data = np.loadtxt(mesh_file)
+    data = np.loadtxt(potential_directory + '/' + mesh_file)
     
     # Momentum is the first column and weights are the second
     k_array = data[:, 0] # fm^-1
     k_weights = data[:, 1] # fm^-1
-      
-    # Go back to original directory
-    chdir(cwd)
-        
+
     return k_array, k_weights
     
 
@@ -146,11 +137,7 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
         NN potential matrix [fm].
         
     """
-    
-    # Get current working directory
-    cwd = getcwd()
-    
-    # Go to directory of specified potential
+
     # Convert kvnn to string
     if kvnn < 10:
         kvnn_string = '0'+str(kvnn)
@@ -160,7 +147,8 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
     # Set default mesh specifications if necessary
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
-    
+
+    # Get potential directory
     potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
@@ -204,14 +192,10 @@ def load_potential(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, method='initial',
             vnn_file = 'vnn_%s_kvnn_%s_%s_%s_lambda%.1f_k%d_ds%.1e.out' % \
                        (channel, kvnn_string, method, generator, lamb,
                         k_magnus, ds)
-    
-    chdir(potential_directory)
-        
-    # Load output file
-    data = np.loadtxt(vnn_file)
 
-    chdir(cwd)
-    
+    # Load output file
+    data = np.loadtxt(potential_directory + '/' + vnn_file)
+
     # Coupled channel potential
     if coupled_channel(channel):
         
@@ -377,11 +361,7 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
         Magnus evolved omega matrix.
         
     """
-    
-    # Get current working directory
-    cwd = getcwd()
-    
-    # Go to directory of specified potential
+
     # Convert kvnn to string
     if kvnn < 10:
         kvnn_string = '0'+str(kvnn)
@@ -392,6 +372,7 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
     if kmax == 0.0:
         kmax, kmid, ntot = mesh_specifications(kvnn)
     
+    # Get potential directory
     potential_directory = 'potentials/vsrg_macos/vsrg_kvnn_' + \
                           '%s_lam12.0_kmax%d_kmid%d_ntot%d' % \
                           (kvnn_string, kmax, kmid, ntot)
@@ -399,14 +380,10 @@ def load_omega(kvnn, channel, kmax=0.0, kmid=0.0, ntot=0, generator='Wegner',
     # Name of omega file
     omega_file = 'omega_%s_kvnn_%s_%s_lambda%.1f_k%d_ds%.1e.out' % \
                  (channel, kvnn_string, generator, lamb, k_magnus, ds)
-    
-    chdir(potential_directory)
-        
-    # Load output file
-    data = np.loadtxt(omega_file)
 
-    chdir(cwd)
-    
+    # Load output file
+    data = np.loadtxt(potential_directory + '/' + omega_file)
+
     # Coupled channel potential
     if coupled_channel(channel):
         
