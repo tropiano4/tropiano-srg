@@ -46,7 +46,7 @@ class pair_momentum_distributions(object):
     
     
     def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot,
-                 generator='Wegner', interp=False):
+                 generator='Wegner', beta=0.0, interp=False):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -67,6 +67,13 @@ class pair_momentum_distributions(object):
             Number of momentum points in mesh.
         generator : str, optional
             SRG generator 'Wegner', 'T', or 'Block-diag'.
+        beta : bool, optional
+            \beta parameter [fm^2] in Fermi function. If left zero, uses \theta
+            functions as default to evaluate
+              < F | n_\alpha | F > ~ \theta( kF(R) - k_\alpha ).
+            Nonzero entries will replace the \theta function with a Fermi
+            function 1 / ( 1 + exp^(-\beta*(kF^2-q^2) ) ). High \beta approaches
+            the \theta function.
         interp : bool, optional
             Option to use interpolated n_\lambda(q, Q) functions.
             
@@ -81,6 +88,7 @@ class pair_momentum_distributions(object):
         self.kmax = kmax
         self.ntot = ntot
         self.generator = generator
+        self.beta = beta
 
         if interp == False:
             
@@ -421,6 +429,30 @@ class pair_momentum_distributions(object):
         return theta_mesh
     
     
+    def fermi_function_low_q(self, q_mesh, kF1_mesh, kF2_mesh):
+        # Fermi function for I and \delta U terms
+        
+        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - q_mesh**2) ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - q_mesh**2) ) )
+        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - q_mesh) ) )
+        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - q_mesh) ) )
+        
+        # Dimensions will match dimensions of input mesh grids
+        return ff1_mesh * ff2_mesh
+    
+    
+    def fermi_function_high_q(self, kF1_mesh, kF2_mesh, k_mesh):
+        # Fermi function for I and \delta U terms
+        
+        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - k_mesh**2) ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - k_mesh**2) ) )
+        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - k_mesh) ) )
+        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - k_mesh) ) )
+        
+        # Dimensions will match dimensions of input mesh grids
+        return ff1_mesh * ff2_mesh
+    
+    
     def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array):
         """
         Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
@@ -458,7 +490,10 @@ class pair_momentum_distributions(object):
                                                kF2_array, indexing='ij')
         
         # Evaluate angle-average of \theta-functions in I term
-        theta_mesh = self.theta_I(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        if self.beta == 0.0:
+            theta_mesh = self.theta_I(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        else:
+            theta_mesh = self.fermi_function_low_q(q_mesh, kF1_mesh, kF2_mesh)
         
         # Calculate R' integrand (ntot_q, ntot_Q, ntot_R, ntot_R)
         integrand_Rp = theta_mesh * Rp_mesh**2 * dR * R_mesh**2 * dR
@@ -518,7 +553,10 @@ class pair_momentum_distributions(object):
                                      indexing='ij')
         
         # Evaluate angle-average of \theta-functions in \delta U term
-        theta_mesh = self.theta_deltaU(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        if self.beta == 0.0:
+            theta_mesh = self.theta_deltaU(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
+        else:
+            theta_mesh = self.fermi_function_low_q(q_mesh, kF1_mesh, kF2_mesh)
         
         # Evaluate < q | \delta U | q >
         if pair == 'pp':
@@ -621,7 +659,10 @@ class pair_momentum_distributions(object):
                     dk_mesh[iq, iQ, iR, :] = k_weights
                      
         # Evaluate angle-average of \theta-functions in \delta U^2 term
-        theta_mesh = self.theta_deltaU2(Q_mesh, kF1_mesh, kF2_mesh, k_mesh)
+        if self.beta == 0.0:
+            theta_mesh = self.theta_deltaU2(Q_mesh, kF1_mesh, kF2_mesh, k_mesh)
+        else:
+            theta_mesh = self.fermi_function_high_q(kF1_mesh, kF2_mesh, k_mesh)
         
         # Evaluate < k | \delta U | q > < q | \delta U^\dagger | k >
         if pair == 'pp':
@@ -993,45 +1034,3 @@ class pair_momentum_distributions(object):
         
         # Return total (ntot_q, 1)
         return ( n_I + n_deltaU + n_deltaU2 )[:, 0]
-    
-    
-    def n_Q0_smooth(self, q_array, R_array, dR, rho_1_array,
-                    rho_2_array=np.empty(0), beta=1.0):
-        """
-        Pair momentum distribution evaluated at Q = 0 where the nucleonic
-        densities specify the nucleus and distribution type (e.g., O16 and pn).
-        Here we use a Fermi function instead of sharp \theta functions in
-        evaluating contractions with respect to the filled Fermi sea.
-
-        Parameters
-        ----------
-        q_array : 1-D ndarray
-            Relative momentum values [fm^-1].
-        R_array : 1-D ndarray
-            C.o.M. coordinates [fm].
-        dR : float
-            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
-        rho_1_array : 1-D ndarray
-            Densities as a function of R [fm^-3] for the first nucleon
-            corresponding to \tau.
-        rho_2_array : 1-D ndarray, optional
-            Densities as a function of R [fm^-3] for the second nucleon
-            corresponding to \tau'. If an empty array is input, the function
-            assumes a proton-proton (or neutron-neutron) pair momentum
-            distribution relying only on rho_1_array.
-        beta : float, optional
-            Parameter in the exponent of the Fermi function.
-                F(q, kF(R)) = 1 / ( 1 + exp^( \beta * ( q - kF(R) ) ) )
-            As \beta -> \infty, F(q, kF(R)) -> \theta( kF(R) - q ). 
-
-        Returns
-        -------
-        n_total : 1-D ndarray
-            Pair momentum distribution [fm^6] for each q.
-
-        """
-        
-        # Do all terms and replace calls to \theta functions with evaluating
-        # an array fermi_function_array
-        
-        return None

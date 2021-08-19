@@ -4,10 +4,12 @@
    - Check each diagram and think of others. Add to Overleaf.
    - Smear \theta functions? Fermi functions? pmd_new.py (special case where Q=0?)
      From wiki: H(x) = lim_{k->\infty} 1/(1+exp^(-2kx))
-     Take 2k = 2\beta and replace \theta(kF(R)-q) with 1 / ( 1+exp^( -2*\beta*(kF(R)-q) ) )
+     Take 2k = \beta and replace \theta(kF(R)-q) with 1 / ( 1+exp^( -2*\beta*(kF(R)-q) ) )
      Take \beta at 10000 to check it's the same. Try other values.
      Test \lambda dependence and compare to AV18 QMC C12 results.
    - 2nd term in DME.
+     * Notes: First derive how it works for the first term. Then do second.
+     * Think about how you would code this. Questions? If not, go straight into it.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
    - How can you approximate 3-body terms? Read Bogner_2007qb.
    - Update notes after reading papers.
