@@ -432,10 +432,10 @@ class pair_momentum_distributions(object):
     def fermi_function_low_q(self, q_mesh, kF1_mesh, kF2_mesh):
         # Fermi function for I and \delta U terms
         
-        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - q_mesh**2) ) )
-        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - q_mesh**2) ) )
-        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - q_mesh) ) )
-        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - q_mesh) ) )
+        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - q_mesh**2) ) )
+        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - q_mesh**2) ) )
+        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - q_mesh) ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - q_mesh) ) )
         
         # Dimensions will match dimensions of input mesh grids
         return ff1_mesh * ff2_mesh
@@ -444,10 +444,10 @@ class pair_momentum_distributions(object):
     def fermi_function_high_q(self, kF1_mesh, kF2_mesh, k_mesh):
         # Fermi function for I and \delta U terms
         
-        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - k_mesh**2) ) )
-        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - k_mesh**2) ) )
-        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - k_mesh) ) )
-        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - k_mesh) ) )
+        # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - k_mesh**2) ) )
+        # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - k_mesh**2) ) )
+        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - k_mesh) ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - k_mesh) ) )
         
         # Dimensions will match dimensions of input mesh grids
         return ff1_mesh * ff2_mesh
