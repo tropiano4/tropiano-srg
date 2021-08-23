@@ -1,8 +1,8 @@
 --- SRC ---
 
 * Extensions to SRC physics at low RG resolution
+   - Ask DF about steps in between Eq. (10) and Eq. (11) in paper.
    - 2nd term in DME.
-     * Notes: First derive how it works for the first term. Then do second.
      * Think about how you would code this. Questions? If not, go straight into it.
    - Smear \theta functions? Fermi functions? pmd_new.py (special case where Q=0?)
      Test \lambda dependence and compare to AV18 QMC C12 results.
