@@ -26,6 +26,7 @@
 #                RectBivariateSpline from cubic to linear since \delta U^2(k,q)
 #                was returning negative values. Also, setting Q_max to 2 fm^-1
 #                instead of max(kF1)+max(kF2) in file writing function.
+#   08/24/21 --- Added SRG block-diagonal option.
 #
 #------------------------------------------------------------------------------
 
@@ -43,7 +44,8 @@ from srg.srg_unitary_transformation import SRG_unitary_transformation
 class pair_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot, interp=False):
+    def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot,
+                 generator='Wegner', interp=False):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -110,9 +112,15 @@ class pair_momentum_distributions(object):
                 # Load SRG transformation
                 H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
                                                  ntot)
-                H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                 ntot, method='srg',
-                                                 generator='Wegner', lamb=lamb)
+                if generator == 'Block-diag':
+                    # Take \lambda = 1 fm^-1 and set \Lambda_BD = input \lambda
+                    H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                     ntot, 'srg', generator,
+                                                     1.0, lamb)
+                else:
+                    H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                     ntot, 'srg', generator,
+                                                     lamb)
                 # Load U(k, k') [unitless]
                 U_matrix_unitless = SRG_unitary_transformation(H_initial,
                                                                H_evolved)
@@ -793,7 +801,10 @@ class pair_momentum_distributions(object):
         # Add each channel to file name
         for channel in self.channels:
             file_name += '_%s' % channel
-        file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        if self.generator == 'Block-diag':
+            file_name += '_LambdaBD_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        else:
+            file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
         file_name = ff.replace_periods(file_name) + '.dat'
         
         # Load R values and nucleonic densities (the R_array's are the same)
@@ -877,7 +888,10 @@ class pair_momentum_distributions(object):
         # Add each channel to file name
         for channel in self.channels:
             file_name += '_%s' % channel
-        file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        if self.generator == 'Block-diag':
+            file_name += '_LambdaBD_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
+        else:
+            file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
         file_name = ff.replace_periods(file_name) + '.dat'
         
         # Load data which includes all contributions to n_\lambda(q)
