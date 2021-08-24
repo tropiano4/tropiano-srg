@@ -39,7 +39,8 @@
   - Net induced four-body contribution is smaller than truncation errors of the chiral interaction
 * Negele_1972zp
   Summary
-  -
+  - Expansion of nuclear wave function density matrix in relative and CM coordinates
+  - First term gives local density dependence
 * Bogner_2007qb
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
