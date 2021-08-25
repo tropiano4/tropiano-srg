@@ -1,11 +1,7 @@
 --- SRC ---
 
 * Extensions to SRC physics at low RG resolution
-   - Ask DF about steps in between Eq. (10) and Eq. (11) in paper.
-   - 2nd term in DME.
-     * Think about how you would code this. Questions? If not, go straight into it.
-   - Smear \theta functions? Fermi functions? pmd_new.py (special case where Q=0?)
-     Test \lambda dependence and compare to AV18 QMC C12 results.
+   - 2nd term in DME (questions)
    - Check each diagram and think of others. Add takeaway points to Overleaf.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
    - How can you approximate 3-body terms? Read Bogner_2007qb.
