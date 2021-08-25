@@ -1,6 +1,7 @@
 --- SRC ---
 
 * Extensions to SRC physics at low RG resolution
+   - Change \beta to 1/\beta
    - 2nd term in DME (questions)
    - Check each diagram and think of others. Add takeaway points to Overleaf.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
