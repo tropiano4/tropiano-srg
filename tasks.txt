@@ -1,8 +1,16 @@
 --- SRC ---
 
 * Extensions to SRC physics at low RG resolution
-   - Change \beta to 1/\beta
-   - 2nd term in DME (questions)
+   - Add term(\beta) to FF to fix normalization
+     * This corrects the normalization but screws up the tail.
+   - 2nd term in DME
+     * Questions:
+       1. How do you get the Heaviside function from the d^3s integral in the single-nucleon case?
+       2. How do you get Heaviside functions that give |Q/2+(-)q|?
+       3. Why are there d^3R and d^3R' in the I term for the pair but not the other terms?
+       4. Think about how to compute the \int d^3s exp^(-i*q*s) [...] integral.
+     * Check the second term by including it in a simple calculation involving only the
+       normalization of the density matrix.
    - Check each diagram and think of others. Add takeaway points to Overleaf.
    - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
    - How can you approximate 3-body terms? Read Bogner_2007qb.
@@ -35,7 +43,7 @@
   - Basis size convergence improved with SRG
   - Net induced four-body contribution is smaller than truncation errors of the chiral interaction
 * Negele_1972zp
-  Summary
+  Summary of our method
   - Expansion of nuclear wave function density matrix in relative and CM coordinates
   - First term gives local density dependence
 * Bogner_2007qb
