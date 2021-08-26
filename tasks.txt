@@ -1,20 +1,19 @@
 --- SRC ---
 
+* Knock-out reactions
+  - Approximations for electrodisintegration (see SM papers / questions)
+  - Read QE electron scattering references (questions)
+
 * Extensions to SRC physics at low RG resolution
-   - Add term(\beta) to FF to fix normalization
-     * This corrects the normalization but screws up the tail.
-   - 2nd term in DME
-     * Questions:
-       1. How do you get the Heaviside function from the d^3s integral in the single-nucleon case?
-       2. How do you get Heaviside functions that give |Q/2+(-)q|?
-       3. Why are there d^3R and d^3R' in the I term for the pair but not the other terms?
-       4. Think about how to compute the \int d^3s exp^(-i*q*s) [...] integral.
-     * Check the second term by including it in a simple calculation involving only the
-       normalization of the density matrix.
-   - Check each diagram and think of others. Add takeaway points to Overleaf.
-   - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
-   - How can you approximate 3-body terms? Read Bogner_2007qb.
-   - Update notes after reading papers. Add Negele summary or something about DME?
+  - Add term(\beta) to FF to fix normalization (I term only!)
+  - 2nd term in DME
+    * Check Heaviside function from the d^3s integral in the single-nucleon case
+    * Check the second term by including it in a simple calculation involving only the
+      normalization of the density matrix.
+  - Think again why \lambda dependence is important. Read Neff again. (Summarize in your own words.)
+  - Update notes after reading papers. Add Negele summary or something about DME?
+  - Check each diagram and think of others. Add takeaway points to Overleaf.
+  - How can you approximate 3-body terms? Read Bogner_2007qb.
 
  * Contact ratios (once you have He4 working)
    - Read Weiss_2016obx for reference
@@ -22,10 +21,6 @@
      isolate the following pieces: 1S0/nn, 1S0/pp, 1S0/pn, 3S1/pn
      Or alternatively, integrate 1/N \int_kF^\infty d3q / (2\pi)^3 \int d3Q / (2\pi)^3 n(q, Q)
      where N is the total normalization of the pair momentum distribution (they use N = A/2)
-
- * Approximations for electrodisintegration
-
- * Read QE electron scattering references
 
 --- Reading list ---
 * Neff_2015xda
