@@ -68,11 +68,11 @@ class pair_momentum_distributions(object):
         generator : str, optional
             SRG generator 'Wegner', 'T', or 'Block-diag'.
         beta : bool, optional
-            \beta parameter [fm^2] in Fermi function. If left zero, uses \theta
-            functions as default to evaluate
+            \beta parameter [fm^-1] in Fermi function. If left zero, uses
+            \theta functions as default to evaluate
               < F | n_\alpha | F > ~ \theta( kF(R) - k_\alpha ).
             Nonzero entries will replace the \theta function with a Fermi
-            function 1 / ( 1 + exp^(-\beta*(kF^2-q^2) ) ). High \beta approaches
+            function 1 / ( 1 + exp^(-(kF-q)/\beta ) ). Low \beta approaches
             the \theta function.
         interp : bool, optional
             Option to use interpolated n_\lambda(q, Q) functions.
@@ -434,8 +434,8 @@ class pair_momentum_distributions(object):
         
         # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - q_mesh**2) ) )
         # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - q_mesh**2) ) )
-        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - q_mesh) ) )
-        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - q_mesh) ) )
+        ff1_mesh = 1 / ( 1 + np.exp( -(kF1_mesh - q_mesh) / self.beta ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -(kF2_mesh - q_mesh) / self.beta ) )
         
         # Dimensions will match dimensions of input mesh grids
         return ff1_mesh * ff2_mesh
@@ -446,8 +446,8 @@ class pair_momentum_distributions(object):
         
         # ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh**2 - k_mesh**2) ) )
         # ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh**2 - k_mesh**2) ) )
-        ff1_mesh = 1 / ( 1 + np.exp( -self.beta * (kF1_mesh - k_mesh) ) )
-        ff2_mesh = 1 / ( 1 + np.exp( -self.beta * (kF2_mesh - k_mesh) ) )
+        ff1_mesh = 1 / ( 1 + np.exp( -(kF1_mesh - k_mesh) / self.beta ) )
+        ff2_mesh = 1 / ( 1 + np.exp( -(kF2_mesh - k_mesh) / self.beta ) )
         
         # Dimensions will match dimensions of input mesh grids
         return ff1_mesh * ff2_mesh
