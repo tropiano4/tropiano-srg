@@ -7,7 +7,6 @@
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
   - Add contours of \delta U^2 for block-diagonal
-  - Read Neff again. (Summarize in your own words.)
   - Update notes after reading papers. Add Negele summary or something about DME?
   - Add term(\beta) to FF to fix normalization (I term only!)
   - 2nd term in DME
@@ -25,37 +24,6 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
-* Neff_2015xda
-  Summary
-  - NCSM used to build wave function for He4 with SRG transformed interactions, and the
-    wave functions are used to compute bare and SRG transformed interactions
-  - 2-body approximation for evolved operator so \lambda dependence tells us about missing many-
-    body correlations
-  - Many-body correlations are small for Q = 0 but not negligible for higher Q
-  - Pair density (coordinate space) with transformed density operator only disagrees near peaks
-    at r ~ 1-1.3 fm
-  - Pair relative momentum distribution deviates at k ~ fm^-1 from induced terms from the
-    two-bodytensor force. Similar to our results but opposite \lambda dependence.
-  - No significant dependence on \lambda when taking n(k,K=0) 
-  - Question: Is their sensitivity to K > 0 because they solve in A-body space and do not
-    include 3-body terms, whereas we are not sensitive to K > 0 and restrict to 2-body space
-* Jurgenson_2009qs
-  Summary
-  - Harmonic oscillator basis for A = 4 (He4)
-  - SRG does not reshuffle hierarchy of many-body terms in \chi^EFT
-  - \lambda = 2 fm^-1 is a good compromise between improved convergence from decoupling and
-    the growth of induced many-body interactions
-  - 2-body evolved operator gets no contribution from 3-body
-    3-body evolved operator gets contributions from 2-body but not 4-body
-  - Jacobi coordinate harmonic oscillator basis of NCSM
-  - NN-only fails and has \lambda dependence, NN+NNN induced is flat but off,
-    NN+NNN initial looks good
-  - Basis size convergence improved with SRG
-  - Net induced four-body contribution is smaller than truncation errors of the chiral interaction
-* Our paper
-  Summary of our method
-  - Expansion of nuclear wave function density matrix in relative and CM coordinates
-  - First term gives local density dependence
 * Bogner_2007qb
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
