@@ -35,7 +35,10 @@
   - Pair density (coordinate space) with transformed density operator only disagrees near peaks
     at r ~ 1-1.3 fm
   - Pair relative momentum distribution deviates at k ~ fm^-1 from induced terms from the
-    two-bodytensor force. Similar to our results but opposite \lambda dependence. 
+    two-bodytensor force. Similar to our results but opposite \lambda dependence.
+  - No significant dependence on \lambda when taking n(k,K=0) 
+  - Question: Is their sensitivity to K > 0 because they solve in A-body space and do not
+    include 3-body terms, whereas we are not sensitive to K > 0 and restrict to 2-body space
 * Jurgenson_2009qs
   Summary
   - Harmonic oscillator basis for A = 4 (He4)
@@ -49,7 +52,7 @@
     NN+NNN initial looks good
   - Basis size convergence improved with SRG
   - Net induced four-body contribution is smaller than truncation errors of the chiral interaction
-* Negele_1972zp
+* Our paper
   Summary of our method
   - Expansion of nuclear wave function density matrix in relative and CM coordinates
   - First term gives local density dependence
