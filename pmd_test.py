@@ -104,6 +104,7 @@ class pair_momentum_distributions(object):
                                                    ntot)
             # Save k_array for writing files
             self.k_array = k_array
+            self.k_weights = k_weights
         
             # For dividing out momenta/weights
             factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
@@ -453,7 +454,7 @@ class pair_momentum_distributions(object):
         return ff1_mesh * ff2_mesh
     
     
-    def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array):
+    def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array, beta=0):
         """
         Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
 
@@ -490,7 +491,7 @@ class pair_momentum_distributions(object):
                                                kF2_array, indexing='ij')
         
         # Evaluate angle-average of \theta-functions in I term
-        if self.beta == 0.0:
+        if beta == 0.0:
             theta_mesh = self.theta_I(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
         else:
             theta_mesh = self.fermi_function_low_q(q_mesh, kF1_mesh, kF2_mesh)
@@ -553,7 +554,8 @@ class pair_momentum_distributions(object):
                                      indexing='ij')
         
         # Evaluate angle-average of \theta-functions in \delta U term
-        if self.beta == 0.0:
+        if True:
+        # if self.beta == 0.0:
             theta_mesh = self.theta_deltaU(q_mesh, Q_mesh, kF1_mesh, kF2_mesh)
         else:
             theta_mesh = self.fermi_function_low_q(q_mesh, kF1_mesh, kF2_mesh)
@@ -659,7 +661,8 @@ class pair_momentum_distributions(object):
                     dk_mesh[iq, iQ, iR, :] = k_weights
                      
         # Evaluate angle-average of \theta-functions in \delta U^2 term
-        if self.beta == 0.0:
+        if True:
+        # if self.beta == 0.0:
             theta_mesh = self.theta_deltaU2(Q_mesh, kF1_mesh, kF2_mesh, k_mesh)
         else:
             theta_mesh = self.fermi_function_high_q(kF1_mesh, kF2_mesh, k_mesh)
@@ -1026,7 +1029,20 @@ class pair_momentum_distributions(object):
             distribution = 'pp'
             
         # Get each contribution with respect to q and Q
-        n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
+        if self.beta == 0.0:
+            n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array)
+        else:
+            n_I = self.n_I(q_array, Q_array, R_array, dR, kF1_array, kF2_array,
+                           beta=self.beta)
+            N_beta = 4*np.pi/(2*np.pi)**3 * np.sum( q_array**2*self.k_weights*\
+                                                    n_I[:, 0] )
+            n_I_sharp = self.n_I(q_array, Q_array, R_array, dR, kF1_array,
+                                 kF2_array, beta=0.0)
+            N = 4*np.pi/(2*np.pi)**3 * np.sum( q_array**2*self.k_weights*\
+                                               n_I_sharp[:, 0] )
+            
+            n_I *= N / N_beta
+            
         n_deltaU = self.n_deltaU(q_array, Q_array, R_array, dR, kF1_array,
                                  kF2_array, distribution)
         n_deltaU2 = self.n_deltaU2(q_array, Q_array, R_array, dR, kF1_array,
