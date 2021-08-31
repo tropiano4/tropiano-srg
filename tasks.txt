@@ -5,6 +5,9 @@
   - Read electron scattering references (questions)
     * Ulmer ODU presentation
     * First two sections of Fomin thesis
+      Questions:
+      1. Idea: calculate spectroscopic factors with RG evolved operator and IPSM.
+         Where is the operator in the spectral function Eq. 1.15?
     * Frois_1987hk
     * Marshall_2020ahl
 
