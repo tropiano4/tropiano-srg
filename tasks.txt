@@ -2,12 +2,14 @@
 
 * Knock-out reactions
   - Approximations for electrodisintegration (see SM papers / questions)
-  - Read QE electron scattering references (questions)
+  - Read electron scattering references (questions)
+    * Ulmer ODU presentation
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
   - Add contours of \delta U^2 for block-diagonal
   - Add term(\beta) to FF to fix normalization (I term only!)
+
   - 2nd term in DME
     * Check Heaviside function from the d^3s integral in the single-nucleon case
     * Check the second term by including it in a simple calculation involving only the
@@ -27,6 +29,9 @@
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
 * Weiss_2016obx
+* First two sections of Fomin thesis
+* Frois
+* Marshall
 
 --- Momentum distributions ---
 * Try profiler on snmd.py to figure out where its slowest
