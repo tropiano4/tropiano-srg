@@ -10,9 +10,6 @@
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
-  - Add contours of \delta U^2 for block-diagonal
-  - Add term(\beta) to FF to fix normalization (I term only!)
-
   - 2nd term in DME
     * Check Heaviside function from the d^3s integral in the single-nucleon case
     * Check the second term by including it in a simple calculation involving only the
