@@ -3,11 +3,8 @@
 * Knock-out reactions
   - Approximations for electrodisintegration (see SM papers / questions)
   - Read electron scattering references (questions)
+    * Dickoff (7.6)
     * Ulmer ODU presentation
-    * First two sections of Fomin thesis
-      Questions:
-      1. Idea: calculate spectroscopic factors with RG evolved operator and IPSM.
-         Where is the operator in the spectral function Eq. 1.15?
     * Frois_1987hk
     * Marshall_2020ahl
 
@@ -32,7 +29,6 @@
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
 * Weiss_2016obx
-* First two sections of Fomin thesis
 * Frois_1987hk
 * Marshall_2020ahl
 
