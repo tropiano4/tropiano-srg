@@ -3,9 +3,10 @@
 * Knock-out reactions
   - Approximations for electrodisintegration (see SM papers / questions)
   - Read electron scattering references (questions)
-    * Dickoff (7.6)
-    * Ulmer ODU presentation
+    * Ulmer ODU presentation [nuclear structure section and up]
     * Frois_1987hk
+    * Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
+      - Outline first
     * Marshall_2020ahl
 
 * Extensions to SRC physics at low RG resolution
