@@ -1037,9 +1037,9 @@ class pair_momentum_distributions(object):
             N_beta = 4*np.pi/(2*np.pi)**3 * np.sum( q_array**2*self.k_weights*\
                                                     n_I[:, 0] )
             n_I_sharp = self.n_I(q_array, Q_array, R_array, dR, kF1_array,
-                                 kF2_array, beta=0.0)
+                                  kF2_array, beta=0.0)
             N = 4*np.pi/(2*np.pi)**3 * np.sum( q_array**2*self.k_weights*\
-                                               n_I_sharp[:, 0] )
+                                                n_I_sharp[:, 0] )
             
             n_I *= N / N_beta
             
