@@ -8,7 +8,7 @@
     * Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
       - Outline first
     * Marshall_2020ahl
-  - SRG evolve spectroscopic factor U a U^\dagger (how do we calculate B p?)
+  - SRG evolve spectral function U a U^\dagger (how do we calculate B p?)
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
