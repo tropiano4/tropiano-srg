@@ -1,14 +1,14 @@
 --- SRC ---
 
 * Knock-out reactions
+  - SRG evolve spectral function U a U^\dagger (how do we calculate B p?)
+  - How do we do the \sigma_{ep} part?
   - Approximations for electrodisintegration (see SM papers / questions)
   - Read electron scattering references (questions)
-    * Ulmer ODU presentation [nuclear structure section and up]
     * Frois_1987hk
     * Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
-      - Outline first
+      - Outline first (follow Dickhoff)
     * Marshall_2020ahl
-  - SRG evolve spectral function U a U^\dagger (how do we calculate B p?)
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
@@ -32,6 +32,8 @@
 * Wylie_2021uot
 * Weiss_2016obx
 * Frois_1987hk
+* Chapter 7 in Dickhoff
+* MasterThesis_Marc
 * Marshall_2020ahl
 
 --- Momentum distributions ---
