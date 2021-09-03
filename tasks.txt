@@ -35,6 +35,9 @@
 * Chapter 7 in Dickhoff
 * MasterThesis_Marc
 * Marshall_2020ahl
+* QFT textbook
+* Many-body textbook
+* Renormalization textbook
 
 --- Momentum distributions ---
 * Try profiler on snmd.py to figure out where its slowest
@@ -51,15 +54,7 @@
  * SRG solver options
    - ode or solve_ivp, evolve w.r.t. s or \lambda
  * Try solving for U(s) or \delta U(s) instead
- * Open questions
-   - High lambda (10 fm^-1) potential evolution bug?
 
---- Read ---
- * QFT textbook
- * Many-body textbook
- * Renormalization textbook
- * EFT paper (Epelbaum primer)
- * Scattering theory textbook
 
 --- Misc. ---
  * Phase shift corrector function
