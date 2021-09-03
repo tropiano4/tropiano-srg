@@ -5,10 +5,9 @@
   - How do we do the \sigma_{ep} part?
   - Approximations for electrodisintegration (see SM papers / questions)
   - Read electron scattering references (questions)
-    * Frois_1987hk
-    * Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
-      - Outline first (follow Dickhoff)
     * Marshall_2020ahl
+  - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
+    * Outline first (follow Dickhoff)
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
@@ -31,7 +30,6 @@
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
 * Weiss_2016obx
-* Frois_1987hk
 * Chapter 7 in Dickhoff
 * MasterThesis_Marc
 * Marshall_2020ahl
