@@ -3,11 +3,13 @@
 * Knock-out reactions
   - SRG evolve spectral function U a U^\dagger (how do we calculate B p?)
   - How do we do the \sigma_{ep} part?
-  - Approximations for electrodisintegration (see SM papers / questions)
   - Read electron scattering references (questions)
     * Marshall_2020ahl
+    * MasterThesis_Marc
+  - Create spectral_functions.ipynb with notes
   - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
     * Outline first (follow Dickhoff)
+  - Approximations for electrodisintegration (see SM papers / questions)
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
@@ -26,6 +28,7 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
+* FW Chapter 59-60
 * Bogner_2007qb
 * Gomez-Ramos_2021cvy
 * Wylie_2021uot
@@ -52,6 +55,8 @@
  * SRG solver options
    - ode or solve_ivp, evolve w.r.t. s or \lambda
  * Try solving for U(s) or \delta U(s) instead
+ * SRG inherit Potentials class? Generators inherit SRG class?
+   See FRIBTA scattering notebooks for examples.
 
 
 --- Misc. ---
