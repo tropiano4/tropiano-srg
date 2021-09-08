@@ -1,7 +1,11 @@
 --- SRC ---
 
 * Knock-out reactions
-  - SRG evolve spectral function U a U^\dagger (how do we calculate B p?)
+  - SRG evolve spectral function U a U^\dagger
+    * Insert U^t U into < \Psi_0 | a^\dagger_pm a_\alp | \Psi_0 > < \Psi_0 | a^\dagger_\alp a_pm | \Psi_0 >
+    * Use a_pm = \sum phi_\alp a_\alp and invert for a_\alp, substitute in
+    * Apply U expansion as before and evaluate up to 2-body
+    * Evaluate matrix elements with HF+LDA
   - How do we do the \sigma_{ep} part?
   - Read electron scattering references (questions)
     * Marshall_2020ahl
