@@ -1,18 +1,13 @@
 --- SRC ---
 
 * Knock-out reactions
+  - Make sure you understand contractions, Wick's theorem rigorgously. Antisymmetrized matrix elements.
   - SRG evolve spectral function U a U^\dagger
-    * Insert U^t U into < \Psi_0 | a^\dagger_pm a_\alp | \Psi_0 > < \Psi_0 | a^\dagger_\alp a_pm | \Psi_0 >
-    * Use a_pm = \sum phi_\alp a_\alp and invert for a_\alp, substitute in
-    * Apply U expansion as before and evaluate up to 2-body
-    * Evaluate matrix elements with HF+LDA
-  - How do we do the \sigma_{ep} part?
-  - Read electron scattering references (questions)
-    * Marshall_2020ahl
-    * MasterThesis_Marc
   - Create spectral_functions.ipynb with notes
   - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
-    * Outline first (follow Dickhoff)
+    * Outline first (follow Dickhoff+Ulmer notes)
+  - How do we do the \sigma_{ep} part?
+    * Response functions
   - Approximations for electrodisintegration (see SM papers / questions)
 
 * Extensions to SRC physics at low RG resolution
@@ -32,15 +27,18 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
-* FW Chapter 59-60
-* Sammarruca_2021bpn
-* Bogner_2007qb
-* Gomez-Ramos_2021cvy
-* Wylie_2021uot
-* Weiss_2016obx
 * Chapter 7 in Dickhoff
+* Tostevin_2014usa
+* Aumann_2020tcq
+* Wylie_2021uot
+* FW Chapter 17, 59-60
+* NO Chapter 5
+* Sammarruca_2021bpn
 * MasterThesis_Marc
 * Marshall_2020ahl
+* Bogner_2007qb
+* Gomez-Ramos_2021cvy
+* Weiss_2016obx
 * QFT textbook
 * Many-body textbook
 * Renormalization textbook
@@ -54,7 +52,6 @@
   - Not finding lapack or blas
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 
-
 --- SRG ---
  * Load and save evolved potentials from data frame?
  * SRG solver options
@@ -62,7 +59,6 @@
  * Try solving for U(s) or \delta U(s) instead
  * SRG inherit Potentials class? Generators inherit SRG class?
    See FRIBTA scattering notebooks for examples.
-
 
 --- Misc. ---
  * Phase shift corrector function
