@@ -3,11 +3,10 @@
 * Knock-out reactions
   - Make sure you understand contractions, Wick's theorem rigorgously. Antisymmetrized matrix elements.
   - SRG evolve spectral function U a U^\dagger
-  - Create spectral_functions.ipynb with notes
+    * Start from first line of (7.44) and insert SRG transformations
+    * Notes to add: (7.43) should have form factors, (7.42) assumes no FSI's
   - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
-    * Outline first (follow Dickhoff+Ulmer notes)
-  - How do we do the \sigma_{ep} part?
-    * Response functions
+    * Outline first (follow Dickhoff+Ulmer+Aumann)
   - Approximations for electrodisintegration (see SM papers / questions)
 
 * Extensions to SRC physics at low RG resolution
@@ -28,10 +27,11 @@
 
 --- Reading list ---
 * Chapter 7 in Dickhoff
-* Tostevin_2014usa
 * Aumann_2020tcq
+* Tostevin_2014usa
 * Wylie_2021uot
 * FW Chapter 17, 59-60
+* Order "Electromagnetic response of atomic nuclei" Boffi (1996)
 * NO Chapter 5
 * Sammarruca_2021bpn
 * MasterThesis_Marc
