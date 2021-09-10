@@ -16,3 +16,10 @@
      - Game plots: expect 30-50% larger theory cross sections from discussion before, but systematic trend of asymmetry of the projectile in terms of proton to neutron separation energy (\Delta S = \epsilon |S_n - S_p| (\epsilon = +1 for proton removal, -1 for neutron removal).
 
   2. Single-particle spectral functions and correlations
+     - Nucleon self-energy = optical potential?
+     - Occupation number and depletion are defined in terms of hole and particle spectral functions.
+     - The expectation value of any one-body operator in the ground state is given by the s.p. propagator.
+     - DWIA does a good job interpreting (e,e'p) for kinematics that emphasize the longitudinal coupling of the excitation operator, which is dominated by a one-body operator.
+     - Look for proton with momentum parallel or antiparallel to the momentum of the photon.
+     - Distorted wave for outgoing proton: local optical potential with radius adjusted to give the shape of the cross section and the depth to the separation energy of the hole.
+     - Need the hadron tensor, W^{\mu \nu}, which contains the matrix elements of the nuclear charge-current density, J^\mu. 
