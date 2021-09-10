@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{81}%
+\begin{thebibliography}{92}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -138,13 +138,63 @@
   {journal} {Nature}\ }\textbf {\bibinfo {volume} {578}},\ \bibinfo {pages}
   {540} (\bibinfo {year} {2020})},\ \Eprint {http://arxiv.org/abs/2004.11221}
   {arXiv:2004.11221 [nucl-ex]} \BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Korover}\ \emph {et~al.}(2020)\citenamefont {Korover}
-  \emph {et~al.}}]{Korover:2020lqf}%
+\bibitem [{\citenamefont {Korover}\ \emph {et~al.}(2021)\citenamefont {Korover}
+  \emph {et~al.}}]{CLAS:2020rue}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {I.}~\bibnamefont
-  {Korover}} \emph {et~al.} (\bibinfo {collaboration} {CLAS}),\ }\href@noop {}
-  {\  (\bibinfo {year} {2020})},\ \Eprint {http://arxiv.org/abs/2004.07304}
-  {arXiv:2004.07304 [nucl-ex]} \BibitemShut {NoStop}%
+  {Korover}} \emph {et~al.} (\bibinfo {collaboration} {CLAS}),\ }\href
+  {\doibase 10.1016/j.physletb.2021.136523} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {820}},\ \bibinfo
+  {pages} {136523} (\bibinfo {year} {2021})},\ \Eprint
+  {http://arxiv.org/abs/2004.07304} {arXiv:2004.07304 [nucl-ex]} \BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Amit}\ and\ \citenamefont
+  {Martin-Mayor}(2005)}]{Amit:2005}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~J.}\ \bibnamefont
+  {Amit}}\ and\ \bibinfo {author} {\bibfnamefont {V.}~\bibnamefont
+  {Martin-Mayor}},\ }\href {\doibase 10.1142/5715} {\emph {\bibinfo {title}
+  {Field Theory, the Renormalization Group, and Critical Phenomena}}},\
+  \bibinfo {edition} {3rd}\ ed.\ (\bibinfo  {publisher} {World Scientific},\
+  \bibinfo {year} {2005})\ \Eprint
+  {http://arxiv.org/abs/https://www.worldscientific.com/doi/pdf/10.1142/5715}
+  {https://www.worldscientific.com/doi/pdf/10.1142/5715} \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Sterman}\ \emph {et~al.}(1995)\citenamefont
+  {Sterman}, \citenamefont {Smith}, \citenamefont {Collins}, \citenamefont
+  {Whitmore}, \citenamefont {Brock}, \citenamefont {Huston}, \citenamefont
+  {Pumplin}, \citenamefont {Tung}, \citenamefont {Weerts}, \citenamefont
+  {Yuan}, \citenamefont {Kuhlmann}, \citenamefont {Mishra}, \citenamefont
+  {Morf\'{\i}n}, \citenamefont {Olness}, \citenamefont {Owens}, \citenamefont
+  {Qiu},\ and\ \citenamefont {Soper}}]{RevModPhys.67.157}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {G.}~\bibnamefont
+  {Sterman}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Smith}},
+  \bibinfo {author} {\bibfnamefont {J.~C.}\ \bibnamefont {Collins}}, \bibinfo
+  {author} {\bibfnamefont {J.}~\bibnamefont {Whitmore}}, \bibinfo {author}
+  {\bibfnamefont {R.}~\bibnamefont {Brock}}, \bibinfo {author} {\bibfnamefont
+  {J.}~\bibnamefont {Huston}}, \bibinfo {author} {\bibfnamefont
+  {J.}~\bibnamefont {Pumplin}}, \bibinfo {author} {\bibfnamefont {W.-K.}\
+  \bibnamefont {Tung}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Weerts}}, \bibinfo {author} {\bibfnamefont {C.-P.}\ \bibnamefont {Yuan}},
+  \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Kuhlmann}}, \bibinfo
+  {author} {\bibfnamefont {S.}~\bibnamefont {Mishra}}, \bibinfo {author}
+  {\bibfnamefont {J.~G.}\ \bibnamefont {Morf\'{\i}n}}, \bibinfo {author}
+  {\bibfnamefont {F.}~\bibnamefont {Olness}}, \bibinfo {author} {\bibfnamefont
+  {J.}~\bibnamefont {Owens}}, \bibinfo {author} {\bibfnamefont
+  {J.}~\bibnamefont {Qiu}}, \ and\ \bibinfo {author} {\bibfnamefont {D.~E.}\
+  \bibnamefont {Soper}},\ }\href {\doibase 10.1103/RevModPhys.67.157}
+  {\bibfield  {journal} {\bibinfo  {journal} {Rev. Mod. Phys.}\ }\textbf
+  {\bibinfo {volume} {67}},\ \bibinfo {pages} {157} (\bibinfo {year}
+  {1995})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Peskin}\ and\ \citenamefont
+  {Schroeder}(1995)}]{peskin1995introduction}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Peskin}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont
+  {Schroeder}},\ }\href {http://books.google.com/books?id=i35LALN0GosC} {\emph
+  {\bibinfo {title} {An Introduction to Quantum Field Theory}}}\ (\bibinfo
+  {publisher} {Addison-Wesley Publishing Company},\ \bibinfo {address}
+  {Reading, MA},\ \bibinfo {year} {1995})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Aumann}\ \emph {et~al.}(2021)\citenamefont {Aumann}
   \emph {et~al.}}]{Aumann:2020tcq}%
   \BibitemOpen
@@ -165,6 +215,54 @@
   {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {51}},\ \bibinfo
   {pages} {38} (\bibinfo {year} {1995})},\ \Eprint
   {http://arxiv.org/abs/nucl-th/9408016} {arXiv:nucl-th/9408016} \BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Carlson}\ \emph {et~al.}(1983)\citenamefont
+  {Carlson}, \citenamefont {Pandharipande},\ and\ \citenamefont
+  {Wiringa}}]{Carlson:1983kq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Carlson}}, \bibinfo {author} {\bibfnamefont {V.~R.}\ \bibnamefont
+  {Pandharipande}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~B.}\
+  \bibnamefont {Wiringa}},\ }\href {\doibase 10.1016/0375-9474(83)90336-6}
+  {\bibfield  {journal} {\bibinfo  {journal} {Nucl. Phys. A}\ }\textbf
+  {\bibinfo {volume} {401}},\ \bibinfo {pages} {59} (\bibinfo {year}
+  {1983})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Pieper}\ \emph {et~al.}(2001)\citenamefont {Pieper},
+  \citenamefont {Pandharipande}, \citenamefont {Wiringa},\ and\ \citenamefont
+  {Carlson}}]{Pieper:2001ap}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.~C.}\ \bibnamefont
+  {Pieper}}, \bibinfo {author} {\bibfnamefont {V.~R.}\ \bibnamefont
+  {Pandharipande}}, \bibinfo {author} {\bibfnamefont {R.~B.}\ \bibnamefont
+  {Wiringa}}, \ and\ \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Carlson}},\ }\href {\doibase 10.1103/PhysRevC.64.014001} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume}
+  {64}},\ \bibinfo {pages} {014001} (\bibinfo {year} {2001})},\ \Eprint
+  {http://arxiv.org/abs/nucl-th/0102004} {arXiv:nucl-th/0102004} \BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Heyde}(2004)}]{Heyde:2004zz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
+  {Heyde}},\ }\href@noop {} {\emph {\bibinfo {title} {{Basic Ideas and Concepts
+  in Nuclear Physics: An Introductory Approach}}}}\ (\bibinfo  {publisher} {CRC
+  Press},\ \bibinfo {address} {Boca Raton},\ \bibinfo {year}
+  {2004})\BibitemShut {NoStop}%
+%%CITATION = INSPIRE-673833;%%
+\bibitem [{\citenamefont {Ring}\ and\ \citenamefont
+  {Schuck}(2005)}]{Ring:2005}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
+  {Ring}}\ and\ \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Schuck}},\
+  }\href@noop {} {\emph {\bibinfo {title} {The Nuclear Many-Body Problem}}}\
+  (\bibinfo  {publisher} {Springer},\ \bibinfo {address} {Berlin},\ \bibinfo
+  {year} {2005})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hergert}(2020)}]{Hergert:2020bxy}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Hergert}},\ }\href {\doibase 10.3389/fphy.2020.00379} {\bibfield  {journal}
+  {\bibinfo  {journal} {Front. in Phys.}\ }\textbf {\bibinfo {volume} {8}},\
+  \bibinfo {pages} {379} (\bibinfo {year} {2020})},\ \Eprint
+  {http://arxiv.org/abs/2008.05061} {arXiv:2008.05061 [nucl-th]} \BibitemShut
   {NoStop}%
 \bibitem [{\citenamefont {Egiyan}\ \emph {et~al.}(2003)\citenamefont {Egiyan}
   \emph {et~al.}}]{Egiyan:2003vg}%
@@ -264,6 +362,18 @@
   {pages} {054311} (\bibinfo {year} {2015})},\ \Eprint
   {http://arxiv.org/abs/1503.07047} {arXiv:1503.07047 [nucl-th]} \BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Alvioli}\ \emph {et~al.}(2016)\citenamefont
+  {Alvioli}, \citenamefont {Ciofi~degli Atti},\ and\ \citenamefont
+  {Morita}}]{Alvioli:2016wwp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Alvioli}}, \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Ciofi~degli
+  Atti}}, \ and\ \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Morita}},\
+  }\href {\doibase 10.1103/PhysRevC.94.044309} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {94}},\ \bibinfo
+  {pages} {044309} (\bibinfo {year} {2016})},\ \Eprint
+  {http://arxiv.org/abs/1607.04103} {arXiv:1607.04103 [nucl-th]} \BibitemShut
+  {NoStop}%
 \bibitem [{\citenamefont {Weiss}\ \emph {et~al.}(2018)\citenamefont {Weiss},
   \citenamefont {Cruz-Torres}, \citenamefont {Barnea}, \citenamefont
   {Piasetzky},\ and\ \citenamefont {Hen}}]{Weiss:2016obx}%
@@ -333,6 +443,18 @@
   (\bibinfo {year} {2019}{\natexlab{b}})},\ \Eprint
   {http://arxiv.org/abs/1808.09859} {arXiv:1808.09859 [nucl-th]} \BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Tan}(2008{\natexlab{a}})}]{Tan2008contact1}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Tan}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Annals of
+  Physics}\ }\textbf {\bibinfo {volume} {323}},\ \bibinfo {pages} {2952}
+  (\bibinfo {year} {2008}{\natexlab{a}})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Tan}(2008{\natexlab{b}})}]{Tan2008contact2}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Tan}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Annals of
+  Physics}\ }\textbf {\bibinfo {volume} {323}},\ \bibinfo {pages} {2971}
+  (\bibinfo {year} {2008}{\natexlab{b}})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Cruz-Torres}\ \emph {et~al.}(2021)\citenamefont
   {Cruz-Torres} \emph {et~al.}}]{Cruz-Torres:2019fum}%
   \BibitemOpen
@@ -453,14 +575,6 @@
   Mod. Phys.}\ }\textbf {\bibinfo {volume} {87}},\ \bibinfo {pages} {1067}
   (\bibinfo {year} {2015})},\ \Eprint {http://arxiv.org/abs/1412.3081}
   {arXiv:1412.3081 [nucl-th]} \BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Ring}\ and\ \citenamefont
-  {Schuck}(2005)}]{Ring:2005}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
-  {Ring}}\ and\ \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Schuck}},\
-  }\href@noop {} {\emph {\bibinfo {title} {The Nuclear Many-Body Problem}}}\
-  (\bibinfo  {publisher} {Springer},\ \bibinfo {address} {Berlin},\ \bibinfo
-  {year} {2005})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Dieperink}\ and\ \citenamefont
   {Huberts}(1990)}]{Dieperink:1990uk}%
   \BibitemOpen
@@ -499,14 +613,6 @@
   {journal} {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume}
   {531}},\ \bibinfo {pages} {203} (\bibinfo {year} {2002})},\ \Eprint
   {http://arxiv.org/abs/nucl-th/0108069} {arXiv:nucl-th/0108069} \BibitemShut
-  {NoStop}%
-\bibitem [{\citenamefont {Hergert}(2020)}]{Hergert:2020bxy}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
-  {Hergert}},\ }\href {\doibase 10.3389/fphy.2020.00379} {\bibfield  {journal}
-  {\bibinfo  {journal} {Front. in Phys.}\ }\textbf {\bibinfo {volume} {8}},\
-  \bibinfo {pages} {379} (\bibinfo {year} {2020})},\ \Eprint
-  {http://arxiv.org/abs/2008.05061} {arXiv:2008.05061 [nucl-th]} \BibitemShut
   {NoStop}%
 \bibitem [{\citenamefont {Kadanoff}(1966)}]{PhysicsPhysiqueFizika.2.263}%
   \BibitemOpen
@@ -724,15 +830,15 @@
   \Eprint {http://arxiv.org/abs/1406.0454} {arXiv:1406.0454 [nucl-th]}
   \BibitemShut {NoStop}%
 %%CITATION = ARXIV:1406.0454;%%
-\bibitem [{\citenamefont {Topiano}\ \emph {et~al.}(2021)\citenamefont
-  {Topiano}, \citenamefont {Bogner},\ and\ \citenamefont
+\bibitem [{\citenamefont {Tropiano}\ \emph {et~al.}(2021)\citenamefont
+  {Tropiano}, \citenamefont {Bogner},\ and\ \citenamefont
   {Furnstahl}}]{Tropiano:2021prep}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.~J.}\ \bibnamefont
-  {Topiano}}, \bibinfo {author} {\bibfnamefont {S.~K.}\ \bibnamefont {Bogner}},
-  \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont {Furnstahl}},\
-  }\href@noop {} {\  (\bibinfo {year} {2021})},\ \bibinfo {note} {in
-  preparation.}\BibitemShut {Stop}%
+  {Tropiano}}, \bibinfo {author} {\bibfnamefont {S.~K.}\ \bibnamefont
+  {Bogner}}, \ and\ \bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Furnstahl}},\ }\href@noop {} {\  (\bibinfo {year} {2021})},\ \bibinfo {note}
+  {in preparation.}\BibitemShut {Stop}%
 \bibitem [{\citenamefont {Dickhoff}\ and\ \citenamefont
   {Van~Neck}(2005)}]{Dickhoff:2005text}%
   \BibitemOpen
@@ -806,6 +912,19 @@
   {pages} {024326} (\bibinfo {year} {2017})},\ \Eprint
   {http://arxiv.org/abs/1705.04337} {arXiv:1705.04337 [nucl-th]} \BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Chabanat}\ \emph {et~al.}(1998)\citenamefont
+  {Chabanat}, \citenamefont {Bonche}, \citenamefont {Haensel}, \citenamefont
+  {Meyer},\ and\ \citenamefont {Schaeffer}}]{Chabanat:1997un}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.}~\bibnamefont
+  {Chabanat}}, \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Bonche}},
+  \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Haensel}}, \bibinfo
+  {author} {\bibfnamefont {J.}~\bibnamefont {Meyer}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {R.}~\bibnamefont {Schaeffer}},\ }\href {\doibase
+  10.1016/S0375-9474(98)00180-8} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. A}\ }\textbf {\bibinfo {volume} {635}},\ \bibinfo {pages} {231}
+  (\bibinfo {year} {1998})},\ \bibinfo {note} {[Erratum: Nucl.Phys.A 643,
+  441--441 (1998)]}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Bennaceur}\ and\ \citenamefont
   {Dobaczewski}(2005)}]{Bennaceur:2005mx}%
   \BibitemOpen
@@ -816,6 +935,43 @@
   {volume} {168}},\ \bibinfo {pages} {96} (\bibinfo {year} {2005})},\ \Eprint
   {http://arxiv.org/abs/nucl-th/0501002} {arXiv:nucl-th/0501002} \BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Decharge}\ and\ \citenamefont
+  {Gogny}(1980)}]{Decharge:1979fa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Decharge}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont
+  {Gogny}},\ }\href {\doibase 10.1103/PhysRevC.21.1568} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. C}\ }\textbf {\bibinfo {volume} {21}},\
+  \bibinfo {pages} {1568} (\bibinfo {year} {1980})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Chen}\ \emph {et~al.}(2017)\citenamefont {Chen},
+  \citenamefont {Detmold}, \citenamefont {Lynn},\ and\ \citenamefont
+  {Schwenk}}]{Chen:2016bde}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.-W.}\ \bibnamefont
+  {Chen}}, \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Detmold}},
+  \bibinfo {author} {\bibfnamefont {J.~E.}\ \bibnamefont {Lynn}}, \ and\
+  \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Schwenk}},\ }\href
+  {\doibase 10.1103/PhysRevLett.119.262502} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. Lett.}\ }\textbf {\bibinfo {volume} {119}},\ \bibinfo
+  {pages} {262502} (\bibinfo {year} {2017})},\ \Eprint
+  {http://arxiv.org/abs/1607.03065} {arXiv:1607.03065 [hep-ph]} \BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Lynn}\ \emph {et~al.}(2020)\citenamefont {Lynn},
+  \citenamefont {Lonardoni}, \citenamefont {Carlson}, \citenamefont {Chen},
+  \citenamefont {Detmold}, \citenamefont {Gandolfi},\ and\ \citenamefont
+  {Schwenk}}]{Lynn:2019vwp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~E.}\ \bibnamefont
+  {Lynn}}, \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Lonardoni}},
+  \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Carlson}}, \bibinfo
+  {author} {\bibfnamefont {J.~W.}\ \bibnamefont {Chen}}, \bibinfo {author}
+  {\bibfnamefont {W.}~\bibnamefont {Detmold}}, \bibinfo {author} {\bibfnamefont
+  {S.}~\bibnamefont {Gandolfi}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Schwenk}},\ }\href {\doibase 10.1088/1361-6471/ab6af7}
+  {\bibfield  {journal} {\bibinfo  {journal} {J. Phys. G}\ }\textbf {\bibinfo
+  {volume} {47}},\ \bibinfo {pages} {045109} (\bibinfo {year} {2020})},\
+  \Eprint {http://arxiv.org/abs/1903.12587} {arXiv:1903.12587 [nucl-th]}
+  \BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Cohen}\ \emph {et~al.}(2018)\citenamefont {Cohen}
   \emph {et~al.}}]{Cohen:2018gzh}%
   \BibitemOpen
@@ -865,45 +1021,6 @@
   {http://arxiv.org/abs/1708.03315} {arXiv:1708.03315 [nucl-th]} \BibitemShut
   {NoStop}%
 %%CITATION = ARXIV:1708.03315;%%
-\bibitem [{\citenamefont {Chen}\ and\ \citenamefont
-  {Detmold}(2005)}]{Chen:2004zx}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.-W.}\ \bibnamefont
-  {Chen}}\ and\ \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Detmold}},\
-  }\href {\doibase 10.1016/j.physletb.2005.08.041} {\bibfield  {journal}
-  {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {625}},\
-  \bibinfo {pages} {165} (\bibinfo {year} {2005})},\ \Eprint
-  {http://arxiv.org/abs/hep-ph/0412119} {arXiv:hep-ph/0412119} \BibitemShut
-  {NoStop}%
-\bibitem [{\citenamefont {Chen}\ \emph {et~al.}(2017)\citenamefont {Chen},
-  \citenamefont {Detmold}, \citenamefont {Lynn},\ and\ \citenamefont
-  {Schwenk}}]{Chen:2016bde}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.-W.}\ \bibnamefont
-  {Chen}}, \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Detmold}},
-  \bibinfo {author} {\bibfnamefont {J.~E.}\ \bibnamefont {Lynn}}, \ and\
-  \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Schwenk}},\ }\href
-  {\doibase 10.1103/PhysRevLett.119.262502} {\bibfield  {journal} {\bibinfo
-  {journal} {Phys. Rev. Lett.}\ }\textbf {\bibinfo {volume} {119}},\ \bibinfo
-  {pages} {262502} (\bibinfo {year} {2017})},\ \Eprint
-  {http://arxiv.org/abs/1607.03065} {arXiv:1607.03065 [hep-ph]} \BibitemShut
-  {NoStop}%
-\bibitem [{\citenamefont {Lynn}\ \emph {et~al.}(2020)\citenamefont {Lynn},
-  \citenamefont {Lonardoni}, \citenamefont {Carlson}, \citenamefont {Chen},
-  \citenamefont {Detmold}, \citenamefont {Gandolfi},\ and\ \citenamefont
-  {Schwenk}}]{Lynn:2019vwp}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~E.}\ \bibnamefont
-  {Lynn}}, \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Lonardoni}},
-  \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Carlson}}, \bibinfo
-  {author} {\bibfnamefont {J.~W.}\ \bibnamefont {Chen}}, \bibinfo {author}
-  {\bibfnamefont {W.}~\bibnamefont {Detmold}}, \bibinfo {author} {\bibfnamefont
-  {S.}~\bibnamefont {Gandolfi}}, \ and\ \bibinfo {author} {\bibfnamefont
-  {A.}~\bibnamefont {Schwenk}},\ }\href {\doibase 10.1088/1361-6471/ab6af7}
-  {\bibfield  {journal} {\bibinfo  {journal} {J. Phys. G}\ }\textbf {\bibinfo
-  {volume} {47}},\ \bibinfo {pages} {045109} (\bibinfo {year} {2020})},\
-  \Eprint {http://arxiv.org/abs/1903.12587} {arXiv:1903.12587 [nucl-th]}
-  \BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Tostevin}\ and\ \citenamefont
   {Gade}(2014)}]{Tostevin:2014usa}%
   \BibitemOpen
@@ -914,4 +1031,18 @@
   \bibinfo {pages} {057602} (\bibinfo {year} {2014})},\ \Eprint
   {http://arxiv.org/abs/1409.6576} {arXiv:1409.6576 [nucl-th]} \BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Wylie}\ \emph {et~al.}(2021)\citenamefont {Wylie},
+  \citenamefont {Oko\l{}owicz}, \citenamefont {Nazarewicz}, \citenamefont
+  {P\l{}oszajczak}, \citenamefont {Wang}, \citenamefont {Mao},\ and\
+  \citenamefont {Michel}}]{Wylie:2021uot}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Wylie}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Oko\l{}owicz}},
+  \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont {Nazarewicz}}, \bibinfo
+  {author} {\bibfnamefont {M.}~\bibnamefont {P\l{}oszajczak}}, \bibinfo
+  {author} {\bibfnamefont {S.~M.}\ \bibnamefont {Wang}}, \bibinfo {author}
+  {\bibfnamefont {X.}~\bibnamefont {Mao}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {N.}~\bibnamefont {Michel}},\ }\href@noop {} {\  (\bibinfo
+  {year} {2021})},\ \Eprint {http://arxiv.org/abs/2107.12160} {arXiv:2107.12160
+  [nucl-th]} \BibitemShut {NoStop}%
 \end{thebibliography}%

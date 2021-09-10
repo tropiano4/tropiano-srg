@@ -56,7 +56,6 @@ all of which can be systematically generalized.
 We verify that the experimental consequences to date follow directly at low resolution from well-established properties of nucleon-nucleon interactions such as the tensor force.
 Thus the RG reconciles the contrasting pictures of the same experiment and shows how to get correct results using wave functions without SRC components.
 Our demonstration has implications for the analysis of knock-out reactions for which SRC physics is not cleanly isolated.
-
 \end{abstract}
 
 \maketitle
@@ -67,10 +66,10 @@ Our demonstration has implications for the analysis of knock-out reactions for w
 \section{Introduction} \label{sec:introduction}
 
 Short-range correlations (SRCs) in atomic nuclei are usually identified as components of the nuclear wave function with nucleon pair momenta well above the Fermi momentum~\cite{Hen:2016kwk}. 
-There has long been an apparent need for such SRCs to account for measured cross sections~\cite{Brueckner:1955zzd}, but direct evidence has been nebulous until recent experiments succeeded in cleanly isolating this physics~\cite{Hen:2016kwk,Korover:2014dma,Hen:2014nza,Duer:2018sby,Duer:2018sxh,Schmookler:2019nvf,Cruz-Torres:2020uke,Schmidt:2020kcl,Korover:2020lqf}. 
+There has long been an apparent need for such SRCs to account for measured cross sections~\cite{Brueckner:1955zzd}, but direct evidence has been nebulous until recent experiments succeeded in cleanly isolating this physics~\cite{Hen:2016kwk,Korover:2014dma,Hen:2014nza,Duer:2018sby,Duer:2018sxh,Schmookler:2019nvf,Cruz-Torres:2020uke,Schmidt:2020kcl,CLAS:2020rue}. 
 SRC phenomenologies have been developed that account for the observations, but they seem to be at odds with successful descriptions of nuclear structure such as the shell model that do not feature explicit short-range structure in the nuclear wave function. 
 The application of the renormalization group (RG) can make sense of this conflict. 
-RG methods are used to analyze critical phenomena in condensed matter and evolve the strong coupling and parton distributions in high-energy quantum chromodynamics (QCD).
+RG methods are used to analyze critical phenomena in condensed matter~\cite{Amit:2005} and evolve the strong coupling and parton distributions in high-energy quantum chromodynamics (QCD)~\cite{RevModPhys.67.157,peskin1995introduction}.
 Applied to nuclei, the RG shows how SRC physics is manifested differently at varying resolution scales. 
 Here we will illustrate how the RG can bridge low- and high-resolution treatments of the same experiment, shedding light on the implications of SRC physics and on long-standing discrepancies between theory and experiment~\cite{Aumann:2020tcq}.
 
@@ -84,8 +83,8 @@ We emphasize that either of these descriptions (or a continuum of intermediate R
 
 \begin{figure}[tbh]
     \centering
-    (a)\includegraphics[width=0.44\columnwidth]{low_rg_resolution_cartoon_1.pdf}~~%
-    (b)\includegraphics[width=0.44\columnwidth]{high_rg_resolution_cartoon_1.pdf}
+    (a)\includegraphics[width=0.43\columnwidth]{low_RG_resolution_cartoon_1_new.pdf}~~%
+    (b)\includegraphics[width=0.44\columnwidth]{high_RG_resolution_cartoon_1_new2.pdf}
     \caption{Cartoon snapshots of a nucleus at (a) low-RG  and (b) high-RG resolutions. 
     The back-to-back nucleons at high-RG resolution are an SRC pair with small center-of-mass momentum.
     }
@@ -94,7 +93,7 @@ We emphasize that either of these descriptions (or a continuum of intermediate R
 
 \begin{figure}[tbh]
     \centering
-    \includegraphics[width=0.9\columnwidth]{Cartoon_momentum_distribution.pdf}
+    \includegraphics[width=0.9\columnwidth]{Cartoon_momentum_distribution_v2.pdf}
     \caption{Cartoon of a nuclear single-particle momentum distribution at high RG resolution.
     The region below $\kF$ is a Fermi sea of nucleons.
     Above $\kF$ the distribution is dominated by SRC pairs, with center-of-mass momenta of order $\kF$.
@@ -106,10 +105,10 @@ We emphasize that either of these descriptions (or a continuum of intermediate R
 For visualization, cartoon pictures of these resolutions are shown in Figs.~\ref{fig:cartoon_nuclei} and \ref{fig:cartoon_mom_dist}.
 Although only qualitative, such pictures give intuition for interpreting experiments.
 In Fig.~\ref{fig:cartoon_nuclei} we visualize configurations that might be sampled at different RG resolutions. Only at high-RG resolution do we find a high-momentum pair.
-In practice we associate the high-resolution picture with local phenomenological Hamiltonians, in particular the Argonne V18 (AV18) potential~\cite{Wiringa:1994wb} and its associated three-body forces, which have been featured in most of the recent analyses of SRC experiments. 
+In practice we associate the high-resolution picture with local phenomenological Hamiltonians, in particular the Argonne V18 (AV18) potential~\cite{Wiringa:1994wb} and its associated three-body forces~\cite{Carlson:1983kq,Pieper:2001ap}, which have been featured in most of the recent analyses of SRC experiments~\cite{Hen:2016kwk}. 
 AV18 describes nucleon-nucleon observables within experimental accuracy up to the inelastic threshold and the elastic part of the cross section reasonably well up to much higher energies.
 The AV18 momentum distributions in nuclei extend well above 4\,fm$^{-1}$ or 800\,MeV (in units where $\hbar = c = 1$), as caricatured in Fig.~\ref{fig:cartoon_mom_dist} (see also the figures in Sec.~\ref{sec:low_resolution}).
-For concreteness we associate the low-resolution picture with the shell model (configuration interaction), either in its phenomenological form or derived from ab initio methods such as coupled cluster or the in-medium similarity RG.
+For concreteness we associate the low-resolution picture with the shell model (configuration interaction), either in its phenomenological form~\cite{Heyde:2004zz,Ring:2005} or derived from ab initio methods such as coupled cluster or the in-medium similarity RG~\cite{Hergert:2020bxy}.
 In this picture, nucleon momentum distributions die off rapidly above $\kF$.
 
 
@@ -142,7 +141,7 @@ These experiments manifest key features of high-resolution SRC phenomenology~\ci
   
 \end{enumerate}
 These effects are all consistent with two phenomenological approaches. 
-The Generalized Contact Formalism (GCF) model uses a factorization ansatz for the nuclear many-body wavefunction applied to these high-momentum transfer processes~\cite{Weiss:2015mba,Weiss:2016obx,Weiss:2018tbu,Weiss:2021zyb}. 
+The Generalized Contact Formalism (GCF) model uses a factorization ansatz for the nuclear many-body wavefunction applied to these high-momentum transfer processes~\cite{Weiss:2015mba,Alvioli:2016wwp,Weiss:2016obx,Weiss:2018tbu,Weiss:2021zyb}. 
 The low-order correlation operator approximation (LCA)~\cite{Vanhalst:2014cqa,Ryckebusch:2018rct,Ryckebusch:2019oya} is used to compute how SRCs affect nuclear momentum distributions; it does so by shifting the SRC physics from the wave function to a correlation operator, which is in turn parametrized
 (the LCA will be discussed further in Sec.~\ref{sec:low_resolution}).
 
@@ -158,8 +157,8 @@ When applied to the distribution of pair momenta in coordinate and momentum spac
 \end{align}
 %
 Here $A$ is the nucleon number (protons plus neutrons) and $\alpha$ is a spin index.
-The common coefficient is called a ``contact'' in analogy to the quantity defined in cold atom physics.
-The two-body functions are extracted from the short-distance (high-momentum) dependence of the zero-energy solutions to the Sch\"odinger equation for a given NN interaction.%
+The common coefficient is called a ``contact'' in analogy to the quantity defined in cold atom physics~\cite{Tan2008contact1,Tan2008contact2}.
+The two-body functions are extracted from the short-distance (high-momentum) dependence of the zero-energy solutions to the Schr\"odinger equation for a given NN interaction.%
 \footnote{It would be misleading to call them wave functions, as pointed out originally in Ref.~\cite{Brueckner:1955zzd}.}
 
 There is by now a substantial literature on applying the GCF phenomenology to SRC experiments~\cite{Weiss:2015mba,Weiss:2016obx,Weiss:2018tbu,Cruz-Torres:2019fum,Weiss:2021zyb,Pybus:2020itv,Schmidt:2020kcl}; we summarize only the major features here.
@@ -356,24 +355,25 @@ We also see that similar results are obtained for the local chiral EFT potential
 
 \begin{figure}[tbh]
   \centering
-  \includegraphics[width=0.9\columnwidth]{AV18_percentages_deuteron_band.png}
+  \includegraphics[width=0.9\columnwidth]{AV18_Gezerlis_percentages_deuteron_band.png}
   \caption{Percentage contributions from each channel to the matrix element
-  of the momentum distribution in the deuteron with $q=2$, $3$, and $4\,\fmi$ for AV18. We compare unevolved and SRG-evolved (both wave function and operator, so the net matrix element is unchanged) results where $\lambda=1.35\,\fmi$.}
-  \label{fig:barcharts_AV18}
+  of the momentum distribution in the deuteron with $q=2$, $3$, and $4\,\fmi$ for AV18 (left bar at each $\lambda$ value) and Gezerlis \NNLO\ (right bar) potentials. We compare unevolved and SRG-evolved (both wave function and operator, so the net matrix element is unchanged) results where $\lambda=1.35\,\fmi$.}
+  \label{fig:barchart_deuteron}
 \end{figure}
 
-\begin{figure}[tbh]
-  \centering
-  \includegraphics[width=0.9\columnwidth]{Gezerlis_percentages_deuteron_band.png}
-  \caption{Same as Fig.~\ref{fig:barcharts_AV18} but for the Gezerlis \NNLO\ potential.}
-  \label{fig:barcharts_Gezerlis}
-\end{figure}
+% \begin{figure}[tbh]
+%   \centering
+%   \includegraphics[width=0.9\columnwidth]{Gezerlis_percentages_deuteron_band.png}
+%   \caption{Same as Fig.~\ref{fig:barcharts_AV18} but for the Gezerlis \NNLO\ potential.}
+%   \label{fig:barcharts_Gezerlis}
+% \end{figure}
 
 One might have expected that the dominance of the tensor means that the operator will be sensitive to $^3\mbox{D}_1$ admixtures in the ground state even when evolved.
-This is not the case, as illustrated in Figs.~\ref{fig:barcharts_AV18} and \ref{fig:barcharts_Gezerlis}. 
+This is not the case, as illustrated in Fig.~\ref{fig:barchart_deuteron}. 
 The high-resolution results ($\lambda = \infty$) do come dominantly from the $\tripletD$--$\tripletD$ part for momenta $q$ where the tensor force dominates while it is more evenly split with $\tripletS$--$\tripletS$ (in a scheme/scale dependent way) at higher momenta.
 But the low-resolution results ($\lambda = 1.35\,\fmi$ here) are always heavily dominated by the $\tripletS$--$\tripletS$ part.
-This implies that simple ground-state wave functions with local density approximations (LDAs) will work quite well at low RG resolution, as illustrated in the next section.
+Note that the same pattern holds for both the phenomenological AV18 potential and the Gezerlis \NNLO\ chiral EFT potential.
+This S-wave dominance implies that simple ground-state wave functions with local density approximations (LDAs) will work quite well at low RG resolution, as verified in the next section.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -382,7 +382,7 @@ This implies that simple ground-state wave functions with local density approxim
 In this section we use second quantization to more precisely characterize the SRC physics and show how simplified calculations (e.g., using LDAs) are meaningful.
 The details of how factorization works in second-quantized form have already been worked out in Ref.~\cite{Bogner:2012zm}, which we build on for the current discussion.
 The results presented here are only a sampling of what is possible, using the crudest approximation.
-Nevertheless, they suffice to show that low-RG resolution calculations can reproduce all the features of SRG phenomenology listed in Sec.~\ref{sec:introduction}.
+Nevertheless, they suffice to show that low-RG resolution calculations can reproduce all the features of SRC phenomenology listed in Sec.~\ref{sec:introduction}.
 In future work we will explore more accurate approximations and calibrate the theoretical uncertainties~\cite{Tropiano:2021prep}.
 
 \subsection{Second-quantized unitary transformations}
@@ -545,6 +545,7 @@ At low resolution there are various options for calculating SRC physics as manif
 By softening the Hamiltonian, the nuclear ground-state wave functions become less correlated, more amenable to many-body perturbation theory, and more universal in nature.
 Furthermore, for operators evaluated at the highest momenta, the details of long-range correlations should become less important.
 Indeed, the physics is focused on short distances, which suggests that an LDA should work well, particularly as the unitary transformations in the factorization region ($\delUtilde^{(2)}_\lambda(\kvec,\kvec')$ with $|\kvec| < \lambda$ and $|\kvec'|\gg \lambda$) are weakly dependent on the low momentum~\cite{Tropiano:2020zwb}.
+Figures included as Supplemental Material [URL will be inserted by publisher] illustrate the factorization of the $\delUtilde\delUtilde^{\dagger}$ term in Eq.~\eqref{eq:pair_mom_dist_op}.
 
 We illustrate how to formulate an LDA by starting with the second-quantized version of the unevolved single-particle momentum distribution for isospin projection $\tau$ from coordinate-space integrals (cf.\ Ref.~\cite{Wiringa:2013ala}):
 %
@@ -582,14 +583,16 @@ This approximation has a single spatial integration with two $\theta$ functions 
 (The explicit formulas for the low-resolution LDA momentum distributions are given in the appendix.)
 
 We demonstrate the LDA for proton momentum distributions using the AV18 potential in Fig.~\ref{fig:proton_momentum_distributions}, for which we can compare to quantum Monte Carlo calculations~\cite{Wiringa:2013ala,Lonardoni:2017egu,Wiringa:single_distributions}.
-We use proton and neutron densities generated from the SLy4 Skyrme interaction using the HFBRAD code~\cite{Bennaceur:2005mx}.
+We use proton and neutron densities generated from the SLy4 Skyrme functional~\cite{Chabanat:1997un} using the HFBRAD code~\cite{Bennaceur:2005mx}.
 We expect the approximations to be valid at least for momenta above the gray-shaded regions and indeed the agreement is quite reasonable, particularly at the highest momenta.
 (We exclude the predictions below $q = 0.6\,\fmi$ because of the poor approximation; better treatments will be presented in Ref.~\cite{Tropiano:2021prep}.)
 It is evident that the high momentum tails are very similar across the nuclei; this is the manifestation of the universal behavior of these distributions.
+There is a clear signature of the sharp cutoff caused by the $\theta$ functions in Eq.~\eqref{eq:snmd_partial_waves} at momenta near the Fermi momentum $\kF$.
+We expect a smoother distribution with higher-order contributions to the DME as well as from long-range correlations.
 From Table~\ref{tab:partial_wave_contributions} we see evidence that the s-waves dominate the contributions to these momentum distributions.
 
 \begin{table}[htb]
-	\caption{Percentage contributions from s-waves and selected p-waves to proton momentum distributions for $q>2\,\fmi$. We show $N_X/N$ with $N \sim \int_2^{\infty} dq\, q^2 n_{\lambda}^A(q)$, where $n_{\lambda}^A(q)$ is the distribution for nucleus $A$ with evolved operator at $\lambda = 1.35\,\fmi$ and $X$ denotes using only one partial wave.}
+	\caption{Percentage contributions from s-waves and selected p-waves to proton momentum distributions for $q>2\,\fmi$. We show $N_X/N$ with $N \sim \int_2^{\infty} dq\, q^2 n_{\lambda}^A(q)$, where $n_{\lambda}^A(q)$ is the proton distribution for nucleus $A$ with evolved operator at $\lambda = 1.35\,\fmi$ and $X$ denotes using only one partial wave.}
 	\label{tab:partial_wave_contributions}
 	\begin{ruledtabular}
 		\begin{tabular}{c|ccccc}
@@ -619,7 +622,7 @@ From Table~\ref{tab:partial_wave_contributions} we see evidence that the s-waves
 \end{table}
 
 The high-momentum tail of any momentum distribution will be scale- and scheme-dependent, i.e., dependent on the potential used. 
-We can reproduce results at low-RG resolution for any initial potential, but the reaction operators must consistently evolved.
+We can reproduce results at low-RG resolution for any initial potential, but the reaction operators must be consistently evolved.
 As evident from Fig.~\ref{fig:schematic_SRC_physics}, we can cancel out the scale and scheme dependence in many cases by taking ratios.
 We show examples in Figs.~\ref{fig:pp_plus_pn_ratios}, and \ref{fig:pp_to_pn_ratios} for the pair distribution at $Q=0$.
 A clarifying feature of the LDA is that the theta functions defining the Fermi sea imply simple consequences for the pair distribution when $Q=0$.
@@ -643,13 +646,13 @@ In particular, the proton and neutron Fermi spheres overlap, so when $N \geq Z$ 
 In Fig.~\ref{fig:pp_plus_pn_ratios} we show ratios of the pp + pn to nn + np pair momentum distributions at $Q=0$ as a function of $q$ for six nuclei from $^{12}$C to $^{208}$Pb.
 We restrict the range of the plot to the region where SRC physics is expected to dominate.
 The ratio is equal to one for $N=Z$ nuclei at all $q$, as expected from factorization as illustrated in Fig.~\ref{fig:schematic_SRC_physics} if the nucleus in numerator and denominator are the same.
-Even though there are no high-momentum nucleons in the low-resolution wave function, the result is consistent with phenomenology that the proton and neutron high-momentum distributions should be about the same.
+Even though there are no high-momentum nucleons in the low-resolution wave function, the result is consistent with phenomenology that the proton and neutron high-momentum distributions should be about the same~\cite{Hen:2016kwk}.
 In the region of np dominance near $q=2\,\fmi$ (400\,MeV), this ratio should be unity independent of $N/Z$, while there is $N/Z$ dependence away from this region because there are more nn than pp pairs.
 
 
 In Fig.~\ref{fig:pp_to_pn_ratios} we show ratios of the pp to pn pair distributions as a function of $q$ for the same nuclei as in Fig.~\ref{fig:pp_plus_pn_ratios}.
 The ratio dips down to essentially zero just before 2\,\fmi and then rises to about 0.15 at 4\,\fmi.
-This trend is also observed in the GCF calculations~\cite{Cruz-Torres:2019fum,Korover:2020lqf} and reflects the transition from the dominant effect of the tensor force toward the scalar limit.
+This trend is also observed in the GCF calculations~\cite{Cruz-Torres:2019fum,CLAS:2020rue} and reflects the transition from the dominant effect of the tensor force toward the scalar limit.
 In the low-resolution calculations here, this dependence on $q$ is purely from the high-momentum part of the factorized unitary transformations.
 The ratio shows no dependence on $N/Z$ because the pair momentum distribution at high-$q$ and $Q=0$ is restricted entirely by the proton Fermi sphere in the $\delUtilde\delUtilde^{\dagger}$ term of Eq.~\eqref{eq:pmd_partial_waves} for $N \ge Z$ nuclei.
 %smaller of the proton or neutron Fermi spheres in the $\delUtilde\delUtilde^{\dagger}$ term of Eq.~\eqref{eq:pmd_partial_waves}.
@@ -658,13 +661,13 @@ The ratio shows no dependence on $N/Z$ because the pair momentum distribution at
 
 \begin{figure}[tbh]
     \centering
-\includegraphics[width=0.82\columnwidth]{figures_low_res/a2_errorbars_C12_O16_Ca40_Ca48_Fe56_Pb208_channels_1S0_3S1_kvnn_6_lamb_1p35.png}
+\includegraphics[width=0.82\columnwidth]{figures_low_res/a2_errorbars.png}
     \caption{SRC scaling factors $a_2$ calculated using AV18 according to Eq.~\eqref{eq:a2}. See text for further details.}
     \label{fig:src_scaling_factors_a2}
 \end{figure}
 
-Finally, in Fig.~\ref{fig:src_scaling_factors_a2} we compare calculated SRC scaling factors $a_2$ using AV18 to values for even-even nuclei extracted from inclusive cross section ratios.
-Following the prescription of Ref.~\cite{Ryckebusch:2019oya}, we estimate $a_2$ by integrating single-nucleon probability distributions (phase-space weighted $n_{\lambda}^A(q)$) over a high-momentum range:
+Finally, in Fig.~\ref{fig:src_scaling_factors_a2} we compare calculated SRC scaling factors $a_2$ using AV18 to values for nuclei extracted from inclusive cross section ratios~\cite{Fomin:2011ng,Schmookler:2019nvf}.
+Following the prescription of Ref.~\cite{Ryckebusch:2019oya}, we estimate $a_2$ by integrating single-nucleon probability distributions (phase-space weighted $n_{\lambda}^A(q)$, summing proton and neutron distributions) over a high-momentum range:
 %
 \begin{align}
     \label{eq:a2}
@@ -672,9 +675,19 @@ Following the prescription of Ref.~\cite{Ryckebusch:2019oya}, we estimate $a_2$ 
 \end{align}
 %
 We apply the LDA to both the numerator and denominator, which may help to cancel systematic errors.
+Results using densities from the SLy4 Skyrme functional~\cite{Chabanat:1997un} are shown in red and results using densities from the Gogny functional~\cite{Decharge:1979fa} in blue.
 The ``error bars'' (which are not statistical uncertainty intervals) are established by using integration ranges $\Delta q^{\rm high} = 2$--$\infty$ \fmi and  $\Delta q^{\rm high} = 3.8$--$4.5$ \fmi~\cite{Ryckebusch:2019oya}.
-The agreement with experiment is good.
-In future work we will extend the comparison to more nuclei, explore the SRG $\lambda$ dependence in detail, and test the sensitivity to our assumptions~\cite{Tropiano:2021prep}. 
+The agreement with experiment is consistent with these error bars.
+
+The magnitude of $a_2$ and the trend with $A$ can be roughly understood at low-RG resolution from a mean-field treatment of the leading operator product expansion for the integrands in \eqref{eq:a2}~\cite{Anderson:2010aq,Chen:2016bde,Lynn:2019vwp}. This means a factorization approximation to $\delta U(k,q)$ (including constant $k$ dependence) and the dominance of the $\tripletS$ contribution.
+When applied to the third term of Eq.~\eqref{eq:snmd_partial_waves}, which is the only contribution to the $a_2$ integrals,
+the short-distance $q$ dependence cancels in the $a_2$ ratio and we are left with integrals of the $\theta$ functions over total momentum $K$ and relative momentum $k$. 
+The integrals decouple after switching to single-particle momenta,  yielding a product of the proton and neutron densities at $R$. Thus $a_2$ is simply given by the ratio of $(1/A)\int d^3R\, \rho_p(R)\rho_n(R)$ factors, as would be expected from the schematic treatment in Fig.~\ref{fig:schematic_SRC_physics}. 
+This ratio accounts for about 80\% of $a_2$ and the variation of the integral with $A$ tracks the $A$ dependence from $^4$He to $^{208}$Pb quite closely.
+The remaining 20\% comes primarily from the $\singletS$ contribution, with the relative weighting of $\singletS$ and $\tripletS$ dependent on the relative $q$ dependence in the $\delta U$ matrix elements seen in Fig.~\ref{fig:ratio_1p35_kvnn_6_222}.
+
+
+%In future work we will extend the comparison to more nuclei, explore the SRG $\lambda$ dependence in detail, and test the sensitivity to our assumptions~\cite{Tropiano:2021prep}. 
 
 
 \subsection{Low-resolution take on SRC physics}
@@ -689,7 +702,7 @@ Here we revisit the key features of high-resolution SRC phenomenology from Sec.~
   Explicit calculations of the momentum densities manifest the factorization as seen in Fig.~\ref{fig:proton_momentum_distributions}, where each nucleus exhibits the same $q$ dependence.
   The kinematic thresholds selected for the inclusive experiments are those necessary for this clean factorization to hold.
   For SRG parameter $\lambda$ comparable to $\kF$, this corresponds to the conditions for factorization as well as complete dominance of the two-body current.
-  In taking ratios, the high-momentum part cancels out, so the leading dependence of the plateau heights in the cross-section ratio, namely $a_2$, is a mean-field quantity, which is well reproduced in our approximations (see Fig.~\ref{fig:src_scaling_factors_a2}).
+  In taking ratios, the high-momentum part cancels out, so the leading dependence of the plateau heights in the cross-section ratio, namely $a_2$, is a mean-field quantity~\cite{Anderson:2010aq,Cruz-Torres:2019fum}, which is well reproduced in our approximations (see Fig.~\ref{fig:src_scaling_factors_a2}).
   The conditions here hold for any high-momentum current.
   
   
@@ -715,7 +728,7 @@ Here we revisit the key features of high-resolution SRC phenomenology from Sec.~
     Tensor dominance follows directly from calculations of the unitary transformation operator in the two-body subspace.
     Figure~\ref{fig:ratio_1p35_kvnn_6_222} shows the ratio of unitary transformations in the dominant s-waves. 
     The ratio of triplet to singlet shows the peak near $q = 2\,\fmi$ for both potentials, associated with a zero in the \singletS\ channel and the enhanced tensor contribution in the \tripletS\ channel.
-    Figures~\ref{fig:barcharts_AV18} and \ref{fig:barcharts_Gezerlis} show that despite the tensor dominance, at low-RG resolution the coupling to the wave function is through the s-waves, not tensor correlations in the wave functions.
+    Figure~\ref{fig:barchart_deuteron}  show that despite the tensor dominance, at low-RG resolution the coupling to the wave function is through the s-waves, not tensor correlations in the wave functions.
     The consequences for experimental ratios are illustrated in Figs.~\ref{fig:pp_plus_pn_ratios} and \ref{fig:pp_to_pn_ratios}, which are consistent with SRC phenomenology.
 
    \item \textbf{Ratio of knock-out cross sections from neutron-rich nuclei compared to $N=Z$ nuclei.}
@@ -737,8 +750,8 @@ As already noted, the GCF phenomenology is built on
 a factorization ansatz for the many-body wave function  when a pair of nucleons has small relative distance or high relative momenta.
 This leads to the pair distributions in coordinate and momentum space taking the forms in Eqs.~\eqref{eq:GCF_coordinate} and \eqref{eq:GCF_momentum}, respectively.
 
-The parallel formulation at low-RG resolution is that the dependence on $r$ or $q$ in the wave function becomes the corresponding part of the facotrized unitary transformation.
-As such, it is the leading term in an operator product expansion~\cite{Anderson:2010aq,Bogner:2012zm,Tropiano:2020zwb}.
+The parallel formulation at low-RG resolution is that the dependence on $r$ or $q$ in the wave function becomes the corresponding part of the factorized unitary transformation.
+As such, it is the leading term in an operator product expansion~\cite{Anderson:2010aq,Bogner:2012zm,Chen:2016bde,Tropiano:2020zwb}.
 A key advantage of the RG formulation is that systematic corrections are well defined.
 
 
@@ -857,26 +870,27 @@ In this section we summarize some of the takeaway points from an RG-based perspe
   Reduced final-state interactions are observed.
   The complication is from higher many-body operators, but these can be evolved in few-body spaces.
 
-  \item\textbf{What can SRC experiments tell us about high-density nuclear matter?}
-  In the high-SRG-resolution picture, the basic intuition is that in SRC pairs nucleons are at short distances so they probe high densities.
-  But to be quantitatively useful at high densities in this picture one would at least need to extend the description to three-body forces.
-  The GCF phenomenology is an implementation of leading-order Brueckner theory, which provides a \emph{low-density} expansion.
-  Three-body correlations are known from calculations to be important for neutron star physics.
+%   \item\textbf{What can SRC experiments tell us about high-density nuclear matter?}
+%   In the high-SRG-resolution picture, the basic intuition is that in SRC pairs nucleons are at short distances so they probe high densities.
+%   But to be quantitatively useful at high densities in this picture one would at least need to extend the description to three-body forces.
+%   The GCF phenomenology is an implementation of leading-order Brueckner theory, which provides a \emph{low-density} expansion.
+%   Three-body correlations are known from calculations to be important for neutron star physics.
   %[\emph{Also more mixing with near-$\kF$ states will increase three-body correlations.}]
   
-  \item\textbf{What is the relevance of EMC physics for low-energy nuclei? How should we understand the observed SRC-EMC correlation?} 
-  This physics should be automatically included in an EFT expansion because of the completeness of the operator basis. 
-  The EMC effect is from short-distance physics that manifests first as two-body contact operators. 
-  If mean-field estimate plus chiral naturalness is valid, then the expected EMC slope is consistent with experiment. The treatment (from Chen and Detmold originally~\cite{Chen:2004zx,Chen:2016bde,Lynn:2019vwp}) starts with an operator product expansion applied at the level of QCD matrix elements, which is then matched to an EFT for matrix elements; 2-body operators must be there! 
-  The dominance of the leading two-body contact then accounts for EMC-SRC correlations. 
+%   \item\textbf{What is the relevance of EMC physics for low-energy nuclei? How should we understand the observed SRC-EMC correlation?} 
+%   This physics should be automatically included in an EFT expansion because of the completeness of the operator basis. 
+%   The EMC effect is from short-distance physics that manifests first as two-body contact operators. 
+%   If mean-field estimate plus chiral naturalness is valid, then the expected EMC slope is consistent with experiment. The treatment (from Chen and Detmold originally~\cite{Chen:2004zx,Chen:2016bde,Lynn:2019vwp}) starts with an operator product expansion applied at the level of QCD matrix elements, which is then matched to an EFT for matrix elements; 2-body operators must be there! 
+%   The dominance of the leading two-body contact then accounts for EMC-SRC correlations. 
   
   \item\textbf{What are the implications for other knock-out reactions?}
-  Analyses of exclusive intermediate energy nucleon knock-out experiments have shown systematic discrepancies between measured cross sections and theoretical predictions~\cite{Tostevin:2014usa,Aumann:2020tcq}.
-  But these analyses mix a high-resolution reaction mechanism (e.g., eikonal model) with a low-resolution structure description (e.g., shell model).
+  Analyses of intermediate energy nucleon knock-out experiments often
+ mix a high-resolution reaction mechanism (e.g., eikonal model) with a low-resolution structure description (e.g., shell model)~\cite{Tostevin:2014usa,Aumann:2020tcq}.
   Such a mismatch applied to the electron-scattering SRC experiments considered here would lead to essentially zero cross section predicted theoretically because the contribution from the two-body current at low RG resolution would be entirely omitted and the one-body current has no support at high momentum.
-  This implies that RG evolution of the reaction operators may be essential for resolving the discrepancies.
-  The situation is not nearly as clean as the present case, however.
-  For exclusive scattering to low-lying single-particle states, the theory would be \emph{larger} than experiment because a missing induced current (two-body, if electron scattering) would not exclude flux (cf.\ SRCs depleting the orbitals).
+  This implies that RG evolution of the reaction operators may be relevant for resolving systematic discrepancies between measured cross sections and theoretical predictions~\cite{Tostevin:2014usa,Aumann:2020tcq} (see also Ref.~\cite{Wylie:2021uot}).
+%   The situation is not nearly as clean as the present case, however.
+%   For exclusive scattering to low-lying single-particle states, the theory would be \emph{larger} than experiment because a missing induced current (two-body, if electron scattering) would not exclude flux (cf.\ SRCs depleting the orbitals).
+ 
 
 \end{itemize}
 
@@ -896,33 +910,38 @@ A better understanding of how to analyze reactions is critical for rare isotope 
 %Experiments that probe SRC physics can isolate short-distance reaction mechanisms.
 Combined with RG analyses, such experiments can help calibrate and test reactions cleanly and set the stage for extensions to more complicated knock-out reactions.
     
-Planned extensions of the present investigations include~\cite{Tropiano:2021prep}:
-\begin{itemize}
-    \item \textbf{Examining SRG resolution ($\lambda$) dependence.} How robust are the approximations and results presented here to changes in $\lambda$? What are the relative importance of three-body and tensor correlations in the wave functions, three-body forces in the Hamiltonian, induced three-body contributions to the operators?
+% Planned extensions of the present investigations include~\cite{Tropiano:2021prep}:
+% \begin{itemize}
+%     \item \textbf{Examining SRG resolution ($\lambda$) dependence.} How robust are the approximations and results presented here to changes in $\lambda$? What are the relative importance of three-body and tensor correlations in the wave functions, three-body forces in the Hamiltonian, induced three-body contributions to the operators?
         
-    \item \textbf{Improving the treatment of ground-state wave function.} 
-    One approach is to use the DME to improve the LDA and establish the uncertainties. 
-    We can also explore the use of many-body perturbation theory and ab initio methods directly.
+%     \item \textbf{Improving the treatment of ground-state wave function.} 
+%     One approach is to use the DME to improve the LDA and establish the uncertainties. 
+%     We can also explore the use of many-body perturbation theory and ab initio methods directly.
         
-    \item \textbf{Improving the operators.} The truncation to two-body operators will be relaxed systematically, quantifying the corrections and seeking tractable approximations.
+%     \item \textbf{Improving the operators.} The truncation to two-body operators will be relaxed systematically, quantifying the corrections and seeking tractable approximations.
         
-    \item \textbf{Fitting the operators.}
-    An alternative to evolving high-resolution operators is to fit them at low-resolution. 
-    This will first be explored for cases where evolution is also available.
+%     \item \textbf{Fitting the operators.}
+%     An alternative to evolving high-resolution operators is to fit them at low-resolution. 
+%     This will first be explored for cases where evolution is also available.
         
-    \item \textbf{Extensions to other reactions.}
-    One of the first steps will be to re-examine the exclusive $(e,e'p)$ knock-out reactions (e.g., those studied at NIKHEF and other electron scattering facilities)~\cite{Dieperink:1990uk,Kelly:1996hd}.
+%     \item \textbf{Extensions to other reactions.}
+%     One of the first steps will be to re-examine the exclusive $(e,e'p)$ knock-out reactions (e.g., those studied at NIKHEF and other electron scattering facilities)~\cite{Dieperink:1990uk,Kelly:1996hd}.
         
-\end{itemize}
-%
+% \end{itemize}
+% %
+% Work on all of these areas is in progress.
+
+Planned extensions of the present investigations in the short term include~\cite{Tropiano:2021prep}:
+further examining the SRG resolution ($\lambda$) dependence; improving the treatment of the ground-state wave function with DME corrections; relaxing the truncation to two-body operating, quantifying the corrections and seeking tractable approximations; and re-examining $(e,e'p)$ knock-out reactions  studied at NIKHEF and other electron scattering facilities~\cite{Dieperink:1990uk,Kelly:1996hd}.
 Work on all of these areas is in progress.
+
     
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \begin{acknowledgments}
-We thank Nathan Parzuchowski for contributions to an earlier version of this work, and Wim Cosyn and Jan Ryckebusch for helpful comments on the manuscript. We thank our colleagues for many useful discussions on SRC physics over the years.
+We thank Nathan Parzuchowski for contributions to an earlier version of this work, Nicolas Schunck for sharing a code to calculate Gogny nucleon densities, and Wim Cosyn and Jan Ryckebusch for helpful comments on the manuscript. We thank our colleagues for many useful discussions on SRC physics over the years.
 The work of AJT and RJF was supported by the National Science Foundation under Grant No.~PHY--1913069, and the NUCLEI SciDAC Collaboration under US Department of Energy MSU subcontract RC107839-OSU\@.
 The work of SKB was supported by the National Science Foundation under Grant Nos. PHY-1713901 and PHY-2013047, and the U.S. Department of Energy, Office of Science, Office of Nuclear Physics under Grant No. de-sc0018083 (NUCLEI SciDAC Collaboration).
 \end{acknowledgments}
