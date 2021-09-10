@@ -1,0 +1,18 @@
+--- summaries of relevant papers and sources ---
+
+* Use this to start Overleaf notes on Spectroscopic factors in (e,e'p) reactions at low RG resolution
+
+* Summary of T. Aumann (2021)
+
+  1. Introduction
+     - Assumes at higher energies (meaning the probe), nucleons are quasifree.
+     - 65% reduction of spectroscopic s.p. strength relative to IPSM for all stable nuclei.
+     - Understanding: Reduction comes from LRC and SRC beyond the pairing correlations around the Fermi surface (which is in IPSM).
+     - Most of the reaction models are based on overlap functions (1 annihilation operator!), which is encompassed in spectroscopic factors (SFs), asymptotic normalization coefficients (ANCs), or electromagnetic matrix (EM) elements.
+     - DEF: "A reaction is called direct if it proceeds directly from the initial to the final state without the formation of an intermediate compound nucleus, and therefore can be factorized into a nuclear-structure term, quoted C^2 S in the following, and a reaction term \sigma_{sp} corresponding to the cross section in case of s.p. states."
+     - Many reaction models (e.g., distorted-wave-Born-approximation (DWBA)) factorize the theoretical cross section into a part dependent on the reaction dynamics and another part involving form factors for an operator probing the nuclear structure.
+     - For electron-induced knockout reactions, the theoretical approach can be fully realized without a factorization so that the reaction mechanism and nuclear-structure input are described on equal footing.
+     - DEF: PWBA (DWBA) refers to the electron and PWIA (DWIA) refers to the outgoing proton in electron-induced knockout. In hadronic interactions (p,2p) DWBA and DWIA mean the same thing.
+     - Game plots: expect 30-50% larger theory cross sections from discussion before, but systematic trend of asymmetry of the projectile in terms of proton to neutron separation energy (\Delta S = \epsilon |S_n - S_p| (\epsilon = +1 for proton removal, -1 for neutron removal).
+
+  2. Single-particle spectral functions and correlations
