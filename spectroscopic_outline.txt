@@ -22,4 +22,4 @@
      - DWIA does a good job interpreting (e,e'p) for kinematics that emphasize the longitudinal coupling of the excitation operator, which is dominated by a one-body operator.
      - Look for proton with momentum parallel or antiparallel to the momentum of the photon.
      - Distorted wave for outgoing proton: local optical potential with radius adjusted to give the shape of the cross section and the depth to the separation energy of the hole.
-     - Need the hadron tensor, W^{\mu \nu}, which contains the matrix elements of the nuclear charge-current density, J^\mu. 
+     - Need the hadron tensor, W^{\mu \nu}, which contains the matrix elements of the nuclear charge-current density, J^\mu.
