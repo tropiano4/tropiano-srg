@@ -1,7 +1,6 @@
 --- SRC ---
 
 * Knock-out reactions
-  - Make sure you understand contractions, Wick's theorem rigorgously. Antisymmetrized matrix elements.
   - SRG evolve spectral function U a U^\dagger
     * Start from first line of (7.44) and insert SRG transformations
     * Notes to add: (7.43) should have form factors, (7.42) assumes no FSI's
