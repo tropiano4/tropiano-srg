@@ -28,6 +28,7 @@
 * Aumann_2020tcq
 * Yang_2013rza
 * More_2017syr
+* Anderson_2010aq (Bloch-Horowitz section)
 * Tostevin_2014usa
 * Wylie_2021uot
 * FW Chapter 17, 59-60
