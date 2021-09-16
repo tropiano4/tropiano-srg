@@ -1,12 +1,12 @@
 --- SRC ---
 
 * Knock-out reactions
-  - SRG evolve spectral function U a U^\dagger
-    * Start from first line of (7.44) and insert SRG transformations
-    * Notes to add: (7.43) should have form factors, (7.42) assumes no FSI's
   - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
     * Outline first (follow Dickhoff+Ulmer+Aumann)
-  - Approximations for electrodisintegration (see SM papers / questions)
+  - Read references Aumann, Yang, More
+    * Add summary/takeaways to Overleaf notes (questions!)
+  - Approximations for electrodisintegration?
+  - Inclusion of FSIs
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
@@ -27,6 +27,7 @@
 --- Reading list ---
 * Aumann_2020tcq
 * Yang_2013rza
+* More_2017syr
 * Tostevin_2014usa
 * Wylie_2021uot
 * FW Chapter 17, 59-60
