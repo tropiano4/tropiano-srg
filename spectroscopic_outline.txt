@@ -2,7 +2,7 @@
 
 * Use this to start Overleaf notes on Spectroscopic factors in (e,e'p) reactions at low RG resolution
 
-* Summary of T. Aumann (2021)
+* Summary of Aumann (2021)
 
   1. Introduction
      - Assumes at higher energies (meaning the probe), nucleons are quasifree.
@@ -23,3 +23,9 @@
      - Look for proton with momentum parallel or antiparallel to the momentum of the photon.
      - Distorted wave for outgoing proton: local optical potential with radius adjusted to give the shape of the cross section and the depth to the separation energy of the hole.
      - Need the hadron tensor, W^{\mu \nu}, which contains the matrix elements of the nuclear charge-current density, J^\mu.
+
+
+
+
+* Summary of Yang (2013)
+
