@@ -24,10 +24,16 @@
      - Distorted wave for outgoing proton: local optical potential with radius adjusted to give the shape of the cross section and the depth to the separation energy of the hole.
      - Need the hadron tensor, W^{\mu \nu}, which contains the matrix elements of the nuclear charge-current density, J^\mu.
      - DWIA used to interpret NIKHEF experiment.
-     - 
-
-
-
+     - Global optical potential for distorted proton wave. Woods-Saxon potential adjusted to find overlap function (i.e., momentum distribution).
+     - Effective Momentum Approximation refers to electron waves under interaction with target nucleus (Coulomb).
+     - In the PWIA, the outgoing proton wave is approximated by a plane wave -> factorizes cross section into off-shell electron-proton cross section (cc1) and the spectral function.
+     - Shapes of the valence nucleon wavefunctions accurately describe the observed cross sections when they are reduced by the spectroscopic factor (35%).
+     - High RG resolution picture: Ground state WF has admixtures of high-lying 2p2h states. More complicated ground state where removal of a valence particle is not possible from these contributions giving reduced occupation number.
+     - LRC: Low-lying collective states in fragmenting s.p. strength near the Fermi energy (surface vibrations).
+     - Fig. 8: n(0) -> 0.85. 1/3 of the 15% depletion is tensor correlations in ladder equation (?), high-energy tail above 500 MeV.
+     - Spectroscopic factors of O16 have been computed with SRCs but only give 0.9 whereas extracted experiment is 0.65.
+     - SRC is only 10% reduction in O16 but 15% in Pb208.
+     - How does the tail "reduce" the spectroscopic factor?
 
 * Summary of Yang (2013)
 
