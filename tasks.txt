@@ -7,6 +7,7 @@
     * Add summary/takeaways to Overleaf notes (questions!)
   - Approximations for electrodisintegration?
   - Inclusion of FSIs
+  - Figure out how to get \phi_\alpha(p) from codes
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
