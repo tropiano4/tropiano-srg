@@ -1,8 +1,7 @@
 --- SRC ---
 
 * Knock-out reactions
-  - Start Overleaf notes on basics: general picture, spectral functions, spectroscopic factors
-    * Outline first (follow Dickhoff+Ulmer+Aumann)
+  - Add spectroscopic factor derivation to Overleaf
   - Read references Aumann, Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
   - Approximations for electrodisintegration?
