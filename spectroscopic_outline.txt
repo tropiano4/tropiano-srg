@@ -13,7 +13,7 @@
      - Many reaction models (e.g., distorted-wave-Born-approximation (DWBA)) factorize the theoretical cross section into a part dependent on the reaction dynamics and another part involving form factors for an operator probing the nuclear structure.
      - For electron-induced knockout reactions, the theoretical approach can be fully realized without a factorization so that the reaction mechanism and nuclear-structure input are described on equal footing.
      - DEF: PWBA (DWBA) refers to the electron and PWIA (DWIA) refers to the outgoing proton in electron-induced knockout. In hadronic interactions (p,2p) DWBA and DWIA mean the same thing.
-     - Game plots: expect 30-50% larger theory cross sections from discussion before, but systematic trend of asymmetry of the projectile in terms of proton to neutron separation energy (\Delta S = \epsilon |S_n - S_p| (\epsilon = +1 for proton removal, -1 for neutron removal).
+     - Gade plots: expect 30-50% larger theory cross sections from discussion before, but systematic trend of asymmetry of the projectile in terms of proton to neutron separation energy (\Delta S = \epsilon |S_n - S_p| (\epsilon = +1 for proton removal, -1 for neutron removal).
 
   2. Single-particle spectral functions and correlations
      - Nucleon self-energy = optical potential?
