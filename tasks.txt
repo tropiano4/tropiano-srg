@@ -1,10 +1,16 @@
 --- SRC ---
 
 * Knock-out reactions
-  - Add spectroscopic factor derivation to Overleaf
+  - Fix derivation
   - Figure out how to get \phi_\alpha(p) from codes
+  - Factors for connecting state \alpha=(n, l, j, m_j, (\sigma?), \tau) to (\kvec, \sigma, \tau)
+  - Partial wave expressions
+  - Calculate first term in spectroscopic factor
   - Read references Aumann, Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
+  - Continue notes
+    * Fill in introductory stuff for spectroscopic factors
+    * Contractions of SRG-evolved operator up to final expression
   - Approximations for electrodisintegration?
   - Inclusion of FSIs
 
