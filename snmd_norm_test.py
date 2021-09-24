@@ -56,8 +56,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
 from densities import load_density
-from Figures import figures_functions as ff
-from Potentials.vsrg_macos import vnn
+from figures import figures_functions as ff
+from potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
 
 
@@ -103,8 +103,8 @@ channels = ('1S0', '3S1')
 # Load momentum (channel argument doesn't matter here)
 q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
 
-# interp = True
-interp = False
+interp = True
+# interp = False
 
 # Loop over lambda
 for lamb in lambda_array:
@@ -112,7 +112,7 @@ for lamb in lambda_array:
     # Initialize single-nucleon momentum distributions class for given
     # potential
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                 kmid, ntot, interp)
+                                                 kmid, ntot, 'Wegner', interp)
     
     print('_'*50)
     print( 'lambda = %s fm^-1\n' % ff.convert_number_to_string(lamb) )
@@ -126,7 +126,8 @@ for lamb in lambda_array:
     
         if interp:
             
-            n_array_funcs = snmd.n_lambda_interp(nucleus_name, 'proton', Z, N)
+            n_array_funcs = snmd.n_lambda_interp(nucleus_name, 'proton', Z, N,
+                                                 edf='SLY4')
             
             n_total_array = n_array_funcs[0](q_array)
             n_1_array = n_array_funcs[1](q_array)
@@ -136,18 +137,22 @@ for lamb in lambda_array:
         else:
             
             # Load r values and nucleonic densities (the r_array's are the same)
-            r_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
-            r_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
+            R_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N)
+            R_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N)
+            dR = R_array[2]-R_array[1]
             
-            # Calculate nuclear-averaged momentum distributions
-            n_array_cont = snmd.n_lambda(q_array, r_array, rho_p_array,
-                                     rho_n_array)
+            n_1_array, n_delU_array, n_delU2_array = snmd.n_contributions(
+                               q_array, R_array, dR, rho_p_array, rho_n_array )
+            # # Calculate nuclear-averaged momentum distributions
+            # n_array_cont = snmd.n_lambda(q_array, r_array, rho_p_array,
+            #                          rho_n_array)
     
-            # Proton contributions
-            n_total_array = n_array_cont[:, 0]
-            n_1_array = n_array_cont[:, 1]
-            n_delU_array = n_array_cont[:, 2]
-            n_delU2_array = n_array_cont[:, 3]
+            # # Proton contributions
+            # n_total_array = n_array_cont[0] 
+            # n_1_array = n_array_cont[:, 1]
+            # n_delU_array = n_array_cont[:, 2]
+            # n_delU2_array = n_array_cont[:, 3]
+            n_total_array = n_1_array + n_delU_array + n_delU2_array
     
         # Compute normalizations here
         # Proton
@@ -156,6 +161,13 @@ for lamb in lambda_array:
         p_1_norm = factor * np.sum(q_array**2 * q_weights * n_1_array)
         p_delU_norm = factor * np.sum(q_array**2 * q_weights * n_delU_array)
         p_delU2_norm = factor * np.sum(q_array**2 * q_weights * n_delU2_array)
+        
+        p_1_delU_norm = factor * np.sum( q_array**2 * q_weights * \
+                                         (n_1_array + n_delU_array) )
+        r_norm = p_1_delU_norm / p_1_norm
+        p_1_delU_norm2 = factor * np.sum( q_array**2 * q_weights * \
+                                         (n_1_array + n_delU_array/2) )
+        r_norm2 = (p_1_delU_norm2 / p_1_norm)**2
     
         # Print normalizations
         print('-'*50)
@@ -164,6 +176,9 @@ for lamb in lambda_array:
         print('1 term proton normalization = %.5f' % p_1_norm)
         print('\delta U term proton normalization = %.5f' % p_delU_norm)
         print('\delta U^2 term proton normalization = %.5f' % p_delU2_norm)
+        
+        print('(1 term + \delta U term) norm / 1 term norm = %.5f' % r_norm)
+        print('( (1 term + \delta U term/2) norm / 1 term norm )^2 = %.5f' % r_norm2)
     
         # Plot with respect to AV18 data
         plt.close('all')
@@ -182,7 +197,7 @@ for lamb in lambda_array:
         
         # Add AV18 data with error bars
         if nucleus_name in ('C12', 'O16', 'Ca40'):
-            av18_data = np.loadtxt(data_directory+'/'+'AV18_%s_snmd.txt'
+            av18_data = np.loadtxt('data/qmc'+'/'+'AV18_%s_snmd.txt'
                                     % nucleus_name)
             q_array_av18 = av18_data[:, 0] # fm^-1
             n_p_array_av18 = av18_data[:, 1] / Z
