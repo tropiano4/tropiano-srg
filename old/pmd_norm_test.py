@@ -55,9 +55,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 # Scripts made by A.T.
-from Figures import figures_functions as ff
+from figures import figures_functions as ff
 from densities import load_density
-from Potentials.vsrg_macos import vnn
+from potentials.vsrg_macos import vnn
 from pmd import pair_momentum_distributions
 
 
