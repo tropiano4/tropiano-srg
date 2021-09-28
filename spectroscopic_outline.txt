@@ -2,7 +2,7 @@
 
 * Use this to start Overleaf notes on Spectroscopic factors in (e,e'p) reactions at low RG resolution
 
-* Summary of Aumann (2021)
+-- Summary of Aumann (2021) --
 
   1. Introduction
      - Assumes at higher energies (meaning the probe), nucleons are quasifree.
@@ -35,5 +35,9 @@
      - SRC is only 10% reduction in O16 but 15% in Pb208.
      - How does the tail "reduce" the spectroscopic factor?
 
-* Summary of Yang (2013)
+-- Summary of Yang (2013) --
+
+
+-- Summary of Tostevin (2014) --
+  - Note to self: Neutron removal is measured by \Delta S = S_n - S_p where S_N is small for N-rich nuclei. For example, neutron removal of proton-rich Ar32 has large S_n, small S_p, -> S ~ 20 MeV. Neutron removal of neutron-rich C15 has small S_n, large S_p, -> S ~ -20 MeV. Proton removal of C15 would be in blue on the other side of the figure.
 
