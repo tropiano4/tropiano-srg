@@ -1,15 +1,12 @@
 --- SRC ---
 
 * Knock-out reactions
-  - Fix derivation
-    * Update Overleaf
   - Figure out how to get \phi_\alpha(p) from codes and Fourier transform
-  - Calculate first term in spectroscopic factor
-  - Read references Aumann, Yang, More
+  - Calculate first term in spectroscopic factor as test case
+  - Read references Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
   - Continue notes
     * Fill in introductory stuff for spectroscopic factors
-    * Contractions of SRG-evolved operator up to final expression
   - Approximations for electrodisintegration?
   - Inclusion of FSIs
 
@@ -30,7 +27,6 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
-* Aumann_2020tcq
 * Yang_2013rza
 * More_2017syr
 * Anderson_2010aq (Bloch-Horowitz section)
