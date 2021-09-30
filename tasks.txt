@@ -3,6 +3,8 @@
 * Knock-out reactions
   - Figure out how to get \phi_\alpha(p) from codes and Fourier transform
   - Calculate first term in spectroscopic factor as test case
+  - Include 3-body terms
+  - Correlated ground state
   - Read references Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
   - Continue notes
