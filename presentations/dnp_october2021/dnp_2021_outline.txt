@@ -1,0 +1,66 @@
+OUTLINE FOR DNP PRESENTATION:
+
+Short-range correlation physics at low RG resolution
+
+1. Title slide
+
+2. Motivation
+  * Background on SRCs
+  * High resolution and low RG resolution definitions
+  * Same observables, different interpretations
+  * Figure: electron scattering at high and low RG resolutions
+  * Figure: mean field and SRC tail of momentum distribution
+
+3. Similarity Renormalization Group (SRG)
+  * Make sure you say SRG is unitary here
+  * Figure: Before/after of \psi_d(r)
+  * SRC -> no SRC, D-state probability suppressed
+  * Observables preserved
+
+4. Momentum distributions at low RG resolution
+  * SRC physics shifted from wave functions to operators
+  * SRG transformation in second quantization
+  * Figure: Deuteron wave function in momentum space, contributions example
+  * High-q dominated by \delta U \delta U^\dagger (which factorizes)
+  * Apply this strategy for nuclei using LDA
+
+5. LDA results (single-nucleon momentum distributions)
+  * Universality: High-q tail collapses to universal function
+  * Figure: High-q tail
+  * Comparison to AV18: low RG resolution gets same answer as high RG resolution
+  * Works well for high-q and is systematically improvable
+  * Figure: C12, O16, Ca40 momentum distributions with AV18
+
+6. LDA results (a_2 factors)
+  * Details of a_2 calculation
+  * Figure: a_2 factors
+  * Agreement with experiment and LCA
+
+7. LDA results reproduces phenomenology (np dominance, N/Z dependence)
+  --- cut ---
+  * Do we describe np dominance with low RG resolution?
+  * Figure: CLAS figure on np dominance
+  * Ratio of operators (and why this is what we look at)
+  * Figure: U(k_0,q) ratio of 3S1/1S0
+  --- cut ---
+  * Figures: compare CLAS figure on np dominance and pp/pn ratios
+  * Figure: pp+pn/nn+np explaining N/Z dependence
+
+* You'll need to summarize these results faster
+
+9. Spectroscopic factors
+  * Spectroscopic factor definition
+  * Motivation: reduction from SRC and LRC, asymmetry in \Delta S
+    Theory assumes factorization of reaction and structure (spectroscopic factor)
+    But scale and scheme is not unique
+    High RG picture: Need depletion of occupied states in shell model to account for reduction in theory cross section
+  * Understand from the low RG resolution picture considering first electron-induced knockout reactions
+
+10. Summary and outlook
+  * Takeaway: simple approximation works at low RG resolution
+  * Can analyze high energy reactions with low RG resolution structure
+  * Ongoing work: scale/scheme dependence of extracted properties, FSIs, physical interpretations, optical potentials
+
+11. Extras
+  * SRG background
+  * Factorization
