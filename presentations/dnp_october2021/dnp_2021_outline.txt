@@ -24,37 +24,31 @@ Short-range correlation physics at low RG resolution
   * High-q dominated by \delta U \delta U^\dagger (which factorizes)
   * Apply this strategy for nuclei using LDA
 
-5. LDA results (single-nucleon momentum distributions)
-  * Universality: High-q tail collapses to universal function
-  * Figure: High-q tail
-  * Comparison to AV18: low RG resolution gets same answer as high RG resolution
-  * Works well for high-q and is systematically improvable
+5. Proton momentum distributions
   * Figure: C12, O16, Ca40 momentum distributions with AV18
+  * Cite HFBRAD
+  * Comparison to AV18: low RG resolution gets same answer as high RG resolution
+  * Universality: High-q tail collapses to universal function
+  * Works well for high-q and is systematically improvable
 
-6. LDA results (a_2 factors)
+6. SRC scaling factors
   * Details of a_2 calculation
   * Figure: a_2 factors
   * Agreement with experiment and LCA
 
-7. LDA results reproduces phenomenology (np dominance, N/Z dependence)
-  --- cut ---
-  * Do we describe np dominance with low RG resolution?
-  * Figure: CLAS figure on np dominance
-  * Ratio of operators (and why this is what we look at)
-  * Figure: U(k_0,q) ratio of 3S1/1S0
-  --- cut ---
+7. SRC phenomenology
   * Figures: compare CLAS figure on np dominance and pp/pn ratios
+  * Tensor force and pn dominance
+  * pn dominance established in 2-body system and shifted to operator
+
+8. SRC phenomenology
   * Figure: pp+pn/nn+np explaining N/Z dependence
 
-* You'll need to summarize these results faster
-
 9. Spectroscopic factors
-  * Spectroscopic factor definition
-  * Motivation: reduction from SRC and LRC, asymmetry in \Delta S
-    Theory assumes factorization of reaction and structure (spectroscopic factor)
-    But scale and scheme is not unique
-    High RG picture: Need depletion of occupied states in shell model to account for reduction in theory cross section
-  * Understand from the low RG resolution picture considering first electron-induced knockout reactions
+  * Game plot (explain)
+  * R < 1 not understood
+  * Mismatch of scale in operator and structure
+  * In progress: SRG evolve operator
 
 10. Summary and outlook
   * Takeaway: simple approximation works at low RG resolution
@@ -62,5 +56,8 @@ Short-range correlation physics at low RG resolution
   * Ongoing work: scale/scheme dependence of extracted properties, FSIs, physical interpretations, optical potentials
 
 11. Extras
+  * Cartoon of SRC
   * SRG background
+  * S- and D-state contributions bar chart
   * Factorization
+  * \lambda dependence
