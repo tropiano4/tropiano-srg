@@ -55,32 +55,66 @@
 
 
 # Description of this test:
-#   Testing Fourier transformation of AV18 wave functions.
+#   Testing Fourier transformation of s.p. wave functions from SLy4 and HFBRAD
+#   code.
 
 
 import numpy as np
+from scipy.special import spherical_jn
 
-rho_data = np.loadtxt('densities/AV18/he4_densities_2_2.txt')
-n_data = np.loadtxt('data/qmc/AV18_He4_snmd.txt')
 
-r_array = rho_data[:, 0]
-dr = r_array[1]-r_array[0]
-rho_array = rho_data[:, 1]
-print( np.sum(4*np.pi*dr*r_array**2*rho_array) )
+def hankel_transformation(L, k_array, r_array, dr):
+    """
+    <k|r> transformation matrix for given orbital angular momentum L. If
+    len(r_array) = m and len(k_array) = n, then this function returns an 
+    n x m matrix.
+    
+    Parameters
+    ----------
+    L : int
+        Orbital angular momentum.
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    r_array : 1-D ndarray
+        Coordinates array [fm].
+    dr : float
+        Coordinates step-size (weight) [fm].
+        
+    Returns
+    -------
+    M : 2-D ndarray
+        Hankel transformation matrix [fm^3\2].
 
-k_array = n_data[:, 0]
-dk = k_array[1]-k_array[0]
-n_array = n_data[:, 1]
-print( np.sum(4*np.pi/(2*np.pi)**3*dk*k_array**2*n_array) )
+    """
 
-# Test 1: stupid way
-k_mesh, r_mesh = np.meshgrid(k_array, r_array, indexing='ij')
-_, rho_mesh = np.meshgrid(k_array, rho_array, indexing='ij')
-exponential_mesh = np.exp( 1j * k_mesh * r_mesh )
-n_array_new = np.sum( 4*np.pi*dr*r_mesh**2*rho_mesh*exponential_mesh, axis=-1)
-print(n_array)
-print( abs(n_array_new) )
-print(n_array/abs(n_array_new))
+    # r_array column vectors and k_array row vectors where both grids are
+    # n x m matrices
+    r_cols, k_rows = np.meshgrid(r_array, k_array)
+        
+    M = dr * r_cols**2 * spherical_jn(L, k_rows * r_cols)
 
-# Are the densities and single-nucleon momentum distributions really just
-# Fourier transforms of each other? I doubt it.
+    return M
+
+# Set nucleus
+nucleus = 'O16'
+
+# Load phi_\alpha(r)
+data_directory = 'densities/HFBRAD_SLY4/%s/wfs/' % nucleus
+
+phi_data = np.loadtxt(data_directory+'qp0006_8_8.gfx')
+r_array = phi_data[:, 0]
+dr = r_array[1] - r_array[0]
+phi_array = phi_data[:, 2]
+for ir, iphi in zip(r_array, phi_array):
+    print(ir, iphi)
+    
+# Compute normalization of coordinate-space WF
+# norm_r = np.sum(dr*r_array**2*phi_array)
+norm_r = np.sum(dr*phi_array)
+print(norm_r)
+# Normalization is \int dr u(r)^2 = 2j+1?
+
+# Compute FT of WF
+
+
+# Compute normalization of momentum-space WF
