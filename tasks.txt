@@ -1,7 +1,6 @@
 --- SRC ---
 
 * Work on DNP presentation
-  - Go through again on Wednesday (time)
   - Edits after group meeting (check figure numbers)
 
 * Knock-out reactions
