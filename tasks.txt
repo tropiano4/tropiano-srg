@@ -2,6 +2,7 @@
 
 * Work on DNP presentation
   - Edits after group meeting (check figure numbers)
+  - Practice run through before Tuesday
 
 * Knock-out reactions
   - Figure out how to get \phi_\alpha(p) from codes and Fourier transform
