@@ -2,14 +2,18 @@
 
 * Work on DNP presentation
   - Edits after group meeting (check figure numbers)
+    * Remember to say "such as the generalized contact formalism" as example of phenomenology on slide 2
+    * Change matrix element to < \psi | U^t U O U^t U | \psi > in black then < \psi^low | O^low | \psi^low > in red
+    * Check wording on slide 16: "We can get a good description of proton momentum distributions using just a Skyrme EDF (SLy4) and 2-body physics shifted into the operator"
+    * Add bullet on 24: Note spectroscopic factors are scale and scheme dependent so the RG is the correct way for analyzing them
+    * "Extend to cross sections" -> "Extend to (e,e'p) knockout cross sections"
   - Practice run through before Tuesday
 
 * Knock-out reactions
-  - Figure out how to get \phi_\alpha(p) from codes and Fourier transform
-  - Get correct normalization with example momentum distribution
+  - Start notebook with several s.p. momentum distributions
   - Calculate spectroscopic factor for particular state
-  - Include 3-body terms
-  - Correlated ground state
+  - Analytically calculate 3-body terms
+  - How to do correlated ground state (references?)
   - Read references Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
   - Continue notes
