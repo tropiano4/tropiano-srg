@@ -59,8 +59,12 @@
 #   code.
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import spherical_jn
+# Scripts made by A.T.
+from misc.integration import gaussian_quadrature_mesh
+from potentials.vsrg_macos import vnn
 
 
 def hankel_transformation(L, k_array, r_array, dr):
@@ -91,7 +95,8 @@ def hankel_transformation(L, k_array, r_array, dr):
     # n x m matrices
     r_cols, k_rows = np.meshgrid(r_array, k_array)
         
-    M = dr * r_cols**2 * spherical_jn(L, k_rows * r_cols)
+    # M = dr * r_cols**2 * spherical_jn(L, k_rows * r_cols)
+    M = dr * r_cols * spherical_jn(L, k_rows * r_cols)
 
     return M
 
@@ -104,17 +109,41 @@ data_directory = 'densities/HFBRAD_SLY4/%s/wfs/' % nucleus
 phi_data = np.loadtxt(data_directory+'qp0006_8_8.gfx')
 r_array = phi_data[:, 0]
 dr = r_array[1] - r_array[0]
-phi_array = phi_data[:, 2]
-for ir, iphi in zip(r_array, phi_array):
-    print(ir, iphi)
+phi_r_array = phi_data[:, 2]
+# for ir, iphi in zip(r_array, phi_r_array):
+#     print(ir, iphi)
     
 # Compute normalization of coordinate-space WF
-# norm_r = np.sum(dr*r_array**2*phi_array)
-norm_r = np.sum(dr*phi_array)
+# norm_r = np.sum(dr*r_array**2*phi_r_array)
+norm_r = np.sum(dr*phi_r_array**2)
 print(norm_r)
 # Normalization is \int dr u(r)^2 = 2j+1?
 
-# Compute FT of WF
+# Do I use momentum values possibly negative for p_missing? or same as
+# \delta U?
+# k_array, k_weights = vnn.load_momentum(6, '1S0', 15.0, 3.0, 120)
+k_array, k_weights = gaussian_quadrature_mesh(10.0, 200)
 
+# Compute FT of WF
+ft_matrix = hankel_transformation(0, k_array, r_array, dr)
+phi_k_array = ft_matrix @ phi_r_array
 
 # Compute normalization of momentum-space WF
+norm_k = 2/np.pi * np.sum(k_weights*k_array**2*phi_k_array**2)
+print(norm_k)
+
+# Plot wave functions
+plt.clf()
+plt.plot(r_array, phi_r_array, label=r'$1s_{1/2}$')
+plt.ylabel(r'$\phi(r)$' + ' [fm' + r'$^{-1/2}$' + ']')
+plt.xlabel('r [fm]')
+plt.legend(loc='upper right')
+plt.show()
+
+plt.clf()
+# plt.plot(k_array, phi_k_array, label=r'$1s_{1/2}$')
+plt.semilogy(k_array, phi_k_array**2, label=r'$1s_{1/2}$')
+plt.ylabel(r'$|\phi(k)|^2$' + ' [fm' + r'$^{3}$' + ']')
+plt.xlabel('k [fm' + r'$^{-1}$' + ']')
+plt.legend(loc='upper right')
+plt.show()
