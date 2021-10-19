@@ -21,12 +21,17 @@
 #   06/17/21 --- Added He4 from www.phy.anl.gov/theory/research/density/.
 #   06/30/21 --- Added He8 from www.phy.anl.gov/theory/research/density/.
 #   07/13/21 --- Added Gogny densities to densities/Gogny.
+#   10/19/21 --- Added functions that return occupied single-particle states
+#                of given nucleus. This allows for an organized way of looping
+#                over the occupied states of a nucleus.
 #
 #------------------------------------------------------------------------------
 
 
 from os import getcwd, chdir
 import numpy as np
+# Scripts made by A.T.
+from figures.figures_functions import replace_periods
 
 
 def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
@@ -114,6 +119,129 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     rho_array[zero_case] = 1e-30
     
     return R_array, rho_array
+
+
+def convert_l_to_string(l):
+    """
+    Returns the spectroscopic notation of the orbital angular momentum value
+    l (e.g., l = 2 returns 'd').
+
+    Parameters
+    ----------
+    l : int
+        Orbital angular momentum of the s.p. state.
+
+    Returns
+    -------
+    l_str : str
+        Spectroscopic notation of s.p. state orbital angular momentum.
+
+    """
+
+    if l == 0:
+        return 's'
+    elif l == 1:
+        return 'p'
+    elif l == 2:
+        return 'd'
+    elif l == 3:
+        return 'f'
+    elif l == 4:
+        return 'g'
+    elif l == 5:
+        return 'h'
+    elif l == 6:
+        return 'i'
+    else:
+        print('Input l value is outside the range of this function.')
+        return None
+
+
+def sp_states(nucleus, print_statement=False):
+    """
+    Return all the occupied s.p. states of the given nucleus.
+    
+    Parameters
+    ----------
+    nucleus : tuple
+        Details for various nuclei formatted as a tuple:
+        (name (str), Z (int), N (int)) (e.g., ('O16', 8, 8)).
+    print_statement : bool, optional
+        Option to print information for each s.p. state in nucleus.
+    
+    Returns
+    -------
+    output : list
+        List of lists where the first (second) corresponds to all the occupied
+        neutron (proton) s.p. states, which are strings (e.g., '1s0p5' means
+        1s with j=1/2).
+    
+    Notes
+    -----
+    * Currently we're assuming the SLy4 interaction.
+    
+    """
+    
+    # Get nucleus name, proton number, and neutron number
+    nucleus_name = nucleus[0]
+    Z = nucleus[1]
+    N = nucleus[2]
+    
+    # Go to HFBRAD directory
+    densities_directory = f'densities/HFBRAD_SLY4/{nucleus_name}'
+    file_name = f'hfb_{N}_{Z}.spe'
+    
+    # Open file and add each occupied s.p. state to list
+    neutron_states = []
+    proton_states = []
+    
+    f = open(densities_directory + '/' + file_name, 'r')
+    
+    for line in f:
+        
+        unit = line.strip().split() # Split up row into list
+        
+        # Make sure you're going through the correct data
+        if ( len(unit) == 12 ) and ( unit[0] in ('1', '2') ):
+            
+            # Only do occupied states:
+            if float(unit[6]) == 1:
+            
+                # Integer specifying neutron or proton
+                nucleon_number = unit[0]
+        
+                # j value
+                j = int(unit[1])/2
+        
+                # Orbital angular momentum (int)
+                l = int(unit[2])
+                # Orbital angular momentum (str)
+                l_str = convert_l_to_string(l)
+        
+                # Is this correct? (# of nodes)
+                n = unit[11]
+            
+                # Convert s.p. state to string and append to list
+                state_str = f'{n}{l_str}{j:.1f}'
+            
+                # Add string to neutron or proton list with periods replaced
+                # by 'p'
+                if nucleon_number == '1': # Neutron
+                    neutron_states.append( replace_periods(state_str) )
+                elif nucleon_number == '2': # Proton
+                    proton_states.append( replace_periods(state_str) )
+                
+                # Print information for each state?
+                if print_statement:
+                
+                    info = 'Nuc={:s}, N={:s}, state={:s}'.format(
+                           nucleon_number, unit[4], state_str)
+                    print(info)
+                
+    # Close file
+    f.close()
+    
+    return [neutron_states, proton_states]
 
 
 if __name__ == '__main__':
