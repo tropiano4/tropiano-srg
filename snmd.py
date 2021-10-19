@@ -668,7 +668,7 @@ class single_nucleon_momentum_distributions(object):
         rho_1_array : 1-D ndarray
             Densities as a function of R [fm^-3] for the nucleon corresponding
             to \tau.
-        rho_2_array : 1-D ndarray, optional
+        rho_2_array : 1-D ndarray
             Densities as a function of R [fm^-3] for the nucleon corresponding
             to \tau'.
 
@@ -714,7 +714,7 @@ class single_nucleon_momentum_distributions(object):
         rho_1_array : 1-D ndarray
             Densities as a function of R [fm^-3] for the nucleon corresponding
             to \tau.
-        rho_2_array : 1-D ndarray, optional
+        rho_2_array : 1-D ndarray
             Densities as a function of R [fm^-3] for the nucleon corresponding
             to \tau'.
 
