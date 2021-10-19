@@ -32,6 +32,7 @@
 #   04/27/21 --- Added coupled_channel function and convert_number_to_string,
 #                and updated channel_label_conversion function and
 #                lambda_label_conversion function.
+#   10/19/21 --- Added sp_state_label_conversion function.
 #
 #------------------------------------------------------------------------------
 
@@ -591,6 +592,28 @@ def replace_periods(file_name):
         new_file_name += letter
         
     return new_file_name
+
+
+def sp_state_label_conversion(sp_state):
+    """
+    Convert s.p. state to figure label.
+    
+    Parameters
+    ----------
+    sp_state : str
+        s.p. state as a string (e.g., '1s0p5').
+        
+    Returns
+    -------
+    output : str
+        String for figure label (e.g., '1s_{\frac{1}{2}}').
+        
+    """
+    
+    numerator = 2*int(sp_state[-3]) + 1
+    denominator = 2
+    
+    return r'$%s_{%d/%d}$' % (sp_state[:2], numerator, denominator)
     
 
 def xkcd_colors(curve_number):
