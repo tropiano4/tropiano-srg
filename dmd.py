@@ -159,9 +159,9 @@ class deuteron_momentum_distributions(object):
 
         Parameters
         ----------
-        q_mesh : 4-D ndarray
+        q_mesh : 2-D ndarray
             Momentum values [fm^-1].
-        kF_mesh : 4-D ndarray
+        kF_mesh : 2-D ndarray
             Deuteron Fermi momentum [fm^-1] with respect to R.
 
         Returns

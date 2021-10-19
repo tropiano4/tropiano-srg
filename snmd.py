@@ -218,9 +218,9 @@ class single_nucleon_momentum_distributions(object):
 
         Parameters
         ----------
-        q_mesh : 4-D ndarray
+        q_mesh : 2-D ndarray
             Momentum values [fm^-1].
-        kF1_mesh : 4-D ndarray
+        kF1_mesh : 2-D ndarray
             Fermi momentum [fm^-1] for the nucleon corresponding to \tau with
             respect to R.
 
