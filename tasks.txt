@@ -1,11 +1,9 @@
 --- SRC ---
 
-* Work on DNP presentation
-  - Practice run through before Tuesday
-
 * Knock-out reactions
-  - Start notebook with several s.p. momentum distributions
   - Calculate spectroscopic factor for particular state
+    * Consistency with volume factors Eq. (4)
+    * Connect to S- and D-state of deuteron?
   - Analytically calculate 3-body terms
   - How to do correlated ground state (references?)
   - Read references Yang, More
