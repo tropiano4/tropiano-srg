@@ -2,8 +2,8 @@
 
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
-    * Consistency with volume factors Eq. (4)
-    * Connect to S- and D-state of deuteron?
+    * Derivation (add to Overleaf)
+    * Jupiter notebook
   - Analytically calculate 3-body terms
   - How to do correlated ground state (references?)
   - Read references Yang, More
