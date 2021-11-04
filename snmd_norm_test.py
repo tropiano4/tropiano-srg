@@ -59,6 +59,7 @@ from densities import load_density
 from figures import figures_functions as ff
 from potentials.vsrg_macos import vnn
 from snmd import single_nucleon_momentum_distributions
+from run_srg import run_srg
 
 
 # Load data from the following directory
@@ -86,14 +87,17 @@ xlim = (0.0, 5.0)
 ylim = (1e-2, 1e3)
 
 # Set potential and other inputs
-kvnn = 6
-lambda_array = np.array([1.35])
+# kvnn = 6
+kvnn = 10
+# lambda_array = np.array([1.35])
+# lambda_array = np.array([1.5])
+lambda_array = np.array([2.0])
 # lambda_array = np.array([6.0, 3.0, 2.0, 1.35])
 # kmax, kmid, ntot = 10.0, 2.0, 120
-kmax, kmid, ntot = 15.0, 3.0, 120
-# kmax, kmid, ntot = 30.0, 4.0, 120
-# nuclei_list = [ ['O16', 8, 8] ]
-nuclei_list = [ ['Pb208', 82, 126] ]
+# kmax, kmid, ntot = 15.0, 3.0, 120
+kmax, kmid, ntot = 30.0, 4.0, 120
+nuclei_list = [ ['O16', 8, 8] ]
+# nuclei_list = [ ['Pb208', 82, 126] ]
 # nuclei_list = ( ('O16', 8, 8), ('Ca40', 20, 20), ('Pb208', 82, 126) )
 # nuclei_list = ( ('C12', 6, 6), ('Ca40', 20, 20) )
 # nuclei_list = ( ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
@@ -104,14 +108,18 @@ channels = ('1S0', '3S1')
 # Load momentum (channel argument doesn't matter here)
 q_array, q_weights = vnn.load_momentum(kvnn, '3S1', kmax, kmid, ntot)
 
-interp = True
-# interp = False
+# interp = True
+interp = False
 
 # Loop over lambda
 for lamb in lambda_array:
     
     # Initialize single-nucleon momentum distributions class for given
     # potential
+    # if kvnn != 6:
+    #     for channel in channels:
+    #         d = run_srg(kvnn, channel, kmax, kmid, ntot, 'Wegner', lambda_array)
+    
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
                                                  kmid, ntot, 'Wegner', interp)
     
