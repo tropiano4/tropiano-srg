@@ -2,8 +2,10 @@
 
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
-    * Derivation (add to Overleaf)
+    * Derivation iPad first (add to Overleaf)
     * Jupiter notebook
+      - Compare to single-nucleon momentum distributions using SM states
+  - Read Barbieri paper
   - Analytically calculate 3-body terms
   - How to do correlated ground state (references?)
   - Read references Yang, More
@@ -30,6 +32,7 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
+* Barbieri_2009ej
 * Yang_2013rza
 * More_2017syr
 * Anderson_2010aq (Bloch-Horowitz section)
