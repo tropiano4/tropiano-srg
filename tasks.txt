@@ -33,6 +33,7 @@
 
 --- Reading list ---
 * Barbieri_2009ej
+* Knockout reactions (see DF papers)
 * Yang_2013rza
 * More_2017syr
 * Anderson_2010aq (Bloch-Horowitz section)
