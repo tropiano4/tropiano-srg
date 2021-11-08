@@ -1,0 +1,41 @@
+--- Dissertation outline ---
+
+* Introductory stuff
+  -Title page (see example)
+  -Long abstract
+  -Acknowledgements
+  -CV (see example)
+  -Table of contents
+  -List of Figures, Tables, Abbreviations
+
+1. Background and SRG
+   - Low resolution vs high resolution: Simplifications (IMSRG, ab initio, etc.)
+   - Use IMSRG to transition to Magnus expansion
+2. The Magnus expansion
+   - Intruder states in IMSRG
+   - Test problem with spurious, deeply bound states
+   - Magnus formalism
+   - Results
+3. Operator evolution
+   - Universality
+   - Wave functions (define SRCs here)
+   - Other operators (regularization schemes)
+   - SRG generators or Block-diagonal SRG evolution
+4. Factorization
+   - Connection to experiment: extracting/calculating process independent quantities
+   - Highlight scale and scheme dependence
+   - Numerical tests
+5. Momentum distributions
+   - Background
+   - Low resolution vs high resolution: Simplifications (some history?)
+   - Second-quantization formalism
+   - Momentum distributions and SRC phenomenologies (results)
+   - UQ project here?
+6. Spectroscopic factors
+   - Background (LRCs too)
+   - Formalism
+   - Results
+7. Summary and outlook
+
+* References
+* Appendices
