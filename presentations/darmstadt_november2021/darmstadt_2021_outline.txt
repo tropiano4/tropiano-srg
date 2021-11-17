@@ -18,7 +18,7 @@ Short-range correlation physics at low RG resolution
    * Mathematical details: Flow equation, unitarity, etc.
    [Figures: AV18 decoupling under two SRG generators]
 
-3. SRG (deuteron)
+3. SRG (deuteron wave functions)
    * Comparison of deuteron wave functions at high- and low-RG resolution
    * Takeaways
    * Figures: AV18/N2LO deuteron wave functions initial and SRG-evolved
@@ -31,6 +31,7 @@ Short-range correlation physics at low RG resolution
 5. Momentum distributions at low RG resolution (formulas)
   * Momentum distribution operators (single-nucleon and pair)
   * SRG transformation in second quantization
+    - QUESTION: Why isn't there a 1-body term?
   * Expand out the various terms
   * Circle the 2-body high momentum tail component (explain why everything else is small)
   (mostly formulas)
@@ -41,13 +42,17 @@ Short-range correlation physics at low RG resolution
 
 7. Factorization
   * Factorization -> cancellation in ratios -> scaling (A/d ratios)
+    - QUESTION: Why does it factorize?
   (mostly formulas)
 
 8. Momentum distributions at low RG resolution
   * Why low resolution? (Motivation: methods that rely on soft interactions work well!)
+  * Strategy: How much can we describe with simple approximations?
   * HF treated in LDA for A-body low momentum nuclear matrix element (free Fermi gas)
   (maybe flash back to previous slide with this circled part?)
   [Figures: Nuclear hockey stick]
+
+QUESTION: How do momentum distributions relate to inclusive cross sections in knockout reactions?
 
 9. Proton momentum distributions
   * Background detail of calculation: using EDFs from SLy4 and HFBRAD code
@@ -62,6 +67,7 @@ Short-range correlation physics at low RG resolution
 11. SRC scaling factors
   * Experimental definition of a_2
   * Details of theoretical calculation
+    - QUESTION: Why is a2 given by these integrals?
   * Takeaways
   [Figures: A/d cross sections, a_2 plot]
 
