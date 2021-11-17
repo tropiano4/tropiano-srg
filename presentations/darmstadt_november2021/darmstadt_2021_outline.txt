@@ -86,7 +86,7 @@ Short-range correlation physics at low RG resolution
   * Use SRG in analyzing spectroscopic factors (transition?)
   [Figures: Gade plot]
 
-15. Spectroscopic factors
+15. Spectroscopic factors (could be expanded)
   * Definition at high RG resolution and issue
   * Quenching
   * Low RG resolution idea
