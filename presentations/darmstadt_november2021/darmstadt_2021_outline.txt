@@ -8,14 +8,14 @@ Short-range correlation physics at low RG resolution
    * Outline of talk: SRC calculations at low RG resolution and connecting to existing
     phenomenology (GCF/LCA)
    * How are SRC pairs defined? Depends on scale and scheme!
-   * High and low RG wave function or momentum distributions
+   * High and low RG wave function/momentum distributions
    * High and low RG operators (current)
    * Takeaways
    [Figures: High/low RG resolution momentum distributions, knockout diagrams]
 
 2. SRG (formalism)
    * Motivation: Use the SRG to change to scale to low RG resolution set by \lambda
-   * Mathematical details
+   * Mathematical details: Flow equation, unitarity, etc.
    [Figures: AV18 decoupling under two SRG generators]
 
 3. SRG (deuteron)
@@ -33,7 +33,7 @@ Short-range correlation physics at low RG resolution
   * SRG transformation in second quantization
   * Expand out the various terms
   * Circle the 2-body high momentum tail component (explain why everything else is small)
-  (mostly formulas -> see SB talk)
+  (mostly formulas)
 
 6. Deuteron example
   * Formulas for the contributions to deuteron (step through)
@@ -41,7 +41,7 @@ Short-range correlation physics at low RG resolution
 
 7. Factorization
   * Factorization -> cancellation in ratios -> scaling (A/d ratios)
-  (mostly formulas -> see SB talk)
+  (mostly formulas)
 
 8. Momentum distributions at low RG resolution
   * Why low resolution? (Motivation: methods that rely on soft interactions work well!)
@@ -100,9 +100,15 @@ Short-range correlation physics at low RG resolution
 * Extras
 
 
-* Ideas from SB/DF talks *
+QUESTIONS:
+1. Should I add an outline?
+2. Should there be a references slide?
+3. Ask for spectroscopic factors and IPM/LRC/SRC figures from DF
 
-  - Maybe try expanding your introductory slide out a bit more like SB.
+
+* Ideas *
+
+  - Maybe try expanding your introductory slide out a bit more.
     Two pictures: high and low resolution defined in terms of wave functions/momentum distributions.
     Then the operator comparison.
     Then the takeaway points (same as before).
@@ -110,11 +116,11 @@ Short-range correlation physics at low RG resolution
   - Outline of talk: doing SRC calculations at low RG resolution and connecting to existing
     phenomenology (GCF/LCA)
 
-  - Add more formulas to show how you evaluate momentum distributions (see SB early slides and 11)
+  - Add more formulas to show how you evaluate momentum distributions
 
   - Add a simple methods work slide (e.g., nuclear hockey stick?)
 
-  - Add explanatory equation on pp/pn slide (see SB talk)
+  - Add equations on pp/pn slide
 
   - Add figure of spectroscopic factors and IPM/LRC/SRC
  
