@@ -1,7 +1,26 @@
 --- SRC ---
 
+* Darmstadt seminar (have answers prepared for these and/or edits done before)
+  - Edits:
+    1. Add local density approximation slide
+       * Evaluation of < \Psi_A^\lambda | ... | \Psi_A^\lambda >
+       * Only consider states occupied up to the Fermi momentum k_F^\tau(R)
+         (where \tau specifies proton/neutron) and we average over R.
+       * Equation showing matrix element giving \int d3R \theta's
+    2. Replace S/(2J+1) figure with higher resolution one
+  - Questions to consider:
+    1. Why isn't there a 1-body term in the expansion of U_\lambda?
+    2. Add Leading order operator product expansion to factorization slide
+       (e.g., Wilson coefficient, contact) and read how the operator product
+       expansion works.
+    3. Why do the \delta U terms factorize?
+    4. How do momentum distributions relate to inclusive cross sections in knockout reactions?
+    5. Why is a2 given by these integrals?
+
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
+    * Derivations
+      - Flesh out iPad derivations (make presentable)
     * Jupyter notebook
       - Compare to single-nucleon momentum distributions using SM states
   - Add full derivation to Overleaf
