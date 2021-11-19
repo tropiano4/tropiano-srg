@@ -50,19 +50,27 @@ Short-range correlation physics at low RG resolution
   * HF treated in LDA for A-body low momentum nuclear matrix element (free Fermi gas)
   [Figures: Nuclear hockey stick]
 
-9. Local density approximation
+9. Single-nucleon momentum distribution
+  * Start with operator sandwiched with | \Psi_A^\lambda >
+  * Take continuum limit
+  * Evaluate matrix elements assuming HF+LDA (e.g., \delta U term)
+    < \Psi_A^\lambda | a^\dagger a^\dagger a a |\Psi_A^\lambda > ~ \int d^3R \delta(k-k') \theta's
+    - Occupied up to kF(R) and averaging over kF(R) with integration over R
+  * Angle-average to evaluate angular dependence of K_vec \dot k_vec, etc.
+  * Write in terms of partial waves: \bra{k1 \sigma1 \tau1 ... > = ...
+  * Overlay final formula
 
-9. Proton momentum distributions
+10. Proton momentum distributions
   * Background detail of calculation: using EDFs from SLy4 and HFBRAD code
   * Comparing to calculations by AV18 QMC
   * Takeaways
   [Figures: Single-nucleon momentum distributions compared to AV18]
 
-10. Universality
+11. Universality
   * Show 2-body dependence of tail (universality)
   [Figures: Overlaying single-nucleon momentum distributions on the same plot]
 
-11. SRC scaling factors
+12. SRC scaling factors
   * Experimental definition of a_2
   * Related to ratio of bound-nucleon probability distributions in the limits of vanishing
     relative distance or equivalently, infinitely high relative momentum
@@ -71,7 +79,7 @@ Short-range correlation physics at low RG resolution
   * Takeaways
   [Figures: A/d cross sections, a_2 plot]
 
-12. SRC phenomenology (pp/pn)
+13. SRC phenomenology (pp/pn)
   * Discuss CLAS figure highlighting dominance of pn pairs
   * Focus on Figure on the right:
     - Shows the pair fraction comparing pn and pp pairs.
@@ -90,25 +98,25 @@ Short-range correlation physics at low RG resolution
     - Add explanatory equation on pp/pn slide.
   [Figures: CLAS figure, 3S1/1S0 figure, pp/pn figure]
 
-13. SRC phenomenology (p/n)
+14. SRC phenomenology (p/n)
   * Isospin dependence and takeaway
   [Figures: (pp+pn)/(nn+np) ratio]
 
-14. Exclusive knockout reactions
+15. Exclusive knockout reactions
   * Explain figure.
   * Discuss exp/th < 1.
   * Crucial for structure and operator to be treated at the same RG resolution scale.
   * Use SRG in analyzing spectroscopic factors (as transition) working on (e,e'p) first.
   [Figures: Gade plot]
 
-15. Spectroscopic factors
+16. Spectroscopic factors
   * Definition at high RG resolution.
   * Reduction and first figure.
   * Explain LRC/SRC.
   * Idea with SRG.
   [Figures: Spectroscopic factors from DF talk, IPM/LRC/SRC figure from DF talk]
 
-16. Summary and outlook
+17. Summary and outlook
   * Spectroscopic factors for (e,e'p)
   * SRG with optical potentials (hadronic probes)
   * Uncertainty quantification
