@@ -4,7 +4,7 @@ Short-range correlation physics at low RG resolution
 
 * Title slide
 
-1. Motivation CHECK
+1. Motivation
    * Outline of talk: SRC calculations at low RG resolution and connecting to existing
     phenomenology (GCF/LCA)
    * How are SRC pairs defined? Depends on scale and scheme!
@@ -13,102 +13,99 @@ Short-range correlation physics at low RG resolution
    * Takeaways
    [Figures: High/low RG resolution momentum distributions, knockout diagrams]
 
-2. SRG (formalism) CHECK
+2. SRG (formalism)
    * Motivation: Use the SRG to change to scale to low RG resolution set by \lambda
    * Mathematical details: Flow equation, unitarity, etc.
    [Figures: AV18 decoupling under two SRG generators]
 
-3. SRG (deuteron wave functions) CHECK
+3. SRG (deuteron wave functions)
    * Comparison of deuteron wave functions at high- and low-RG resolution
    * Takeaways
-   * Figures: AV18/N2LO deuteron wave functions initial and SRG-evolved
+   [Figures: AV18/N2LO deuteron wave functions initial and SRG-evolved]
 
-4. Transition slide CHECK
+4. Transition slide
   * SRC physics shifted to operator (show matrix element)
   * Look at evolution of \ataq and evaluation of <\psi_d|\ataq|\psi_d>
   [Figures: Contours of \ataq and integrand of <\psi_d|\ataq|\psi_d>]
 
-5. Momentum distributions at low RG resolution (formulas) CHECK
+5. Momentum distributions at low RG resolution (formulas)
   * Momentum distribution operators (single-nucleon and pair)
   * SRG transformation in second quantization
-    - QUESTION: Why isn't there a 1-body term?
   * Expand out the various terms
-  * Circle the 2-body high momentum tail component (explain why everything else is small)
+  * Circle the 2-body high momentum tail component
   (mostly formulas)
 
-6. Deuteron example CHECK
+6. Deuteron example
   * Formulas for the contributions to deuteron (step through)
   * Maybe add more details as in SB talk (Leading order operator product expansion)
   [Figures: Contributions to the deuteron momentum distribution]
 
-7. Factorization CHECK
+7. Factorization
   * Factorization -> cancellation in ratios -> scaling (A/d ratios)
-    - QUESTION: Why does it factorize?
   (mostly formulas)
 
-8. Why low resolution? CHECK
+8. Why low resolution?
   * Motivation: methods that rely on soft interactions work well!
   * Strategy: How much can we describe with simple approximations?
   * HF treated in LDA for A-body low momentum nuclear matrix element (free Fermi gas)
-  (maybe flash back to previous slide with this circled part?)
   [Figures: Nuclear hockey stick]
 
-QUESTION: How do momentum distributions relate to inclusive cross sections in knockout reactions?
+9. Local density approximation
 
-9. Proton momentum distributions CHECK
+9. Proton momentum distributions
   * Background detail of calculation: using EDFs from SLy4 and HFBRAD code
   * Comparing to calculations by AV18 QMC
   * Takeaways
   [Figures: Single-nucleon momentum distributions compared to AV18]
 
-10. Universality CHECK
-  * Flash back formula showing 2-body dependence of tail -> universality
+10. Universality
+  * Show 2-body dependence of tail (universality)
   [Figures: Overlaying single-nucleon momentum distributions on the same plot]
 
-11. SRC scaling factors CHECK
+11. SRC scaling factors
   * Experimental definition of a_2
   * Related to ratio of bound-nucleon probability distributions in the limits of vanishing
     relative distance or equivalently, infinitely high relative momentum
   * The short-distance internucleon behavior in nuclei is characterized by the A=2 universal functions
   * Details of theoretical calculation
-    - QUESTION: Why is a2 given by these integrals?
   * Takeaways
   [Figures: A/d cross sections, a_2 plot]
 
 12. SRC phenomenology (pp/pn)
   * Discuss CLAS figure highlighting dominance of pn pairs
-    Focus on Figure on the right:
-	Shows the pair fraction comparing pn and pp pairs.
-	The np pairs dominate at about 400 MeV.
-	At high RG resolution, tensor force/repulsive core of the NN interaction kick nucleon pairs into SRC pairs
-        The np dominates because the tensor force requires spin triplet pairs whereas pp are spin singlets
-	Can we describe this physics at low RG resolution?
-    At low RG resolution, SRCs are suppressed in the wave function and shifted into the operator
-    U \ataq U = U(k,q)U(q,k').
-    Take ratio of 3S1 and 1S0 SRG transformations fixing low momentum scales (k and k'~0.1 fm^-1)
-  * Tensor force and pn dominance
-  * Discuss low RG resolution picture: shifted into operator
-  * Look at ratio of 3S1/1S0!
-  * This is reflected in the pair momentum distributions at Q=0
-  * Add explanatory equation on pp/pn slide (see SB talk)
-  * Takeaway
+  * Focus on Figure on the right:
+    - Shows the pair fraction comparing pn and pp pairs.
+    - The np pairs dominate at about 400 MeV.
+    - At high RG resolution, tensor force/repulsive core of the NN interaction kick nucleon pairs into SRC pairs.
+    - The np dominates because the tensor force requires spin triplet pairs whereas pp are spin singlets.
+    - Can we describe this physics at low RG resolution?
+  * Following slide:
+    - At low RG resolution, SRCs are suppressed in the wave function and shifted into the operator.
+    - Explain U \ataq U = U(k,q)U(q,k').
+    - Take ratio of 3S1 and 1S0 SRG transformations fixing low momentum scales (k and k'~0.1 fm^-1).
+    - Tensor force and pn dominance is evident.
+  * Following slide:
+    - Explain figure.
+    - Reproduces characteristics of cross section ratios.
+    - Add explanatory equation on pp/pn slide.
   [Figures: CLAS figure, 3S1/1S0 figure, pp/pn figure]
 
 13. SRC phenomenology (p/n)
   * Isospin dependence and takeaway
   [Figures: (pp+pn)/(nn+np) ratio]
 
-14. Gade plot
-  * Other exclusive knockout reactions
-  * Discuss exp/th < 1
-  * Crucial for structure and operator to be treated at the same RG resolution scale
-  * Use SRG in analyzing spectroscopic factors (transition?)
+14. Exclusive knockout reactions
+  * Explain figure.
+  * Discuss exp/th < 1.
+  * Crucial for structure and operator to be treated at the same RG resolution scale.
+  * Use SRG in analyzing spectroscopic factors (as transition) working on (e,e'p) first.
   [Figures: Gade plot]
 
-15. Spectroscopic factors (could be expanded)
-  * Definition at high RG resolution and issue
-  * Quenching
-  * Low RG resolution idea
+15. Spectroscopic factors
+  * Definition at high RG resolution.
+  * Reduction and first figure.
+  * Explain LRC/SRC.
+  * Idea with SRG.
   [Figures: Spectroscopic factors from DF talk, IPM/LRC/SRC figure from DF talk]
 
 16. Summary and outlook
