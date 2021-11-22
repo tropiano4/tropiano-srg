@@ -2,20 +2,17 @@
 
 * Darmstadt seminar (have answers prepared for these and/or edits done before)
   - Edits:
-    1. Add local density approximation slide
-       * Evaluation of < \Psi_A^\lambda | ... | \Psi_A^\lambda >
-       * Only consider states occupied up to the Fermi momentum k_F^\tau(R)
-         (where \tau specifies proton/neutron) and we average over R.
-       * Equation showing matrix element giving \int d3R \theta's
-    2. Replace S/(2J+1) figure with higher resolution one
+    * Finish slides 52-57 working on notes at the bottom (don't forget caption!)
+    * Check figure numbers and other minor edits
+    * Add experimental extras for how the experiments detect SRC pairs (extras)
+    * Add universality slide of wave functions (extras)
+    * Factorization slide with sketch of derivation (extras)
+
   - Questions to consider:
-    1. Why isn't there a 1-body term in the expansion of U_\lambda?
-    2. Add Leading order operator product expansion to factorization slide
-       (e.g., Wilson coefficient, contact) and read how the operator product
-       expansion works.
-    3. Why do the \delta U terms factorize?
-    4. How do momentum distributions relate to inclusive cross sections in knockout reactions?
-    5. Why is a2 given by these integrals?
+    * Better understand how SRC pairs are detected.
+    * Better understanding of how to explain factorization.
+    * Come up with a clear reason for why \sigma_SRC -> 0 when mismatched structure/reactions where
+      it's \sigma_(e,e'p) > \sigma_exp when mismatched.
 
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
