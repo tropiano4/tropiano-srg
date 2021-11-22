@@ -3,10 +3,13 @@
 * Darmstadt seminar (have answers prepared for these and/or edits done before)
   - Edits:
     * Finish slides 52-57 working on notes at the bottom (don't forget caption!)
+      (reverse order of this slide)
     * Check figure numbers and other minor edits
+    * Put in Dropbox
     * Add experimental extras for how the experiments detect SRC pairs (extras)
     * Add universality slide of wave functions (extras)
     * Factorization slide with sketch of derivation (extras)
+    * Put in Dropbox
 
   - Questions to consider:
     * Better understand how SRC pairs are detected.
