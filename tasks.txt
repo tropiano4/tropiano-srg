@@ -1,28 +1,5 @@
 --- SRC ---
 
-* Darmstadt seminar (have answers prepared for these and/or edits done before)
-  - Edits:
-    * Finish slides 52-57 working on notes at the bottom (don't forget caption!)
-        -Start with exclusive knockout e,e'p reactions
-        -Go over general picture/description (using \sigma_reduced figure)
-	-Mention lower momentum than SRC physics
-	-Need a reduction of cross sections to agree with experiment
-        -Further, this has a systematic dependence on \Delta S (explain Gade plots)
-        -Can understand using RG, mismatch of scales
-        -Focusing on (e,e'p) spectroscopic factors first using SRG
-    * Put in Dropbox
-    * Add experimental extras for how the experiments detect SRC pairs (extras)
-    * Add universality slide of wave functions (extras)
-    * Factorization slide with sketch of derivation (extras)
-    * Put in Dropbox
-
-  - Questions to consider:
-    * Better understand how SRC pairs are detected.
-    * Why is deuteron \ataq and pair the same?
-    * Better understanding of how to explain factorization.
-    * Come up with a clear reason for why \sigma_SRC -> 0 when mismatched structure/reactions where
-      it's \sigma_(e,e'p) > \sigma_exp when mismatched.
-
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
     * Derivations
