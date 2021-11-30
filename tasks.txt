@@ -2,18 +2,18 @@
 
 * Knock-out reactions
   - Calculate spectroscopic factor for particular state
-    * Derivations
-      - Flesh out iPad derivations (make presentable)
-    * Jupyter notebook
-      - Compare to single-nucleon momentum distributions using SM states
+    * Flesh out iPad derivations (make presentable)
+    * WT to a^t ( I + a^t a^t a a + a^t a^t a^t a a a) a (I + a^t a^t a a + a^t a^t a^t a a a)
+      and truncate 4-body and higher
+    * Fully uncorrelated states \Psi_\lambda -> means you can take a^t out of A-1 WF
+    * In HF calculation, one configuration: \Psi is filled by s.p. states for closed shell
+    * In LDA calculation, \Psi is Fermi gas averaging over kF(R)
+  - Compute with spectroscopic_factors.ipynb
   - Add full derivation to Overleaf
   - Read Barbieri paper
-  - Analytically calculate 3-body terms
   - How to do correlated ground state (references?)
   - Read references Yang, More
     * Add summary/takeaways to Overleaf notes (questions!)
-  - Continue notes
-    * Fill in introductory stuff for spectroscopic factors
   - Approximations for electrodisintegration?
   - Inclusion of FSIs
 
