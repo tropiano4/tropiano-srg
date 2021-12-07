@@ -1,7 +1,9 @@
 --- SRC ---
 
 * Knock-out reactions
+  - Add proof of disconnected diagrams giving 0 in evolved SF
   - Literature review
+  - Add summaries to Overleaf
   - Check if disconnected diagrams cancel in SF derivation
   - Calculate spectroscopic factor for particular state
     * Flesh out iPad derivations (make presentable)
@@ -36,7 +38,7 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
-* Schiffer_2012zz
+* Macfarlane_1960zz
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
 * More_2017syr
