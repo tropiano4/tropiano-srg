@@ -1,6 +1,8 @@
 --- SRC ---
 
 * Knock-out reactions
+  - Literature review
+  - Check if disconnected diagrams cancel in SF derivation
   - Calculate spectroscopic factor for particular state
     * Flesh out iPad derivations (make presentable)
     * WT to a^t ( I + a^t a^t a a + a^t a^t a^t a a a) a (I + a^t a^t a a + a^t a^t a^t a a a)
