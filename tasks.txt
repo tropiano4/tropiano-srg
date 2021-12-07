@@ -36,14 +36,14 @@
     where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
+* Schiffer_2012zz
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
-* Yang_2013rza
 * More_2017syr
 * Anderson_2010aq (Bloch-Horowitz section)
 * Tostevin_2014usa
 * Wylie_2021uot
-* FW Chapter 17, 59-60
+* FW Chapter 60
 * Order "Electromagnetic response of atomic nuclei" Boffi (1996)
 * NO Chapter 5
 * Sammarruca_2021bpn
