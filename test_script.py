@@ -55,95 +55,15 @@
 
 
 # Description of this test:
-#   Testing Fourier transformation of s.p. wave functions from SLy4 and HFBRAD
-#   code.
+#   Testing pandas to see if this is a better way to store SRG files of
+#   potentials.
 
 
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import spherical_jn
+import pandas as pd
 # Scripts made by A.T.
-from misc.integration import gaussian_quadrature_mesh
 from potentials.vsrg_macos import vnn
 
-
-def hankel_transformation(L, k_array, r_array, dr):
-    """
-    <k|r> transformation matrix for given orbital angular momentum L. If
-    len(r_array) = m and len(k_array) = n, then this function returns an 
-    n x m matrix.
-    
-    Parameters
-    ----------
-    L : int
-        Orbital angular momentum.
-    k_array : 1-D ndarray
-        Momentum array [fm^-1].
-    r_array : 1-D ndarray
-        Coordinates array [fm].
-    dr : float
-        Coordinates step-size (weight) [fm].
-        
-    Returns
-    -------
-    M : 2-D ndarray
-        Hankel transformation matrix [fm^3\2].
-
-    """
-
-    # r_array column vectors and k_array row vectors where both grids are
-    # n x m matrices
-    r_cols, k_rows = np.meshgrid(r_array, k_array)
-        
-    # M = dr * r_cols**2 * spherical_jn(L, k_rows * r_cols)
-    M = dr * r_cols * spherical_jn(L, k_rows * r_cols)
-
-    return M
-
-# Set nucleus
-nucleus = 'O16'
-
-# Load phi_\alpha(r)
-data_directory = 'densities/HFBRAD_SLY4/%s/wfs/' % nucleus
-
-phi_data = np.loadtxt(data_directory+'qp0006_8_8.gfx')
-r_array = phi_data[:, 0]
-dr = r_array[1] - r_array[0]
-phi_r_array = phi_data[:, 2]
-# for ir, iphi in zip(r_array, phi_r_array):
-#     print(ir, iphi)
-    
-# Compute normalization of coordinate-space WF
-# norm_r = np.sum(dr*r_array**2*phi_r_array)
-norm_r = np.sum(dr*phi_r_array**2)
-print(norm_r)
-# Normalization is \int dr u(r)^2 = 2j+1?
-
-# Do I use momentum values possibly negative for p_missing? or same as
-# \delta U?
-# k_array, k_weights = vnn.load_momentum(6, '1S0', 15.0, 3.0, 120)
-k_array, k_weights = gaussian_quadrature_mesh(10.0, 200)
-
-# Compute FT of WF
-ft_matrix = hankel_transformation(0, k_array, r_array, dr)
-phi_k_array = ft_matrix @ phi_r_array
-
-# Compute normalization of momentum-space WF
-norm_k = 2/np.pi * np.sum(k_weights*k_array**2*phi_k_array**2)
-print(norm_k)
-
-# Plot wave functions
-plt.clf()
-plt.plot(r_array, phi_r_array, label=r'$1s_{1/2}$')
-plt.ylabel(r'$\phi(r)$' + ' [fm' + r'$^{-1/2}$' + ']')
-plt.xlabel('r [fm]')
-plt.legend(loc='upper right')
-plt.show()
-
-plt.clf()
-# plt.plot(k_array, phi_k_array, label=r'$1s_{1/2}$')
-plt.semilogy(k_array, phi_k_array**2, label=r'$1s_{1/2}$')
-plt.ylabel(r'$|\phi(k)|^2$' + ' [fm' + r'$^{3}$' + ']')
-plt.xlabel('k [fm' + r'$^{-1}$' + ']')
-plt.legend(loc='upper right')
-plt.show()
+dates = pd.date_range("20130102", periods=6)
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list("ABCD"))
+print(df)
