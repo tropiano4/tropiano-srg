@@ -1,7 +1,6 @@
 --- SRC ---
 
 * Knock-out reactions
-  - Add proof of disconnected diagrams giving 0 in evolved SF
   - Literature review
   - Add summaries to Overleaf
   - Check if disconnected diagrams cancel in SF derivation
@@ -68,7 +67,6 @@
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 
 --- SRG ---
- * Load and save evolved potentials from data frame?
  * SRG solver options
    - ode or solve_ivp, evolve w.r.t. s or \lambda
  * Try solving for U(s) or \delta U(s) instead
