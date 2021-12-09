@@ -2,13 +2,9 @@
 
 * Knock-out reactions
   - Literature review
+    * 2021 Schiffer (is it scale and scheme dependent)
   - Add summaries to Overleaf
-  - Check if disconnected diagrams cancel in SF derivation
-  - Calculate spectroscopic factor for particular state
-    * Flesh out iPad derivations (make presentable)
-    * WT to a^t ( I + a^t a^t a a + a^t a^t a^t a a a) a (I + a^t a^t a a + a^t a^t a^t a a a)
-      and truncate 4-body and higher
-    * Fully uncorrelated states \Psi_\lambda -> means you can take a^t out of A-1 WF
+  - Try calculating first 3 diagrams under Fermi gas model
     * In HF calculation, one configuration: \Psi is filled by s.p. states for closed shell
     * In LDA calculation, \Psi is Fermi gas averaging over kF(R)
   - Compute with spectroscopic_factors.ipynb
