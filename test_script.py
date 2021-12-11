@@ -55,15 +55,57 @@
 
 
 # Description of this test:
-#   Testing pandas to see if this is a better way to store SRG files of
-#   potentials.
+#   Test rewriting \delta U^\dagger(k,k) as \delta U \delta U^\dagger term.
 
 
 import numpy as np
-import pandas as pd
 # Scripts made by A.T.
 from potentials.vsrg_macos import vnn
+from srg.srg_unitary_transformation import SRG_unitary_transformation
 
-dates = pd.date_range("20130102", periods=6)
-df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list("ABCD"))
-print(df)
+
+# Set-up
+kvnn = 6
+channel = '1S0'
+kmax, kmid, ntot = 15.0, 3.0, 120
+generator = 'Wegner'
+lamb = 1.35
+
+
+# Load momentum arrays
+k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid, ntot)
+
+# For dividing out momenta/weights
+factor_array = np.sqrt( (2*k_weights) / np.pi ) * k_array
+
+# Load SRG transformation
+H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot, 'srg',
+                                 generator, lamb)
+# Load U(k, k') [unitless]
+U_matrix_unitless = SRG_unitary_transformation(H_initial, H_evolved)
+
+# Isolate 2-body term and convert to fm^3
+I_matrix_unitless = np.eye(ntot, ntot)
+row, col = np.meshgrid(factor_array, factor_array)
+delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
+delta_U_matrix = delta_U_matrix_unitless / row / col # fm^3
+
+# Should have \delta U(k,k) = -1/2 (2/\pi) \int dq q^2 \delta U(k, q)
+#                           x \delta U^\dagger(q, k)
+# Test by taking difference in two arrays with respect to k
+
+deltaU_array = np.diag(delta_U_matrix)
+
+q_row, q_col = np.meshgrid(k_array * np.sqrt(k_weights),
+                           k_array * np.sqrt(k_weights), indexing='ij')
+integrand = q_row * q_col * delta_U_matrix**2
+deltaU2_array = -1/2* 2/np.pi * np.sum(integrand, axis=-1)
+
+# Compute integral over k
+print( np.sum(k_array**2 * k_weights * deltaU_array) )
+print( np.sum(k_array**2 * k_weights * deltaU2_array) )
+
+
+
+
