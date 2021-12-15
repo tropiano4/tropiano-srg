@@ -4,10 +4,10 @@
   - Literature review
     * 2021 Schiffer (is it scale and scheme dependent)
   - Add summaries to Overleaf
-  - Try calculating first 3 diagrams under Fermi gas model
-    * In HF calculation, one configuration: \Psi is filled by s.p. states for closed shell
-    * In LDA calculation, \Psi is Fermi gas averaging over kF(R)
   - Compute with spectroscopic_factors.ipynb
+    * Recap. SNMD case for \sigma and \tau pieces
+    * What are labels for a_p? Is it a_{p, \sigma, \tau} or \Sigma_\sigma a_{p, \sigma, \tau}?
+    * How do the two cases change the answer? (Factor of 1/2?)
   - Add full derivation to Overleaf
   - Read Barbieri paper
   - How to do correlated ground state (references?)
