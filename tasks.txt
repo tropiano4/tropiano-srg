@@ -1,20 +1,17 @@
 --- SRC ---
 
-* Knock-out reactions
+* Knock-out reactions and spectroscopic factors
   - Literature review
-    * 2021 Schiffer (is it scale and scheme dependent)
+    * Kay (2021) (is it scale and scheme dependent)
+    * Kramer (2000)
+    * Go through Aumann again
+    * Macfarlane (1960)
   - Add summaries to Overleaf
   - Compute with spectroscopic_factors.ipynb
-    * Recap. SNMD case for \sigma and \tau pieces
     * What are labels for a_p? Is it a_{p, \sigma, \tau} or \Sigma_\sigma a_{p, \sigma, \tau}?
-    * How do the two cases change the answer? (Factor of 1/2?)
+    * How do the two cases change the answer? (Test in notebook!)
   - Add full derivation to Overleaf
-  - Read Barbieri paper
   - How to do correlated ground state (references?)
-  - Read references Yang, More
-    * Add summary/takeaways to Overleaf notes (questions!)
-  - Approximations for electrodisintegration?
-  - Inclusion of FSIs
 
 * Extensions to SRC physics at low RG resolution
   - 3-D version of \lambda dependence plot
@@ -24,13 +21,9 @@
       normalization of the density matrix.
   - Check each diagram and think of others. Add takeaway points to Overleaf.
   - How can you approximate 3-body terms? Read Bogner_2007qb.
+  - Approximations for electrodisintegration?
+  - Inclusion of FSIs
 
-* Contact ratios (once you have He4 working)
-  - Read Weiss_2016obx for reference
-  - Inconsistency on how to extract? You can use single-nucleon probability distribution if you
-    isolate the following pieces: 1S0/nn, 1S0/pp, 1S0/pn, 3S1/pn
-    Or alternatively, integrate 1/N \int_kF^\infty d3q / (2\pi)^3 \int d3Q / (2\pi)^3 n(q, Q)
-    where N is the total normalization of the pair momentum distribution (they use N = A/2)
 
 --- Reading list ---
 * Macfarlane_1960zz
