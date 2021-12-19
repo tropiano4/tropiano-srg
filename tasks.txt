@@ -26,6 +26,7 @@
 
 
 --- Reading list ---
+* Kay_2013bsa
 * Macfarlane_1960zz
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
