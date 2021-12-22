@@ -2,7 +2,6 @@
 
 * Knock-out reactions and spectroscopic factors
   - Literature review
-    * Kay (2021) (is it scale and scheme dependent)
     * Kramer (2000)
     * Go through Aumann again
     * Macfarlane (1960)
@@ -26,7 +25,7 @@
 
 
 --- Reading list ---
-* Kay_2013bsa
+* Kramer_2000kc
 * Macfarlane_1960zz
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
