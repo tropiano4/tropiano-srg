@@ -56,6 +56,7 @@
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 
 --- SRG ---
+ * Test C++ with SRG flow equation.
  * SRG solver options
    - ode or solve_ivp, evolve w.r.t. s or \lambda
  * Try solving for U(s) or \delta U(s) instead
