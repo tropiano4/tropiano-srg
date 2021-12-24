@@ -7,8 +7,8 @@
     * Macfarlane (1960)
   - Add summaries to Overleaf
   - Compute with spectroscopic_factors.ipynb
-    * What are labels for a_p? Is it a_{p, \sigma, \tau} or \Sigma_\sigma a_{p, \sigma, \tau}?
-    * How do the two cases change the answer? (Test in notebook!)
+    * Derive where state \alpha tells us spin projection of particle and a_\pvec is
+      a_{\pvec, \sigma, \tau} (for initial IPSM first)
   - Add full derivation to Overleaf
   - How to do correlated ground state (references?)
 
