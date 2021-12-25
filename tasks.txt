@@ -2,7 +2,7 @@
 
 * Knock-out reactions and spectroscopic factors
   - Literature review
-    * Kramer (2000)
+    * Read https://inis.iaea.org/collection/NCLCollectionStore/_Public/39/107/39107647.pdf
     * Go through Aumann again
     * Macfarlane (1960)
   - Add summaries to Overleaf
@@ -25,7 +25,6 @@
 
 
 --- Reading list ---
-* Kramer_2000kc
 * Macfarlane_1960zz
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
