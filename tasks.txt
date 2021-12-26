@@ -2,8 +2,7 @@
 
 * Knock-out reactions and spectroscopic factors
   - Literature review
-    * Read shell_model_SFs.pdf notes
-    * Barbieri (2009)
+    * Both Barbieri (2009) papers
     * DF knockout papers
     * Go through Aumann again
     * Macfarlane (1960)
