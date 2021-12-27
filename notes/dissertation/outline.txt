@@ -8,34 +8,87 @@
   -Table of contents
   -List of Figures, Tables, Abbreviations
 
-1. Background and SRG
-   - Low resolution vs high resolution: Simplifications (IMSRG, ab initio, etc.)
-   - Use IMSRG to transition to Magnus expansion
-2. The Magnus expansion
+I. Background and SRG
+   1. Generic big picture: nuclear physics
+      * Can use SRC paper and DF talk as references for history
+      * Use research statement and Long Term Plan as references
+   2. Nuclear interactions
+      * Soft and hard potentials
+      * Sub-section for chiral EFT
+   3. Many-body methods
+      * History on low and high RG resolution descriptions?
+      * Similar to Sushant and DF lecture notes.
+   4. The Similarity Renormalization Group
+      * 
+      * Full details on SRG. List things you need to cover below (in no particular order):
+        - Flow equation
+        - Decoupling
+        - Generator (scheme)
+        - s and \lambda and \Lambda_BD (scale)
+        - Unitarity
+        - Operator evolution
+        - IMSRG
+        - Induced operators
+        ...
+   5. Motivate recent progress in ab initio with RG and EFT.
+   6. Organization of thesis and "original contributions".
+
+II. The Magnus expansion
    - Intruder states in IMSRG
    - Test problem with spurious, deeply bound states
    - Magnus formalism
    - Results
-3. Operator evolution
+
+III. Operator evolution
    - Universality
    - Wave functions (define SRCs here)
    - Other operators (regularization schemes)
    - SRG generators or Block-diagonal SRG evolution
-4. Factorization
+
+IV. Factorization
    - Connection to experiment: extracting/calculating process independent quantities
    - Highlight scale and scheme dependence
    - Numerical tests
-5. Momentum distributions
+
+V. Short-range correlations
    - Background
    - Low resolution vs high resolution: Simplifications (some history?)
    - Second-quantization formalism
    - Momentum distributions and SRC phenomenologies (results)
    - UQ project here?
-6. Spectroscopic factors
+
+VI. Spectroscopic factors
    - Background (LRCs too)
    - Formalism
    - Results
-7. Summary and outlook
+
+VII. Summary and outlook
 
 * References
 * Appendices
+
+
+SM introduction example
+  1.1 Overview of nuclear physics 
+      * Generic big picture low-energy nuclear physics stuff
+  1.2 Checkered past; promising future
+      * History of nuclear physics, emergent phenomena vs reductionist
+  1.3 Understanding the force
+      1.3.1 Chiral EFT
+      * Details of NN forces (AV18 and chiral)
+  1.4 Many-body methods
+      1.4.1 Lattice theories
+  1.5 RG techniques
+      1.5.1 SRG
+  1.6 Path forward for LENP
+      * Neutrinoless double-beta decay
+  1.7 Thesis organization
+
+
+ERA introduction example
+  1.1 Overview of nuclear physics and the nuclear many-body problem (big picture)
+      1.1.1 Nuclear interactions
+      1.1.2 Many-body methods
+  1.2 Background on the SRG
+  1.3 Operators
+  1.4 Organization of thesis and original contributions
