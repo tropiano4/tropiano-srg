@@ -4,16 +4,22 @@
   - Read optical potential notes and add comments
   - Apply PEP 8 style guide to spectroscopic_factors.ipynb
   - Add other nuclear s.p. wave functions to densities
+  - Update Overleaf
+    * Derivation of Dec 15th equation in notebook
+    * Results
+    * Add seminar questions to Overleaf with first pass of answers
   - Literature review
-    * Both Barbieri (2009) papers
-    * DF knockout papers
+    * Rios (2009)
+    * Catford (2019)
+    * Jensen (2011)
+    * Rios (2010)
+    * Timofeyuk (2011)
     * Go through Aumann again
     * Macfarlane (1960)
   - Add summaries to Overleaf
   - Compute with spectroscopic_factors.ipynb
     * Derive where state \alpha tells us spin projection of particle and a_\pvec is
       a_{\pvec, \sigma, \tau} (for initial IPSM first)
-  - Add full derivation to Overleaf
   - How to do correlated ground state (references?)
 
 * Extensions to SRC physics at low RG resolution
