@@ -16,10 +16,11 @@
     * Timofeyuk (2011)
     * Go through Aumann again
     * Macfarlane (1960)
-  - Add summaries to Overleaf
   - Compute with spectroscopic_factors.ipynb
     * Derive where state \alpha tells us spin projection of particle and a_\pvec is
       a_{\pvec, \sigma, \tau} (for initial IPSM first)
+  ...
+  - Add summaries to Overleaf
   - How to do correlated ground state (references?)
 
 * Extensions to SRC physics at low RG resolution
