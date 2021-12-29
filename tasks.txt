@@ -2,6 +2,8 @@
 
 * Knock-out reactions and spectroscopic factors
   - Read optical potential notes and add comments
+  - Apply PEP 8 style guide to spectroscopic_factors.ipynb
+  - Add other nuclear s.p. wave functions to densities
   - Literature review
     * Both Barbieri (2009) papers
     * DF knockout papers
