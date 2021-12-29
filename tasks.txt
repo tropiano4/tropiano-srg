@@ -41,7 +41,7 @@
 * Barbieri_2009ej
 * Knockout reactions (see DF papers)
 * More_2017syr
-* Anderson_2010aq (Bloch-Horowitz section)
+* Lanczos and Davidson method
 * Tostevin_2014usa
 * Wylie_2021uot
 * FW Chapter 60
