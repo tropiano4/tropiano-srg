@@ -1,79 +1,92 @@
---- SRC ---
-
-* Knock-out reactions and spectroscopic factors
-  - Read optical potential notes and add comments
-  - Apply PEP 8 style guide to spectroscopic_factors.ipynb
-  - Add other nuclear s.p. wave functions to densities
-  - Update Overleaf
-    * Derivation of Dec 15th equation in notebook
-    * Results
-    * Add seminar questions to Overleaf with first pass of answers
-  - Literature review
-    * Rios (2009)
-    * Catford (2019)
-    * Jensen (2011)
-    * Rios (2010)
-    * Timofeyuk (2011)
-    * Go through Aumann again
-    * Macfarlane (1960)
-  - Compute with spectroscopic_factors.ipynb
-    * Derive where state \alpha tells us spin projection of particle and a_\pvec is
-      a_{\pvec, \sigma, \tau} (for initial IPSM first)
+Tasks:
+  Meetings [Fixed times]
+  Numerical/analytical work [Every morning for two hours]
+  Study [Every morning for an hour]
+  Read [Every afternoon for an hour]
+  Overleaf (writing, comments, organizing, Optical potentials, etc.) [Twice a week 1.5 hours]
+  Organization (Scheduling, Code, GitHub, etc.) [1st thing Monday, after research meeting]
   ...
-  - Add summaries to Overleaf
-  - How to do correlated ground state (references?)
-
-* Extensions to SRC physics at low RG resolution
-  - 3-D version of \lambda dependence plot
-  - HF ground state using single-particle wave functions
-  - 2nd term in DME
-    * Check Heaviside function from the d^3s integral in the single-nucleon case
-    * Check the second term by including it in a simple calculation involving only the
-      normalization of the density matrix.
-  - Check each diagram and think of others. Add takeaway points to Overleaf.
-  - How can you approximate 3-body terms? Read Bogner_2007qb.
-  - Approximations for electrodisintegration?
-  - Inclusion of FSIs
+  Dissertation [Three times a week 1.5 hours]
+  Presentation (slides, practice, etc.)
+  Conferences
 
 
---- Reading list ---
-* Macfarlane_1960zz
-* Barbieri_2009ej
-* Knockout reactions (see DF papers)
-* More_2017syr
-* Lanczos and Davidson method
-* Tostevin_2014usa
-* Wylie_2021uot
-* FW Chapter 60
-* Order "Electromagnetic response of atomic nuclei" Boffi (1996)
-* NO Chapter 5
-* Sammarruca_2021bpn
-* MasterThesis_Marc
-* Marshall_2020ahl
-* Bogner_2007qb
-* Gomez-Ramos_2021cvy
-* Weiss_2016obx
-* QFT textbook
-* Many-body textbook
-* Renormalization textbook
+--- Numerical/analytical work ---
 
---- Momentum distributions ---
-* Try profiler on snmd.py to figure out where its slowest
-* q = 0 case in pmd.py
+* Add other nuclear s.p. wave functions to densities
+* Understand spin projection dependence in overlap
 
---- Potentials ---
-* Fix Potentials Fortran/Perl codes
-  - Not finding lapack or blas
+  ...
+
+* HF ground state with s.p. wave functions (SNMD calculation)
+* How to do correlated ground state (references?)
+* 3-D \lambda dependence plot (with q)
+* How can 3-body terms be approximated (Bogner_2007qb)
+* Approximations for electrodisintegration? Inclusion of FSIs?
+* Fix Potentials Fortran and Perl codes (not finding BLAS)
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
+* Test C++ with SRG flow equation
+* Try solving for U(s) or \delta U(s) instead
+* SRG inherit Potentials class? Generators inherit SRG class? (See FRIBTA scattering notebooks for examples)
+* Implementing Loguru, snoop, and heart rate
 
---- SRG ---
- * Test C++ with SRG flow equation.
- * SRG solver options
-   - ode or solve_ivp, evolve w.r.t. s or \lambda
- * Try solving for U(s) or \delta U(s) instead
- * SRG inherit Potentials class? Generators inherit SRG class?
-   See FRIBTA scattering notebooks for examples.
 
---- Misc. ---
- * Phase shift corrector function
- * Implementing Loguru, snoop, and heart rate
+--- Overleaf ---
+
+* Add seminar questions to Overleaf with first pass of answers
+* Read optical potential notes and add comments
+* Derivation of Dec 15th equation in notebook
+* Add results corresponding to Dec 15th derivation
+
+
+--- Read ---
+
+* Spectroscopic factors and knockout reactions
+  - Rios_2009gb
+  - Catford_2019icf
+  - Jensen_2011mv
+  - Timofeyuk_2010zz
+  - Aumann_2020tcq
+  - Macfarlane_1960zz
+  - Tostevin_2014usa
+  - Wylie_2021uot
+
+* IMSRG and/or shell model
+  - Stroberg_2019mxo
+  - HH papers?
+
+* Misc.
+  - Look up Lanczos and Davidson method
+  - MasterThesis_Marc
+
+
+--- Organization ---
+
+* Add PEP 8 style guide to spectroscopic_factors.ipynb
+* LENT repository (maybe split off code)
+* How to organize papers, presentations, notes?
+
+
+--- Study ---
+
+* Many-body physics (Dickoff and Van Neck)
+* Quantum mechanics (Shankar)
+* Quantum field theory
+* Renormalization (Collins)
+* Statistical mechanics
+* C++
+
+
+--- Dissertation ---
+
+* Continue outline
+  - The Magnus expansion
+  - Operator evolution
+  - Factorization
+  - Short-range correlations
+  - Spectroscopic factors
+* Meet with DF on outline
+* Set-up Overleaf thesis template
+* Write first section
+
+ 
