@@ -1,7 +1,8 @@
 --- Numerical/analytical work ---
 
-* Add other nuclear s.p. wave functions to densities
 * Understand spin projection dependence in overlap
+* What is the justification for \kF = \kF(R=0) approximation?
+* Add other nuclear s.p. wave functions to densities
 
   ...
 
@@ -10,6 +11,7 @@
 * 3-D \lambda dependence plot (with q)
 * How can 3-body terms be approximated (Bogner_2007qb)
 * Approximations for electrodisintegration? Inclusion of FSIs?
+* SRG with EC and emulators
 * Fix Potentials Fortran and Perl codes (not finding BLAS)
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 * Test C++ with SRG flow equation
@@ -22,10 +24,11 @@ Note: This should also include presentation-related work
 
 --- Overleaf ---
 
+* Implement outline/game plan from iPad to Overleaf
+* Derivation of Dec 15th equation in notebook (to final paper)
+* Add results corresponding to Dec 15th derivation
 * Add seminar questions to Overleaf with first pass of answers
 * Read optical potential notes and add comments
-* Derivation of Dec 15th equation in notebook
-* Add results corresponding to Dec 15th derivation
 
 
 --- Read ---
