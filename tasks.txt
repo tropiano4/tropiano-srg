@@ -1,16 +1,3 @@
-Tasks:
-  Meetings [Fixed times]
-  Numerical/analytical work [Every morning for two hours]
-  Study [Every morning for an hour]
-  Read [Every afternoon for an hour]
-  Overleaf (writing, comments, organizing, Optical potentials, etc.) [Twice a week 1.5 hours]
-  Organization (Scheduling, Code, GitHub, etc.) [1st thing Monday, after research meeting]
-  ...
-  Dissertation [Three times a week 1.5 hours]
-  Presentation (slides, practice, etc.)
-  Conferences
-
-
 --- Numerical/analytical work ---
 
 * Add other nuclear s.p. wave functions to densities
@@ -29,6 +16,8 @@ Tasks:
 * Try solving for U(s) or \delta U(s) instead
 * SRG inherit Potentials class? Generators inherit SRG class? (See FRIBTA scattering notebooks for examples)
 * Implementing Loguru, snoop, and heart rate
+
+Note: This should also include presentation-related work
 
 
 --- Overleaf ---
@@ -56,7 +45,7 @@ Tasks:
   - HH papers?
 
 * Misc.
-  - Look up Lanczos and Davidson method
+  - Lanczos and Davidson method
   - MasterThesis_Marc
 
 
@@ -75,14 +64,15 @@ Tasks:
 * Renormalization (Collins)
 * Statistical mechanics
 * C++
+* Quantum many-particle systems (Negele and Orland)
+* The nucleon-nucleon interaction (Brown)
+* Nuclear physics with effective field theory (Bedaque, Savage, Seki, and van Kolck)
+* Elements of nuclei (Siemens and Jensen)
 
 
 --- Dissertation ---
 
 * Continue outline
-  - The Magnus expansion
-  - Operator evolution
-  - Factorization
   - Short-range correlations
   - Spectroscopic factors
 * Meet with DF on outline
