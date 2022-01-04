@@ -1,6 +1,8 @@
 --- Numerical/analytical work ---
 
 * Understand spin projection dependence in overlap
+  - \delta U^\dagger term
+  - Update iPad notes
 * What is the justification for \kF = \kF(R=0) approximation?
 * Add other nuclear s.p. wave functions to densities
 
@@ -24,10 +26,11 @@ Note: This should also include presentation-related work
 
 --- Overleaf ---
 
-* Implement outline/game plan from iPad to Overleaf
-* Derivation of Dec 15th equation in notebook (to final paper)
+* Implement outline/game plan from iPad to Overleaf (sf_paper.tex)
+* Convert low_res_knockout.tex to sf_notes.tex (sf_notes.tex)
+* Add seminar questions to Overleaf with first pass of answers (sf_notes.tex)
+* Derivation of Dec 15th equation in notebook (sf_notes.tex)
 * Add results corresponding to Dec 15th derivation
-* Add seminar questions to Overleaf with first pass of answers
 * Read optical potential notes and add comments
 
 
@@ -48,6 +51,7 @@ Note: This should also include presentation-related work
   - HH papers?
 
 * Misc.
+  - Accounting for principal value in phase shift calculation
   - Lanczos and Davidson method
   - MasterThesis_Marc
 
