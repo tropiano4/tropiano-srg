@@ -13,7 +13,6 @@
 * 3-D \lambda dependence plot (with q)
 * How can 3-body terms be approximated (Bogner_2007qb)
 * Approximations for electrodisintegration? Inclusion of FSIs?
-* SRG with EC and emulators
 * Fix Potentials Fortran and Perl codes (not finding BLAS)
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 * Test C++ with SRG flow equation
