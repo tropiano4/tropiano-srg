@@ -20,7 +20,7 @@
 * SRG inherit Potentials class? Generators inherit SRG class? (See FRIBTA scattering notebooks for examples)
 * Implementing Loguru, snoop, and heart rate
 
-Note: This should also include presentation-related work
+Note: This also includes presentation-related work
 
 
 --- Overleaf ---
@@ -36,6 +36,7 @@ Note: This should also include presentation-related work
 --- Read ---
 
 * Spectroscopic factors and knockout reactions
+  - Bertulani_2022cqg
   - Rios_2009gb
   - Catford_2019icf
   - Jensen_2011mv
@@ -83,6 +84,6 @@ Note: This should also include presentation-related work
   - Spectroscopic factors
 * Meet with DF on outline
 * Set-up Overleaf thesis template
-* Write first section
+* Game plan for writing
 
  
