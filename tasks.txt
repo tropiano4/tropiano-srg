@@ -25,9 +25,9 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
-* Implement outline/game plan from iPad to Overleaf (sf_paper.tex)
 * Convert low_res_knockout.tex to sf_notes.tex (sf_notes.tex)
 * Add seminar questions to Overleaf with first pass of answers (sf_notes.tex)
+* Implement outline/game plan from iPad to Overleaf (sf_paper.tex)
 * Derivation of Dec 15th equation in notebook (sf_notes.tex)
 * Add results corresponding to Dec 15th derivation
 * Read optical potential notes and add comments
