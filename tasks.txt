@@ -1,5 +1,6 @@
 --- Numerical/analytical work ---
 
+* Plot p-dependence of integrand of SF with spectroscopic_factors.ipynb
 * Try implementing Moshinsky brackets to reduce \phi's
 * Look at disentangling Ylm's using L to l1, l2 coupling from Glockle
 * Add other nuclear s.p. wave functions to densities
