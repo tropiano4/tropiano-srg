@@ -1,7 +1,7 @@
 --- Numerical/analytical work ---
 
-* Try doing derivation but changing \delta U^\dagger creation/annihiliation operators
-  to s.p. states instead
+* Try implementing Moshinsky brackets to reduce \phi's
+* Look at disentangling Ylm's using L to l1, l2 coupling from Glockle
 * Add other nuclear s.p. wave functions to densities
 
   ...
@@ -23,15 +23,14 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
-* Derivation of Dec 15th equation in notebook (sf_notes.tex)
-* Add results corresponding to Dec 15th derivation
+* Derivation of spectroscopic factor (sf_notes.tex)
+* Add results corresponding to derivation
 * Read optical potential notes and add comments
 
 
 --- Read ---
 
 * Spectroscopic factors and knockout reactions
-  - Bertulani_2022cqg
   - Rios_2009gb
   - Catford_2019icf
   - Jensen_2011mv
@@ -42,7 +41,6 @@ Note: This also includes presentation-related work
   - Wylie_2021uot
 
 * IMSRG and/or shell model
-  - Stroberg_2019mxo
   - HH papers?
 
 * Misc.
@@ -53,9 +51,11 @@ Note: This also includes presentation-related work
 
 --- Organization ---
 
+* SRG bibliography Overleaf project (import to all other papers)
 * Add PEP 8 style guide to spectroscopic_factors.ipynb
 * LENT repository (maybe split off code)
 * How to organize papers, presentations, notes?
+* Put files that should be shared between Mac and Windows in OneDrive
 
 
 --- Study ---
@@ -65,6 +65,7 @@ Note: This also includes presentation-related work
 * Quantum field theory
 * Renormalization (Collins)
 * Statistical mechanics
+* Mathematical methods in the physical sciences (Boas)
 * C++
 * Quantum many-particle systems (Negele and Orland)
 * The nucleon-nucleon interaction (Brown)
@@ -75,7 +76,13 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
-* Set-up Overleaf thesis template
-* Start with SRG section
+* Add Magnus, operator evolution, and factorization sections.
+* Add short-range correlations section.
+* Very detailed outline for introduction.
+* Write full introduction with possibly temporary figures.
+
+  ...
+
+* Go through main.tex and understand every import
 
  
