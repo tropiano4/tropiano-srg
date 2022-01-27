@@ -1,10 +1,17 @@
 --- Numerical/analytical work ---
 
+* Put experimental points on plot
+* Add takeaways to levinger.ipynb
+* Test other interactions (run for kvnn = 222, 224, 
+* Revisit Dickhoff chapter 7 ideas
+  (evolving s.p. propagator, sum rules, connecting to occupation number operator)
+  Write out relation between hole propagator, full s.p. propagator, spectral function,
+  cross section, and spectroscopic factor
+* Contact Ragnar about collaborating
 * Try implementing Moshinsky brackets to reduce \phi's
   - Questions (record on iPad)?
     https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.535.3897&rep=rep1&type=pdf
   - Shell model textbooks
-* Calculate analogous number to Weiss paper
 * Multiply \phi_\alpha(p) by SF to test p-dependence
 * Look at disentangling Ylm's using L to l1, l2 coupling from Glockle
 * Add other nuclear s.p. wave functions to densities
@@ -28,6 +35,11 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
+* Notes on quasideuteron analysis and connection to Levinger constant
+  - Summarize references in introduction: Weiss_2014gua, Weiss_2015mba, Weiss_2015pjw, Weiss_2016obx,
+    and Levinger_1951vp
+  - Add results, takeaways
+  - Derivations?
 * Derivation of spectroscopic factor (sf_notes.tex)
 * Add results corresponding to derivation
 * Read optical potential notes and add comments
@@ -35,13 +47,14 @@ Note: This also includes presentation-related work
 
 --- Read ---
 
-* Quasi-deuteron
-  - Weiss_2015pjw
-  - Weiss_2014gua
-  - Chadwick_1991zzb
+* Photoabsorption
+  - Benhar et al. (reference 28 in Weiss_2015mba)
+  - Terranova et al. (reference 10 in Weiss_2014gua)
 
 * Spectroscopic factors and knockout reactions
+  - Dyhdalo_2017gyl
   - Nunes_2020bue
+  - Yoshida_2021ckq
   - Rios_2009gb
   - Catford_2019icf
   - Jensen_2011mv
@@ -88,13 +101,15 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
-* Add Magnus, operator evolution, and factorization sections.
-* Add short-range correlations section.
-* Very detailed outline for introduction.
-* Write full introduction with possibly temporary figures.
+* Write nuclear physics background subsection of introduction. Temporary figures.
+* Write nuclear forces subsection of introduction. Temporary figures.
+* Write RG subsection of introduction.
+* Write nuclear many-body methods subsection of introduction.
+* Leave organization of thesis for later.
+* Detailed outline for SRG chapter.
+* Write full SRG chapter.
 
   ...
 
 * Go through main.tex and understand every import
-
  
