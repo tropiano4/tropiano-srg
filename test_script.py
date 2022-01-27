@@ -78,14 +78,18 @@ edf = 'SLY4'
 
 for kvnn in kvnns:
     
-    # Might comment this out later
-    t0 = time.time()
     for channel in channels:
-        d = run_srg( kvnn, channel, kmax, kmid, ntot, 'Wegner',
-                     np.array([lamb]) )
-    t1 = time.time()
-    mins = (t1-t0)/60
-    print(f'SRG evolution of kvnn = {kvnn} done after {mins:.2f} minutes.')
+        
+        # Might comment this out later
+        try:
+        
+            H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
+                                            'srg', 'Wegner', lamb)
+        
+        except OSError:
+        
+            d = run_srg( kvnn, channel, kmax, kmid, ntot, 'Wegner', 
+                         np.array([lamb]) )
     
     # Start timer
     t0 = time.time()
