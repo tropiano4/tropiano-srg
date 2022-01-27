@@ -55,169 +55,74 @@
 
 
 # Description of this test:
-#   Test the ratio of the cross section for the high energy nuclear
-#   photoeffect to that for the deuteron photoeffect using just the squares of
-#   the quasi-deuteron and deuteron wave functions as in Levinger:1951vp.
-
-#   Here we will assume the quasi-deuteron wave function squared is given by
-#   the nuclear momentum distribution squared using only 3S1-3D1.
+#   Generate momentum distribution files for other potentials.
 
 
 import numpy as np
 # Scripts made by A.T.
-from densities import load_density
 from dmd import deuteron_momentum_distributions
-from misc.integration import gaussian_quadrature_mesh
-# from pmd import pair_momentum_distributions
+from pmd import pair_momentum_distributions
 from potentials.vsrg_macos import vnn
+from run_srg import run_srg
 from snmd import single_nucleon_momentum_distributions
 import time
 
 
-# Summary of what's done in Levinger:1951vp
-#   - They take \sigma_qd / \sigma_d = |\psi_k|^2 / |\psi_d|^2
-#     where \psi_k is the quasideuteron wave function.
-#   - There is dependence on several parameters in the ratio: \alpha (inverse
-#     scattering length), r_0 (effective range), k (relative momentum), and
-#     v (volume of the nucleus).
-#   - For k-dependence they average over all possible values of k assuming
-#     Fermi distributions for proton and neutron k values up to some maximum
-#     wave number 1 fm^-1.
-#   - Note, this is less than \lambda though. Try a few different things.
-
-# --- set-up --- #
-
-# Potential number
-kvnn = 6 # AV18
-
-# Channels to include in calculation
-channels = ['3S1'] # Triplet S only
-# channels = ['1S0', '3S1']
-
-# SRG \lambda value and generator
+kvnns = [10, 79, 111]
+channels = ['1S0', '3S1']
+kmax, kmid, ntot = 10.0, 2.0, 120
 lamb = 1.35
-generator = 'Wegner'
-
-# Details of the momentum mesh
-kmax, kmid, ntot = 15.0, 3.0, 120
-# Momenta and weights
-k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
-
-# Nucleus formatted as (Name, Z, N)
-# nucleus = ('He4', 2, 2)
-# nucleus = ('C12', 6, 6)
-# nucleus = ('O16', 8, 8)
-# nucleus = ('Ca40', 20, 20)
-# nucleus = ('Ca48', 20, 28)
-nucleus = ('Pb208', 82, 126)
-
-nucleus_name = nucleus[0]
-Z = nucleus[1]
-N = nucleus[2]
-A = N+Z
-
-# Energy density functional
+nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+           ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
 edf = 'SLY4'
 
-# Get densities
-R_array, rho_p_array = load_density(nucleus_name, 'proton', Z, N, edf)
-R_array, rho_n_array = load_density(nucleus_name, 'neutron', Z, N, edf)
-dR = R_array[2] - R_array[1]
-
-
-# --- Calculate quasi-deuteron momentum distribution --- #
-
-# # Initialize pair-nucleon momentum distribution class
-# pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
-        
-# # Quasideuteron momentum distribution as a function of k
-# qd_array = 2*pmd.n_Q0(k_array, R_array, dR, rho_p_array, rho_n_array)
-
-# Initialize single-nucleon momentum distribution class
-snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax, kmid,
-                                             ntot)
-        
-# Try using interpolated version first
-try:
-    n_p_func, _, _, _ = snmd.n_lambda_interp(nucleus_name, 'proton', Z, N, edf)
-    n_n_func, _, _, _ = snmd.n_lambda_interp(nucleus_name, 'neutron', Z, N,
-                                             edf)
-# Need to generate the files first
-except OSError:
+for kvnn in kvnns:
+    
+    # Might comment this out later
     t0 = time.time()
-    snmd.write_file(nucleus_name, 'proton', Z, N, edf)
-    snmd.write_file(nucleus_name, 'neutron', Z, N, edf)
+    for channel in channels:
+        d = run_srg( kvnn, channel, kmax, kmid, ntot, 'Wegner',
+                     np.array([lamb]) )
     t1 = time.time()
     mins = (t1-t0)/60
-    print(f'Done after {mins:.5f} minutes.')
-    n_p_func, _, _, _ = snmd.n_lambda_interp(nucleus_name, 'proton', Z, N, edf)
-    n_n_func, _, _, _ = snmd.n_lambda_interp(nucleus_name, 'neutron', Z, N, edf)
-
-# Calculate each distribution for momenta k
-n_p_array = n_p_func(k_array)
-n_n_array = n_n_func(k_array)
-
-# # Combine proton+neutron and divide by A for quasideuteron
-# n_qd_array = (n_p_array+n_n_array) / A # This is what is done for a_2
-
-# # Normalization
-# norm_qd = 4*np.pi/(2*np.pi)**3 * np.sum(k_weights*k_array**2*n_qd_array)
-# print(f'Normalization of n_qd(q)={norm_qd:.5f}')
-
-
-# --- Calculate deuteron momentum distribution --- #
-
-# Initialize deuteron momentum distributions class
-dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot,
-                                      interp=True)
+    print(f'SRG evolution of kvnn = {kvnn} done after {mins:.2f} minutes.')
     
-# Get interpolated functions of deuteron momentum distribution
-# Ignore the 1, \delta U, and \delta U^2 isolated contributions (take total only)
-n_d_func, _, _, _ = dmd.n_lambda_interp()
+    # Start timer
+    t0 = time.time()
     
-# # Calculate deuteron momentum distribution
-# n_d_array = n_d_func(k_array)
-
-# # Normalization 
-# norm_d = 4*np.pi/(2*np.pi)**3 * np.sum(k_weights*k_array**2*n_d_array)
-# print(f'Normalization of n_d(q)={norm_d:.5f}')
-
-
-# --- Evaluate ratio --- #
-
-# Levinger gets \sigma_qd / \sigma_d = 6.4*(N*Z)/A = 1.6*A (if N=Z for latter)
-factor = N*Z/A
-# The way I'm evaluating this, I should expect something near 1.6
-
-# Take one value in k (loop over several options)
-k_values = np.linspace(1.0, 3.0, 3)
-print('--- Evaluate ratio at one value of k ---\n')
-for k in k_values:
-    ratio = ( n_p_func(k)+n_n_func(k) ) / ( factor * n_d_func(k) )
-    print(f'k={k:.1f}, ratio={ratio:.5f}')
-
-# Integrate over an interval in k [0, k_max] where k_max is the above k_values
-print('\n--- Evaluate ratio integrating over [0, k_max] ---\n')
-for k_max in k_values:
+    # --- Deuteron --- #
     
-    # Get Gaussian-quadrature mesh
-    k_array, k_weights = gaussian_quadrature_mesh(k_max, 100)
+    # Initialize deuteron momentum distribution class
+    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
-    # # Check it gives back a_2 (you have to change channels to include 1S0)
-    # # This is confirmed
-    # k_array, k_weights = gaussian_quadrature_mesh(4.5, 40, xmin=3.8)
+    # Write deuteron momentum distribution file
+    dmd.write_file()
     
-    # Compute numerator
-    n_p_array = n_p_func(k_array)
-    n_n_array = n_n_func(k_array)
-
-    # Combine proton+neutron and divide by A for quasideuteron
-    n_qd_array = (n_p_array+n_n_array) / factor
-    numerator = np.sum(k_weights * k_array**2 * n_qd_array)
+    # Initialize single-nucleon and pair momentum distributions classes
+    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
+                                                 kmid, ntot)
+    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
     
-    # Compute denominator
-    n_d_array = n_d_func(k_array)
-    denominator = np.sum(k_weights * k_array**2 * n_d_array)
+    for nucleus in nuclei:
+        
+        # Details of nucleus
+        nucleus_name = nucleus[0]
+        Z = nucleus[1]
+        N = nucleus[2]
+        
+        # --- Single-nucleon --- #
+        snmd.write_file(nucleus_name, 'proton', Z, N, edf)
+        snmd.write_file(nucleus_name, 'neutron', Z, N, edf)
     
-    ratio = numerator / denominator
-    print(f'k_max={k_max:.1f}, ratio={ratio:.5f}')
+        # --- Pair --- #
+        pmd.write_file(nucleus_name, 'pn', Z, N, edf)
+        pmd.write_file(nucleus_name, 'pp', Z, N, edf)
+        pmd.write_file(nucleus_name, 'nn', Z, N, edf)
+    
+    # End timer
+    t1 = time.time()
+    mins = (t1-t0)/60
+    
+    # Print time for one kvnn
+    print(f'kvnn = {kvnn} done after {mins:.2f} minutes.')
+    
