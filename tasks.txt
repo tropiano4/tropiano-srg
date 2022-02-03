@@ -1,8 +1,10 @@
 --- Numerical/analytical work ---
 
-* Put experimental points on plot
-* Add takeaways to levinger.ipynb
-* Test other interactions (run for kvnn = 222, 224, 
+* Continue working on L vs A plot
+  * SRG-evolve and run momentum distributions code for RKE N4LO 550 MeV, phenomenological ones
+  * Run L plot results and ratios for new potentials
+  * Include other nuclei on L plot
+* Fine tune plot_momentum_dist
 * Revisit Dickhoff chapter 7 ideas
   (evolving s.p. propagator, sum rules, connecting to occupation number operator)
   Write out relation between hole propagator, full s.p. propagator, spectral function,
@@ -36,8 +38,7 @@ Note: This also includes presentation-related work
 --- Overleaf ---
 
 * Notes on quasideuteron analysis and connection to Levinger constant
-  - Summarize references in introduction: Weiss_2014gua, Weiss_2015mba, Weiss_2015pjw, Weiss_2016obx,
-    and Levinger_1951vp
+  - Summarize references in introduction
   - Add results, takeaways
   - Derivations?
 * Derivation of spectroscopic factor (sf_notes.tex)
@@ -48,7 +49,13 @@ Note: This also includes presentation-related work
 --- Read ---
 
 * Photoabsorption
-  - Benhar et al. (reference 28 in Weiss_2015mba)
+  - Levinger_1951vp [check]
+  - Chadwick_1991zzb [check]
+  - Weiss_2014gua [check]
+  - Weiss_2015mba [check]
+  - Weiss_2015pjw [check]
+  - Weiss_2016obx [check]
+  - Benhar_2003xr [check]
   - Terranova et al. (reference 10 in Weiss_2014gua)
 
 * Spectroscopic factors and knockout reactions
@@ -65,18 +72,18 @@ Note: This also includes presentation-related work
   - Wylie_2021uot
 
 * IMSRG and/or shell model
-  - Otsuka_2022zel
+  - Belley_2020ejd
   - HH papers?
 
 * Misc.
+  - Holt_2022piv
   - Accounting for principal value in phase shift calculation
   - Lanczos and Davidson method
   - MasterThesis_Marc
-
+  
 
 --- Organization ---
 
-* SRG bibliography Overleaf project (import to all other papers)
 * Add PEP 8 style guide to spectroscopic_factors.ipynb
 * LENT repository (maybe split off code)
 * How to organize papers, presentations, notes?
@@ -101,15 +108,15 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
-* Write nuclear physics background subsection of introduction. Temporary figures.
-* Write nuclear forces subsection of introduction. Temporary figures.
-* Write RG subsection of introduction.
-* Write nuclear many-body methods subsection of introduction.
-* Leave organization of thesis for later.
-* Detailed outline for SRG chapter.
-* Write full SRG chapter.
+* Write nuclear forces subsection of introduction
+* Write RG subsection of introduction
+* Write nuclear many-body methods subsection of introduction
+* Detailed outline for SRG chapter
+* Write full SRG chapter
 
   ...
 
+* Edit introduction
+* Finish 1.5 Organization
 * Go through main.tex and understand every import
  
