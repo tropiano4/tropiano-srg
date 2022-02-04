@@ -59,7 +59,6 @@ Note: This also includes presentation-related work
   - Terranova et al. (reference 10 in Weiss_2014gua)
 
 * Spectroscopic factors and knockout reactions
-  - Dyhdalo_2017gyl
   - Nunes_2020bue
   - Yoshida_2021ckq
   - Rios_2009gb
@@ -84,7 +83,7 @@ Note: This also includes presentation-related work
 
 --- Organization ---
 
-* Add PEP 8 style guide to spectroscopic_factors.ipynb
+* Incorporate PEP 8 style in codes
 * LENT repository (maybe split off code)
 * How to organize papers, presentations, notes?
 * Put files that should be shared between Mac and Windows in OneDrive
