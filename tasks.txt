@@ -5,6 +5,9 @@
   * Run L plot results and ratios for new potentials
   * Include other nuclei on L plot
 * Fine tune plot_momentum_dist
+
+  ...
+
 * Revisit Dickhoff chapter 7 ideas
   (evolving s.p. propagator, sum rules, connecting to occupation number operator)
   Write out relation between hole propagator, full s.p. propagator, spectral function,
