@@ -68,8 +68,8 @@ from snmd import single_nucleon_momentum_distributions
 import time
 
 
-# kvnns = [10, 79, 111]
-kvnns = [1, 2, 3, 4, 5, 7, 113]
+# kvnns = [10, 79, 111, 113]
+kvnns = [1, 2, 3, 4, 5, 7] # Make sure you add directories in dmd, snmd, pmd data
 channels = ['1S0', '3S1']
 lamb = 1.35
 lambda_array = np.array( [6, 3, 2, 1.5, 1.35] )
