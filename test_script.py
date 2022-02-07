@@ -69,10 +69,8 @@ import time
 
 
 # kvnns = [10, 79, 111]
-kvnns = [1, 2, 3, 4, 5, 7]
+kvnns = [1, 2, 3, 4, 5, 7, 113]
 channels = ['1S0', '3S1']
-# kmax, kmid, ntot = 10.0, 2.0, 120
-kmax, kmid, ntot = 15.0, 3.0, 120
 lamb = 1.35
 lambda_array = np.array( [6, 3, 2, 1.5, 1.35] )
 nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
@@ -80,6 +78,11 @@ nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
 edf = 'SLY4'
 
 for kvnn in kvnns:
+    
+    if kvnn < 10:
+        kmax, kmid, ntot = 15.0, 3.0, 120
+    else:
+        kmax, kmid, ntot = 10.0, 2.0, 120
     
     for channel in channels:
         
