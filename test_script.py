@@ -68,10 +68,13 @@ from snmd import single_nucleon_momentum_distributions
 import time
 
 
-kvnns = [10, 79, 111]
+# kvnns = [10, 79, 111]
+kvnns = [1, 2, 3, 4, 5, 7]
 channels = ['1S0', '3S1']
-kmax, kmid, ntot = 10.0, 2.0, 120
+# kmax, kmid, ntot = 10.0, 2.0, 120
+kmax, kmid, ntot = 15.0, 3.0, 120
 lamb = 1.35
+lambda_array = np.array( [6, 3, 2, 1.5, 1.35] )
 nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
            ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
 edf = 'SLY4'
@@ -88,8 +91,8 @@ for kvnn in kvnns:
         
         except OSError:
         
-            d = run_srg( kvnn, channel, kmax, kmid, ntot, 'Wegner', 
-                         np.array([lamb]) )
+            d = run_srg(kvnn, channel, kmax, kmid, ntot, 'Wegner', 
+                        lambda_array)
     
     # Start timer
     t0 = time.time()
@@ -129,4 +132,3 @@ for kvnn in kvnns:
     
     # Print time for one kvnn
     print(f'kvnn = {kvnn} done after {mins:.2f} minutes.')
-    
