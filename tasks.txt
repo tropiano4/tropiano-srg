@@ -29,6 +29,9 @@
 * How can 3-body terms be approximated (Bogner_2007qb)
 * Approximations for electrodisintegration? Inclusion of FSIs?
 * Fix Potentials Fortran and Perl codes (not finding BLAS)
+  Error message is after running make -f make_generate_vsrg_vlowk
+  "gfortran -o generate_vsrg_vlowk.x  ./src/nrtype.o ... ./src/generate_vsrg_vlowk.o -L/usr/local/opt/lapack/lib -llapack -lblas
+ld: library not found for -lSystem"
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
 * Test C++ with SRG flow equation
 * Try solving for U(s) or \delta U(s) instead

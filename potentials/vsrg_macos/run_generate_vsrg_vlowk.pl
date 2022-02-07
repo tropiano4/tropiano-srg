@@ -59,10 +59,11 @@ $ntot = 120; # momentum points for P+Q = full = bare space
 #$kmax = 6.0;
 #$kmax = 8.0; # kmax ==> maximum momentum for bare potential   # following the sample code by Evgeny 30-Nov-2017
 #$kmax = 10.0;
-$kmax = 30.0;
+$kmax = 15.0;
+#$kmax = 30.0;
 #$kmid = 2.0;  # mesh goes from 0 to kmid, then kmid to kmax
-#$kmid = 3.0; # setting in Anderson:2010aq
-$kmid = 4.0;
+$kmid = 3.0; # setting in Anderson:2010aq
+#$kmid = 4.0;
 #$kmid = 6.0;
 
 # The potentials are labeled by the value of kvnn (see allvnnmodels.f)
@@ -96,7 +97,8 @@ $kmid = 4.0;
 #     ostat = 0,1,2,3,4,5 --> LO, NLO, N2LO, N3LO, N4LO, N4LO+
 #     cutnum = 1,2,3,4--> 400, 450, 500, 550 MeV cutoff
 
-@kvnns = (06); # Argonne v18
+@kvnns = (01,02,03,04,05,07); # Paris, Bonn, reid93, nij1, nij2, cdbonn (in order)
+#@kvnns = (06); # Argonne v18
 #@kvnns = (10); # Entem-Machleidt
 #@kvnns = (32); # Epelbaum
 #@kvnns = (90,91,92,93,95,96,97,98,100,101,102,103,105,106,107,108,110,111,112,113,115,116,117,118); # RKE semi-local potentials
