@@ -62,8 +62,6 @@ import numpy as np
 # Scripts made by A.T.
 from dmd import deuteron_momentum_distributions
 from pmd import pair_momentum_distributions
-from potentials.vsrg_macos import vnn
-from run_srg import run_srg
 from snmd import single_nucleon_momentum_distributions
 import time
 
@@ -83,19 +81,8 @@ for kvnn in kvnns:
         kmax, kmid, ntot = 15.0, 3.0, 120
     else:
         kmax, kmid, ntot = 10.0, 2.0, 120
-    
-    for channel in channels:
         
-        # Might comment this out later
-        try:
-        
-            H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
-                                            'srg', 'Wegner', lamb)
-        
-        except OSError:
-        
-            d = run_srg(kvnn, channel, kmax, kmid, ntot, 'Wegner', 
-                        lambda_array)
+    print(f'Starting kvnn = {kvnn}.')
     
     # Start timer
     t0 = time.time()
@@ -107,6 +94,8 @@ for kvnn in kvnns:
     
     # Write deuteron momentum distribution file
     dmd.write_file()
+    
+    print('Done with deuteron.')
     
     # Initialize single-nucleon and pair momentum distributions classes
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
@@ -128,10 +117,12 @@ for kvnn in kvnns:
         pmd.write_file(nucleus_name, 'pn', Z, N, edf)
         pmd.write_file(nucleus_name, 'pp', Z, N, edf)
         pmd.write_file(nucleus_name, 'nn', Z, N, edf)
+        
+        print(f'Done with {nucleus_name}.')
     
     # End timer
     t1 = time.time()
     mins = (t1-t0)/60
     
     # Print time for one kvnn
-    print(f'kvnn = {kvnn} done after {mins:.2f} minutes.')
+    print(f'kvnn = {kvnn} done after {mins:.2f} minutes.\n')
