@@ -787,8 +787,8 @@ def mesh_specifications(kvnn):
         kmax = 30.0
         kmid = 4.0
     
-    # AV18
-    elif kvnn == 6:
+    # Paris, Bonn, Reid93, Nijmegen I and II, AV18, CD-Bonn
+    elif kvnn in [1, 2, 3, 4, 5, 6, 7]:
         kmax = 15.0
         kmid = 3.0
         
