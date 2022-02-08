@@ -33,6 +33,8 @@
 #                and updated channel_label_conversion function and
 #                lambda_label_conversion function.
 #   10/19/21 --- Added sp_state_label_conversion function.
+#   02/08/22 --- Updated kvnn_label_conversion function to include Paris,
+#                Bonn, Nijmegen I & II, and CD-Bonn potentials.
 #
 #------------------------------------------------------------------------------
 
@@ -386,9 +388,33 @@ def kvnn_label_conversion(kvnn, full_label=True):
         
     """
 
+    # Paris
+    if kvnn == 1:
+        label = 'Paris'
+
+    # Bonn
+    elif kvnn == 2:
+        label = 'Bonn'
+
+    # Reid93 potential
+    elif kvnn == 3:
+        label = 'Reid93'
+
+    # Nijmegen I potential
+    elif kvnn == 4:
+        label = 'Nijmegen I'
+
+    # Nijmegen II potential
+    elif kvnn == 5:
+        label = 'Nijmegen II'
+
     # Argonne v18
-    if kvnn == 6:
+    elif kvnn == 6:
         label = 'AV18'
+
+    # CD-Bonn
+    elif kvnn == 7:
+        label = 'CD-Bonn'
         
     # Entem/Machleidt N3LO (500 MeV cutoff)   
     elif kvnn == 10:
@@ -396,18 +422,42 @@ def kvnn_label_conversion(kvnn, full_label=True):
         
     # EMN N4LO (450, 500, 550 MeV cutoffs)
     elif kvnn in [74, 79, 84]:
-        label = 'EMN N' + r'$^4$' + 'LO'
+        if full_label:
+            if kvnn == 74:
+                label = 'EMN N' + r'$^4$' + 'LO 450 MeV'
+            elif kvnn == 79:
+                label = 'EMN N' + r'$^4$' + 'LO 500 MeV'
+            elif kvnn == 84:
+                label = 'EMN N' + r'$^4$' + 'LO 550 MeV'
+        else:
+            label = 'EMN N' + r'$^4$' + 'LO'
         
     # RKE N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         label = 'RKE N' + r'$^3$' + 'LO'
     # RKE N4LO (400, 450, 500, 550 MeV cutoffs)
     elif kvnn in [110, 111, 112, 113]:
-        label = 'RKE N' + r'$^4$' + 'LO'
+        if full_label:
+            if kvnn == 110:
+                label = 'RKE N' + r'$^4$' + 'LO 400 MeV'
+            elif kvnn == 111:
+                label = 'RKE N' + r'$^4$' + 'LO 450 MeV'
+            elif kvnn == 112:
+                label = 'RKE N' + r'$^4$' + 'LO 500 MeV'
+            elif kvnn == 113:
+                label = 'RKE N' + r'$^4$' + 'LO 550 MeV'
+        else:
+            label = 'RKE N' + r'$^4$' + 'LO'
         
     # Gezerlis N2LO (1 and 1.2 fm cutoff)
     elif kvnn in [222, 224]:
-        label = 'Gezerlis N' + r'$^2$' + 'LO'
+        if full_label:
+            if kvnn == 222:
+                label = 'Gezerlis N' + r'$^2$' + 'LO 1 fm'
+            elif kvnn == 224:
+                label = 'Gezerlis N' + r'$^2$' + 'LO 1.2 fm'
+        else:
+            label = 'Gezerlis N' + r'$^2$' + 'LO'
         
     # Wendt LO non-local potential
     elif kvnn == 900: # Cutoff 4 fm^-1
