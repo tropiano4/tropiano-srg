@@ -1,9 +1,9 @@
 --- Numerical/analytical work ---
 
 * Continue working on L vs A plot
-  * SRG-evolve and run momentum distributions code for RKE N4LO 550 MeV, phenomenological ones
-  * Run L plot results and ratios for new potentials
-  * Include other nuclei on L plot
+  * Run L plot results and ratios for new potentials (update revision history) Nij2 and CD-Bonn
+  * Include other nuclei on L plot (update revision history)
+* Change Gezerlis N2LO to GT+ N2LO in labeling
 * Fine tune plot_momentum_dist
 
   ...
@@ -11,7 +11,7 @@
 * Revisit Dickhoff chapter 7 ideas
   (evolving s.p. propagator, sum rules, connecting to occupation number operator)
   Write out relation between hole propagator, full s.p. propagator, spectral function,
-  cross section, and spectroscopic factor
+  cross section, spectroscopic factor, self-energy, and HF approximation
 * Contact Ragnar about collaborating
 * Try implementing Moshinsky brackets to reduce \phi's
   - Questions (record on iPad)?
@@ -33,6 +33,7 @@
   "gfortran -o generate_vsrg_vlowk.x  ./src/nrtype.o ... ./src/generate_vsrg_vlowk.o -L/usr/local/opt/lapack/lib -llapack -lblas
 ld: library not found for -lSystem"
 * Implement Gezerlis local potential codes to Potentials/vsrg_macos
+* Tidy-up potentials/vsrg_macos
 * Test C++ with SRG flow equation
 * Try solving for U(s) or \delta U(s) instead
 * SRG inherit Potentials class? Generators inherit SRG class? (See FRIBTA scattering notebooks for examples)
@@ -43,13 +44,16 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
-* Notes on quasideuteron analysis and connection to Levinger constant
-  - Summarize references in introduction
-  - Add results, takeaways
-  - Derivations?
+* Summarize references for QD paper
+* Add to story line in QD introduction
+* Add results with takeaways to QD paper
+
+  ...
+
 * Derivation of spectroscopic factor (sf_notes.tex)
 * Add results corresponding to derivation
-* Read optical potential notes and add comments
+* Read optical potential notes: Add comments and edit
+  (Left off at Optical Potential and SRG Fundamentals)
 
 
 --- Read ---
@@ -116,7 +120,7 @@ Note: This also includes presentation-related work
 * Write nuclear forces subsection of introduction
 * Write RG subsection of introduction
 * Write nuclear many-body methods subsection of introduction
-* Detailed outline for SRG chapter
+* Detailed outline for SRG chapter (what figures do you want)
 * Write full SRG chapter
 
   ...
