@@ -1,6 +1,12 @@
 --- Numerical/analytical work ---
 
+* Do the following in quasideuteron.ipynb:
+    Evolve RKE N4LO 550 MeV deuteron distribution to roughly match 450 MeV version
+    Evolve the RKE N4LO 550 MeV Hamiltonian using this \lambda value and treat this 
+    as H_initial, then compute the pn/d ratio under this.
+* Run momentum distributions for Gogny + kvnns = [5, 7, 113]
 * Include other nuclei on L plot (update revision history)
+* Come up with a figure that adequately compares different potentials
 
   ...
 
@@ -59,12 +65,7 @@ Note: This also includes presentation-related work
 --- Read ---
 
 * Photoabsorption
-  - Levinger_1951vp [check]
   - Chadwick_1991zzb [check]
-  - Weiss_2014gua [check]
-  - Weiss_2015mba [check]
-  - Weiss_2015pjw [check]
-  - Weiss_2016obx [check]
   - Benhar_2003xr [check]
   - Terranova et al. (reference 10 in Weiss_2014gua)
 
@@ -104,6 +105,7 @@ Note: This also includes presentation-related work
 
 * Many-body physics (Dickoff and Van Neck)
 * Quantum mechanics (Shankar)
+* Nuclear shell theory (de-Shalit and Talmi)
 * Quantum field theory
 * Renormalization (Collins)
 * Statistical mechanics
@@ -118,8 +120,6 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
-* Notes from Furnstahl_2012fn
-* Notes from Epelbaum_2010ab
 * Write nuclear forces subsection of introduction
 * Write RG subsection of introduction
 * Write nuclear many-body methods subsection of introduction
