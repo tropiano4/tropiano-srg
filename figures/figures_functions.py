@@ -453,11 +453,11 @@ def kvnn_label_conversion(kvnn, full_label=True):
     elif kvnn in [222, 224]:
         if full_label:
             if kvnn == 222:
-                label = 'Gezerlis N' + r'$^2$' + 'LO 1 fm'
+                label = 'GT+ N' + r'$^2$' + 'LO 1 fm'
             elif kvnn == 224:
-                label = 'Gezerlis N' + r'$^2$' + 'LO 1.2 fm'
+                label = 'GT+ N' + r'$^2$' + 'LO 1.2 fm'
         else:
-            label = 'Gezerlis N' + r'$^2$' + 'LO'
+            label = 'GT+ N' + r'$^2$' + 'LO'
         
     # Wendt LO non-local potential
     elif kvnn == 900: # Cutoff 4 fm^-1
