@@ -70,6 +70,7 @@ Note: This also includes presentation-related work
 
 * Spectroscopic factors and knockout reactions
   - Nunes_2020bue
+  - Li_2022zao
   - Yoshida_2021ckq
   - Rios_2009gb
   - Catford_2019icf
