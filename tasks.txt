@@ -1,10 +1,6 @@
 --- Numerical/analytical work ---
 
-* Continue working on L vs A plot
-  * Run L plot results and ratios for new potentials (update revision history) Nij2 and CD-Bonn
-  * Include other nuclei on L plot (update revision history)
-* Change Gezerlis N2LO to GT+ N2LO in labeling
-* Fine tune plot_momentum_dist
+* Include other nuclei on L plot (update revision history)
 
   ...
 
@@ -44,8 +40,12 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
-* Summarize references for QD paper
-* Add to story line in QD introduction
+* Understand E1 and M1 transitions (reference 8 in Weiss_2014gua)
+* Iterate on story line for QD introduction
+  - Add other summaries:
+      Paragraph or several sentences on experiments?
+      Chadwick paper?
+* Write formalism section (full but bulleted)
 * Add results with takeaways to QD paper
 
   ...
@@ -70,6 +70,7 @@ Note: This also includes presentation-related work
 
 * Spectroscopic factors and knockout reactions
   - Nunes_2020bue
+  - Li_
   - Yoshida_2021ckq
   - Rios_2009gb
   - Catford_2019icf
@@ -117,6 +118,8 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
+* Notes from Furnstahl_2012fn
+* Notes from Epelbaum_2010ab
 * Write nuclear forces subsection of introduction
 * Write RG subsection of introduction
 * Write nuclear many-body methods subsection of introduction
