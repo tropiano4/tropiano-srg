@@ -1,12 +1,12 @@
 --- Numerical/analytical work ---
 
-* Do the following in quasideuteron.ipynb:
-    Evolve RKE N4LO 550 MeV deuteron distribution to roughly match 450 MeV version
-    Evolve the RKE N4LO 550 MeV Hamiltonian using this \lambda value and treat this 
-    as H_initial, then compute the pn/d ratio under this.
 * Run momentum distributions for Gogny + kvnns = [5, 7, 113]
 * Include other nuclei on L plot (update revision history)
-* Come up with a figure that adequately compares different potentials
+* Tidy-up quasideuteron.ipynb:
+  - L-plot comparing default case to experiment
+  - L-plot comparing potentials
+  - Ratio of pn/d
+* Add these figures to paper
 
   ...
 
