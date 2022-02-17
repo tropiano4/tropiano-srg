@@ -1,12 +1,11 @@
 --- Numerical/analytical work ---
 
-* Run momentum distributions for Gogny + kvnns = [5, 7, 113]
-* Include other nuclei on L plot (update revision history)
-* Tidy-up quasideuteron.ipynb:
-  - L-plot comparing default case to experiment
-  - L-plot comparing potentials
-  - Ratio of pn/d
-* Add these figures to paper
+* Change ylim to (0, 15) for pn/d figures
+* Try \lambda_matching analysis but for AV18 to RKE 550 MeV, RKE 450 MeV, Gezerlis 1 fm
+* Update DF/SB on 3S1-3D1 only analysis
+* Add to Overleaf:
+    Cross section ratio should be independent of scale (V_NN(\Lambda) and SRG \lambda)
+    Why are our L values inconsistent with scale independence?
 * Use Weinberg eigenvalues to find matching \lambda between RKE potentials
 
   ...
@@ -65,9 +64,8 @@ Note: This also includes presentation-related work
 
 --- Read ---
 
-* Photoabsorption
-  - Chadwick_1991zzb [check]
-  - Benhar_2003xr [check]
+* Quasideuteron
+  - Chen_2016bde
   - Terranova et al. (reference 10 in Weiss_2014gua)
 
 * Spectroscopic factors and knockout reactions
