@@ -66,18 +66,21 @@ from snmd import single_nucleon_momentum_distributions
 import time
 
 
-# kvnns = [10, 79, 111, 113]
-kvnns = [1, 2, 3, 4, 5, 7] # Make sure you add directories in dmd, snmd, pmd data
+kvnns = [111, 113, 222, 224]
 channels = ['1S0', '3S1']
 lamb = 1.35
-lambda_array = np.array( [6, 3, 2, 1.5, 1.35] )
-nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-           ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
-edf = 'SLY4'
+# nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+#            ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
+nuclei = [
+    ('Li7', 3, 4), ('Ti48', 22, 26), ('Ag107', 47, 60), ('Sn118', 50, 68),
+    ('Ce140', 58, 82), ('Ta181', 73, 108), ('U238', 92, 146)
+]
+# edf = 'SLY4'
+edf = 'Gogny'
 
 for kvnn in kvnns:
     
-    if kvnn < 10:
+    if kvnn < 10 or kvnn > 200:
         kmax, kmid, ntot = 15.0, 3.0, 120
     else:
         kmax, kmid, ntot = 10.0, 2.0, 120
@@ -87,15 +90,15 @@ for kvnn in kvnns:
     # Start timer
     t0 = time.time()
     
-    # --- Deuteron --- #
+    # # --- Deuteron --- #
     
-    # Initialize deuteron momentum distribution class
-    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
+    # # Initialize deuteron momentum distribution class
+    # dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
     
-    # Write deuteron momentum distribution file
-    dmd.write_file()
+    # # Write deuteron momentum distribution file
+    # dmd.write_file()
     
-    print('Done with deuteron.')
+    # print('Done with deuteron.')
     
     # Initialize single-nucleon and pair momentum distributions classes
     snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
