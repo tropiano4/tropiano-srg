@@ -7,6 +7,7 @@
   - L-plot comparing potentials
   - Ratio of pn/d
 * Add these figures to paper
+* Use Weinberg eigenvalues to find matching \lambda between RKE potentials
 
   ...
 
@@ -50,9 +51,9 @@ Note: This also includes presentation-related work
 * Iterate on story line for QD introduction
   - Add other summaries:
       Paragraph or several sentences on experiments?
-      Chadwick paper?
-* Write formalism section (full but bulleted)
+      Chadwick paper
 * Add results with takeaways to QD paper
+* Iterate on formalism section (full but bulleted)
 
   ...
 
@@ -108,7 +109,7 @@ Note: This also includes presentation-related work
 * Nuclear shell theory (de-Shalit and Talmi)
 * Quantum field theory
 * Renormalization (Collins)
-* Statistical mechanics
+* Statistical mechanics (Huang)
 * Mathematical methods in the physical sciences (Boas)
 * C++
 * Quantum many-particle systems (Negele and Orland)
@@ -120,10 +121,10 @@ Note: This also includes presentation-related work
 
 --- Dissertation ---
 
-* Write nuclear forces subsection of introduction
 * Write RG subsection of introduction
 * Write nuclear many-body methods subsection of introduction
 * Detailed outline for SRG chapter (what figures do you want)
+* Organize figures in introduction
 * Write full SRG chapter
 
   ...
