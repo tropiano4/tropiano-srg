@@ -42,6 +42,8 @@
 #   07/15/21 --- Switched interpolation functions interp1d and 
 #                RectBivariateSpline from cubic to linear since \delta U^2(k,q)
 #                was returning negative values.
+#   02/15/22 --- Added optional lambda_init argument to class. This allows one
+#                to use an SRG-evolved potential as the initial interaction.
 #
 #------------------------------------------------------------------------------
 
@@ -63,7 +65,8 @@ from srg.srg_unitary_transformation import SRG_unitary_transformation
 class deuteron_momentum_distributions(object):
     
     
-    def __init__(self, kvnn, lamb, kmax, kmid, ntot, interp=False):
+    def __init__(self, kvnn, lamb, kmax, kmid, ntot, interp=False,
+                 lambda_init=np.inf):
         """
         Evaluates and saves 3S1-3D1 matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -83,6 +86,10 @@ class deuteron_momentum_distributions(object):
             Number of momentum points in mesh.
         interp : bool, optional
             Option to use interpolated n_\lambda(q) functions.
+        lambda_init : float, optional
+            \lambda value for the initial potential [fm^-1]. The default is
+            infinity which corresponds to an unevolved potential. This only
+            works if interp is set to False.
             
         """
         
@@ -111,7 +118,17 @@ class deuteron_momentum_distributions(object):
             factor_array_cc = np.concatenate( (factor_array, factor_array) )
 
             # Load SRG transformation
-            H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot)
+            if lambda_init == np.inf:
+                # Initial Hamiltonian (\lambda = \infty)
+                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                 ntot)
+            else:
+                # Initial Hamiltonian with a finite \lambda starting point
+                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                 ntot, method='srg',
+                                                 generator='Wegner',
+                                                 lamb=lambda_init)
+                
             H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
                                              method='srg', generator='Wegner',
                                              lamb=lamb)

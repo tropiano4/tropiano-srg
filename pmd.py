@@ -27,6 +27,8 @@
 #                was returning negative values. Also, setting Q_max to 2 fm^-1
 #                instead of max(kF1)+max(kF2) in file writing function.
 #   08/24/21 --- Added SRG block-diagonal option.
+#   02/15/22 --- Added optional lambda_init argument to class. This allows one
+#                to use an SRG-evolved potential as the initial interaction.
 #
 #------------------------------------------------------------------------------
 
@@ -45,7 +47,7 @@ class pair_momentum_distributions(object):
     
     
     def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot,
-                 generator='Wegner', interp=False):
+                 generator='Wegner', interp=False, lambda_init=np.inf):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -66,6 +68,10 @@ class pair_momentum_distributions(object):
             Number of momentum points in mesh.
         interp : bool, optional
             Option to use interpolated n_\lambda(q, Q) functions.
+        lambda_init : float, optional
+            \lambda value for the initial potential [fm^-1]. The default is
+            infinity which corresponds to an unevolved potential. This only
+            works if interp is set to False.
             
         """
         
@@ -89,7 +95,8 @@ class pair_momentum_distributions(object):
                     highest_L = next_L
         
             # Load and save momentum arrays
-            k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid, ntot)
+            k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid,
+                                                   ntot)
             # Save k_array for writing files
             self.k_array = k_array
         
@@ -111,8 +118,23 @@ class pair_momentum_distributions(object):
             for channel in channels:
 
                 # Load SRG transformation
-                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                 ntot)
+                if lambda_init == np.inf:
+                    # Initial Hamiltonian (\lambda = \infty)
+                    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                     ntot)
+                else:
+                    # Initial Hamiltonian with a finite \lambda starting point
+                    if generator == 'Block-diag':
+                        H_initial = vnn.load_hamiltonian(kvnn, channel, kmax,
+                                                         kmid, ntot, 'srg',
+                                                         generator, 1.0,
+                                                         lambda_init)
+                    else:
+                        H_initial = vnn.load_hamiltonian(kvnn, channel, kmax,
+                                                         kmid, ntot, 'srg',
+                                                         generator,
+                                                         lambda_init)
+                    
                 if generator == 'Block-diag':
                     # Take \lambda = 1 fm^-1 and set \Lambda_BD = input \lambda
                     H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,

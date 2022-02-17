@@ -35,6 +35,8 @@
 #                RectBivariateSpline from cubic to linear since \delta U^2(k,q)
 #                was returning negative values.
 #   08/18/21 --- Added SRG block-diagonal option.
+#   02/15/22 --- Added optional lambda_init argument to class. This allows one
+#                to use an SRG-evolved potential as the initial interaction.
 #
 #------------------------------------------------------------------------------
 
@@ -54,7 +56,7 @@ class single_nucleon_momentum_distributions(object):
     
     
     def __init__(self, kvnn, channels, lamb, kmax, kmid, ntot,
-                 generator='Wegner', interp=False):
+                 generator='Wegner', interp=False, lambda_init=np.inf):
         """
         Evaluates and saves the pp and pn matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -78,6 +80,10 @@ class single_nucleon_momentum_distributions(object):
             SRG generator 'Wegner', 'T', or 'Block-diag'.
         interp : bool, optional
             Option to use interpolated n_\lambda(q) functions.
+        lambda_init : float, optional
+            \lambda value for the initial potential [fm^-1]. The default is
+            infinity which corresponds to an unevolved potential. This only
+            works if interp is set to False.
             
         """
         
@@ -124,8 +130,23 @@ class single_nucleon_momentum_distributions(object):
             for channel in channels:
 
                 # Load SRG transformation
-                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                 ntot)
+                if lambda_init == np.inf:
+                    # Initial Hamiltonian (\lambda = \infty)
+                    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
+                                                     ntot)
+                else:
+                    # Initial Hamiltonian with a finite \lambda starting point
+                    if generator == 'Block-diag':
+                        H_initial = vnn.load_hamiltonian(kvnn, channel, kmax,
+                                                         kmid, ntot, 'srg',
+                                                         generator, 1.0,
+                                                         lambda_init)
+                    else:
+                        H_initial = vnn.load_hamiltonian(kvnn, channel, kmax,
+                                                         kmid, ntot, 'srg',
+                                                         generator,
+                                                         lambda_init)
+                        
                 if generator == 'Block-diag':
                     # Take \lambda = 1 fm^-1 and set \Lambda_BD = input \lambda
                     H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
