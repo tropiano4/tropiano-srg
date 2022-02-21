@@ -2,7 +2,10 @@
 
 * Change ylim to (0, 15) for pn/d figures
 * Try \lambda_matching analysis but for AV18 to RKE 550 MeV, RKE 450 MeV, Gezerlis 1 fm
-* Initial operator for RKE N4LO 450 MeV with 2-body induced piece (initially) from AV18?
+* Run SRG evolution and momentum distribution codes for RKE potentials
+* Initial operator for RKE N4LO 450 MeV with 2-body induced piece (initially) from AV18
+  - iPad notes on this first
+  - Update quasideuteron.ipynb
 * Update DF/SB on 3S1-3D1 only analysis
 * Add to Overleaf:
     Cross section ratio should be independent of scale (V_NN(\Lambda) and SRG \lambda)
@@ -48,10 +51,10 @@ Note: This also includes presentation-related work
 --- Overleaf ---
 
 * Understand E1 and M1 transitions (reference 8 in Weiss_2014gua)
-* Iterate on structured abstract
-* Read through introduction again
-* Iterate on formalism section (paragraphs)
-* Add results with takeaways to QD paper
+* Update figures in results section and add bulleted takeaways
+* Iterate on abstract
+* Iterate on introduction
+* Iterate on formalism section
 
   ...
 
