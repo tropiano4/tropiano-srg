@@ -1,8 +1,11 @@
 --- Numerical/analytical work ---
 
-* Change ylim to (0, 15) for pn/d figures
+* Revise quasideuteron.ipynb:
+  - Change ylim to (0, 15) for pn/d figures
+  - Make sure everything takes kmax, kmid, ntot = 15, 3, 120
+  - Make sure default_mesh function in vnn.py is correct
+  - Update deuteron momentum distributions plot to show several \lambda values
 * Try \lambda_matching analysis but for AV18 to RKE 550 MeV, RKE 450 MeV, Gezerlis 1 fm
-* Run SRG evolution and momentum distribution codes for RKE potentials
 * Initial operator for RKE N4LO 450 MeV with 2-body induced piece (initially) from AV18
   - iPad notes on this first
   - Update quasideuteron.ipynb
