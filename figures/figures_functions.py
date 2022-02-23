@@ -95,7 +95,7 @@ def channel_label_conversion(channel, label_coupled_channel=True):
         elif L == 'N':
             L2 = 'Q'
             
-        label = r'$^{%s}{\rm %s}_{%s}\endash^{%s}{\rm %s}_{%s}$' % (S, L, J,
+        label = r'$^{%s}{\rm %s}_{%s}-^{%s}{\rm %s}_{%s}$' % (S, L, J,
                                                                     S, L2, J)
         
     else:
