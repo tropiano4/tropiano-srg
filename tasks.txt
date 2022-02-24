@@ -81,7 +81,7 @@ Note: This also includes presentation-related work
 
 * IMSRG and/or shell model
   - Belley_2020ejd
-  - HH papers?
+  - Hergert_2020bxy
 
 * Misc.
   - Negele_1981fkk
