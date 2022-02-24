@@ -1,16 +1,10 @@
 --- Numerical/analytical work ---
 
-* Revise quasideuteron.ipynb:
-  - Change ylim to (0, 15) for pn/d figures
-  - Make sure everything takes kmax, kmid, ntot = 15, 3, 120
-  - Make sure default_mesh function in vnn.py is correct
-  - Update deuteron momentum distributions plot to show several \lambda values
-* Try \lambda_matching analysis but for AV18 to RKE 550 MeV, RKE 450 MeV, Gezerlis 1 fm
-* Initial operator for RKE N4LO 450 MeV with 2-body induced piece (initially) from AV18
-  - iPad notes on this first
-  - Update quasideuteron.ipynb
-* Update DF/SB on 3S1-3D1 only analysis
-* Add to Overleaf:
+* Show results for L varying q_range method (upper and lower limits)
+* Make L figure with hard potential (AV18) and soft potential (RKE N4LO 450 MeV) with many \lambda' values
+* Figure showing pn/d with hard, soft, and soft + initial 2-body operator
+* Update figures in results section and add bulleted takeaways
+* Add to Overleaf around last figure:
     Cross section ratio should be independent of scale (V_NN(\Lambda) and SRG \lambda)
     Why are our L values inconsistent with scale independence?
 * Use Weinberg eigenvalues to find matching \lambda between RKE potentials
@@ -23,9 +17,6 @@
   cross section, spectroscopic factor, self-energy, and HF approximation
 * Contact Ragnar about collaborating
 * Try implementing Moshinsky brackets to reduce \phi's
-  - Questions (record on iPad)?
-    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.535.3897&rep=rep1&type=pdf
-  - Shell model textbooks
 * Multiply \phi_\alpha(p) by SF to test p-dependence
 * Look at disentangling Ylm's using L to l1, l2 coupling from Glockle
 * Add other nuclear s.p. wave functions to densities
@@ -53,11 +44,13 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
+* Check range of energies (Levinger and other references) - answer comment
+* Why is the cross section ratio effectively the ratio of squared wave functions? (Levinger)
+* How do Weiss et al. say the A/d cross section is related to contacts?
 * Understand E1 and M1 transitions (reference 8 in Weiss_2014gua)
-* Update figures in results section and add bulleted takeaways
-* Iterate on abstract
-* Iterate on introduction
-* Iterate on formalism section
+* Iterate on entire paper
+  - Add questions to address here
+  - Remove changes and resolve comments
 
   ...
 
@@ -68,6 +61,8 @@ Note: This also includes presentation-related work
 --- Read ---
 
 * Quasideuteron
+  - Bogner_2007jb
+  - Amado_1979zz
   - Chen_2016bde
   - Terranova et al. (reference 10 in Weiss_2014gua)
 
@@ -89,6 +84,7 @@ Note: This also includes presentation-related work
   - HH papers?
 
 * Misc.
+  - Negele_1981fkk
   - Holt_2022piv
   - Accounting for principal value in phase shift calculation
   - Lanczos and Davidson method
@@ -100,14 +96,12 @@ Note: This also includes presentation-related work
 * Incorporate PEP 8 style in codes
 * LENT repository (maybe split off code)
 * How to organize papers, presentations, notes?
-* Put files that should be shared between Mac and Windows in OneDrive
 
 
 --- Study ---
 
-* Many-body physics (Dickoff and Van Neck)
-* Quantum mechanics (Shankar)
 * Nuclear shell theory (de-Shalit and Talmi)
+* Quantum mechanics (Shankar)
 * Quantum field theory
 * Renormalization (Collins)
 * Statistical mechanics (Huang)
