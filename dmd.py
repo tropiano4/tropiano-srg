@@ -44,6 +44,9 @@
 #                was returning negative values.
 #   02/15/22 --- Added optional lambda_init argument to class. This allows one
 #                to use an SRG-evolved potential as the initial interaction.
+#   02/24/22 --- Added optional kvnn_hard argument to class. This allows one
+#                to SRG-evolve the initial potential back to a harder one
+#                using transformations of the kvnn_hard potential.
 #
 #------------------------------------------------------------------------------
 
@@ -66,7 +69,7 @@ class deuteron_momentum_distributions(object):
     
     
     def __init__(self, kvnn, lamb, kmax, kmid, ntot, interp=False,
-                 lambda_init=np.inf):
+                 lambda_init=np.inf, kvnn_hard=0):
         """
         Evaluates and saves 3S1-3D1 matrix elements of \delta U and
         \delta U^{\dagger} given the input potential and SRG \lambda.
@@ -76,7 +79,7 @@ class deuteron_momentum_distributions(object):
         kvnn : int
             This number specifies the potential.
         lamb : float
-            SRG evolution parameter lambda [fm^-1].
+            SRG evolution parameter \lambda [fm^-1].
         kmax : float
             Maximum value in the momentum mesh [fm^-1]. (Default of zero
             automatically selects default mesh based on kvnn.)
@@ -87,9 +90,13 @@ class deuteron_momentum_distributions(object):
         interp : bool, optional
             Option to use interpolated n_\lambda(q) functions.
         lambda_init : float, optional
-            \lambda value for the initial potential [fm^-1]. The default is
-            infinity which corresponds to an unevolved potential. This only
-            works if interp is set to False.
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_hard : int, optional
+            Inputing a nonzero argument here will evolve the initial potential
+            (corresponding to kvnn) back to a harder scale using 
+            transformations from a harder potential (kvnn_hard).
             
         """
         
@@ -118,20 +125,50 @@ class deuteron_momentum_distributions(object):
             factor_array_cc = np.concatenate( (factor_array, factor_array) )
 
             # Load SRG transformation
+                
+            # If lambda_init = np.inf, then take the initial Hamiltonian of
+            # kvnn as the starting point
             if lambda_init == np.inf:
-                # Initial Hamiltonian (\lambda = \infty)
+                
                 H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
                                                  ntot)
+                    
+            # Otherwise, this splits into two cases
             else:
-                # Initial Hamiltonian with a finite \lambda starting point
-                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                 ntot, method='srg',
-                                                 generator='Wegner',
-                                                 lamb=lambda_init)
+                    
+                # If kvnn_hard is zero, take an SRG-evolved Hamiltonian
+                # corresponding to kvnn and lambda_init as the initial
+                # Hamiltonian
+                if kvnn_hard == 0:
+                    
+                    H_initial = vnn.load_hamiltonian(
+                        kvnn, channel, kmax, kmid, ntot, 'srg', 'Wegner',
+                        lambda_init)
+                    
+                # If kvnn_hard is nonzero, SRG-evolve the initial Hamiltonian 
+                # of kvnn back using transformations from kvnn_hard at
+                # lambda_initial
+                else:
+                        
+                    H_hard_initial = vnn.load_hamiltonian(kvnn_hard, channel, 
+                                                          kmax, kmid, ntot)
+                    H_hard_evolved = vnn.load_hamiltonian(
+                        kvnn_hard, channel, kmax, kmid, ntot, 'srg', 'Wegner',
+                        lambda_init)
+                            
+                    # Get SRG transformation from hard potential
+                    U_hard = SRG_unitary_transformation(H_hard_initial,
+                                                        H_hard_evolved)
+                        
+                    # Get initial Hamiltonian for kvnn
+                    H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, 
+                                                    ntot)
+                        
+                    # Do inverse transformation on softer Hamiltonian
+                    H_initial = U_hard.T @ H_matrix @ U_hard
                 
             H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
-                                             method='srg', generator='Wegner',
-                                             lamb=lamb)
+                                             'srg', 'Wegner', lamb)
             # Load U(k, k') [unitless]
             U_matrix_unitless = SRG_unitary_transformation(H_initial, 
                                                            H_evolved)
