@@ -61,7 +61,6 @@ Note: This also includes presentation-related work
 --- Read ---
 
 * Quasideuteron
-  - Bogner_2007jb
   - Amado_1979zz
   - Chen_2016bde
   - Terranova et al. (reference 10 in Weiss_2014gua)
