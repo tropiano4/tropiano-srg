@@ -1,5 +1,6 @@
 --- Numerical/analytical work ---
 
+* Add option to print pn/d ratio with respect to q (to decide on q_range)
 * Show results for L varying q_range method (upper and lower limits)
 * Make L figure with hard potential (AV18) and soft potential (RKE N4LO 450 MeV) with many \lambda' values
 * Figure showing pn/d with hard, soft, and soft + initial 2-body operator
@@ -67,13 +68,14 @@ Note: This also includes presentation-related work
 
 * Spectroscopic factors and knockout reactions
   - Nunes_2020bue
+  - Aumann_2020tcq
   - Li_2022zao
   - Yoshida_2021ckq
   - Rios_2009gb
   - Catford_2019icf
   - Jensen_2011mv
   - Timofeyuk_2010zz
-  - Aumann_2020tcq
+  
   - Macfarlane_1960zz
   - Tostevin_2014usa
   - Wylie_2021uot
