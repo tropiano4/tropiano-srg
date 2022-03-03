@@ -14,7 +14,7 @@
   Write out relation between hole propagator, full s.p. propagator, spectral function,
   cross section, spectroscopic factor, self-energy, and HF approximation
 * Contact Ragnar about collaborating
-* Try implementing Moshinsky brackets to reduce \phi's
+* Try implementing Moshinsky brackets to reduce \phi's (see Roth:2013fqa?)
 * Multiply \phi_\alpha(p) by SF to test p-dependence
 * Look at disentangling Ylm's using L to l1, l2 coupling from Glockle
 * Add other nuclear s.p. wave functions to densities
