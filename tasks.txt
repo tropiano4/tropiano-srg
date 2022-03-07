@@ -100,11 +100,11 @@ Note: This also includes presentation-related work
 * New repository for thesis: tropiano-lent (something like that)
   - Move papers, presentations, old, and tasks.txt outside of repository
   - New README.md
-  - Add data/potentials for matrix elements of V_NN in tropiano-LENT
   - Store thesis figures in figures/paper_1/main_section_1 ...
   - Generate figures with Jupyter notebooks for each section of thesis:
       srg.ipynb, magnus.ipynb, ..., quasideuteron.ipynb
     Will rely on direct scripts to compute results or interpolation from data files
+    Come up with a cleaner way of incorporating try/except with missing files?
   - Other Python scripts as inputs to notebooks:
       Functions to compute observables/operators
       Functions to compute a_2, L, etc.
@@ -115,6 +115,7 @@ Note: This also includes presentation-related work
       momentum_distributions (pmd, snmd, dmd, EDFs, etc.)
       exp (experimental data)
       vmc (momentum distributions from VMC calculations)
+    Make data files compatible with NumPy loadtxt() and savetxt() (binary?)
   - Generate data with Python codes (scripts or notebooks?)
       run_srg, run_magnus, run_snmd, etc.
   - Sub-directories for specific scripts
