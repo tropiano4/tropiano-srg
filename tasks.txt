@@ -85,6 +85,8 @@ Note: This also includes presentation-related work
 * IMSRG and/or shell model
   - Belley_2020ejd
   - Hergert_2020bxy
+  - Hergert_2015awm
+  - Tsukiyama_2010rj
 
 * Misc.
   - Negele_1981fkk
@@ -101,6 +103,7 @@ Note: This also includes presentation-related work
 * Update repository for thesis: tropiano4/tropiano-lent (something like that)
   - No papers, presentations, old, densities, potentials, figures/logos, 
     figures/pictures, figures/.../old, and tasks.txt in this repository
+  - Think about doing /src and /tests (references!)
   - Store thesis figures in figures/paper_1/main_section_1 ...
   - Generate figures with Jupyter notebooks for each section of thesis:
       srg.ipynb, magnus.ipynb, ..., quasideuteron.ipynb
@@ -132,10 +135,15 @@ Note: This also includes presentation-related work
       Implement __call__ method in class?
   - Update momentum distribution codes: C++ with overhead Python script? Use inheritance?
   - New README.md
+      Title of the project
+      Explanation
+      Installation guide or dependencies
 * Create potentials repository (sole purpose is to generate matrix elements)
   - For now this can be in tropiano-LENT
   - Ideally you save files into a specified location
+* When the repositories are done, organize your Dropbox
 * Densities repository (sole purpose is execution of Fortran codes)?
+* How to best use branches?
 
 
 --- Study ---
@@ -147,7 +155,7 @@ Note: This also includes presentation-related work
 * Renormalization (Collins)
 * Statistical mechanics (Huang)
 * Mathematical methods in the physical sciences (Boas)
-* C++
+* C++ (Design Patterns - Gamma, look for scientific computing or linear algebra)
 * Quantum many-particle systems (Negele and Orland)
 * The nucleon-nucleon interaction (Brown)
 * Nuclear physics with effective field theory (Bedaque, Savage, Seki, and van Kolck)
