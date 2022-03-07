@@ -130,6 +130,7 @@ Note: This also includes presentation-related work
 --- Study ---
 
 * Nuclear shell theory (de-Shalit and Talmi)
+* Python (Punch and Enbody)
 * Quantum mechanics (Shankar)
 * Quantum field theory
 * Renormalization (Collins)
