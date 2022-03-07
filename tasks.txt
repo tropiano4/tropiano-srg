@@ -1,6 +1,5 @@
 --- Numerical/analytical work ---
 
-* Add bulleted takeaways to Overleaf
 * Look at \psi_d(r) in coordinate space connecting hard/soft potentials to decide on \lambda'
 * Iterate on quasideuteron.ipynb
   - To-do
@@ -42,14 +41,16 @@ Note: This also includes presentation-related work
 
 --- Overleaf ---
 
-* Check range of energies (Levinger and other references) - answer comment
-* Why is the cross section ratio effectively the ratio of squared wave functions? (Levinger)
-* How do Weiss et al. say the A/d cross section is related to contacts?
-* Understand E1 and M1 transitions (reference 8 in Weiss_2014gua)
+* Address DF comments on Levinger references:
+  - Check range of energies
+  - Why is the cross section ratio effectively the ratio of squared wave functions?
+* Address DF comments on GCF references:
+  - Relation between A/d cross sections, contacts, and momentum distributions
+  - Understand E1 and M1 transitions (reference 8 in Weiss_2014gua)
 * Address other comments by DF...
+* Update experimental L values after reading Terranova and Tavares papers
+* Iterate on optical potentials paper
 * Iterate on entire paper
-  - Add questions to address here
-  - Remove changes and resolve comments
 
   ...
 
@@ -60,24 +61,19 @@ Note: This also includes presentation-related work
 --- Read ---
 
 * SRG
-  - Bogner_2006pc
-  - Bogner_2009bt
-  - Furnstahl_2013oba
-  - Roth_2013fqa
-  - Binder_2013xaa
   - Hergert_2016iju
 
 * Quasideuteron
   - Levinger_1951vp, Levinger_1979jf, Levinger_2002vj
-  - Chen_2016bde
   - Terranova_1989aa
   - Tavares_1991zd
+  - Chen_2004zx
 
 * Spectroscopic factors and knockout reactions
-  - Nunes_2020bue
   - Aumann_2020tcq
   - Li_2022zao
   - Yoshida_2021ckq
+  - Nunes_2020bue
   - Rios_2009gb
   - Catford_2019icf
   - Jensen_2011mv
@@ -101,8 +97,16 @@ Note: This also includes presentation-related work
 --- Organization ---
 
 * Incorporate PEP 8 style in codes
-* LENT repository (maybe split off code)
-* How to organize papers, presentations, notes?
+* New repository for thesis: tropiano-LENT (something like that)
+  - Move papers, presentations, old, and tasks.txt outside of repository
+  - New README.md
+  - Add data/potentials for matrix elements of V_NN in tropiano-LENT
+  - Do figures/paper_1/main_section_1 ...
+  - Jupyter notebooks for each major section of thesis: 
+    srg.ipynb, magnus.ipynb, ..., quasideuteron.ipynb
+  - Update Magnus and SRG codes: C++ with overhead Python script? Use inheritance?
+  - Update momentum distribution codes: C++ with overhead Python script? Use inheritance?
+* Create potentials repository (sole purpose is to generate matrix elements)
 
 
 --- Study ---
