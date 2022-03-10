@@ -759,6 +759,50 @@ def convert2MeV(k_array, k_weights, V_fm, coupled_channel=False):
     return V_MeV
 
 
+def convert2fm(k_array, k_weights, V_MeV, coupled_channel=False):
+    """
+    Converts an NN potential from units MeV to fm with momentum array and 
+    weights. This is V(k,k') in the following equation:
+        k^2 \psi(k) + \int dk k'^2 V(k,k') \psi(k') = E \psi(k).
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    V_MeV : 2-D ndarray
+        Potential matrix with integration measure [MeV].
+    coupled_channel : bool, optional
+        True if the channel is a coupled channel and false otherwise.
+
+    Returns
+    -------
+    V_fm : 2-D ndarray
+        Potential matrix [fm].
+
+    """
+    
+    # h-bar^2 / M [MeV fm^2]
+    hbar_sq_over_m = 41.47
+    
+    # If coupled channel, double the length of the momentum and weights arrays
+    if coupled_channel:
+        
+        k_array = np.concatenate( (k_array, k_array) )
+        k_weights = np.concatenate( (k_weights, k_weights) )
+    
+    # Build grids of momentum and weights factor
+    col, row = np.meshgrid( k_array * np.sqrt(k_weights),
+                            k_array * np.sqrt(k_weights) )
+    
+    # Dividing the potential by 2/pi * row * col gives MeV fm^3 conversion and 
+    # dividing by hbar_sq_over_m gives the fm conversion
+    V_fm = V_MeV / ( 2/np.pi * row * col * hbar_sq_over_m )
+    
+    return V_fm
+
+
 def mesh_specifications(kvnn):
     """
     Returns the default momentum mesh specifications for a potential.
