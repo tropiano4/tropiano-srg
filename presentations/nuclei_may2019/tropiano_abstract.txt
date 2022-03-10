@@ -1,8 +1,0 @@
-NUCLEI collaboration meeting 2019, Santa Fe, NM
-
-
-Title: Exploring the Magnus expansion and the similarity renormalization group
-
-Abstract:
-
-We test the Magnus expansion implementation of the similarity renormalization group (SRG) on chiral NN potentials at high cutoffs. At leading order and high cutoffs, chiral potentials feature spurious bound states in spin triplet channels. We explore how bound states decouple with two band-diagonal transformations. Furthermore, we study operator evolution and calculate consistently evolved observables.

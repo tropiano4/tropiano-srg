@@ -1,7 +1,0 @@
-title: Short-range correlation physics at low RG resolution
-
-authors: A.J. Tropiano, R.J. Furnstahl, Ohio State U., S.K. Bogner, Michigan State U.
-
-Recent experiments have succeeded in isolating processes where short-range correlation (SRC) physics is dominant and well accounted for by SRC phenomenology. But an alternative and compelling picture emerges from renormalization group (RG) evolution to low RG resolution. At high RG resolution, SRCs are identified as components in the nuclear wave function with relative momenta above the Fermi momentum. Evolution to lower resolution shifts SRC physics from nuclear structure to the reaction operators without changing the measured observables. We show how the features of SRC phenomenology manifested at high RG resolution are cleanly identified in factorized form with simple two-body operators and local-density calculations using simple structure. We verify that the experimental consequences follow directly from well-established properties of nucleon-nucleon interactions such as the tensor force.
-
-Supported in part by the NSF and the DOE.
