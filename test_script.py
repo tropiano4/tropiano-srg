@@ -55,98 +55,49 @@
 
 
 # Description of this test:
-#   Generate momentum distribution files for other potentials.
+#   Testing how inheritance works.
 
 
 import numpy as np
-# Scripts made by A.T.
-from dmd import deuteron_momentum_distributions
-from pmd import pair_momentum_distributions
-from snmd import single_nucleon_momentum_distributions
-import time
 
 
-# --- Set-up --- #
-
-# kvnns = [111, 113, 222, 224]
-kvnns = [110, 111, 112, 113]
-channels = ['1S0', '3S1']
-# channels = ['1S0', '3S1', '3P0', '3P1', '1P1']
-kmax, kmid, ntot = 15.0, 3.0, 120
-lamb = 1.35
-# nuclei = ( ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-#            ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
-# nuclei = [
-#     ('Li7', 3, 4), ('Ti48', 22, 26), ('Ag107', 47, 60), ('Sn118', 50, 68),
-#     ('Ce140', 58, 82), ('Ta181', 73, 108), ('U238', 92, 146)
-# ]
-# Nuclei from Gogny densities
-nuclei = [
-    ('He4', 2, 2), ('Li7', 3, 4), ('Be9', 4, 5), ('C12', 6, 6), ('O16', 8, 8),
-    ('Al27', 13, 14), ('Ca40', 20, 20), ('Ca48', 20, 28), ('Ti48', 22, 26),
-    ('Fe56', 26, 30), ('Cu63', 29, 34), ('Ag107', 47, 60), ('Sn118', 50, 68),
-    ('Ce140', 58, 82), ('Ta181', 73, 108), ('Au197', 79, 118),
-    ('Pb208', 82, 126), ('U238', 92, 146)
-]
-# edf = 'SLY4'
-edf = 'Gogny'
-
-
-# # --- SRG --- #
-# from run_srg import run_srg
-
-# lambda_array = np.array( [6.0, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.35] )
-
-# for kvnn in kvnns:
-#     for channel in channels:
-#         d = run_srg(kvnn, channel, kmax, kmid, ntot, 'Wegner', lambda_array)
-
-
-# --- Momentum distributions --- #
-
-for kvnn in kvnns:
+class potentials:
     
-    print(f'Starting kvnn = {kvnn}.')
-    
-    # Start timer
-    t0 = time.time()
-    
-    # --- Deuteron --- #
-    
-    # Initialize deuteron momentum distribution class
-    dmd = deuteron_momentum_distributions(kvnn, lamb, kmax, kmid, ntot)
-    
-    # Write deuteron momentum distribution file
-    dmd.write_file()
-    
-    print('Done with deuteron.')
-    
-    # Initialize single-nucleon and pair momentum distributions classes
-    snmd = single_nucleon_momentum_distributions(kvnn, channels, lamb, kmax,
-                                                  kmid, ntot)
-    pmd = pair_momentum_distributions(kvnn, channels, lamb, kmax, kmid, ntot)
-    
-    for nucleus in nuclei:
+    def __init__(self, kvnn, channel, kmax, kmid, ntot):
         
-        # Details of nucleus
-        nucleus_name = nucleus[0]
-        Z = nucleus[1]
-        N = nucleus[2]
+        self.kvnn = kvnn
+        self.channel = channel
+        self.kmax = kmax
+        self.kmid = ntot
         
-        # --- Single-nucleon --- #
-        snmd.write_file(nucleus_name, 'proton', Z, N, edf)
-        snmd.write_file(nucleus_name, 'neutron', Z, N, edf)
-    
-        # --- Pair --- #
-        pmd.write_file(nucleus_name, 'pn', Z, N, edf)
-        pmd.write_file(nucleus_name, 'pp', Z, N, edf)
-        pmd.write_file(nucleus_name, 'nn', Z, N, edf)
+        # You can now call the initial potential, Hamiltonian, momentum mesh
         
-        print(f'Done with {nucleus_name}.')
+class srg(potentials):
+
+    def __init__(
+            self, kvnn, channel, kmax, kmid, ntot, generator, lamb,
+            lambda_bd=0.00):
+        
+        super().__init__(kvnn, channel, kmax, kmid, ntot)
+        self.generator = generator
+        self.lamb = lamb
+        self.lambda_bd = lambda_bd
+        
+        # You can now call the SRG-evolved potential or Hamiltonian for various
+        # SRG generators and flow parameters
+
+class momentum_distributions(srg):
     
-    # End timer
-    t1 = time.time()
-    mins = (t1-t0)/60
-    
-    # Print time for one kvnn
-    print(f'kvnn = {kvnn} done after {mins:.2f} minutes.\n')
+    def __init__(
+            self, distribution, kvnn, channel, kmax, kmid, ntot, generator,
+            lamb, lambda_bd=0.00):
+        
+        super().__init__(kvnn, channel, kmax, kmid, ntot, generator, lamb,
+                         lambda_bd=0.00)
+        kvnn = self.kvnn
+        generator = self.generator
+        
+        # Should be able to call momentum distributions given the specific
+        # SRG and potential inputs
+        print(f'Doing {distribution} distribution for kvnn = {kvnn:d}')
+        print(f'SRG generator = {generator}')
