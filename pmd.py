@@ -90,7 +90,6 @@ class pair_momentum_distributions(object):
         self.channels = channels
         self.lamb = lamb
         self.kmax = kmax
-        self.ntot = ntot
         self.generator = generator
 
         if interp == False:
