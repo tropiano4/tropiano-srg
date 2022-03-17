@@ -17,6 +17,7 @@
 #------------------------------------------------------------------------------
 
 
+# To-do: Should be ode and solve_ivp options
 import numpy as np
 from scipy.integrate import ode
   
@@ -40,6 +41,7 @@ class SRG(object):
         hbar_sq_over_m = 41.47
         
         # Save matrices in scattering units [fm^-2]
+        # hbar^2/M = 1
         self.H_initial = H_initial / hbar_sq_over_m
         
         # Save length of matrix
@@ -214,6 +216,8 @@ class SRG(object):
         # and error tolerances
         solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
                               rtol=1e-6, nsteps=5000000)
+        # HH does vode, bdf, order=5, nsteps=1000
+        # solver.set_f_params(T_matrix) see what else you can do with this
         # Set initial value of Hamiltonian at lambda = lambda_initial
         solver.set_initial_value(H_initial, lambda_initial)
     
