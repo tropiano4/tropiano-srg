@@ -1,4 +1,23 @@
-#!/usr/bin/env python3
+"""
+File: name.py
+
+Author: A. J. Tropiano (tropiano.4@osu.edu)
+Date: Month Day, Year
+
+1-3 summary of the script.
+
+Last update: March 17, 2022
+
+"""
+
+# To-do: ...
+
+# Python imports
+
+# Imports from A.T. codes
+
+
+# code
 
 #------------------------------------------------------------------------------
 # File: snmd.py
@@ -48,11 +67,99 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
-from densities import load_density
-from figures import figures_functions as ff
-from misc.integration import gaussian_quadrature_mesh
-from potentials.vsrg_macos import vnn
-from srg.srg_unitary_transformation import SRG_unitary_transformation
+# from densities import load_density
+# from figures import figures_functions as ff
+# from misc.integration import gaussian_quadrature_mesh
+# from potentials.vsrg_macos import vnn
+# from srg.srg_unitary_transformation import SRG_unitary_transformation
+from .figure_labels import replace_periods
+from integration import gaussian_quadrature_mesh
+from .vnn import Potential
+from srg_transformation import get_transformation
+from tools import channel_L_value, coupled_channel
+
+
+def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
+    """
+    Loads a nucleonic density for the given nucleus. Densities are normalized
+    according to
+        4*\pi \int_0^\infty dR R^2 \rho_A(R) = Z or N.
+    
+    Parameters
+    ----------
+    nucleus_name : str
+        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
+    nucleon : str
+        Specify 'proton' or 'neutron'.
+    Z : int
+        Proton number of the nucleus.
+    N : int
+        Neutron number of the nucleus.
+    edf : str, optional
+        Name of EDF (e.g., 'SLY4').
+        
+    Returns
+    -------
+    R_array : 1-D ndarray
+        C.o.M. coordinates [fm].
+    rho_array : 1-D ndarray
+        Nucleonic density as a function of R [# of nucleons / vol].
+                                              
+    Notes
+    -----
+    Momentum distributions code compute intermediate integration arrays in 
+    relative k and C.o.M. K which rely on kF(R) values. These values can be
+    zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
+    extremely small number so the codes run correctly to avoid zero division
+    errors. (This only happens for edf = 'AV18' densities.)
+    
+    """
+
+
+    # Go to directory corresponding to specified nucleus and EDF
+    if edf == 'SLY4':
+        
+        densities_directory = f'../../densities/HFBRAD_{edf}/{nucleus_name}/'
+        file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
+        column_number = 1
+        
+    elif edf == 'Gogny':
+        
+        densities_directory = f'../../densities/{edf}/{nucleus_name}/'
+        file_name = 'DensityQP.dat'
+        if nucleon == 'proton':
+            column_number = 1
+        elif nucleon == 'neutron':
+            column_number = 2
+    
+    # Technically it doesn't make sense to have a case edf == AV18 since
+    # AV18 does not use an EDF. It would also make more sense to call it VMC.
+    elif edf == 'AV18':
+        
+        densities_directory = '../../densities/{edf}/'
+        file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
+        
+        # AV18 files either have single \rho column for N=Z nuclei or
+        # two columns for proton (1) and neutron (3)
+        if N == Z:
+            column_number = 1
+        else:
+            if nucleon == 'proton':
+                column_number = 1
+            elif nucleon == 'neutron':
+                column_number = 3 
+        
+    # Load file
+    table = np.loadtxt(densities_directory + file_name)
+    
+    R_array = table[:, 0]
+    rho_array = table[:, column_number]
+    
+    # Avoiding zero division errors
+    zero_case = rho_array == 0
+    rho_array[zero_case] = 1e-30
+    
+    return R_array, rho_array
 
 
 class single_nucleon_momentum_distributions(object):
@@ -110,13 +217,12 @@ class single_nucleon_momentum_distributions(object):
             # Save highest allowed L based on input channels
             highest_L = 0
             for channel in channels:
-                next_L = vnn.channel_L_value(channel)
+                next_L = channel_L_value(channel)
                 if next_L > highest_L:
                     highest_L = next_L
 
             # Load and save momentum arrays
-            k_array, k_weights = vnn.load_momentum(kvnn, '1S0', kmax, kmid,
-                                                   ntot)
+            k_array, k_weights = Potential(kvnn, '1S0', kmax, kmid, ntot).load_mesh()
             # Save k_array for writing files
             self.k_array = k_array
             
@@ -136,6 +242,8 @@ class single_nucleon_momentum_distributions(object):
         
             # Loop over channels and evaluate matrix elements
             for channel in channels:
+                
+                potential = Potential(kvnn, channel, kmax, kmid, ntot)
 
                 # Load SRG transformation
                 
@@ -143,8 +251,7 @@ class single_nucleon_momentum_distributions(object):
                 # of kvnn as the starting point
                 if lambda_init == np.inf:
                     
-                    H_initial = vnn.load_hamiltonian(kvnn, channel, kmax,
-                                                     kmid, ntot)
+                    H_initial = potential.load_hamiltonian()
                     
                 # Otherwise, this splits into two cases
                 else:
@@ -156,62 +263,55 @@ class single_nucleon_momentum_distributions(object):
                         
                         # Block-diagonal
                         if generator == 'Block-diag':
-                            H_initial = vnn.load_hamiltonian(
-                            kvnn, channel, kmax, kmid, ntot, 'srg', generator,
-                            1.0, lambda_init)
+                            H_initial = potential.load_hamiltonian(
+                                'srg', generator, 1.0, lambda_init)
                             
                         # Band-diagonal
                         else:
-                            H_initial = vnn.load_hamiltonian(
-                                kvnn, channel, kmax, kmid, ntot, 'srg',
-                                generator, lambda_init)
+                            H_initial = potential.load_hamiltonian(
+                                'srg', generator, lambda_init)
                     
                     # If kvnn_hard is nonzero, SRG-evolve the initial 
                     # Hamiltonian of kvnn back using transformations from
                     # kvnn_hard at lambda_initial
                     else:
                         
-                        H_hard_initial = vnn.load_hamiltonian(
-                            kvnn_hard, channel, kmax, kmid, ntot)
+                        potential_hard = Potential(kvnn_hard, channel, kmax, kmid, ntot)
+                        
+                        H_hard_initial = potential_hard.load_hamiltonian()
                         
                         # Block-diagonal
                         if generator == 'Block-diag':
-                            H_hard_evolved = vnn.load_hamiltonian(
-                                kvnn_hard, channel, kmax, kmid, ntot, 'srg',
-                                generator, 1.0, lambda_init)
+                            H_hard_evolved = potential_hard.load_hamiltonian(
+                                'srg', generator, 1.0, lambda_init)
                             
                         # Band-diagonal
                         else:
-                            H_hard_evolved = vnn.load_hamiltonian(
-                                kvnn_hard, channel, kmax, kmid, ntot, 'srg',
-                                generator, lambda_init)
+                            H_hard_evolved = potential_hard.load_hamiltonian(
+                                'srg', generator, lambda_init)
                             
                         # Get SRG transformation from hard potential
-                        U_hard = SRG_unitary_transformation(H_hard_initial,
-                                                            H_hard_evolved)
+                        U_hard = get_transformation(H_hard_initial,
+                                                    H_hard_evolved)
                         
                         # Get initial Hamiltonian for kvnn
-                        H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax,
-                                                        kmid, ntot)
+                        H_matrix = potential.load_hamiltonian()
                         
                         # Do inverse transformation on softer Hamiltonian
                         H_initial = U_hard.T @ H_matrix @ U_hard
                     
                 if generator == 'Block-diag':
                     # Take \lambda = 1 fm^-1 and set \Lambda_BD = input \lambda
-                    H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                     ntot, 'srg', generator,
-                                                     1.0, lamb)
+                    H_evolved = potential.load_hamiltonian('srg', generator,
+                                                           1.0, lamb)
                 else:
-                    H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                     ntot, 'srg', generator,
-                                                     lamb)
+                    H_evolved = potential.load_hamiltonian('srg', generator,
+                                                           lamb)
                 # Load U(k, k') [unitless]
-                U_matrix_unitless = SRG_unitary_transformation(H_initial, 
-                                                               H_evolved)
+                U_matrix_unitless = get_transformation(H_initial, H_evolved)
 
                 # Isolate 2-body term and convert to fm^3
-                if vnn.coupled_channel(channel):
+                if coupled_channel(channel):
                     I_matrix_unitless = np.eye( 2*ntot, 2*ntot )
                     row, col = np.meshgrid(factor_array_cc, factor_array_cc)
                 else:
@@ -225,7 +325,7 @@ class single_nucleon_momentum_distributions(object):
             
                 # Add to the pp and pn terms
                 # Coupled-channel
-                if vnn.coupled_channel(channel):
+                if coupled_channel(channel):
                     
                     # First L of coupled-channel
                     # Isospin CG's=1/\sqrt(2) for pn
@@ -245,7 +345,7 @@ class single_nucleon_momentum_distributions(object):
                     # L value (e.g., 0 + 2 <= 2 meaning we include the 3D1-3D1
                     # part of the coupled 3S1-3D1 channel if we input D-waves
                     # in channels)
-                    if vnn.channel_L_value(channel) + 2 <= highest_L:
+                    if channel_L_value(channel) + 2 <= highest_L:
                         deltaU_pn += (2*J+1)/2 * delta_U_matrix[ntot:, ntot:]
                         deltaU2_pn += (2*J+1)/2 * ( \
                                           delta_U_matrix[ntot:, :ntot]**2 + \
@@ -851,7 +951,7 @@ class single_nucleon_momentum_distributions(object):
             file_name += '_LambdaBD_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
         else:
             file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
-        file_name = ff.replace_periods(file_name) + '.dat'
+        file_name = replace_periods(file_name) + '.dat'
         
         # Load R values and nucleonic densities (the R_array's are the same)
         R_array, rho_p_array = load_density(nucleus, 'proton', Z, N, edf)
@@ -931,7 +1031,7 @@ class single_nucleon_momentum_distributions(object):
             file_name += '_LambdaBD_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
         else:
             file_name += '_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
-        file_name = ff.replace_periods(file_name) + '.dat'
+        file_name = replace_periods(file_name) + '.dat'
         
         # Load data which includes all contributions to n_\lambda(q)
         data = np.loadtxt(data_directory + '/' + file_name)

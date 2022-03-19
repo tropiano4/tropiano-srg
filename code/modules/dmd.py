@@ -1,4 +1,34 @@
-#!/usr/bin/env python3
+"""
+File: name.py
+
+Author: A. J. Tropiano (tropiano.4@osu.edu)
+Date: Month Day, Year
+
+Calculates deuteron momentum distributions (dmd) with SRG-evolved operators
+and assuming the evolved wave function is given by HF treated in LDA. There
+is a method to use the exact SRG-evolved wave function for comparison.
+
+Notes on normalizations:
+  1. The deuteron wave function describing relative position or momentum is
+      normalized according to
+        \int dr r^2 (|\psi_3S1(r)|^2 + |\psi_3D1(r)|^2) = 1,
+        2/\pi * \int dk k^2 (|\psi_{3S1}(k)|^2 + |\psi_{3D1}(k)|^2) = 1.
+  2. Under HF+LDA, we adopt the normalization
+        4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
+     where angled-brackets indicate nuclear-averaging (integration over R).
+
+Last update: March 17, 2022
+
+"""
+
+# To-do: ...
+
+# Python imports
+
+# Imports from A.T. codes
+
+
+# code
 
 #------------------------------------------------------------------------------
 # File: dmd.py
@@ -55,14 +85,104 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 from scipy.interpolate import interp1d, RectBivariateSpline
 # Scripts made by A.T.
-from densities import load_density
-from figures import figures_functions as ff
-from misc.fourier_transform import hankel_transformation_k2r
-from misc.integration import gaussian_quadrature_mesh
-import observables as ob
-from operators import momentum_projection_operator
-from potentials.vsrg_macos import vnn
-from srg.srg_unitary_transformation import SRG_unitary_transformation
+# from densities import load_density
+# from figures import figures_functions as ff
+# from misc.fourier_transform import hankel_transformation_k2r
+# from misc.integration import gaussian_quadrature_mesh
+# import observables as ob
+# from operators import momentum_projection_operator
+# from potentials.vsrg_macos import vnn
+# from srg.srg_unitary_transformation import SRG_unitary_transformation
+from .figure_labels import replace_periods
+from .fourier_transform import hankel_transformation_k2r
+from .integration import gaussian_quadrature_mesh
+from .momentum_projection_operator import momentum_projection_operator
+from ..vnn import Potential
+from .srg_transformation import get_transformation
+from .wave_function import wave_function
+
+
+def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
+    """
+    Loads a nucleonic density for the given nucleus. Densities are normalized
+    according to
+        4*\pi \int_0^\infty dR R^2 \rho_A(R) = Z or N.
+    
+    Parameters
+    ----------
+    nucleus_name : str
+        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
+    nucleon : str
+        Specify 'proton' or 'neutron'.
+    Z : int
+        Proton number of the nucleus.
+    N : int
+        Neutron number of the nucleus.
+    edf : str, optional
+        Name of EDF (e.g., 'SLY4').
+        
+    Returns
+    -------
+    R_array : 1-D ndarray
+        C.o.M. coordinates [fm].
+    rho_array : 1-D ndarray
+        Nucleonic density as a function of R [# of nucleons / vol].
+                                              
+    Notes
+    -----
+    Momentum distributions code compute intermediate integration arrays in 
+    relative k and C.o.M. K which rely on kF(R) values. These values can be
+    zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
+    extremely small number so the codes run correctly to avoid zero division
+    errors. (This only happens for edf = 'AV18' densities.)
+    
+    """
+
+
+    # Go to directory corresponding to specified nucleus and EDF
+    if edf == 'SLY4':
+        
+        densities_directory = f'../../densities/HFBRAD_{edf}/{nucleus_name}/'
+        file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
+        column_number = 1
+        
+    elif edf == 'Gogny':
+        
+        densities_directory = f'../../densities/{edf}/{nucleus_name}/'
+        file_name = 'DensityQP.dat'
+        if nucleon == 'proton':
+            column_number = 1
+        elif nucleon == 'neutron':
+            column_number = 2
+    
+    # Technically it doesn't make sense to have a case edf == AV18 since
+    # AV18 does not use an EDF. It would also make more sense to call it VMC.
+    elif edf == 'AV18':
+        
+        densities_directory = '../../densities/{edf}/'
+        file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
+        
+        # AV18 files either have single \rho column for N=Z nuclei or
+        # two columns for proton (1) and neutron (3)
+        if N == Z:
+            column_number = 1
+        else:
+            if nucleon == 'proton':
+                column_number = 1
+            elif nucleon == 'neutron':
+                column_number = 3 
+        
+    # Load file
+    table = np.loadtxt(densities_directory + file_name)
+    
+    R_array = table[:, 0]
+    rho_array = table[:, column_number]
+    
+    # Avoiding zero division errors
+    zero_case = rho_array == 0
+    rho_array[zero_case] = 1e-30
+    
+    return R_array, rho_array
 
 
 class deuteron_momentum_distributions(object):
@@ -112,10 +232,12 @@ class deuteron_momentum_distributions(object):
             
             # Channel is 3S1-3D1 for deuteron
             channel = '3S1'
+            
+            potential = Potential(kvnn, channel, kmax, kmid, ntot)
 
             # Load and save momentum arrays
-            k_array, k_weights = vnn.load_momentum(kvnn, channel, kmax, kmid,
-                                                   ntot)
+            k_array, k_weights = potential.load_momentum(kvnn, channel, kmax,
+                                                         kmid, ntot)
             # Save k_array, k_weights, ntot
             self.k_array, self.k_weights, self.ntot = k_array, k_weights, ntot
             
@@ -130,8 +252,7 @@ class deuteron_momentum_distributions(object):
             # kvnn as the starting point
             if lambda_init == np.inf:
                 
-                H_initial = vnn.load_hamiltonian(kvnn, channel, kmax, kmid,
-                                                 ntot)
+                H_initial = potential.load_hamiltonian()
                     
             # Otherwise, this splits into two cases
             else:
@@ -141,40 +262,36 @@ class deuteron_momentum_distributions(object):
                 # Hamiltonian
                 if kvnn_hard == 0:
                     
-                    H_initial = vnn.load_hamiltonian(
-                        kvnn, channel, kmax, kmid, ntot, 'srg', 'Wegner',
-                        lambda_init)
+                    H_initial = potential.load_hamiltonian('srg', 'Wegner',
+                                                           lambda_init)
                     
                 # If kvnn_hard is nonzero, SRG-evolve the initial Hamiltonian 
                 # of kvnn back using transformations from kvnn_hard at
                 # lambda_initial
                 else:
-                        
-                    H_hard_initial = vnn.load_hamiltonian(kvnn_hard, channel, 
-                                                          kmax, kmid, ntot)
-                    H_hard_evolved = vnn.load_hamiltonian(
-                        kvnn_hard, channel, kmax, kmid, ntot, 'srg', 'Wegner',
-                        lambda_init)
+                    
+                    potential_hard = Potential(kvnn_hard, channel, kmax, kmid,
+                                               ntot)
+                    H_hard_initial = potential_hard.load_hamiltonian()
+                    H_hard_evolved = potential_hard.load_hamiltonian(
+                        'srg', 'Wegner', lambda_init
+                    )
                             
                     # Get SRG transformation from hard potential
-                    U_hard = SRG_unitary_transformation(H_hard_initial,
-                                                        H_hard_evolved)
+                    U_hard = get_transformation(H_hard_initial, H_hard_evolved)
                         
                     # Get initial Hamiltonian for kvnn
-                    H_matrix = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, 
-                                                    ntot)
+                    H_matrix = potential.load_hamiltonian()
                         
                     # Do inverse transformation on softer Hamiltonian
                     H_initial = U_hard.T @ H_matrix @ U_hard
                 
-            H_evolved = vnn.load_hamiltonian(kvnn, channel, kmax, kmid, ntot,
-                                             'srg', 'Wegner', lamb)
+            H_evolved = potential.load_hamiltonian('srg', 'Wegner', lamb)
             # Load U(k, k') [unitless]
-            U_matrix_unitless = SRG_unitary_transformation(H_initial, 
-                                                           H_evolved)
+            U_matrix_unitless = get_transformation(H_initial, H_evolved)
             
             # Unitless wave function in momentum space
-            psi_k_unitless = ob.wave_function(H_initial, U=U_matrix_unitless)
+            psi_k_unitless = wave_function(H_initial, U=U_matrix_unitless)
             self.psi = psi_k_unitless
             # Divide out momenta/weights and save
             self.psi_k = psi_k_unitless / factor_array_cc # [fm^3/2]
@@ -711,7 +828,7 @@ class deuteron_momentum_distributions(object):
         
         # Create file name
         file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
-        file_name = ff.replace_periods(file_name) + '.dat'
+        file_name = replace_periods(file_name) + '.dat'
         
         
         # Use R values in accordance with densities code from densities.py
@@ -765,7 +882,7 @@ class deuteron_momentum_distributions(object):
         
         # Get file name
         file_name = 'deuteron_lamb_%.2f_kmax_%.1f' % (self.lamb, self.kmax)
-        file_name = ff.replace_periods(file_name) + '.dat'
+        file_name = replace_periods(file_name) + '.dat'
         
         # Load data which includes all contributions to n_\lambda(q)
         data = np.loadtxt(data_directory + '/' + file_name)

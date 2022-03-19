@@ -1,48 +1,42 @@
 #!/usr/bin/env python3
 
-#------------------------------------------------------------------------------
-# File: densities.py
-#
-# Author:   A. J. Tropiano (tropiano.4@osu.edu)
-# Date:     May 27, 2021
-# 
-# Loads nucleonic densities from densities directory. So far relying on only
-# Skyrme EDFs from SLy4 using HFBRAD code.
-#
-# Revision history:
-#   03/18/21 --- Added 12C data to densities. Now shows \rho_proton(r) for
-#                12C in plots below.
-#   04/16/21 --- Added 56Fe data to densities. Now shows \rho_proton(r) for
-#                56Fe in plots below.
-#   05/27/21 --- Split up old lda.py code into this piece and added the
-#                averaging over \int dr r^2 to snmd.py and pmd.py separately.
-#                Renamed from lda.py to densities.py where lda.py is now in
-#                Old_codes.
-#   06/17/21 --- Added He4 from www.phy.anl.gov/theory/research/density/.
-#   06/30/21 --- Added He8 from www.phy.anl.gov/theory/research/density/.
-#   07/13/21 --- Added Gogny densities to densities/Gogny.
-#   10/19/21 --- Added functions that return occupied single-particle states
-#                of given nucleus. This allows for an organized way of looping
-#                over the occupied states of a nucleus.
-#
-#------------------------------------------------------------------------------
+"""
+File: densities.py
 
+Author: A. J. Tropiano (tropiano.4@osu.edu)
+Date: May 27, 2021
 
-from os import getcwd, chdir
+Handles nucleonic densities from the directory data/densities.
+So far we have densities from the SLy4 Skyrme functional using HFBRAD code,
+densities from the Gogny functional, and densities from VMC calculations
+(see www.phy.anl.gov/theory/research/density/).
+
+Last update: March 17, 2022
+
+"""
+
+# To-do: Could always rename this script (e.g., nuclei.py).
+# To-do: Probably want this to be a class too.
+# To-do: Check zero division problem again.
+# To-do: How to do AV18 densities (properly). See comment in function.
+
+# Python imports
 import numpy as np
-# Scripts made by A.T.
-from figures.figures_functions import replace_periods
+
+# Imports from A.T. codes
+from modules.figure_labels import replace_periods
 
 
-def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
+def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
-    according to 4*\pi \int_0^\infty dR R^2 \rho_A(R) = Z or N.
+    according to
+        4*\pi \int_0^\infty dR R^2 \rho_A(R) = Z or N.
     
     Parameters
     ----------
-    nucleus : str
-        Specify nucleus (e.g., 'O16', 'Ca40', etc.)
+    nucleus_name : str
+        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
     nucleon : str
         Specify 'proton' or 'neutron'.
     Z : int
@@ -69,29 +63,29 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
     
     """
 
-    cwd = getcwd()
 
-    # Go to directory corresponding to specified nucleus
+    # Go to directory corresponding to specified nucleus and EDF
     if edf == 'SLY4':
         
-        densities_directory = 'densities/HFBRAD_%s/%s' % (edf, nucleus)
-        file_name = '%s_%d_%d.dens' % (nucleon, N, Z)
+        densities_directory = f'../densities/HFBRAD_{edf}/{nucleus_name}/'
+        file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
         column_number = 1
         
     elif edf == 'Gogny':
         
-        densities_directory = 'densities/%s/%s' % (edf, nucleus)
+        densities_directory = f'../densities/{edf}/{nucleus_name}/'
         file_name = 'DensityQP.dat'
         if nucleon == 'proton':
             column_number = 1
         elif nucleon == 'neutron':
             column_number = 2
-        
-    # Densities from www.phy.anl.gov/theory/research/density/
+    
+    # Technically it doesn't make sense to have a case edf == AV18 since
+    # AV18 does not use an EDF. It would also make more sense to call it VMC.
     elif edf == 'AV18':
         
-        densities_directory = 'densities/%s' % edf
-        file_name = '%s_densities_%d_%d.txt' % (nucleus, N, Z)
+        densities_directory = '../densities/{edf}/'
+        file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
         
         # AV18 files either have single \rho column for N=Z nuclei or
         # two columns for proton (1) and neutron (3)
@@ -103,13 +97,8 @@ def load_density(nucleus, nucleon, Z, N, edf='SLY4'):
             elif nucleon == 'neutron':
                 column_number = 3 
         
-    chdir(densities_directory)
-    
     # Load file
-    table = np.loadtxt(file_name)
-
-    # Go back to current working directory
-    chdir(cwd)
+    table = np.loadtxt(densities_directory + file_name)
     
     R_array = table[:, 0]
     rho_array = table[:, column_number]
@@ -129,7 +118,7 @@ def convert_l_to_string(l):
     Parameters
     ----------
     l : int
-        Orbital angular momentum of the s.p. state.
+        Orbital angular momentum of the single-particle (s.p.) state.
 
     Returns
     -------
@@ -159,7 +148,7 @@ def convert_l_to_string(l):
 
 def sp_states(nucleus, print_statement=False):
     """
-    Return all the occupied s.p. states of the given nucleus.
+    Return all the occupied single-particle states of the given nucleus.
     
     Parameters
     ----------
@@ -178,7 +167,7 @@ def sp_states(nucleus, print_statement=False):
     
     Notes
     -----
-    * Currently we're assuming the SLy4 interaction.
+    Currently we're assuming the SLy4 interaction.
     
     """
     
@@ -188,21 +177,21 @@ def sp_states(nucleus, print_statement=False):
     N = nucleus[2]
     
     # Go to HFBRAD directory
-    densities_directory = f'densities/HFBRAD_SLY4/{nucleus_name}'
+    densities_directory = f'../densities/HFBRAD_SLY4/{nucleus_name}/'
     file_name = f'hfb_{N}_{Z}.spe'
     
     # Open file and add each occupied s.p. state to list
     neutron_states = []
     proton_states = []
     
-    f = open(densities_directory + '/' + file_name, 'r')
+    f = open(densities_directory + file_name, 'r')
     
     for line in f:
         
         unit = line.strip().split() # Split up row into list
         
         # Make sure you're going through the correct data
-        if ( len(unit) == 12 ) and ( unit[0] in ('1', '2') ):
+        if (len(unit) == 12) and (unit[0] in ('1', '2')):
             
             # Only do occupied states:
             if float(unit[6]) == 1:
@@ -227,18 +216,18 @@ def sp_states(nucleus, print_statement=False):
                 # Add string to neutron or proton list with periods replaced
                 # by 'p'
                 if nucleon_number == '1': # Neutron
-                    neutron_states.append( replace_periods(state_str) )
+                    neutron_states.append(replace_periods(state_str))
                 elif nucleon_number == '2': # Proton
-                    proton_states.append( replace_periods(state_str) )
-                
+                    proton_states.append(replace_periods(state_str))
+            
                 # Print information for each state?
                 if print_statement:
                 
                     info = 'Nuc={:s}, N={:s}, state={:s}'.format(
-                           nucleon_number, unit[4], state_str)
+                        nucleon_number, unit[4], state_str
+                    )
                     print(info)
                 
-    # Close file
     f.close()
     
     return [neutron_states, proton_states]
@@ -249,43 +238,43 @@ if __name__ == '__main__':
     
     # --- Test densities --- #
     
+    # Python imports
     import matplotlib.pyplot as plt
-    # Scripts made by A.T.
-    from figures import figures_functions as ff
+    
+    # Imports from A.T. codes
+    from modules import figure_graphics as fg
 
     # Details of example nuclei (format is (nuclei, Z, N) )
-    nuclei_details = ( ('He4', 2, 2), ('He8', 2, 6), ('Be9', 4, 5),
-                       ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
-                       ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126) )
+    nuclei_details = (
+        ('He4', 2, 2), ('C12', 6, 6), ('O16', 8, 8), ('Ca40', 20, 20),
+        ('Ca48', 20, 28), ('Fe56', 26, 30), ('Pb208', 82, 126)
+    )
     
     # Plot densities as a function of R
     plt.clf()
     for i, nuclei_list in enumerate(nuclei_details):
         
-        # Plot density for some nuclei here
         nucleus = nuclei_list[0]
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if nucleus == 'He8' or nucleus == 'Be9': # QMC files
-            R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
-        else:
-            R_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        
+        R_array, rho_array = load_density(nucleus, nucleon, Z, N)
             
-        curve_color = ff.xkcd_colors(i)
+        curve_color = fg.xkcd_colors(i)
 
         plt.plot(R_array, rho_array, label=nucleus, color=curve_color)
         
-        print( 4*np.pi*np.sum(0.1 * R_array**2 * rho_array) )
+        normalization = 4*np.pi*np.sum(0.1*R_array**2*rho_array)
+        print(normalization)
         
-    plt.xlim( [0.0, 10.0] )
+    plt.xlim((0.0, 10.0))
     plt.legend(loc='upper right', frameon=False)
     plt.xlabel('R [fm]')
     plt.ylabel(r'$\rho_p(R)$' + ' [fm' + r'$^{-3}$' + ']')
     plt.show()
     
-    # Plot proton k_F for some nuclei as function of R
-    # rho = 2 / (3*\pi^2) k_F^3
+    # Plot proton Fermi momentum for same set of nuclei as function of R
     plt.clf()
     for j, nuclei_list in enumerate(nuclei_details):
         
@@ -294,17 +283,16 @@ if __name__ == '__main__':
         nucleon = 'proton'
         Z = nuclei_list[1]
         N = nuclei_list[2]
-        if nucleus == 'He8' or nucleus == 'Be9': # QMC files
-            R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'AV18')
-        else:
-            R_array, rho_array = load_density(nucleus, nucleon, Z, N)
-        kF_array = ( 3*np.pi**2 * rho_array )**(1/3)
         
-        curve_color = ff.xkcd_colors(j)
+        R_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        
+        kF_array = (3*np.pi**2*rho_array)**(1/3)
+        
+        curve_color = fg.xkcd_colors(j)
 
         plt.plot(R_array, kF_array, label=nucleus, color=curve_color)
 
-    plt.xlim( [0.0, 15.0] )
+    plt.xlim((0.0, 15.0))
     plt.legend(loc='upper right', frameon=False)
     plt.xlabel('R [fm]')
     plt.ylabel(r'$k_F(R)$' + ' [fm' + r'$^{-1}$' + ']')

@@ -1,40 +1,27 @@
 #!/usr/bin/env python3
 
-#------------------------------------------------------------------------------
-# File: sdt_functions.py
-#
-# Author:   A. J. Tropiano (tropiano.4@osu.edu)
-# Date:     January 28, 2020
-# 
-# Functions for comparing two Hamiltonians or potentials based off spectral
-# distribution theory (SDT). See https://arxiv.org/pdf/1308.5963.pdf and
-# https://arxiv.org/pdf/nucl-th/0703076.pdf for more details.
-#
-# Revision history:
-#   05/06/20 --- Updated to include the details of the momentum mesh.
-#
-#------------------------------------------------------------------------------
+"""
+File: sdt.py
 
+Author: A. J. Tropiano (tropiano.4@osu.edu)
+Date: January 28, 2020
 
+Functions for comparing two Hamiltonians or potentials based off spectral
+distribution theory (SDT). See https://arxiv.org/pdf/1308.5963.pdf and 
+https://arxiv.org/pdf/nucl-th/0703076.pdf for more details.
+
+Last update: March 17, 2022
+
+"""
+
+# To-do: Better way to code sigma function?
+
+# Python imports
 import numpy as np
 
 
 def expectation_value(H):
-    """
-    Calculates the expectation value of H with dimensionality N. Related to
-    the trace of the operator.
-    
-    Parameters
-    ----------
-    H : 2-D ndarray
-        Input Hamiltonian [fm].
-    
-    Returns
-    -------
-    output : float
-        Expectation value of H [fm].
-    
-    """
+    """Calculates the expectation value of H with dimensionality N."""
     
     return np.trace(H) / len(H)
 
@@ -52,7 +39,7 @@ def sigma(H, k_array, k_weights, coupled_channel=False):
     k_weights : 1-D ndarray
         Momentum weights [fm^-1].
     coupled_channel : bool, optional
-        True if the channel is a coupled channel and false otherwise.
+        True if the channel is a coupled-channel.
     
     Returns
     -------
@@ -61,23 +48,23 @@ def sigma(H, k_array, k_weights, coupled_channel=False):
     
     """
     
-    # Create factor_array to calculate mesh-independent quantity
-    factor_array = np.sqrt( 2/np.pi * k_weights ) * k_array
+    # Create square root of integration measure
+    factor_array = np.sqrt(2/np.pi*k_weights) * k_array
     
-    # Double length of factor_array for coupled channels
+    # Double length of factor_array for coupled-channels
     if coupled_channel: 
         
-        factor_array = np.concatenate( (factor_array, factor_array) )
-        
-    row, col = np.meshgrid(factor_array, factor_array)
+        factor_array = np.concatenate((factor_array, factor_array))
+    
+    col, row = np.meshgrid(factor_array, factor_array)
         
     # Compute squared Hamiltonian with factors
-    H2_with_factors = ( H * col ) @ ( H * row )
+    H2_with_factors = (H*col) @ (H*row)
     
-    # Convert H2 back to mesh-independent quantity (units fm)
+    # Convert H^2 back to mesh-independent quantity (units fm)
     H2 = H2_with_factors / row / col
 
-    return np.sqrt( expectation_value(H2) - expectation_value(H)**2 )
+    return np.sqrt( expectation_value(H2)-expectation_value(H)**2 )
 
 
 def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
@@ -95,7 +82,7 @@ def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
     k_weights : 1-D ndarray
         Momentum weights [fm^-1].
     coupled_channel : bool, optional
-        True if the channel is a coupled channel and false otherwise.
+        True if the channel is a coupled-channel.
     
     Returns
     -------
@@ -104,24 +91,24 @@ def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
     
     """
     
-    # Create factor_array to calculate mesh-independent quantity
-    factor_array = np.sqrt( 2/np.pi * k_weights ) * k_array
+    # Create square root of integration measure
+    factor_array = np.sqrt(2/np.pi*k_weights) * k_array
 
-    # Double length of factor_array for coupled channels
+    # Double length of factor_array for coupled-channels
     if coupled_channel: 
         
-        factor_array = np.concatenate( (factor_array, factor_array) )
-        
-    row, col = np.meshgrid(factor_array, factor_array)
+        factor_array = np.concatenate((factor_array, factor_array))
+    
+    col, row = np.meshgrid(factor_array, factor_array)
     
     # HHp is the matrix product of H^{\dagger} H (we're assuming H is real)
-    HHp_with_factors = ( H.T * col ) @ ( Hp * row )
+    HHp_with_factors = (H.T*col) @ (Hp*row)
     
     # Convert HHp back to mesh-independent quantity (units fm)
     HHp = HHp_with_factors / row / col
     
-    return expectation_value(HHp) - \
-           expectation_value(H.T) * expectation_value(Hp)
+    return (expectation_value(HHp)
+            - expectation_value(H.T)*expectation_value(Hp))
 
 
 def correlation_coefficient(H, Hp, k_array, k_weights, coupled_channel=False):
@@ -139,7 +126,7 @@ def correlation_coefficient(H, Hp, k_array, k_weights, coupled_channel=False):
     k_weights : 1-D ndarray
         Momentum weights [fm^-1].
     coupled_channel : bool, optional
-        True if the channel is a coupled channel and false otherwise.
+        True if the channel is a coupled-channel.
     
     Returns
     -------
@@ -149,7 +136,7 @@ def correlation_coefficient(H, Hp, k_array, k_weights, coupled_channel=False):
     """
     
     numerator = inner_product(H, Hp, k_array, k_weights, coupled_channel)
-    denominator = ( sigma(H, k_array, k_weights, coupled_channel) * \
-                    sigma(Hp, k_array, k_weights, coupled_channel) )
+    denominator = (sigma(H, k_array, k_weights, coupled_channel)
+                   * sigma(Hp, k_array, k_weights, coupled_channel))
     
     return numerator / denominator
