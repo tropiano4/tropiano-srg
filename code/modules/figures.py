@@ -8,21 +8,25 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib.
 
-Last update: March 17, 2022
+Last update: March 26, 2022
 
 """
 
 # To-do: Currently keeping setup_rc_params as it was. But there are probably
 # many more things to mess with.
 # To-do: Could add y_array argument to interpolate matrix. I'm assuming it's
-# a matrix M(x, x) currently.
+# a matrix M(x, x) currently. Update plotting functions below as well.
 # To-do: Couldn't you just input x_array and M_matrix, interpolate, evaluate
 # on new mesh (np.linspace(x_min, x_max, ntot)), and return the new arrays?
 
 # Python imports
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d, interp2d
+
+# Imports from A.T. codes
+from .labels import label_ticks
 
 
 def setup_rc_params(presentation=False):
@@ -45,9 +49,9 @@ def setup_rc_params(presentation=False):
 
     mpl.rcdefaults()  # Set to defaults
 
+    # This will give an error if you don't have LaTeX
     mpl.rc('text', usetex=True)
     mpl.rcParams['font.size'] = fontsize
-    # This will give an error if you don't have LaTeX
     mpl.rcParams['text.usetex'] = True
     mpl.rcParams['font.family'] = 'serif'
 
@@ -83,7 +87,8 @@ def setup_rc_params(presentation=False):
     mpl.rcParams['figure.dpi'] = 150  # To show up reasonably in notebooks
     mpl.rcParams['figure.constrained_layout.use'] = False
     # 0.02 and 3 points are the defaults:
-    # can be changed on a plot-by-plot basis using fig.set_constrained_layout_pads()
+    # can be changed on a plot-by-plot basis using
+    # fig.set_constrained_layout_pads()
     mpl.rcParams['figure.constrained_layout.wspace'] = 0.0
     mpl.rcParams['figure.constrained_layout.hspace'] = 0.0
     mpl.rcParams['figure.constrained_layout.h_pad'] = 3. / ppi  # 3 points
@@ -256,7 +261,7 @@ def line_styles(curve_number):
         
         return 'solid'
     
-
+    
 def xkcd_colors(curve_number):
     """
     Default curve colors for plotting figures with many curves. Colors are set
@@ -303,3 +308,113 @@ def xkcd_colors(curve_number):
         print(print_statement)
         
         return 'xkcd:black'
+    
+    
+def adjust_axes(
+            f, ax, axes_limits, x_label, y_label, label_size=16, wspace=0.0,
+            hspace=0.0, invert_y=False):
+    """Adjust the x- and y-axes of the figure."""
+  
+    # Get the shape of the figure from ax
+    # ...
+    # case for single plot
+    # case for one row, multiple columns
+    # case for multiple rows, multiple columns
+    
+    # Amount of white space in-between sub-plots
+    f.subplots_adjust(hspace=hspace, wspace=wspace)
+
+    # Loop over rows/cols.
+    for i in range(len(ax)):
+        
+        # Set axes limits
+        ax[i].set_xlim(axes_limits)
+        ax[i].set_ylim(axes_limits)
+        
+        # Switch from x-axis from bottom to top
+        ax[i].xaxis.set_label_position('top')
+        ax[i].tick_params(labeltop=True, labelbottom=False)
+
+        # Label axes
+        ax[i].set_xlabel(x_label, fontsize=label_size)
+        if i == 0:  # Far left column
+            ax[i].set_ylabel(y_label, fontsize=label_size)
+
+        # Prevent overlapping x-axis tick marks?
+        if wspace == 0.0 and i < len(ax) - 1:
+            xticks = ax[i].xaxis.get_major_ticks()
+            xticks[-1].set_visible(False)
+            
+    
+    # Invert y-axis?
+    if invert_y:
+        plt.gca().invert_yaxis()
+
+    return f, ax
+
+
+def add_colorbar(
+        f, ax_cbar, colorbar_limits, label='', label_size=18, tick_size=18):
+    """Add a colorbar to a contour plot."""
+    
+    # Tick marks on colorbar
+    levels_ticks = np.linspace(colorbar_limits[0], colorbar_limits[1], 9)
+    # Make these strings
+    levels_ticks_strings = label_ticks(levels_ticks)
+
+    # Adjust space for colorbar.
+    f.subplots_adjust(right=0.8)
+    cbar_ax = f.add_axes((0.85, 0.15, 0.05, 0.7))
+                                         
+    # Set colorbar
+    cbar = f.colorbar(ax_cbar, cax=cbar_ax, ticks=levels_ticks)
+    cbar.ax.tick_params(labelsize=tick_size)
+    cbar.ax.set_yticklabels(levels_ticks_strings)
+    # Will not set a label if label=''
+    if label:
+        cbar.ax.set_title(label, fontsize=label_size, pad=15)
+
+    return f, ax_cbar
+    
+    
+def plot_contours(x_array, z_data, axes_max, colorbar_limits, color_style):
+
+    # Note, this function should not assume anything about the data.
+
+    # Getting the figure size based on the number of keys in the dictionary
+    # ...
+    # case for single plot
+    # case for one row, multiple columns
+    # case for multiple rows, multiple columns (might make a function?)
+    row_number = 1
+    col_number = len(z_data)
+    figure_size = (4*col_number*1.25, 4*row_number)  # Extra width for colorbar
+
+    # Initializing the figure with figure size from above.
+    plt.close('all')
+    f, ax = plt.subplots(row_number, col_number, sharex=True, sharey=True,
+                         figsize=figure_size)
+    
+    # Control the number of contour levels assuming min = -max
+    levels_number = 61
+    levels = np.linspace(colorbar_limits[0], colorbar_limits[1], levels_number)
+
+    # if multiplot figure
+    for i, key in enumerate(z_data):
+        
+        z_matrix = z_data[key]
+        
+        # Interpolate from 0 to some finite value less than max of x and y
+        x_array_int, z_matrix_int = interpolate_matrix(x_array, z_matrix,
+                                                       axes_max+0.2)
+        
+        ax_cbar = ax[i].contourf(x_array_int, x_array_int, z_matrix_int,
+                                 levels, cmap=color_style, extend='both')
+        
+    #     Add dictionary element to figure
+
+    # else
+
+    #     Add matrix to figure
+
+    return f, ax, ax_cbar

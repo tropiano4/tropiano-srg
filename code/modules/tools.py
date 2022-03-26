@@ -179,7 +179,7 @@ def convert_number_to_string(number):
 
     # First check if the number is an integer
     if number == int(number):
-        return str( int(number) )
+        return str(int(number))
 
     else:
     

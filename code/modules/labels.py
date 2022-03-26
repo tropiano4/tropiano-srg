@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for labeling figures and file names.
 
-Last update: March 17, 2022
+Last update: March 26, 2022
 
 """
 
@@ -381,33 +381,33 @@ def label_ticks(ticks):
         
     """
     
-    # Initialize tick_labels list
+    
     tick_labels = []
-    
+    # # This won't work for some reason
+    # for tick in ticks:
+    #     tick_labels.append(convert_number_to_string(tick))
+
     # Keep track of the maximum number of digits to be displayed i
-    
     for tick in ticks:
         
         i = 0
-        while abs(round(tick, i)-tick) > 1e-5:
+        while abs(round(tick,i) - tick) > 1e-5:
             i += 1
             
         # If digits = 0, then display integers
         if i == 0:
-            tick_labels.append(f'{tick:d}')
+            tick_labels.append('%d' % tick)
         # Otherwise, display floats with the correct number of digits
         elif i == 1:
-            tick_labels.append(f'{tick:.1f}')
+            tick_labels.append('%.1f' % tick)
         elif i == 2:
-            tick_labels.append(f'{tick:.2f}')
+            tick_labels.append('%.2f' % tick)
         elif i == 3:
-            tick_labels.append(f'{tick:.3f}')
+            tick_labels.append('%.3f' % tick)
         elif i == 4:
-            tick_labels.append(f'{tick:.4f}')
-        elif i == 5:
-            tick_labels.append(f'{tick:.5f}')
+            tick_labels.append('%.4f' % tick)
         else:
-            tick_labels.append(f'{tick:f}')
+            tick_labels.append('%.f' % tick)
         
     return tick_labels
 

@@ -6,21 +6,31 @@ File: srg.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 1, 2019
 
-Evolves Hamiltonian to band-diagonal or block-diagonal decoupled form with
-flow parameter \lambda [fm^-1]. This class relies on the Potential class from
-vnn.py. The function can solve either the usual flow equation
-    dH(s)/ds = [\eta(s), H(s)],
-or the differential equation for U(s) directly,
-    dU(s)/ds = \eta(s) U(s).
+The SRG class is responsible for evolving an input potential to band-diagonal
+or block-diagonal decoupled form with respect to the flow parameter \lambda 
+[fm^-1], and possibly \Lambda_BD. This class relies on the Potential class
+from vnn.py. The function can solve either the usual flow equation
 
-Last update: March 18, 2022
+    dH(s)/ds = [\eta(s), H(s)],
+    
+or the differential equation for U(s) directly,
+
+    dU(s)/ds = \eta(s) U(s).
+    
+Additionally, this script includes a function for the SRG unitary
+transformation itself, given the initial and SRG-evolved Hamiltonians.
+
+Last update: March 24, 2022
 
 """
 
-# To-do: Implement solve_ivp in evolve() method.
+# To-do: Implement solve_ivp in evolve() method?
+# To-do: Is there a way to reshape matrices and vectors without looping?
+# To-do: Update all instances of SRG_unitary_transformation calls
 
 # Python imports
 import numpy as np
+import numpy.linalg as la
 from scipy.integrate import ode
 
 # Imports from A.T. codes
@@ -47,10 +57,10 @@ class SRG:
         # Get initial Hamiltonian associated with the input potential
         H_initial_MeV = potential.load_hamiltonian()  # [MeV]
         
-        # Convert Hamiltonian to scattering units [fm^-2] where hbar^2/M = 1
+        # Convert Hamiltonian to scattering units [fm^-2]
         self.H_initial = H_initial_MeV / potential.hbar_sq_over_m
         
-        # Save length of Hamiltonian
+        # Save length of Hamiltonian for the methods of the class
         self.Ntot = len(self.H_initial)
         
         # Get relative kinetic energy
@@ -76,7 +86,7 @@ class SRG:
         """
         Sets sub-block projection operators for block-diagonal generator where
         P_matrix (Q_matrix) corresponds to the low (high) sub-block of the
-        Hamiltonian. Both operators have the same shape as the Hamiltonian.
+        Hamiltonian.
 
         Parameters
         ----------
@@ -88,27 +98,28 @@ class SRG:
         # Use booleans to partition the Hamiltonian
         bool_array = self.k_array < lambda_bd
         
+        # Number of points in the momentum mesh
         ntot = self.ntot
 
         # Matrix of ones along the diagonal up to k > lambda_bd
-        P_matrix = np.diag(np.ones(ntot)*bool_array)
+        P_matrix = np.diag(np.ones(ntot) * bool_array)
         
-        # Opposite of p
+        # Opposite of P
         Q_matrix = np.identity(ntot) - P_matrix
         
         # Projection operators for coupled-channel potentials
         if ntot != self.Ntot:
             
-            zeros = np.zeros( (ntot, ntot) )
+            zeros = np.zeros((ntot, ntot))
             P_matrix = build_coupled_channel_matrix(P_matrix, zeros, zeros,
                                                     P_matrix)
             Q_matrix = build_coupled_channel_matrix(Q_matrix, zeros, zeros,
                                                     Q_matrix)
         
-        # Save both operators
+        # Save both operators for evaluations of \eta
         self.P_matrix = P_matrix
         self.Q_matrix = Q_matrix
-        
+    
     def matrix_to_vector(self, M):
         """
         Takes the upper triangle of the matrix M (including the diagonal) 
@@ -186,6 +197,42 @@ class SRG:
         
         return A @ B - B @ A
     
+    def eta(self, H_matrix):
+        """
+        SRG generator \eta = [G, H] where G is specified by the decoupling
+        scheme.
+        
+        Parameters
+        ----------
+        H_matrix : 2-D ndarray
+            Evolving Hamiltonian in matrix form [fm^-2].
+        
+        Returns
+        -------
+        output : 2-D ndarray
+            SRG generator \eta in matrix form [fm^-4].
+        
+        """
+        
+        # G = H_D (diagonal of the evolving Hamiltonian)
+        if self.generator == 'Wegner':
+        
+            G_matrix = np.diag(np.diag(H_matrix))
+        
+        # G = T_rel (relative kinetic energy)
+        elif self.generator == 'T':
+            
+            G_matrix = self.T_rel
+            
+         # G = H_BD (block-diagonal of the evolving Hamiltonian)
+        elif self.generator == 'Block-diag':
+            
+            G_matrix = (self.P_matrix @ H_matrix @ self.P_matrix
+                        + self.Q_matrix @ H_matrix @ self.Q_matrix)
+        
+        # \eta = [G, H]
+        return self.commutator(G_matrix, H_matrix)
+    
     def H_deriv(self, lamb, H_vector):
         """
         Right-hand side of the SRG flow equation.
@@ -201,31 +248,15 @@ class SRG:
         -------
         dH_vector : 1-D ndarray
             Derivative with respect to \lambda of the evolving Hamiltonian
-            which is also a vector in scattering units [fm^-2].
+            which is also a vector [fm^-1].
 
         """
         
         # Matrix form of the evolving Hamiltonian
         H_matrix = self.vector_to_matrix(H_vector)
 
-        # Compute \eta = [G,H] which is dependent on SRG generator
-        if self.generator == 'Wegner':
-        
-            # G = H_D (diagonal of the evolving Hamiltonian)
-            G_matrix = np.diag(np.diag(H_matrix))
-            
-        elif self.generator == 'T':
-            
-            # G = T_rel
-            G_matrix = self.T_rel
-            
-        elif self.generator == 'Block-diag':
-            
-            # G = H_BD (block-diagonal of the evolving Hamiltonian)
-            G_matrix = (self.P_matrix @ H_matrix @ self.P_matrix
-                        + self.Q_matrix @ H_matrix @ self.Q_matrix)
-
-        eta_matrix = self.commutator(G_matrix, H_matrix)
+        # Get SRG generator \eta = [G, H]
+        eta_matrix = self.eta(H_matrix)
             
         # RHS of the flow equation in matrix form
         dH_matrix = -4.0 / lamb**5 * self.commutator(eta_matrix, H_matrix)
@@ -251,7 +282,7 @@ class SRG:
         -------
         dU_vector : 1-D ndarray
             Derivative with respect to \lambda of the SRG transformation which
-            is also a unitless vector.
+            is also a vector [fm].
 
         """
 
@@ -261,24 +292,8 @@ class SRG:
         # Evolve the Hamiltonian to compute \eta
         H_matrix = U_matrix @ self.H_initial @ U_matrix.T
 
-        # Compute \eta = [G,H] which is dependent on SRG generator
-        if self.generator == 'Wegner':
-        
-            # G = H_D (diagonal of the evolving Hamiltonian)
-            G_matrix = np.diag(np.diag(H_matrix))
-            
-        elif self.generator == 'T':
-            
-            # G = T_rel
-            G_matrix = self.T_rel
-            
-        elif self.generator == 'Block-diag':
-            
-            # G = H_BD (block-diagonal of the evolving Hamiltonian)
-            G_matrix = (self.P_matrix @ H_matrix @ self.P_matrix
-                        + self.Q_matrix @ H_matrix @ self.Q_matrix)
-
-        eta_matrix = self.commutator(G_matrix, H_matrix)
+        # Get SRG generator \eta = [G, H]
+        eta_matrix = self.eta(H_matrix)
              
         # RHS in matrix form
         dU_matrix = -4.0 / lamb**5 * eta_matrix @ U_matrix
@@ -288,7 +303,77 @@ class SRG:
         
         return dU_vector
     
-    def evolve(
+    def select_step_size(self, solver_lambda, lambda_final):
+        """
+        Select ODE solver step-size depending on the extent of evolution.
+        We can take bigger steps at large values of \lambda.
+
+        Parameters
+        ----------
+        solver_lambda : float
+            The ODE solver's interal value of \lambda [fm^-1].
+        lambda_final : float
+            The external value of \lambda [fm^-1].
+
+        Returns
+        -------
+        dlamb : float
+            Step-size in terms of \lambda [fm^-1].
+
+        """
+        
+        if solver_lambda >= 6.0:
+            dlamb = 1.0
+        elif 2.5 <= solver_lambda < 6.0:
+            dlamb = 0.5
+        else:
+            dlamb = 0.1
+                            
+        # This if statement prevents the solver from over-shooting \lambda 
+        # and takes a step in \lambda equal to the exact amount necessary to 
+        # reach the lambda_final
+        if solver_lambda - dlamb < lambda_final:
+                
+            dlamb = solver_lambda - lambda_final
+        
+        return dlamb
+    
+    def get_ode_solver(self, lambda_initial, method='hamiltonian'):
+        """Sets up the ODE solver with SciPy's integrate.ode function."""
+        
+        # Solving for H(s)
+        if method == 'hamiltonian':
+            
+            solver = ode(self.H_deriv)
+            
+            # Initial Hamiltonian as a vector
+            H_initial = self.matrix_to_vector(self.H_initial)
+            
+            # Set initial conditions
+            solver.set_initial_value(H_initial, lambda_initial)
+        
+        # Solving for U(s)
+        elif method == 'srg_transformation':
+            
+            solver = ode(self.U_deriv)
+            
+            # Set initial value: U = identity matrix and make vector
+            U_initial = np.eye(self.Ntot).reshape(-1)
+            solver.set_initial_value(U_initial, lambda_initial)
+        
+        # Print an error message if method is invalid
+        else:
+            
+            raise RuntimeError('Need to specify a valid method.')
+            
+        # Following the example in Hergert:2016iju with modifications to
+        # nsteps and error tolerances
+        solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
+                              rtol=1e-6, nsteps=5000000)
+        
+        return solver
+    
+    def srg_evolve(
             self, lambda_initial, lambda_array, lambda_bd_array=np.empty(0),
             method='hamiltonian'):
         """
@@ -325,41 +410,9 @@ class SRG:
             
         """
 
-        # Store solutions of the ODE in the following dictionary
-        d = {}
-        
-        # Initial Hamiltonian as a vector
-        H_initial = self.matrix_to_vector(self.H_initial)
-        
-        # Set-up ODE with SciPy's integrate.ode function
-        if method == 'hamiltonian':
-            
-            solver = ode(self.H_deriv)
-            
-            # Set initial value of Hamiltonian at \lambda = lambda_initial
-            solver.set_initial_value(H_initial, lambda_initial)
-            
-        elif method == 'srg_transformation':
-            
-            solver = ode(self.U_deriv)
-            
-            # Set initial value: U = identity matrix and make vector
-            U_initial = np.eye(self.Ntot).reshape(-1)
-            solver.set_initial_value(U_initial, lambda_initial)
-        
-        # Print an error message if method is invalid
-        else:
-            
-            print('Need to specify a valid method.')
-            return None
-            
-        # Following the example in Hergert:2016iju with modifications to
-        # nsteps and error tolerances
-        solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
-                              rtol=1e-6, nsteps=5000000)
-
         # Evolve the Hamiltonian (or U) to each value of \lambda and store in
-        # the dictionary (loop over \Lambda_BD as well for block-diagonal)
+        # a dictionary (loop over \Lambda_BD as well for block-diagonal)
+        d = {}
         if self.generator == 'Block-diag':
             
             for lambda_bd in lambda_bd_array:
@@ -370,53 +423,36 @@ class SRG:
                 # Set first key as \Lambda_BD
                 d[lambda_bd] = {}
                 
+                # Set-up ODE solver
+                solver = self.get_ode_solver(lambda_initial, method)
+                
                 for lamb in lambda_array:
                     
                     # Solve ODE up to lamb
                     while solver.successful() and solver.t > lamb:
                         
-                        # Select step-size depending on extent of evolution
-                        if solver.t >= 6.0:
-                            dlamb = 1.0
-                        elif solver.t < 6.0 and solver.t >= 2.5:
-                            dlamb = 0.5
-                        elif solver.t < 2.5 and solver.t >= lamb:
-                            dlamb = 0.1
-                            
-                        # This if statement prevents the solver from over-
-                        # shooting \lambda and takes a step in \lambda equal
-                        # to the exact amount necessary to reach the final
-                        # \lambda value
-                        if solver.t - dlamb < lamb:
-                
-                            dlamb = solver.t - lamb
+                        # Get ODE solver step-size in \lambda
+                        dlamb = self.select_step_size(solver.t, lamb)
                             
                         # Integrate to next step in \lambda
                         solution_vector = solver.integrate(solver.t - dlamb)
                 
-                # Store evolved Hamiltonian (or U) matrix in dictionary
-                d[lambda_bd][lamb] = self.vector_to_matrix(solution_vector)
+                    # Store evolved Hamiltonian (or U) matrix in dictionary
+                    d[lambda_bd][lamb] = self.vector_to_matrix(solution_vector)
         
         # Band-diagonal generators
         else:
+            
+            # Set-up ODE solver
+            solver = self.get_ode_solver(lambda_initial, method)
             
             for lamb in lambda_array:
             
                 # Solve ODE up to lamb and store in dictionary
                 while solver.successful() and solver.t > lamb:
             
-                    # Select step-size depending on extent of evolution
-                    if solver.t >= 6.0:
-                        dlamb = 1.0
-                    elif solver.t < 6.0 and solver.t >= 2.5:
-                        dlamb = 0.5
-                    elif solver.t < 2.5 and solver.t >= lamb:
-                        dlamb = 0.1
-                
-                    # See previous comment on this
-                    if solver.t - dlamb < lamb:
-                
-                        dlamb = solver.t - lamb
+                    # Get ODE solver step-size in \lambda
+                    dlamb = self.select_step_size(solver.t, lamb)
                 
                     # Integrate to next step in lambda
                     solution_vector = solver.integrate(solver.t - dlamb)
@@ -425,3 +461,50 @@ class SRG:
                 d[lamb] = self.vector_to_matrix(solution_vector)
             
         return d
+    
+    
+def get_transformation(H_initial, H_evolved):
+    """
+    SRG unitary transformation built out of eigenvectors of the initial and 
+    evolved Hamiltonians.
+    
+    Parameters
+    ----------
+    H_initial : 2-D ndarray
+        Initial Hamiltonian matrix [MeV].
+    H_evolved : 2-D ndarray
+        Evolved Hamiltonian matrix [MeV].
+        
+    Returns
+    -------
+    U_matrix : 2-D ndarray
+        SRG unitary transformation matrix.
+        
+    """
+    
+    Ntot = len(H_initial)
+
+    # Get the eigenvectors of the initial and SRG-evolved Hamiltonians
+    _, vecs_initial = la.eigh(H_initial)
+    _, vecs_evolved = la.eigh(H_evolved)
+
+    # Initialize unitary transformation U with same size as Hamiltonians
+    U_matrix = np.zeros((Ntot, Ntot))
+    
+    # Transformation is given by summing over the outer product of evolved and
+    # initial eigenvectors
+    for alpha in range(Ntot):
+        
+        # Individual eigenvectors (these are already sorted correctly from 
+        # numpy.linalg.eigh)
+        psi_alpha_initial = vecs_initial[:, alpha]
+        psi_alpha_evolved = vecs_evolved[:, alpha]
+        
+        # Make sure the phases match
+        if psi_alpha_initial.T @ psi_alpha_evolved < 0:
+            psi_alpha_evolved = -psi_alpha_evolved
+        
+        # Outer product of eigenvectors
+        U_matrix += np.outer(psi_alpha_evolved, psi_alpha_initial)
+        
+    return U_matrix
