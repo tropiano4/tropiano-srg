@@ -24,7 +24,7 @@ Last update: March 17, 2022
 import numpy as np
 
 # Imports from A.T. codes
-from modules.figure_labels import replace_periods
+from modules.labels import replace_periods
 
 
 def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):

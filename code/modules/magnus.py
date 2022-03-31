@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: March 25, 2022
+Last update: March 29, 2022
 
 """
 
@@ -30,7 +30,7 @@ Last update: March 25, 2022
 from math import factorial
 import numpy as np
 import numpy.linalg as la
-from scipy.linalg import expm
+# from scipy.linalg import expm  # Option to use expm instead of BCH formula
 from sympy import bernoulli
 
 # Imports from A.T. codes
@@ -131,9 +131,9 @@ class Magnus(SRG):
         """
         
         # Compute the evolving Hamiltonian with the BCH formula
-        # H_matrix = self.bch(self.H_initial, O_matrix, 25)
+        H_matrix = self.bch(self.H_initial, O_matrix, 25)
         # Use scipy.linalg.expm to exponentiate the matrices
-        H_matrix = expm(O_matrix) @ self.H_initial @ expm(-O_matrix)
+        # H_matrix = expm(O_matrix) @ self.H_initial @ expm(-O_matrix)
         
         # Get SRG generator \eta = [G, H]
         eta_matrix = self.eta(H_matrix)
@@ -269,10 +269,10 @@ class Magnus(SRG):
                                                      O_initial)
 
                     # Compute the evolving Hamiltonian with the BCH formula
-                    # H_matrix = self.bch(self.H_initial, O_matrix, 25)
+                    H_matrix = self.bch(self.H_initial, O_matrix, 25)
                     # Use scipy.linalg.expm to exponentiate the matrices
-                    H_matrix = (expm(O_matrix) @ self.H_initial
-                                @ expm(-O_matrix))
+                    # H_matrix = (expm(O_matrix) @ self.H_initial
+                    #             @ expm(-O_matrix))
             
                     # Store evolved Hamiltonian matrix in dictionary
                     d[lambda_bd][lamb] = H_matrix
@@ -299,10 +299,10 @@ class Magnus(SRG):
                                                  O_initial)
 
                 # Compute the evolving Hamiltonian with the BCH formula
-                # H_matrix = self.bch(self.H_initial, O_matrix, 25)
+                H_matrix = self.bch(self.H_initial, O_matrix, 25)
                 # Use scipy.linalg.expm to exponentiate the matrices
-                H_matrix = (expm(O_matrix) @ self.H_initial
-                            @ expm(-O_matrix))
+                # H_matrix = (expm(O_matrix) @ self.H_initial
+                #             @ expm(-O_matrix))
 
                 # Store evolved Hamiltonian matrix in dictionary
                 d[lamb] = H_matrix

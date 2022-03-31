@@ -313,7 +313,7 @@ class deuteron_momentum_distributions(object):
                               delta_U_matrix[:ntot, ntot:]**2 + \
                               delta_U_matrix[ntot:, :ntot]**2 + \
                               delta_U_matrix[ntot:, ntot:]**2 )
-
+                
             # Interpolate < k | \delta U | k >
             self.deltaU_func = interp1d( k_array, np.diag(deltaU),
                                          kind='linear', bounds_error=False,

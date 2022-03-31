@@ -12,12 +12,17 @@ Last update: March 17, 2022
 
 """
 
-# To-do: ...
+# To-do: Probably want a function that gets k_array, k_weights independent of
+# the channel.
 
 # Python imports
+import numpy as np
+from scipy.interpolate import interp1d, RectBivariateSpline
 
 # Imports from A.T. codes
-
+from modules.srg import get_transformation
+from modules.tools import channel_L_value, coupled_channel
+from vnn import Potential
 
 # code
 
@@ -27,6 +32,265 @@ Last update: March 17, 2022
 
 # [class Momentum_distributions]
 # __init__ shouldn't do much.
+class Momentum_distributions:
+    
+    def __init__(self, kvnn, kmax, kmid, ntot):
+        """
+        Save the inputs of the potential excluding the channels argument.
+
+        Parameters
+        ----------
+        kvnn : int
+            This number specifies the potential.
+        kmax : float
+            Maximum value in the momentum mesh [fm^-1].
+        kmid : float
+            Mid-point value in the momentum mesh [fm^-1].
+        ntot : int
+            Number of momentum points in mesh.
+
+        """
+        
+        self.kvnn = kvnn
+        self.kmax = kmax
+        self.kmid = kmid
+        self.ntot = ntot
+        
+    def get_hamiltonians(
+            self, channel, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
+            delta_lambda=np.inf):
+        """
+        Get the initial and SRG-evolved Hamiltonians.
+        
+        Parameters
+        ----------
+        channel : str
+            The partial wave channel (e.g. '1S0').
+        generator : str
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_initial : float, optional
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_inv : int, optional
+            This number specifies a potential for which inverse-SRG
+            transformations will be applied to the initial Hamiltonian
+                H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+            where the transformations are evaluated at \delta \lambda.
+        delta_lambda : float, optional
+            SRG evolution parameter \lambda for inverse-SRG transformations
+            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            for this to run.
+            
+        Returns
+        -------
+        H_initial : 2-D ndarray
+            Initial Hamiltonian matrix [MeV].
+        H_evolved : 2-D ndarray
+            Evolved Hamiltonian matrix [MeV].
+            
+        """
+        
+        # Set potential
+        potential = Potential(self.kvnn, channel, self.kmax, self.kmid,
+                              self.ntot)
+
+        # Standard initial Hamiltonian
+        if lambda_initial == np.inf:
+            H_initial = potential.load_hamiltonian()
+                
+        # Forward-SRG-evolved Hamiltonian as starting point
+        else:
+            if generator == 'Block-diag':
+                H_initial = potential.load_hamiltonian(
+                    'srg', generator, 1.0, lambda_bd=lambda_initial)
+            else:
+                H_initial = potential.load_hamiltonian('srg', generator,
+                                                       lambda_initial)
+                    
+        # Backwards-SRG-evolved Hamiltonian as starting point
+        if kvnn_inv:
+            potential_hard = Potential(kvnn_inv, channel, self.kmax, self.kmid,
+                                       self.ntot)
+            H_hard_initial = potential_hard.load_hamiltonian()
+            if generator == 'Block-diag':
+                H_hard_evolved = potential_hard.load_hamiltonian(
+                    'srg', generator, 1.0, lambda_bd=lambda_initial)
+            else:
+                H_hard_evolved = potential_hard.load_hamiltonian(
+                    'srg', generator, lambda_initial)
+            # Get SRG transformation for inverse transformation
+            U_hard = get_transformation(H_hard_initial, H_hard_evolved)
+            # Do inverse transformation on initial Hamiltonian
+            H_initial = U_hard.T @ H_initial @ U_hard
+            
+        # Get SRG-evolved Hamiltonian at \lambda=lamb
+        if generator == 'Block-diag':
+            H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
+                                                   lambda_bd=lamb)
+        else:
+            H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+            
+        return H_initial, H_evolved
+    
+    # Best way to do deuteron?
+    def save_deltaU_funcs(
+            self, channels, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
+            delta_lambda=np.inf):
+        """
+        Save the function \delta U(k,k') and \delta U(k,k')^2 summing over all
+        partial wave channels. We must define functions with \tau=\tau' and
+        \tau=-\tau' separately since they have different isospin CG's.
+
+        Parameters
+        ----------
+        channels : tuple
+            Partial wave channels to include in the calculation.
+        generator : str
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_initial : float, optional
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_inv : int, optional
+            This number specifies a potential for which inverse-SRG
+            transformations will be applied to the initial Hamiltonian
+                H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+            where the transformations are evaluated at \delta \lambda.
+        delta_lambda : float, optional
+            SRG evolution parameter \lambda for inverse-SRG transformations
+            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            for this to run.
+
+        Notes
+        -----
+        We are taking \lambda=1.0 fm^-1 for block-diagonal decoupling and
+        assuming parameters lamb, lambda_initial, and delta_lambda correspond
+        to \Lambda_BD.
+        """
+        
+        # Save highest allowed L based on input channels
+        highest_L = 0
+        for channel in channels:
+            next_L = channel_L_value(channel)
+            if next_L > highest_L:
+                highest_L = next_L
+                
+        # Get momentum mesh (channel argument doesn't matter here)
+        k_array, k_weights = Potential(
+            self.kvnn, '1S0', self.kmax, self.kmid, self.ntot).load_mesh()
+
+        # For dividing out momenta/weights
+        factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
+        # For coupled-channel matrices
+        factor_array_cc = np.concatenate((factor_array, factor_array))
+
+        # Initialize \delta U linear term
+        deltaU_pp = np.zeros((self.ntot, self.ntot))
+        deltaU_pn = np.zeros((self.ntot, self.ntot))
+        # Initialize \delta U \delta U^\dagger
+        deltaU2_pp = np.zeros((self.ntot, self.ntot))
+        deltaU2_pn = np.zeros((self.ntot, self.ntot))
+        
+        # Allowed channels for pp (and nn) up through the D-waves
+        pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
+        
+        # Loop over channels and evaluate matrix elements
+        for channel in channels:
+
+            # Get initial and evolved Hamiltonians
+            H_initial, H_evolved = self.get_hamiltonians(
+                channel, generator, lamb, lambda_initial, kvnn_inv,
+                delta_lambda)
+                
+            # Get SRG transformation U(k, k') [unitless]
+            U_matrix_unitless = get_transformation(H_initial, H_evolved)
+            
+            # Isolate 2-body term and convert to fm^3
+            if coupled_channel(channel):
+                I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
+                row, col = np.meshgrid(factor_array_cc, factor_array_cc)
+            else:
+                I_matrix_unitless = np.eye(self.ntot, self.ntot)
+                row, col = np.meshgrid(factor_array, factor_array)
+            delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
+            delta_U_matrix = delta_U_matrix_unitless / row / col  # fm^3
+            
+            # 2J+1 factor
+            J = int(channel[-1])
+            
+            # Add up the matrix elements splitting between pp and pn
+            if coupled_channel(channel):
+                    
+                # First L of coupled-channel
+                # Isospin CG's=1/\sqrt(2) for \tau=-\tau'
+                deltaU_pn += (2*J+1)/2 * delta_U_matrix[:self.ntot, :self.ntot]
+                deltaU2_pn += (2*J+1)/2 * (
+                    delta_U_matrix[:self.ntot, :self.ntot]**2
+                    + delta_U_matrix[:self.ntot, self.ntot:]**2)
+
+                # Isospin CG's=1 for \tau=\tau'
+                if channel in pp_channels:
+                    deltaU_pp += ((2*J+1) 
+                                  * delta_U_matrix[:self.ntot, :self.ntot])
+                    deltaU2_pp += (2*J+1) * (
+                        delta_U_matrix[:self.ntot, :self.ntot]**2
+                        + delta_U_matrix[:self.ntot, self.ntot:]**2)
+                    
+                # Decide whether to add second L based on highest allowed 
+                # L value (e.g., include the 3D1-3D1 part of the coupled
+                # 3S1-3D1 channel if we input D-waves in channels)
+                if channel_L_value(channel)+2 <= highest_L:
+                    deltaU_pn += ((2*J+1)/2 
+                                  * delta_U_matrix[self.ntot:, self.ntot:])
+                    deltaU2_pn += (2*J+1)/2 * (
+                        delta_U_matrix[self.ntot:, :self.ntot]**2 
+                        + delta_U_matrix[self.ntot:, self.ntot:]**2)
+                        
+                    if channel in pp_channels:
+                        deltaU_pp += ((2*J+1) 
+                                      * delta_U_matrix[self.ntot:, self.ntot:])
+                        deltaU2_pp += (2*J+1) * (
+                            delta_U_matrix[self.ntot:, :self.ntot]**2
+                            + delta_U_matrix[self.ntot:, self.ntot:]**2)
+            
+            else:
+            
+                # Isospin CG's=1/\sqrt(2) for \tau=-\tau'
+                deltaU_pn += (2*J+1)/2 * delta_U_matrix
+                deltaU2_pn += (2*J+1)/2 * delta_U_matrix**2
+                
+                # Isospin CG's=1/\sqrt(2) for \tau=\tau'
+                if channel in pp_channels:
+                    deltaU_pp += (2*J+1) * delta_U_matrix
+                    deltaU2_pp += (2*J+1) * delta_U_matrix**2
+
+        # Interpolate pp and pn \delta U(k,k)
+        self.deltaU_pp_func = interp1d(
+            k_array, np.diag(deltaU_pp), kind='linear', bounds_error=False,
+            fill_value='extrapolate')
+        self.deltaU_pn_func = interp1d(
+            k_array, np.diag(deltaU_pn), kind='linear', bounds_error=False,
+            fill_value='extrapolate')
+        
+        # Interpolate pp and pn \delta U^2(k,k') 
+        self.deltaU2_pp_func = RectBivariateSpline(k_array, k_array,
+                                                   deltaU2_pp, kx=1, ky=1)
+        self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
+                                                   deltaU2_pn, kx=1, ky=1)
+            
+        # Check this comparing to snmd.py and pmd.py in test_notebook.ipynb
+        print(deltaU2_pp)
+        print(deltaU2_pn)
+        # Check squared version
+        # Check if inputing channels = ['3S1'] works for deuteron (compare to dmd.py)
+        
+        
+        
 
 # Get \delta U [class Momentum_distributions]
 # Set-up \delta U_{\tau,\tau'}(k,k') matrix elements and interpolate.
