@@ -40,7 +40,7 @@ Last update: March 25, 2022
 #        E.g., use convert_number_to_string() for labeling \lambda, etc.
 # To-do: Use np.savetxt() to save potentials? Definitely a simpler way.
 # To-do: Should probably incorporate dU/ds = \eta U method?
-# To-do: Should probably incorporate Magnus_split method?
+# To-do: Should probably incorporate MagnusSplit class?
 # To-do: Combine run_srg and run_magnus into a one method.
 
 # Python imports

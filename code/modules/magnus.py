@@ -373,7 +373,7 @@ class Magnus(SRG):
         return eta_norms_array, O_norms_array
     
     
-class Magnus_split(Magnus):
+class MagnusSplit(Magnus):
     """
     Evolves Hamiltonian to band-diagonal, decoupled form with flow parameter
     s using the Magnus "split thing" implementation. The split thing method

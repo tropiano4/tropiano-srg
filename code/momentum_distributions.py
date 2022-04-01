@@ -51,7 +51,6 @@ class MomentumDistributions:
         self.kmid = kmid
         self.ntot = ntot
 
-    # Take a step back for next couple functions...
     def get_hamiltonians(
             self, channel, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
             delta_lambda=np.inf):
@@ -130,8 +129,51 @@ class MomentumDistributions:
             H_evolved = potential.load_hamiltonian('srg', generator, lamb)
 
         return H_initial, H_evolved
+    
+    def get_deltaU_matrix_element(self, channel, delta_U_matrix):
+        """
+        Manipulates the \delta U(k,k') to return contributions up to the
+        highest partial wave corresponding to the input channel.
+        
+        Parameters
+        ----------
+        channel : str
+            The partial wave channel (e.g. '1S0').
+        delta_U_matrix : 2-D ndarray
+            \delta U matrix given some partial wave channel [fm^3].
+        
+        Returns
+        -------
+        deltaU : 2-D ndarray
+            \delta U matrix [fm^3].
+        deltaU_squared : 2-D
+            \delta U \delta U^{\dagger} matrix [fm^6].
+        
+        """
+        
+        # This case corresponds to coupled-channel partial waves
+        if coupled_channel(channel):
+            
+            # First L of coupled-channel
+            deltaU = delta_U_matrix[:self.ntot, :self.ntot]
+            deltaU_squared = (delta_U_matrix[:self.ntot, :self.ntot]**2
+                              + delta_U_matrix[:self.ntot, self.ntot:]**2)
 
-    # Best way to do deuteron?
+            # Decide whether to add second L based on highest allowed L value
+            # (e.g., include the 3D1-3D1 part of the coupled 3S1-3D1 channel
+            # if we input D-waves in channels)
+            if channel_L_value(channel) + 2 <= self.highest_L:
+                deltaU += delta_U_matrix[self.ntot:, self.ntot:]
+                deltaU_squared += (delta_U_matrix[self.ntot:, :self.ntot]**2
+                                   + delta_U_matrix[self.ntot:, self.ntot:]**2)
+
+        else:
+
+            deltaU = delta_U_matrix
+            deltaU_squared = delta_U_matrix**2
+
+        return deltaU, deltaU_squared
+
     def save_deltaU_funcs(
             self, channels, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
             delta_lambda=np.inf):
@@ -167,21 +209,26 @@ class MomentumDistributions:
         We are taking \lambda=1.0 fm^-1 for block-diagonal decoupling and
         assuming parameters lamb, lambda_initial, and delta_lambda correspond
         to \Lambda_BD.
+        
         """
-
+        
         # Save highest allowed L based on input channels
         highest_L = 0
         for channel in channels:
             next_L = channel_L_value(channel)
             if next_L > highest_L:
                 highest_L = next_L
+        self.highest_L = highest_L
 
+        # Allowed channels for pp (and nn) up through the D-waves
+        pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
+        
         # Get momentum mesh (channel argument doesn't matter here)
         k_array, k_weights = Potential(
             self.kvnn, '1S0', self.kmax, self.kmid, self.ntot).load_mesh()
 
         # For dividing out momenta/weights
-        factor_array = np.sqrt((2 * k_weights) / np.pi) * k_array
+        factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
         # For coupled-channel matrices
         factor_array_cc = np.concatenate((factor_array, factor_array))
 
@@ -191,9 +238,6 @@ class MomentumDistributions:
         # Initialize \delta U \delta U^\dagger
         deltaU2_pp = np.zeros((self.ntot, self.ntot))
         deltaU2_pn = np.zeros((self.ntot, self.ntot))
-
-        # Allowed channels for pp (and nn) up through the D-waves
-        pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
 
         # Loop over channels and evaluate matrix elements
         for channel in channels:
@@ -208,68 +252,35 @@ class MomentumDistributions:
 
             # Isolate 2-body term and convert to fm^3
             if coupled_channel(channel):
-                I_matrix_unitless = np.eye(2 * self.ntot, 2 * self.ntot)
+                I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
                 row, col = np.meshgrid(factor_array_cc, factor_array_cc)
             else:
                 I_matrix_unitless = np.eye(self.ntot, self.ntot)
                 row, col = np.meshgrid(factor_array, factor_array)
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
             delta_U_matrix = delta_U_matrix_unitless / row / col  # fm^3
-
+            
             # 2J+1 factor
             J = int(channel[-1])
-
-            # Add up the matrix elements splitting between pp and pn
-            if coupled_channel(channel):
-
-                # First L of coupled-channel
-                # Isospin CG's=1/\sqrt(2) for \tau=-\tau'
-                deltaU_pn += (2 * J + 1) / 2 * delta_U_matrix[:self.ntot, :self.ntot]
-                deltaU2_pn += (2 * J + 1) / 2 * (
-                        delta_U_matrix[:self.ntot, :self.ntot] ** 2
-                        + delta_U_matrix[:self.ntot, self.ntot:] ** 2)
-
-                # Isospin CG's=1 for \tau=\tau'
-                if channel in pp_channels:
-                    deltaU_pp += ((2 * J + 1)
-                                  * delta_U_matrix[:self.ntot, :self.ntot])
-                    deltaU2_pp += (2 * J + 1) * (
-                            delta_U_matrix[:self.ntot, :self.ntot] ** 2
-                            + delta_U_matrix[:self.ntot, self.ntot:] ** 2)
-
-                # Decide whether to add second L based on highest allowed 
-                # L value (e.g., include the 3D1-3D1 part of the coupled
-                # 3S1-3D1 channel if we input D-waves in channels)
-                if channel_L_value(channel) + 2 <= highest_L:
-                    deltaU_pn += ((2 * J + 1) / 2
-                                  * delta_U_matrix[self.ntot:, self.ntot:])
-                    deltaU2_pn += (2 * J + 1) / 2 * (
-                            delta_U_matrix[self.ntot:, :self.ntot] ** 2
-                            + delta_U_matrix[self.ntot:, self.ntot:] ** 2)
-
-                    if channel in pp_channels:
-                        deltaU_pp += ((2 * J + 1)
-                                      * delta_U_matrix[self.ntot:, self.ntot:])
-                        deltaU2_pp += (2 * J + 1) * (
-                                delta_U_matrix[self.ntot:, :self.ntot] ** 2
-                                + delta_U_matrix[self.ntot:, self.ntot:] ** 2)
-
-            else:
-
-                # Isospin CG's=1/\sqrt(2) for \tau=-\tau'
-                deltaU_pn += (2 * J + 1) / 2 * delta_U_matrix
-                deltaU2_pn += (2 * J + 1) / 2 * delta_U_matrix ** 2
-
-                # Isospin CG's=1/\sqrt(2) for \tau=\tau'
-                if channel in pp_channels:
-                    deltaU_pp += (2 * J + 1) * delta_U_matrix
-                    deltaU2_pp += (2 * J + 1) * delta_U_matrix ** 2
+            
+            # Get matrix elements up to highest input partial wave channel
+            deltaU, deltaU2 = self.get_deltaU_matrix_element(channel,
+                                                             delta_U_matrix)
+            
+            # Isospin CG's=1/\sqrt(2) for pn
+            deltaU_pn += (2*J+1)/2 * deltaU
+            deltaU2_pn += (2*J+1)/2 * deltaU2
+            
+            # Isospin CG's=1 for pp
+            if channel in pp_channels:
+                deltaU_pp += (2*J+1) * deltaU
+                deltaU2_pp += (2*J+1) * deltaU2
 
         # Interpolate pp and pn \delta U(k,k)
-        self.deltaU_pp_func = (
+        self.deltaU_pp_func = interp1d(
             k_array, np.diag(deltaU_pp), kind='linear', bounds_error=False,
             fill_value='extrapolate')
-        self.deltaU_pn_func = (
+        self.deltaU_pn_func = interp1d(
             k_array, np.diag(deltaU_pn), kind='linear', bounds_error=False,
             fill_value='extrapolate')
 
@@ -278,22 +289,84 @@ class MomentumDistributions:
                                                    deltaU2_pp, kx=1, ky=1)
         self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
                                                    deltaU2_pn, kx=1, ky=1)
+        
+    def save_deuteron_deltaU_funcs(
+            self, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
+            delta_lambda=np.inf):
+        """
+        Save the function \delta U(k,k') and \delta U(k,k')^2 for the deuteron
+        momentum distribution (meaing 3S1-3D1 only). No 2J+1 factor since we
+        are fixing M_J for deuteron.
 
-        # Check this comparing to snmd.py and pmd.py in test_notebook.ipynb
-        print(deltaU2_pp)
-        print(deltaU2_pn)
-        # Check squared version
-        # Check if inputing channels = ['3S1'] works for deuteron (compare to dmd.py)
+        Parameters
+        ----------
+        generator : str
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_initial : float, optional
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_inv : int, optional
+            This number specifies a potential for which inverse-SRG
+            transformations will be applied to the initial Hamiltonian
+                H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+            where the transformations are evaluated at \delta \lambda.
+        delta_lambda : float, optional
+            SRG evolution parameter \lambda for inverse-SRG transformations
+            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            for this to run.
 
-# Get \delta U [class MomentumDistributions]
-# Set-up \delta U_{\tau,\tau'}(k,k') matrix elements and interpolate.
-# This relies on kvnn, channels (except for deuteron), \lambda, generator, and
-# possibly additional arguments for an initial Hamiltonian that's already
-# softened (same kvnn but \lambda_initial), or an initial Hamiltonian that is 
-# inverse-transformed by a harder potential (hard kvnn and \delta \lambda).
-# Will call Potential(kvnn, channel, kmax, kmid, ntot).
-# * Should momentum distributions modules take in deltaU_matrices, deltaU_func,
-#   self.deltaU_matrices, self.deltaU_func, or momentum distributions object?
+        Notes
+        -----
+        We are taking \lambda=1.0 fm^-1 for block-diagonal decoupling and
+        assuming parameters lamb, lambda_initial, and delta_lambda correspond
+        to \Lambda_BD.
+        
+        """
+        
+        # Channel is 3S1-3D1 for deuteron
+        channel = '3S1'
+
+        # Get momentum mesh (channel argument doesn't matter here)
+        k_array, k_weights = Potential(
+            self.kvnn, channel, self.kmax, self.kmid, self.ntot).load_mesh()
+
+        # For dividing out momenta/weights
+        factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
+        factor_array_cc = np.concatenate((factor_array, factor_array))
+
+        # Get initial and evolved Hamiltonians
+        H_initial, H_evolved = self.get_hamiltonians(
+            channel, generator, lamb, lambda_initial, kvnn_inv, delta_lambda)
+
+        # Get SRG transformation U(k, k') [unitless]
+        U_matrix_unitless = get_transformation(H_initial, H_evolved)
+
+        # Isolate 2-body term and convert to fm^3
+        I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
+        row, col = np.meshgrid(factor_array_cc, factor_array_cc)
+        delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
+        delta_U_matrix = delta_U_matrix_unitless / row / col  # fm^3
+
+        # Get matrix elements for full 3S1-3D1 partial wave channel including
+        # the isospin CG = 1/\sqrt(2)
+        deltaU = 1/2 * (delta_U_matrix[:self.ntot, :self.ntot]
+                        + delta_U_matrix[self.ntot:, self.ntot:])
+        deltaU_squared = 1/2 * (delta_U_matrix[:self.ntot, :self.ntot]**2
+                                + delta_U_matrix[:self.ntot, self.ntot:]**2
+                                + delta_U_matrix[self.ntot:, :self.ntot]**2
+                                + delta_U_matrix[self.ntot:, self.ntot:]**2)
+
+        # Interpolate \delta U(k,k)
+        self.deltaU_func = interp1d(
+            k_array, np.diag(deltaU), kind='linear', bounds_error=False,
+            fill_value='extrapolate')
+
+        # Interpolate \delta U^2(k,k') 
+        self.deltaU2_func = RectBivariateSpline(k_array, k_array,
+                                                deltaU_squared, kx=1, ky=1)
 
 # Compute I term [sub-classes of MomentumDistributions]
 # snmd.py and dmd.py are similar up to a factor of 4*\pi (suggests using 
