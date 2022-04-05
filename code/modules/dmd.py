@@ -1,34 +1,301 @@
 """
-File: name.py
+File: dmd.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
-Date: Month Day, Year
+Date: March 17, 2022
 
 Calculates deuteron momentum distributions (dmd) with SRG-evolved operators
-and assuming the evolved wave function is given by HF treated in LDA. There
-is a method to use the exact SRG-evolved wave function for comparison.
+and assuming the evolved wave function is given by HF treated in LDA.
 
 Notes on normalizations:
   1. The deuteron wave function describing relative position or momentum is
       normalized according to
-        \int dr r^2 (|\psi_3S1(r)|^2 + |\psi_3D1(r)|^2) = 1,
+        \int dr r^2 (|\psi_{3S1}(r)|^2 + |\psi_{3D1}|^2) = 1,
         2/\pi * \int dk k^2 (|\psi_{3S1}(k)|^2 + |\psi_{3D1}(k)|^2) = 1.
   2. Under HF+LDA, we adopt the normalization
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: March 17, 2022
+Last update: April 5, 2022
 
 """
 
-# To-do: ...
+# To-do: Make sure R_array parameter is described correctly.
+# To-do: There are several things that overlap (if not slightly) with the
+# single-nucleon momentum distribution code. This suggests making Deuteron
+# inherit SingleNucleon.
 
 # Python imports
+import numpy as np
 
 # Imports from A.T. codes
+from .integration import gaussian_quadrature_mesh
 
 
-# code
+class Deuteron:
+    
+    def __init__(self, momentum_distribution):
+        """
+        Saves the \delta U(k,k') and \delta U^2(k,k') functions.
+
+        Parameters
+        ----------
+        momentum_distribution : MomentumDistribution
+            Momentum distribution object from momentum_distributions.py.
+
+        """
+        
+        # Get contributions for pn in 3S1-3D1 channel
+        self.deltaU_func = momentum_distribution.deltaU_func
+        self.deltaU2_func = momentum_distribution.deltaU2_func
+        
+    def n_I(self, q_array, R_array, dR, kF_array):
+        """
+        Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from I term as a function of q.
+
+        """
+        
+        # Initialize 2-D meshgrids (q, R)
+        q_grid, R_grid = np.meshgrid(q_array, R_array, indexing='ij')
+        
+        # Get 2-D kF(R) meshgrid
+        _, kF_grid = np.meshgrid(q_array, kF_array, indexing='ij')
+        
+        # Evaluate the Heaviside step function in I term
+        # theta_mesh = self.theta_I(q_mesh, kF1_mesh)
+        theta_grid = None
+        
+        # Calculate R integrand (ntot_q, ntot_R)
+        integrand_R = theta_grid * R_grid**2 * dR
+
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        # Factor of 2 is overall factor for summation over spin projections
+        return 2 * np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU(self, q_array, R_array, dR, kF_array):
+        """
+        Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
+        we are combining \delta U and \delta U^\dagger, hence the factor of 2.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U term as a function of q.
+
+        """
+        
+        # Set number of k points for integration over k
+        ntot_k = 40  # Typical integration goes up to kF ~ 1.3 fm^-1
+        
+        # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
+        q_grid, R_grid, k_grid = np.meshgrid(q_array, R_array,
+                                             np.zeros(ntot_k), indexing='ij')
+        
+        # Get 3-D kF(R) meshgrid and initialize k weights mesh
+        _, kF_grid, dk_grid = np.meshgrid(q_array, kF_array, np.zeros(ntot_k),
+                                          indexing='ij')
+
+        # Loop over q and kF to find limits of k integration and then create
+        # k_array using Gaussian quadrature
+        for iq, q in enumerate(q_array):
+            for ikF, kF in enumerate(kF_array):
+
+                # Create integration meshgrid k_array up to (kF + q)/2 which
+                # corresponds to the upper limit of \theta(kF(R) - |q-2k|)
+                k_max = (kF + q)/2
+ 
+                # Get Gaussian quadrature mesh
+                k_array, k_weights = gaussian_quadrature_mesh(k_max, ntot_k)
+                
+                # Fill in k_grid and dk_grid given the specific k_array
+                k_grid[iq, ikF, :] = k_array
+                dk_grid[iq, ikF, :] = k_weights
+        
+        # Evaluate angle-average with Heaviside step functions in \delta U 
+        # term for \tau and \tau'
+        # theta_grid = self.theta_deltaU(q_grid, kF_grid, k_grid)
+        theta_grid = None
+        
+        # Evaluate \delta U(k,k) for \tau and \tau'
+        deltaU_grid = self.deltaU_func(k_grid)
+
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 2
+        # Factor of 2 from \delta U + \delta U^\dagger
+        # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+        # 2/\pi for two | k_vec > -> | k J L S ... > changes
+        deltaU_factor = 2 * 8 * 2/np.pi * 2
+        
+        # Calculate the k integrand leaving (ntot_q, ntot_R, ntot_k)
+        integrand_k = (deltaU_factor * k_grid**2 * dk_grid * R_grid**2 * dR
+                       * deltaU_grid * theta_grid)
+        
+        # Integrate over k leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_k, axis=-1)
+
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        return np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU2(self, q_array, R_array, dR, kF_array):
+        """
+        Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF_array : 1-D ndarray
+            Deuteron Fermi momentum [fm^-1] with respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U \delta U^\dagger term 
+            as a function of q.
+
+        """
+        
+        ntot_q = len(q_array)
+        # Set number of K and k points for integration over K and k
+        ntot_K = 40
+        ntot_k = 40
+        
+        # y = cos(\theta) angles for averaging integration over angle between
+        # K/2 and k
+        ntot_y = 7
+        y_array, y_weights = leggauss(ntot_y)
+        
+        # Initialize 4-D meshgrids (q, R, K, k) with k and K equal to 0
+        q_grid, R_grid, K_grid, k_grid = np.meshgrid(
+            q_array, R_array, np.zeros(ntot_K), np.zeros(ntot_k),
+            indexing='ij')
+        
+        # Get 4-D kF(R) meshgrid and initialize K and k weights meshgrids
+        _, kF_grid, dK_grid, dk_grid = np.meshgrid(
+            q_array, kF_array, np.zeros(ntot_K), np.zeros(ntot_k),
+            indexing='ij')
+
+        # Loop over q, R, and k to find limits of K integration and then
+        # create K integration mesh using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+                
+            kF = kF_array[iR]
+    
+            # K integration goes from 0 to 2*kF
+            K_max = 2*kF
+                
+            # Get Gaussian quadrature mesh for K integration
+            K_array, K_weights = gaussian_quadrature_mesh(K_max, ntot_K)
+              
+            # Loop over remaining variables and fill in 4-D array
+            for iq in range(ntot_q):
+                for ik in range(ntot_k):
+                    
+                    # Fill in K_grid and dK_grid given the specific K_array
+                    K_grid[iq, iR, :, ik] = K_array
+                    dK_grid[iq, iR, :, ik] = K_weights
+
+        # Loop over q, R, and K to find limits of k integration and then
+        # create k_array using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+        
+            kF = kF_array[iR]
+            
+            # K_array only depends on R, so loop over K_grid[0, iR, :, 0]
+            for iK, K in enumerate(K_grid[0, iR, :, 0]):
+                
+                # Lower limit of k integration
+                k_min = max(K/2 - kF, 0)
+                
+                # Upper limit of k integration
+                if K**2/4 < kF**2:
+                    k_max = min(np.sqrt(kF**2-K**2/4), kF+K/2)
+                else:
+                    k_max = kF + K/2
+
+                # Get Gaussian quadrature mesh for k integration
+                k_array, k_weights = gaussian_quadrature_mesh(k_max, ntot_k,
+                                                              xmin=k_min)
+                
+                # Loop over remaining variables and fill in 4-D meshgrid
+                for iq in range(ntot_q):
+                    
+                    # Fill in k_grid and dk_grid given the specific k_array
+                    k_grid[iq, iR, iK, :] = k_array
+                    dk_grid[iq, iR, iK, :] = k_weights
+
+        # Evaluate angle-average with Heaviside step functions in \delta U^2
+        # term
+        # theta_grid = self.theta_deltaU2(kF_grid, K_grid, k_grid)
+        theta_grid = None
+
+        # Set-up 4-D \delta U \delta U^\dagger(k, |q-K/2|)
+        deltaU2_grid = np.zeros_like(theta_grid)  # shape (q, R, K, k)
+        
+        # Integrate over y
+        for y, dy in zip(y_array, y_weights):
+            
+            # Evaluate |q-K/2| meshgrid
+            q_K_grid = np.sqrt(q_grid**2 + K_grid**2/4 - q_grid*K_grid*y)
+            
+            deltaU2_grid += self.deltaU2_func.ev(k_grid, q_K_grid) * dy/2
+        
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 2
+        # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
+        deltaU2_factor = 2 * (2/np.pi)**2
+
+        # Calculate the k integrand (ntot_q, ntot_R, ntot_K, ntot_k)
+        integrand_k = (deltaU2_factor * k_grid**2 * dk_grid * K_grid**2 
+                       * dK_grid * R_grid**2 * dR * deltaU2_grid * theta_grid)
+                      
+        # Integrate over k leaving K integrand (ntot_q, ntot_R, ntot_K)
+        integrand_K = np.sum(integrand_k, axis=-1)
+        
+        # Integrate over K leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_K, axis=-1)
+        
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        return np.sum(integrand_R, axis=-1)
+
+    
+# Compute \delta U term [sub-classes of MomentumDistributions]
+# All scripts are fairly different in this part. Again relies on meshgrids.
+# Also calls functions to evaluate angular average of \theta function.
+
+# Compute \delta U \delta U^\dagger term [sub-classes of MomentumDistributions]
+# Same as above.
 
 #------------------------------------------------------------------------------
 # File: dmd.py
@@ -628,7 +895,7 @@ class deuteron_momentum_distributions(object):
             # Get Gaussian quadrature mesh for K integration
             K_array, K_weights = gaussian_quadrature_mesh(K_max, self.ntot_K)
               
-            # Loop over remaining variables and fill in 5-D array
+            # Loop over remaining variables and fill in 4-D array
             for iq in range(self.ntot_q):
                 for ik in range(self.ntot_k):
                     

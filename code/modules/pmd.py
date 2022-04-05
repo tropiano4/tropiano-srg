@@ -1,23 +1,268 @@
 """
-File: name.py
+File: pmd.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
-Date: Month Day, Year
+Date: March 17, 2022
 
 1-3 summary of the script.
 
-Last update: March 17, 2022
+Last update: April 5, 2022
 
 """
 
-# To-do: ...
+# To-do: Make sure R_array parameter is described correctly.
 
 # Python imports
+import numpy as np
 
 # Imports from A.T. codes
+from .integration import gaussian_quadrature_mesh
 
 
-# code
+class Pair:
+    
+    def __init__(self, momentum_distribution):
+        """
+        Saves the \delta U(k,k') and \delta U^2(k,k') functions.
+
+        Parameters
+        ----------
+        momentum_distribution : MomentumDistribution
+            Momentum distribution object from momentum_distributions.py.
+
+        """
+        
+        # Save pp and pn contributions (works the same for nn and np)
+        self.deltaU_pp_func = momentum_distribution.deltaU_pp_func
+        self.deltaU_pn_func = momentum_distribution.deltaU_pn_func
+        self.deltaU2_pp_func = momentum_distribution.deltaU2_pp_func
+        self.deltaU2_pn_func = momentum_distribution.deltaU2_pn_func
+        
+    def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array):
+        """
+        Evaluates the I term in U n(q, Q) U^\dagger ~ I n(q, Q) I.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Relative momentum values [fm^-1].
+        Q_array : 1-D ndarray
+            C.o.M. momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the first nucleon corresponding to \tau
+            with respect to R.
+        kF2_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the second nucleon corresponding to
+            \tau' with respect to R'.
+
+        Returns
+        -------
+        output : 2-D ndarray
+            Momentum distribution [fm^6] from I term as a function of q and Q.
+
+        """
+        
+        # Initialize 4-D meshgrids (q, Q, R, R')
+        q_grid, Q_grid, R_grid, Rp_grid = np.meshgrid(
+            q_array, Q_array, R_array, R_array, indexing='ij')
+        # Get 4-D kF1(R) and kF2(R') meshgrids
+        _, _, kF1_grid, kF2_grid = np.meshgrid(
+            q_array, Q_array, kF1_array, kF2_array, indexing='ij')
+        
+        # Evaluate angle-average with Heaviside step function in I term
+        # theta_grid = self.theta_I(q_grid, Q_grid, kF1_grid, kF2_grid)
+        angle_average_grid = None
+        
+        # Calculate R' integrand (ntot_q, ntot_Q, ntot_R, ntot_R)
+        integrand_Rp = angle_average_grid * Rp_grid**2 * dR * R_grid**2 * dR
+        
+        # Integrate over R' leaving R integrand (ntot_q, ntot_Q, ntot_R)
+        integrand_R = 4*np.pi * np.sum(integrand_Rp, axis=-1)
+        
+        # Integrate over R leaving a (ntot_q, ntot_Q) shape array
+        # Factor of 2 is overall factor for summation over spin projections
+        return 2 * 4*np.pi * np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU(
+            self, q_array, Q_array, R_array, dR, kF1_array,
+            kF2_array=np.empty(0)):
+        """
+        Evaluates second and third terms in U n(q,Q) U^\dagger ~ \delta U.
+        Here we are combining \delta U and \delta U^\dagger, hence the factor
+        of 2.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Relative momentum values [fm^-1].
+        Q_array : 1-D ndarray
+            C.o.M. momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the first nucleon corresponding to \tau
+            with respect to R.
+        kF2_array : 1-D ndarray, optional
+            Fermi momentum [fm^-1] for the second nucleon corresponding to
+            \tau' with respect to R. If nothing is input, the function will
+            evaluate for pp or nn assuming Fermi momentum from kF1_array.
+
+        Returns
+        -------
+        output : 2-D ndarray
+            Momentum distribution [fm^6] from \delta U term as a function of q
+            and Q.
+
+        """
+        
+        # Initialize 3-D meshgrids (q, Q, R)
+        q_grid, Q_grid, R_grid = np.meshgrid(q_array, Q_array, R_array,
+                                             indexing='ij')
+        
+        # Get 3-D kF1(R) and kF2(R) meshes
+        _, _, kF1_grid = np.meshgrid(q_array, Q_array, kF1_array,
+                                     indexing='ij')
+        _, _, kF2_grid = np.meshgrid(q_array, Q_array, kF2_array,
+                                     indexing='ij')
+        
+        # Evaluate angle-average with Heaviside step functions in \delta U 
+        # term for \tau and \tau'
+        # theta_grid = self.theta_deltaU(q_grid, Q_grid, kF1_grid, kF2_grid)
+        theta_grid = None
+        
+        # Evaluate \delta U(q,q) for \tau and \tau'
+        if kF2_array.any():
+            deltaU_grid = self.deltaU_pn_func(q_grid)
+        else:
+            deltaU_grid = self.deltaU_pp_func(q_grid)
+            
+            
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 1
+        # Factor of 2 from \delta U + \delta U^\dagger
+        # 2/\pi for two | k_vec > -> | k J L S ... > changes
+        # 1/(4\pi) for averaging over \int d\Omega_q
+        deltaU_factor =  2 * 2/np.pi * (2*np.pi)**3/(4*np.pi)
+        
+        # Calculate R integrand (ntot_q, ntot_Q, ntot_R)
+        integrand_R = deltaU_factor * deltaU_grid * theta_grid * R_grid**2 * dR
+        
+        # Integrate over R leaving a (ntot_q, ntot_Q) shape array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU2(
+            self, q_array, Q_array, R_array, dR, kF1_array,
+            kF2_array=np.empty(0)):
+        """
+        Evaluates fourth term in U n(q,Q) U^\dagger ~ \delta U^2.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Relative momentum values [fm^-1].
+        Q_array : 1-D ndarray
+            C.o.M. momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the first nucleon corresponding to \tau
+            with respect to R.
+        kF2_array : 1-D ndarray, optional
+            Fermi momentum [fm^-1] for the second nucleon corresponding to
+            \tau' with respect to R. If nothing is input, the function will
+            evaluate for pp or nn assuming Fermi momentum from kF1_array.
+
+        Returns
+        -------
+        output : 2-D ndarray
+            Momentum distribution [fm^6] from \delta U \delta U^\dagger term
+            as a function of q and Q.
+
+        """
+        
+        ntot_q = len(q_array)
+        # Set number of k points for integration over k
+        ntot_k = 40
+        
+        # Initialize 4-D meshgrids (q, Q, R, k) with k values equal to 0
+        q_grid, Q_grid, R_grid, k_grid = np.meshgrid(
+            q_array, Q_array, R_array, np.zeros(ntot_k), indexing='ij')
+        
+        # Get 4-D kF1(R) and kF2(R) meshgrids and initialize k weights
+        _, _, kF1_grid, dk_grid = np.meshgrid(
+            q_array, Q_array, kF1_array, np.zeros(ntot_k), indexing='ij')
+        _, _, kF2_grid, _ = np.meshgrid(q_array, Q_array, kF2_array,
+                                        np.zeros(ntot_k), indexing='ij')
+
+        # Loop over q, Q, and R to find limits of k integration and then create
+        # k integration mesh using Gaussian quadrature
+        for iQ, Q in enumerate(Q_array):
+            for iR, R in enumerate(R_array):
+                
+                kF1, kF2 = kF1_array[iR], kF2_array[iR]
+                
+                # Minimum kF value
+                kF_min = min(kF1, kF2)
+                
+                # Lower limit of integration
+                k_min = max(Q/2 - kF_min, 0)
+                
+                # Upper limit of integration
+                if Q**2/4 < (kF1**2 + kF2**2)/2:
+                    k_max = min(np.sqrt((kF1**2+kF2**2)/2-Q**2/4), kF_min+Q/2)
+                else:
+                    k_max = kF_min + Q/2
+                    
+                # Get Gaussian quadrature mesh
+                k_array, k_weights = gaussian_quadrature_mesh(k_max, ntot_k,
+                                                              xmin=k_min)
+                
+                # Fill in k_grid and dk_grid given the specific k_array
+                for iq in range(ntot_q):
+                    k_grid[iq, iQ, iR, :] = k_array
+                    dk_grid[iq, iQ, iR, :] = k_weights
+                     
+        # Evaluate angle-average with Heaviside step functions in \delta U^2
+        # term for \tau and \tau'
+        # theta_grid = self.theta_deltaU2(Q_grid, kF1_grid, kF2_grid, k_grid)
+        theta_grid = None
+        
+        # Evaluate \delta U(k,q) \delta U^\dagger(q,k) for \tau and \tau'
+        if kF2_array.any():
+            deltaU2_grid = self.deltaU2_pn_func.ev(k_grid, q_grid)
+        else:
+            deltaU2_grid = self.deltaU2_pp_func.ev(k_grid, q_grid)
+
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 1
+        # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
+        # 1/(4\pi) for averaging over \int d\Omega_q
+        deltaU2_factor = (2/np.pi)**2 * (2*np.pi)**3/(4*np.pi)
+        
+        # Calculate k integrand (ntot_q, ntot_Q, ntot_R, ntot_k)
+        integrand_k = (deltaU2_factor * deltaU2_grid * theta_grid * k_grid**2
+                       * dk_grid * R_grid**2 * dR)
+        
+        # Integrate over k leaving R integrand (ntot_q, ntot_Q, ntot_R)
+        integrand_R = np.sum(integrand_k, axis=-1)
+
+        # Integrate over R leaving a (ntot_q, ntot_Q) shape array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
+    
+# Compute \delta U term [sub-classes of MomentumDistributions]
+# All scripts are fairly different in this part. Again relies on meshgrids.
+# Also calls functions to evaluate angular average of \theta function.
+
+# Compute \delta U \delta U^\dagger term [sub-classes of MomentumDistributions]
+# Same as above.
 
 #------------------------------------------------------------------------------
 # File: pmd.py
@@ -69,89 +314,6 @@ from .integration import gaussian_quadrature_mesh
 from .vnn import Potential
 from .srg_transformation import get_transformation
 from .tools import channel_L_value, coupled_channel
-
-
-# def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
-#     """
-#     Loads a nucleonic density for the given nucleus. Densities are normalized
-#     according to
-#         4*\pi \int_0^\infty dR R^2 \rho_A(R) = Z or N.
-    
-#     Parameters
-#     ----------
-#     nucleus_name : str
-#         Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
-#     nucleon : str
-#         Specify 'proton' or 'neutron'.
-#     Z : int
-#         Proton number of the nucleus.
-#     N : int
-#         Neutron number of the nucleus.
-#     edf : str, optional
-#         Name of EDF (e.g., 'SLY4').
-        
-#     Returns
-#     -------
-#     R_array : 1-D ndarray
-#         C.o.M. coordinates [fm].
-#     rho_array : 1-D ndarray
-#         Nucleonic density as a function of R [# of nucleons / vol].
-                                              
-#     Notes
-#     -----
-#     Momentum distributions code compute intermediate integration arrays in 
-#     relative k and C.o.M. K which rely on kF(R) values. These values can be
-#     zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
-#     extremely small number so the codes run correctly to avoid zero division
-#     errors. (This only happens for edf = 'AV18' densities.)
-    
-#     """
-
-
-#     # Go to directory corresponding to specified nucleus and EDF
-#     if edf == 'SLY4':
-        
-#         densities_directory = f'../../densities/HFBRAD_{edf}/{nucleus_name}/'
-#         file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
-#         column_number = 1
-        
-#     elif edf == 'Gogny':
-        
-#         densities_directory = f'../../densities/{edf}/{nucleus_name}/'
-#         file_name = 'DensityQP.dat'
-#         if nucleon == 'proton':
-#             column_number = 1
-#         elif nucleon == 'neutron':
-#             column_number = 2
-    
-#     # Technically it doesn't make sense to have a case edf == AV18 since
-#     # AV18 does not use an EDF. It would also make more sense to call it VMC.
-#     elif edf == 'AV18':
-        
-#         densities_directory = '../../densities/{edf}/'
-#         file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
-        
-#         # AV18 files either have single \rho column for N=Z nuclei or
-#         # two columns for proton (1) and neutron (3)
-#         if N == Z:
-#             column_number = 1
-#         else:
-#             if nucleon == 'proton':
-#                 column_number = 1
-#             elif nucleon == 'neutron':
-#                 column_number = 3 
-        
-#     # Load file
-#     table = np.loadtxt(densities_directory + file_name)
-    
-#     R_array = table[:, 0]
-#     rho_array = table[:, column_number]
-    
-#     # Avoiding zero division errors
-#     zero_case = rho_array == 0
-#     rho_array[zero_case] = 1e-30
-    
-#     return R_array, rho_array
 
 
 class pair_momentum_distributions(object):

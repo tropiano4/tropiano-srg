@@ -1,23 +1,311 @@
 """
-File: name.py
+File: snmd.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
-Date: Month Day, Year
+Date: March 17, 2022
 
 1-3 summary of the script.
 
-Last update: March 17, 2022
+Last update: April 5, 2022
 
 """
 
-# To-do: ...
+# To-do: Make sure R_array parameter is described correctly.
 
 # Python imports
+import numpy as np
 
 # Imports from A.T. codes
+from .integration import gaussian_quadrature_mesh
 
 
-# code
+class SingleNucleon:
+    
+    def __init__(self, momentum_distribution):
+        """
+        Saves the \delta U(k,k') and \delta U^2(k,k') functions.
+
+        Parameters
+        ----------
+        momentum_distribution : MomentumDistribution
+            Momentum distribution object from momentum_distributions.py.
+
+        """
+        
+        # Save pp and pn contributions (works the same for nn and np)
+        self.deltaU_pp_func = momentum_distribution.deltaU_pp_func
+        self.deltaU_pn_func = momentum_distribution.deltaU_pn_func
+        self.deltaU2_pp_func = momentum_distribution.deltaU2_pp_func
+        self.deltaU2_pn_func = momentum_distribution.deltaU2_pn_func
+        
+    def n_I(self, q_array, R_array, dR, kF1_array):
+        """
+        Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the nucleon corresponding to \tau with
+            respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from I term as a function of q.
+
+        """
+        
+        # Initialize 2-D meshgrids (q, R)
+        q_grid, R_grid = np.meshgrid(q_array, R_array, indexing='ij')
+        
+        # Get 2-D kF1(R) meshgrid
+        _, kF1_grid = np.meshgrid(q_array, kF1_array, indexing='ij')
+        
+        # Evaluate the Heaviside step function in I term
+        # theta_grid = self.theta_I(q_grid, kF1_grid)
+        theta_grid = None
+        
+        # Calculate R integrand (ntot_q, ntot_R)
+        integrand_R = theta_grid * R_grid**2 * dR
+
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        # Factor of 2 is overall factor for summation over spin projections
+        return 2 * 4*np.pi * np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU(self, q_array, R_array, dR, kF1_array, kF2_array):
+        """
+        Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
+        we are combining \delta U and \delta U^\dagger, hence the factor of 2.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the nucleon corresponding to \tau with
+            respect to R.
+        kF2_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the nucleon corresponding to \tau' with
+            respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U term as a function of q.
+
+        """
+        
+        # Set number of k points for integration over k
+        ntot_k = 40  # Typical integration goes up to kF ~ 1.3 fm^-1
+        
+        # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
+        q_grid, R_grid, k_grid = np.meshgrid(
+            q_array, R_array, np.zeros(ntot_k), indexing='ij')
+        
+        # Get 3-D kF1(R) and kF2(R) meshgrids and initialize k weights mesh
+        _, kF1_grid, dk_grid = np.meshgrid(
+            q_array, kF1_array, np.zeros(ntot_k), indexing='ij')
+        _, kF2_grid, _ = np.meshgrid(
+            q_array, kF2_array, np.zeros(ntot_k), indexing='ij')
+
+        # Loop over q and kF2 to find limits of k integration and then create
+        # k_array using Gaussian quadrature
+        for iq, q in enumerate(q_array):
+            for ikF2, kF2 in enumerate(kF2_array):
+
+                # Create integration meshgrid k_array up to (kF2 + q)/2 which
+                # corresponds to the upper limit of \theta(kF2(R) - |q-2k|)
+                k_max = (kF2 + q)/2
+ 
+                # Get Gaussian quadrature mesh
+                k_array, k_weights = gaussian_quadrature_mesh(k_max, ntot_k)
+                
+                # Fill in k_grid and dk_grid given the specific k_array
+                k_grid[iq, ikF2, :] = k_array
+                dk_grid[iq, ikF2, :] = k_weights
+        
+        # Evaluate angle-average with Heaviside step functions in \delta U 
+        # term for \tau and \tau'
+        # theta_pp_grid = self.theta_deltaU(q_grid, kF1_grid, kF1_grid, k_grid)
+        # theta_pn_grid = self.theta_deltaU(q_grid, kF1_grid, kF2_grid, k_grid)
+        theta_pp_grid = None
+        theta_pn_grid = None
+        
+        # Evaluate \delta U(k,k) for \tau and \tau'
+        deltaU_pp_grid = self.deltaU_pp_func(k_grid)
+        deltaU_pn_grid = self.deltaU_pn_func(k_grid)
+
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 2
+        # Factor of 2 from \delta U + \delta U^\dagger
+        # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
+        # 2/\pi for two | k_vec > -> | k J L S ... > changes
+        deltaU_factor = 2 * 8 * 2/np.pi * 2
+        
+        # Calculate the k integrand where we split terms according to pp and
+        # pn (ntot_q, ntot_R, ntot_k)
+        integrand_k = (deltaU_factor * k_grid**2 * dk_grid * R_grid**2 * dR
+                       * (deltaU_pp_grid*theta_pp_grid
+                          + deltaU_pn_grid*theta_pn_grid))
+        
+        # Integrate over k leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_k, axis=-1)
+
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
+    
+    def n_deltaU2(self, q_array, R_array, dR, kF1_array, kF2_array):
+        """
+        Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
+
+        Parameters
+        ----------
+        q_array : 1-D ndarray
+            Momentum values [fm^-1].
+        R_array : 1-D ndarray
+            C.o.M. coordinates [fm].
+        dR : float
+            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+        kF1_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the nucleon corresponding to \tau with
+            respect to R.
+        kF2_array : 1-D ndarray
+            Fermi momentum [fm^-1] for the nucleon corresponding to \tau' with
+            respect to R.
+
+        Returns
+        -------
+        output : 1-D ndarray
+            Momentum distribution [fm^3] from \delta U \delta U^\dagger term as
+            a function of q.
+
+        """
+        
+        ntot_q = len(q_array)
+        # Set number of K and k points for integration over K and k
+        ntot_K = 40
+        ntot_k = 40
+        
+        # y = cos(\theta) angles for averaging integration over angle between
+        # K/2 and k
+        ntot_y = 7
+        y_array, y_weights = leggauss(ntot_y)
+        
+        # Initialize 4-D meshgrids (q, R, K, k) with k and K equal to 0
+        q_grid, R_grid, K_grid, k_grid = np.meshgrid(
+            q_array, R_array, np.zeros(ntot_K), np.zeros(ntot_k),
+            indexing='ij')
+        
+        # Get 4-D kF1(R) and kF2(R) meshgrids and initialize K and k weights
+        # meshgrids
+        _, kF1_grid, dK_grid, dk_grid = np.meshgrid(
+            q_array, kF1_array, np.zeros(ntot_K), np.zeros(ntot_k),
+            indexing='ij')
+        _, kF2_grid, _, _ = np.meshgrid(q_array, kF2_array, np.zeros(ntot_K),
+                                        np.zeros(ntot_k), indexing='ij')
+
+        # Loop over q, R, and k to find limits of K integration and then
+        # create K integration mesh using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+                
+            kF1, kF2 = kF1_array[iR], kF2_array[iR]
+    
+            # K integration goes from 0 to kF1+kF2
+            K_max = kF1 + kF2
+                
+            # Get Gaussian quadrature mesh for K integration
+            K_array, K_weights = gaussian_quadrature_mesh(K_max, ntot_K)
+              
+            # Loop over remaining variables and fill in 4-D array
+            for iq in range(ntot_q):
+                for ik in range(ntot_k):
+                    
+                    # Fill in K_grid and dK_grid given the specific K_array
+                    K_grid[iq, iR, :, ik] = K_array
+                    dK_grid[iq, iR, :, ik] = K_weights
+
+        # Loop over q, R, and K to find limits of k integration and then
+        # create k_array using Gaussian quadrature
+        for iR, R in enumerate(R_array):
+        
+            kF1, kF2 = kF1_array[iR], kF2_array[iR]
+        
+            # Get minimum kF value
+            kF_min = min(kF1, kF2)
+            
+            # K_array only depends on R, so loop over K_grid[0, iR, :, 0]
+            for iK, K in enumerate(K_grid[0, iR, :, 0]):
+                
+                # Lower limit of k integration
+                k_min = max(K/2 - kF_min, 0)
+                
+                # Upper limit of k integration
+                if K**2/4 < (kF1**2 + kF2**2)/2:
+                    k_max = min(np.sqrt((kF1**2+kF2**2)/2-K**2/4), kF_min+K/2)
+                else:
+                    k_max = kF_min + K/2
+
+                # Get Gaussian quadrature mesh for k integration
+                k_array, k_weights = gaussian_quadrature_mesh(
+                    k_max, ntot_k, xmin=k_min)
+                
+                # Loop over remaining variables and fill in 4-D meshgrid
+                for iq in range(ntot_q):
+                    
+                    # Fill in k_grid and dk_grid given the specific k_array
+                    k_grid[iq, iR, iK, :] = k_array
+                    dk_grid[iq, iR, iK, :] = k_weights
+
+        # Evaluate angle-average with Heaviside step functions in \delta U^2
+        # term for \tau and \tau'
+        # theta_pp_grid = self.theta_deltaU2(kF1_grid, kF1_grid, K_grid, k_grid)
+        # theta_pn_grid = self.theta_deltaU2(kF1_grid, kF2_grid, K_grid, k_grid)
+        theta_pp_grid = None
+        theta_pn_grid = None
+
+        # Set-up 4-D \delta U \delta U^\dagger(k, |q-K/2|) for \tau and \tau'
+        deltaU2_pp_grid = np.zeros_like(theta_pp_grid)  # shape (q, R, K, k)
+        deltaU2_pn_grid = np.zeros_like(theta_pn_grid)
+        
+        # Integrate over y
+        for y, dy in zip(y_array, y_weights):
+            
+            # Evaluate |q-K/2| meshgrid
+            q_K_grid = np.sqrt(q_grid**2 + K_grid**2/4 - q_grid*K_grid*y)
+            
+            deltaU2_pp_grid += self.deltaU2_pp_func.ev(k_grid, q_K_grid) * dy/2
+            deltaU2_pn_grid += self.deltaU2_pn_func.ev(k_grid, q_K_grid) * dy/2
+        
+        # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
+        # combine to give 2
+        # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
+        deltaU2_factor = 2 * (2/np.pi)**2
+
+        # Calculate the k integrand where we split terms according to pp and
+        # pn leaving a (ntot_q, ntot_R, ntot_K, ntot_k) shape array
+        integrand_k = (deltaU2_factor * k_grid**2 * dk_grid * K_grid**2 
+                       * dK_grid * R_grid**2 * dR
+                       * (deltaU2_pp_grid*theta_pp_grid
+                          +deltaU2_pn_grid*theta_pn_grid))
+                      
+        # Integrate over k leaving K integrand (ntot_q, ntot_R, ntot_K)
+        integrand_K = np.sum(integrand_k, axis=-1)
+        
+        # Integrate over K leaving R integrand (ntot_q, ntot_R)
+        integrand_R = np.sum(integrand_K, axis=-1)
+        
+        # Integrate over R leaving a (ntot_q, 1) shape array
+        return 4*np.pi * np.sum(integrand_R, axis=-1)
 
 #------------------------------------------------------------------------------
 # File: snmd.py
@@ -738,7 +1026,7 @@ class single_nucleon_momentum_distributions(object):
             # Get Gaussian quadrature mesh for K integration
             K_array, K_weights = gaussian_quadrature_mesh(K_max, self.ntot_K)
               
-            # Loop over remaining variables and fill in 5-D array
+            # Loop over remaining variables and fill in 4-D array
             for iq in range(self.ntot_q):
                 for ik in range(self.ntot_k):
                     

@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 
 """
-File: name.py
+File: momentum_distributions.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
-Date: Month Day, Year
+Date: March 17, 2022
 
-1-3 summary of the script.
+Handles momentum distribution codes and data. Momentum distributions are
+computed using modules snmd.py, pmd.py, and dmd.py with Heaviside step-
+functions and angle-averaging from heaviside.py. Momentum distribution data
+stored in data/momentum_distributions. These codes also rely on nucleonic
+densities taken from external codes or data.
 
-Last update: March 17, 2022
+Last update: April 2, 2022
 
 """
 
 # To-do: Probably want a function that gets k_array, k_weights independent of
 # the channel.
+# To-do: Make sure description above makes sense.
 
 # Python imports
 import numpy as np
@@ -25,9 +30,7 @@ from modules.tools import channel_L_value, coupled_channel
 from vnn import Potential
 
 
-# code
-
-class MomentumDistributions:
+class MomentumDistribution(object):
 
     def __init__(self, kvnn, kmax, kmid, ntot):
         """
@@ -367,19 +370,6 @@ class MomentumDistributions:
         # Interpolate \delta U^2(k,k') 
         self.deltaU2_func = RectBivariateSpline(k_array, k_array,
                                                 deltaU_squared, kx=1, ky=1)
-
-# Compute I term [sub-classes of MomentumDistributions]
-# snmd.py and dmd.py are similar up to a factor of 4*\pi (suggests using 
-# super()). pmd.py has different arguments. Each function relies on input mesh-
-# grids of dimension corresponding to the number of integrals. Calls functions
-# to weight with \theta(\kF-q) or evaluate angular average of two \theta's.
-
-# Compute \delta U term [sub-classes of MomentumDistributions]
-# All scripts are fairly different in this part. Again relies on meshgrids.
-# Also calls functions to evaluate angular average of \theta function.
-
-# Compute \delta U \delta U^\dagger term [sub-classes of MomentumDistributions]
-# Same as above.
 
 # [sub-classes of MomentumDistributions] Not sure about this yet!
 # There should probably be a distinction of multiplying by \theta(...) and
