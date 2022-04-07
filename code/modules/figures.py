@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-File: figures_graphics.py
+File: figures.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 3, 2019

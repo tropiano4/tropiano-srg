@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-File: figure_labels.py
+File: labels.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 3, 2019
