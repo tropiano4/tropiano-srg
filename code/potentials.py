@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 """
-File: vnn.py
+File: potentials.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 22, 2019
 
-Handles potentials from data/vnn directory. Potentials are organized by a kvnn
-number, a partial wave channel, and the details of their momentum mesh. Below
-are several examples of kvnn numbers:
+Handles potentials from data/potentials directory. Potentials are organized by
+a kvnn number, a partial wave channel, and the details of their momentum mesh.
+Below are several examples of kvnn numbers:
 
     kvnn    description        
     
@@ -28,11 +28,7 @@ are several examples of kvnn numbers:
     901     Wendt LO non-local potential (9 fm^-1 cutoff)
     902     Wendt LO non-local potential (20 fm^-1 cutoff)
 
-Also runs SRG and Magnus scripts, saving evolved potentials in the same
-directory as above. This class includes several other useful potential-
-oriented functions.
-
-Last update: March 25, 2022
+Last update: April 8, 2022
 
 """
 
@@ -40,23 +36,22 @@ Last update: March 25, 2022
 #        E.g., use convert_number_to_string() for labeling \lambda, etc.
 # To-do: Use np.savetxt() to save potentials? Definitely a simpler way.
 # To-do: Should probably incorporate dU/ds = \eta U method?
-# To-do: Should probably incorporate MagnusSplit class?
-# To-do: Combine run_srg and run_magnus into a one method.
 
 # Python imports
 import numpy as np
-import time
 
 # Imports from A.T. codes
-from modules.magnus import Magnus
-from modules.srg import SRG
 import modules.tools as tl
 
-class Potential(object):
+class Potential:
+    
+    # Define class attribute for h-bar^2 / M [MeV fm^2]
+    hbar_sq_over_m = 41.47
     
     def __init__(self, kvnn, channel, kmax, kmid, ntot):
         """
-        Save the inputs of the potential. Also records the relevant directory.
+        Set the specifications of the potential as instance attributes and
+        record the relevant directory.
 
         Parameters
         ----------
@@ -78,10 +73,7 @@ class Potential(object):
         self.kmax = kmax
         self.kmid = kmid
         self.ntot = ntot
-        
-        # Save h-bar^2 / M for units conversion 
-        self.hbar_sq_over_m = 41.47  # [MeV fm^2]
-        
+
         # Need kvnn as string (can cause error if kvnn < 10)
         if kvnn < 10:
             kvnn_string = '0'+str(kvnn)
@@ -89,16 +81,15 @@ class Potential(object):
             kvnn_string = str(kvnn)
         self.kvnn_string = kvnn_string
         
-        # Save whether the potential is coupled-channel or not
+        # Set instance attribute for coupled-channel Boolean
         self.coupled_channel_bool = tl.coupled_channel(self.channel)
             
-        # Get potential directory
+        # Get potential directory and set instance attribute
         kmax_int = int(kmax)
         kmid_int = int(kmid)
         potential_directory = ('../potentials/vsrg_macos/vsrg_kvnn'
                                f'_{kvnn_string}_lam12.0_kmax{kmax_int:d}'
                                f'_kmid{kmid_int:d}_ntot{ntot:d}/')
-                            
         self.potential_directory = potential_directory
         
     def get_file_name(
@@ -196,8 +187,8 @@ class Potential(object):
         return k_array, k_weights
     
     def load_potential(
-            self, method='initial', generator='', lamb=0.0,
-            lambda_bd=0.0, k_max=0, ds=0.0):
+            self, method='initial', generator='', lamb=0.0, lambda_bd=0.0,
+            k_max=0, ds=0.0):
         """
         Loads the potential. This function is capable of loading SRG- or
         Magnus-evolved potentials as well.
@@ -324,8 +315,7 @@ class Potential(object):
             self, V_matrix, method, generator, lamb, lambda_bd=0.0, k_max=0,
             ds=0.0):
         """
-        Saves the potential. This function is used for saving SRG- or Magnus-
-        evolved potentials.
+        This function is used for saving SRG- or Magnus-evolved potentials.
     
         Parameters
         ----------
@@ -470,210 +460,3 @@ class Potential(object):
         V_matrix_fm = V_matrix_MeV / (row*col*self.hbar_sq_over_m)
     
         return V_matrix_fm
-    
-    def run_srg(
-            self, generator, lambda_array, lambda_bd_array=np.empty(0),
-            save=True):
-        """
-        SRG evolves the specified Hamiltonian to several values of \lambda,
-        and possibly \Lambda_BD, and has the option to save the evolved
-        potentials.
-
-        Parameters
-        ----------
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-        lambda_array : 1-D ndarray
-            SRG evolution parameters \lambda [fm^-1].
-        lambda_bd_array : 1-D ndarray, optional
-            \Lambda_BD values for block-diagonal generator [fm^-1].
-        save : bool, optional
-            If true, saves the evolved potentials.
-
-        Returns
-        -------
-        d : dict
-            Dictionary storing each evolved Hamiltonian with keys (floats)
-            corresponding to each \lambda value (and possibly an additional
-            key for \Lambda_BD). E.g., d[1.5] returns the evolved Hamiltonian
-            at \lambda = 1.5 fm^-1.
-
-        """
-    
-        # Initial value of \lambda [fm^-1]
-        # Technically, this value should be infinity, but we can take 
-        # 20 fm^-1 which is reasonably large
-        lambda_initial = 20.0
-
-        # Initialize SRG class (we're feeding in the Potential object as the
-        # first argument to the SRG class)
-        srg = SRG(self, generator)
-
-        # Time the evolution and return dictionary d
-        t0 = time.time() # Start time
-        d = srg.srg_evolve(lambda_initial, lambda_array, lambda_bd_array)
-        t1 = time.time() # End time
-    
-        # Print details
-        mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
-        print('_'*85)
-        lamb_str = tl.convert_number_to_string(lambda_array[-1])
-        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
-              f' {mins:.4f} minutes.')
-        print('_'*85)
-        print('\nSpecifications:\n')
-        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
-        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
-              f'ntot = {self.ntot:d}')
-        print(f'method = SRG, generator = {generator}')
-        if generator == 'Block-diag':
-            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
-            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
-    
-        # Save evolved potentials
-        if save:
-            
-            # Get relative kinetic energy and convert to [fm^-2]
-            T_matrix = self.load_kinetic_energy() / self.hbar_sq_over_m
-
-            if generator == 'Block-diag':
-                
-                # Additionally loop over \Lambda_BD
-                for lambda_bd in lambda_bd_array:
-                    for lamb in lambda_array:
-
-                        # Scattering units here [fm^-2]
-                        H_matrix = d[lambda_bd][lamb]
-                    
-                        # Subtract off kinetic energy [fm^-2]
-                        V_matrix = H_matrix - T_matrix
-                    
-                        # Save evolved potential in units [fm]
-                        self.save_potential(V_matrix, 'srg', generator, lamb,
-                                            lambda_bd)
-                
-            # Only need to loop over \lambda for band-diagonal generators
-            else:
-            
-                for lamb in lambda_array:
-
-                    # Scattering units here [fm^-2]
-                    H_matrix = d[lamb]
-                    
-                    # Subtract off kinetic energy [fm^-2]
-                    V_matrix = H_matrix - T_matrix
-                    
-                    # Save evolved potential in units [fm]
-                    self.save_potential(V_matrix, 'srg', generator, lamb)
-                
-        return d
-
-    def run_magnus(
-            self, generator, lambda_array, lambda_bd_array=np.empty(0),
-            k_max=6, ds=1e-5, save=True):
-        """
-        SRG evolves the specified Hamiltonian to several values of \lambda,
-        and possibly \Lambda_BD, and has the option to save the evolved
-        potentials.
-
-        Parameters
-        ----------
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-        lambda_array : 1-D ndarray
-            SRG evolution parameters \lambda [fm^-1].
-        lambda_bd_array : 1-D ndarray, optional
-            \Lambda_BD values for block-diagonal generator [fm^-1].
-        k_max : int, optional
-            d\Omega(s)/ds sum from 0 to k_max.
-        ds : float, optional
-            Step-size in the flow parameter s [fm^4].
-        save : bool, optional
-            If true, saves the evolved potentials.
-
-        Returns
-        -------
-        d : dict
-            Dictionary storing each evolved Hamiltonian with keys (floats)
-            corresponding to each \lambda value (and possibly an additional
-            key for \Lambda_BD). E.g., d[1.5] returns the evolved Hamiltonian
-            at \lambda = 1.5 fm^-1.
-
-        """
-    
-        # Initialize Magnus class (we're feeding in the Potential object as
-        # the first argument to the Magnus class)
-        magnus = Magnus(self, generator)
-
-        # Time the evolution and return dictionary d
-        t0 = time.time() # Start time
-        d = magnus.magnus_evolve(lambda_array, lambda_bd_array, k_max, ds)
-        t1 = time.time() # End time
-    
-        # Print details
-        mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
-        print('_'*85)
-        lamb_str = tl.convert_number_to_string(lambda_array[-1])
-        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
-              f' {mins:.4f} minutes.')
-        print('_'*85)
-        print('\nSpecifications:\n')
-        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
-        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
-              f'ntot = {self.ntot:d}')
-        print(f'method = Magnus, generator = {generator}')
-        if generator == 'Block-diag':
-            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
-            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
-        print(f'k_max = {k_max:d}, ds = {ds:.1e}')
-    
-        # Save evolved potentials
-        if save:
-            
-            # Get relative kinetic energy and convert to [fm^-2]
-            T_matrix = self.load_kinetic_energy() / self.hbar_sq_over_m
-
-            if generator == 'Block-diag':
-                
-                # Additionally loop over \Lambda_BD
-                for lambda_bd in lambda_bd_array:
-                    for lamb in lambda_array:
-                        
-                        # Scattering units here [fm^-2]
-                        H_matrix = d[lambda_bd][lamb]
-                    
-                        # Subtract off kinetic energy [fm^-2]
-                        V_matrix = H_matrix - T_matrix
-                    
-                        # Save evolved potential in units [fm]
-                        # For large \lambda, Magnus-evolved potentials 
-                        # automatically have ds <= 1e-6
-                        if lamb >= 10.0 and ds > 1e-6:
-                            self.save_potential(V_matrix, 'magnus', generator,
-                                                lamb, lambda_bd, k_max, 1e-6)
-                        else:
-                            self.save_potential(V_matrix, 'magnus', generator,
-                                                lamb, lambda_bd, k_max, ds)
-                
-            # Only need to loop over \lambda for band-diagonal generators
-            else:
-            
-                for lamb in lambda_array:
-
-                    # Scattering units here [fm^-2]
-                    H_matrix = d[lamb]
-                    
-                    # Subtract off kinetic energy [fm^-2]
-                    V_matrix = H_matrix - T_matrix
-                    
-                    # Save evolved potential in units [fm]
-                    # For large \lambda, Magnus-evolved potentials 
-                    # automatically have ds <= 1e-6
-                    if lamb >= 10.0 and ds > 1e-6:
-                        self.save_potential(V_matrix, 'magnus', generator,
-                                            lamb, lambda_bd, k_max, 1e-6)
-                    else:
-                        self.save_potential(V_matrix, 'magnus', generator,
-                                            lamb, lambda_bd, k_max, ds)
-                
-        return d

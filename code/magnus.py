@@ -6,12 +6,12 @@ File: magnus.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: June 3, 2019
 
-Evolves Hamiltonian to band-diagonal or block-diagonal decoupled form with
-flow parameter \lambda [fm^-1] using the Magnus expansion. This class relies
-on the Potential class from vnn.py and inherits the SRG class from srg.py. 
-In the Magnus implementation, we solve the ODE for \Omega(s) using the first-
-order Euler step-method, and directly apply transformations to evolve the 
-Hamiltonian:
+The Magnus class evolves potentials to band-diagonal or block-diagonal
+decoupled form with respect to the flow parameter \lambda [fm^-1], and 
+possibly \Lambda_BD using the Magnus expansion implementation of the SRG.
+This class is a sub-class of the SRG class from srg.py. In the Magnus 
+framework, we solve the ODE for \Omega(s) using the first-order Euler step-
+method, and directly apply transformations to evolve the Hamiltonian:
     
     H(s) = e^\Omega(s) H(0) e^-\Omega(s).
     
@@ -19,10 +19,12 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: March 29, 2022
+Last update: April 8, 2022
 
 """
 
+# To-do: Add print_info optional argument and save during first \lambda loop
+# in magnus_evolve (make Potential.save_potential() take H not V).
 # To-do: Might be a better way of evaluating B_k and k!
 # To-do: Could maybe clean-up looping over s (make neater)?
 
@@ -32,35 +34,39 @@ import numpy as np
 import numpy.linalg as la
 # from scipy.linalg import expm  # Option to use expm instead of BCH formula
 from sympy import bernoulli
+import time
 
 # Imports from A.T. codes
-from .srg import SRG
+from srg import SRG
+import modules.tools as tl
 
 
 class Magnus(SRG):
     
-    def __init__(self, potential, generator):
+    def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
         """
         Loads the initial Hamiltonian and other relevant operators depending
-        on the SRG generator.
+        on the specifications of the potential and the SRG generator.
         
         Parameters
         ----------
-        potential : Potential
-            Potential object from vnn.py. Contains information and useful
-            potential-related methods.
+        kvnn : int
+            This number specifies the potential.
+        channel : str
+            The partial wave channel (e.g. '1S0').
+        kmax : float
+            Maximum value in the momentum mesh [fm^-1].
+        kmid : float
+            Mid-point value in the momentum mesh [fm^-1].
+        ntot : int
+            Number of momentum points in mesh.
         generator : str
             SRG generator 'Wegner', 'T', or 'Block-diag'.
             
-        Notes
-        -----
-        This class is a sub-class of the SRG class. We will use many of the
-        methods from the SRG class.
-            
         """
         
-        # Call SRG class given the potential and SRG generator
-        super().__init__(potential, generator)
+        # Call SRG class given the potential specifications and SRG generator
+        super().__init__(kvnn, channel, kmax, kmid, ntot, generator)
         
         # Initialize factorial and Bernoulli number arrays for summations up
         # to 30 terms
@@ -200,7 +206,8 @@ class Magnus(SRG):
         return O_matrix
     
     def magnus_evolve(
-            self, lambda_array, lambda_bd_array=np.empty(0), k_max=6, ds=1e-5):
+            self, lambda_array, lambda_bd_array=np.empty(0), k_max=6, ds=1e-5,
+            save=False):
         """
         Evolve the Hamiltonian using the Magnus expansion to each value of
         \lambda, and possibly \Lambda_BD for block-diagonal decoupling. Here
@@ -216,6 +223,8 @@ class Magnus(SRG):
             d\Omega(s)/ds sum from 0 to k_max.
         ds : float, optional
             Step-size in the flow parameter s [fm^4].
+        save : bool, optional
+            If true, saves the evolved potentials.
             
         Returns
         -------
@@ -240,6 +249,9 @@ class Magnus(SRG):
         
         # Evaluate 0 to k_max terms in d\Omega(s)/ds sum
         self.k_max = k_max
+        
+        # Start time
+        t0 = time.time()
     
         # Evolve the Hamiltonian to each value of \lambda and store in a
         # dictionary (loop over \Lambda_BD as well for block-diagonal)
@@ -310,6 +322,77 @@ class Magnus(SRG):
                 # Set starting point for next \lambda value
                 s_initial = s_final
                 O_initial = O_matrix
+        
+        # End time
+        t1 = time.time()
+        
+        # Print details
+        mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
+        print('_'*85)
+        lamb_str = tl.convert_number_to_string(lambda_array[-1])
+        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
+              f' {mins:.4f} minutes.')
+        print('_'*85)
+        print('\nSpecifications:\n')
+        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
+        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
+              f'ntot = {self.ntot:d}')
+        print(f'method = Magnus, generator = {self.generator}')
+        if self.generator == 'Block-diag':
+            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
+            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
+        print(f'k_max = {k_max:d}, ds = {ds:.1e}')
+        
+        # Save evolved potentials
+        if save:
+            
+            # Get relative kinetic energy and convert to [fm^-2]
+            T_matrix = self.load_kinetic_energy() / SRG.hbar_sq_over_m
+
+            if self.generator == 'Block-diag':
+                
+                # Additionally loop over \Lambda_BD
+                for lambda_bd in lambda_bd_array:
+                    for lamb in lambda_array:
+                        
+                        # Scattering units here [fm^-2]
+                        H_matrix = d[lambda_bd][lamb]
+                    
+                        # Subtract off kinetic energy [fm^-2]
+                        V_matrix = H_matrix - T_matrix
+                    
+                        # Save evolved potential in units [fm]
+                        # For large \lambda, Magnus-evolved potentials 
+                        # automatically have ds <= 1e-6
+                        if lamb >= 10.0 and ds > 1e-6:
+                            self.save_potential(
+                                V_matrix, 'magnus', self.generator, lamb,
+                                lambda_bd, k_max, 1e-6)
+                        else:
+                            self.save_potential(
+                                V_matrix, 'magnus', self.generator, lamb,
+                                lambda_bd, k_max, ds)
+                
+            # Only need to loop over \lambda for band-diagonal generators
+            else:
+            
+                for lamb in lambda_array:
+
+                    # Scattering units here [fm^-2]
+                    H_matrix = d[lamb]
+                    
+                    # Subtract off kinetic energy [fm^-2]
+                    V_matrix = H_matrix - T_matrix
+                    
+                    # Save evolved potential in units [fm]
+                    # For large \lambda, Magnus-evolved potentials 
+                    # automatically have ds <= 1e-6
+                    if lamb >= 10.0 and ds > 1e-6:
+                        self.save_potential(V_matrix, 'magnus', self.generator,
+                                            lamb, lambda_bd, k_max, 1e-6)
+                    else:
+                        self.save_potential(V_matrix, 'magnus', self.generator,
+                                            lamb, lambda_bd, k_max, ds)
 
         return d
     
@@ -400,28 +483,31 @@ class MagnusSplit(Magnus):
 
     """
     
-    def __init__(self, potential, generator):
+    def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
         """
         Loads the initial Hamiltonian and other relevant operators depending
-        on the SRG generator.
+        on the specifications of the potential and the SRG generator.
         
         Parameters
         ----------
-        potential : Potential
-            Potential object from vnn.py. Contains information and useful
-            potential-related methods.
+        kvnn : int
+            This number specifies the potential.
+        channel : str
+            The partial wave channel (e.g. '1S0').
+        kmax : float
+            Maximum value in the momentum mesh [fm^-1].
+        kmid : float
+            Mid-point value in the momentum mesh [fm^-1].
+        ntot : int
+            Number of momentum points in mesh.
         generator : str
-            SRG generator 'Wegner' or 'T'.
-            
-        Notes
-        -----
-        This class is a sub-class of the Magnus class. We will use many of
-        the methods from the Magnus and SRG classes.
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
             
         """
         
-        # Call Magnus class given the potential and SRG generator
-        super().__init__(potential, generator)
+        # Call Magnus class given the potential specifications and SRG 
+        # generator
+        super().__init__(kvnn, channel, kmax, kmid, ntot, generator)
         
         # This class will not work with this generator
         if self.generator == 'Block-diag':

@@ -4,9 +4,12 @@ File: snmd.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 17, 2022
 
-1-3 summary of the script.
+The SingleNucleon class calculates single-nucleon momentum distributions (snmd)
+with SRG-evolved operators assuming the evolved wave function is given by HF 
+treated in LDA. This class is a sub-class of the MomentumDistribution class
+from momentum_distributions.py
 
-Last update: April 5, 2022
+Last update: April 8, 2022
 
 """
 
@@ -16,27 +19,11 @@ Last update: April 5, 2022
 import numpy as np
 
 # Imports from A.T. codes
-from .integration import gaussian_quadrature_mesh
+from modules.integration import gaussian_quadrature_mesh
+from momentum_distributions import MomentumDistribution
 
 
-class SingleNucleon:
-    
-    def __init__(self, momentum_distribution):
-        """
-        Saves the \delta U(k,k') and \delta U^2(k,k') functions.
-
-        Parameters
-        ----------
-        momentum_distribution : MomentumDistribution
-            Momentum distribution object from momentum_distributions.py.
-
-        """
-        
-        # Save pp and pn contributions (works the same for nn and np)
-        self.deltaU_pp_func = momentum_distribution.deltaU_pp_func
-        self.deltaU_pn_func = momentum_distribution.deltaU_pn_func
-        self.deltaU2_pp_func = momentum_distribution.deltaU2_pp_func
-        self.deltaU2_pn_func = momentum_distribution.deltaU2_pn_func
+class SingleNucleon(MomentumDistribution):
         
     def n_I(self, q_array, R_array, dR, kF1_array):
         """

@@ -4,8 +4,10 @@ File: dmd.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 17, 2022
 
-Calculates deuteron momentum distributions (dmd) with SRG-evolved operators
-and assuming the evolved wave function is given by HF treated in LDA.
+The Deuteron class calculates deuteron momentum distributions (dmd) with SRG-
+evolved operators assuming the evolved wave function is given by HF treated in
+LDA. This class is a sub-class of the MomentumDistribution class from
+momentum_distributions.py
 
 Notes on normalizations:
   1. The deuteron wave function describing relative position or momentum is
@@ -16,7 +18,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: April 5, 2022
+Last update: April 8, 2022
 
 """
 
@@ -29,26 +31,12 @@ Last update: April 5, 2022
 import numpy as np
 
 # Imports from A.T. codes
-from .integration import gaussian_quadrature_mesh
+from modules.integration import gaussian_quadrature_mesh
+from momentum_distributions import MomentumDistribution
 
 
-class Deuteron:
-    
-    def __init__(self, momentum_distribution):
-        """
-        Saves the \delta U(k,k') and \delta U^2(k,k') functions.
+class Deuteron(MomentumDistribution):
 
-        Parameters
-        ----------
-        momentum_distribution : MomentumDistribution
-            Momentum distribution object from momentum_distributions.py.
-
-        """
-        
-        # Get contributions for pn in 3S1-3D1 channel
-        self.deltaU_func = momentum_distribution.deltaU_func
-        self.deltaU2_func = momentum_distribution.deltaU2_func
-        
     def n_I(self, q_array, R_array, dR, kF_array):
         """
         Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.

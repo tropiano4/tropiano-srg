@@ -7,12 +7,15 @@ Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 17, 2022
 
 Handles momentum distribution codes and data. Momentum distributions are
-computed using modules snmd.py, pmd.py, and dmd.py with Heaviside step-
-functions and angle-averaging from heaviside.py. Momentum distribution data
+computed using sub-classes from snmd.py, pmd.py, and dmd.py, and SRG-
+transformed potentials from potentials.py. Momentum distribution data is
 stored in data/momentum_distributions. These codes also rely on nucleonic
 densities taken from external codes or data.
+     
+Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
+screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: April 2, 2022
+Last update: April 8, 2022
 
 """
 
@@ -25,12 +28,12 @@ import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 
 # Imports from A.T. codes
-from modules.srg import get_transformation
 from modules.tools import channel_L_value, coupled_channel
-from vnn import Potential
+from potentials import Potential
+from srg import get_transformation
 
 
-class MomentumDistribution(object):
+class MomentumDistribution:
 
     def __init__(self, kvnn, kmax, kmid, ntot):
         """
@@ -384,15 +387,14 @@ class MomentumDistribution(object):
 # [sub-classes of MomentumDistributions]
 # Add method that calculates n(q, Q=0) for pmd.py.
 
-# [Main script]
-# SRG currently does the calculation using run_srg() which calls
-# save_potential(). In the same spirit, we could do 
-# run_momentum_distribution() and save_momentum_distribution() where the
-# latter (maybe) relies on np.savetxt(). Include option for n(q, Q=0).
+# [sub-classes of MomentumDistribution]
+# We could do run_momentum_distribution() and save_momentum_distribution()
+# where the latter (maybe) relies on np.savetxt().
+# Include option for n(q, Q=0).
 # Will rely on densities.py. Do not break pn and np convention.
-# run_momentum_distribution() will call set_matrix_elements() which saves
-# \delta U matrix elements (called using super()). Alternatively, can make the
-# matrix elements an argument of n_contributions().
+# run_momentum_distribution() will call super().set_matrix_elements() which
+# saves \delta U matrix elements (called using super()). Alternatively, can
+# make the matrix elements an argument of n_contributions().
 
 # [Main script]
 # Add load_momentum_distribution() function which gives the

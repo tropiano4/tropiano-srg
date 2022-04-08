@@ -6,10 +6,10 @@ File: srg.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 1, 2019
 
-The SRG class is responsible for evolving an input potential to band-diagonal
-or block-diagonal decoupled form with respect to the flow parameter \lambda 
-[fm^-1], and possibly \Lambda_BD. This class relies on the Potential class
-from vnn.py. The function can solve either the usual flow equation
+The SRG class evolves potentials to band-diagonal or block-diagonal decoupled
+form with respect to the flow parameter \lambda [fm^-1], and possibly
+\Lambda_BD. This class is a sub-class of the Potential class from 
+potentials.py. The SRG class can solve either the usual flow equation
 
     dH(s)/ds = [\eta(s), H(s)],
     
@@ -20,66 +20,80 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: March 24, 2022
+Last update: April 8, 2022
 
 """
 
+# To-do: Add print_info optional argument and save during first \lambda loop
+# in srg_evolve (make Potential.save_potential() take H not V).
 # To-do: Implement solve_ivp in evolve() method?
 # To-do: Is there a way to reshape matrices and vectors without looping?
-# To-do: Update all instances of SRG_unitary_transformation calls
+# To-do: Update all instances of SRG_unitary_transformation calls.
 
 # Python imports
 import numpy as np
 import numpy.linalg as la
 from scipy.integrate import ode
+import time
 
 # Imports from A.T. codes
-from .tools import build_coupled_channel_matrix
+from potentials import Potential
+import modules.tools as tl
 
 
-class SRG:
+class SRG(Potential):
     
-    def __init__(self, potential, generator):
+    def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
         """
         Loads the initial Hamiltonian and other relevant operators depending
-        on the SRG generator.
+        on the specifications of the potential and the SRG generator.
         
         Parameters
         ----------
-        potential : Potential
-            Potential object from vnn.py. Contains information and useful
-            potential-related methods.
+        kvnn : int
+            This number specifies the potential.
+        channel : str
+            The partial wave channel (e.g. '1S0').
+        kmax : float
+            Maximum value in the momentum mesh [fm^-1].
+        kmid : float
+            Mid-point value in the momentum mesh [fm^-1].
+        ntot : int
+            Number of momentum points in mesh.
         generator : str
             SRG generator 'Wegner', 'T', or 'Block-diag'.
             
         """
+
+        # Call Potential class given the potential specifications
+        super().__init__(kvnn, channel, kmax, kmid, ntot)
         
-        # Get initial Hamiltonian associated with the input potential
-        H_initial_MeV = potential.load_hamiltonian()  # [MeV]
+        # Get initial Hamiltonian associated with the potential
+        H_initial_MeV = self.load_hamiltonian()  # [MeV]
         
         # Convert Hamiltonian to scattering units [fm^-2]
-        self.H_initial = H_initial_MeV / potential.hbar_sq_over_m
+        self.H_initial = H_initial_MeV / Potential.hbar_sq_over_m
         
-        # Save length of Hamiltonian for the methods of the class
+        # Set length of Hamiltonian
         self.Ntot = len(self.H_initial)
         
         # Get relative kinetic energy
         if generator == 'T':
             
-            T_rel_MeV = potential.load_kinetic_energy()  # [MeV]
+            T_rel_MeV = self.load_kinetic_energy()  # [MeV]
             
             # Convert to scattering units [fm^-2]
-            self.T_rel = T_rel_MeV / potential.hbar_sq_over_m
+            self.T_rel = T_rel_MeV / Potential.hbar_sq_over_m
         
         # Need relative momenta for construction of projection operators for
         # the block-diagonal generator
         elif generator == 'Block-diag':
             
             # Get momentum array (don't worry about weights) in [fm^-1]
-            self.k_array, _ = potential.load_mesh()
+            self.k_array, _ = self.load_mesh()
             self.ntot = len(self.k_array)
             
-        # Save generator for evaluation of \eta
+        # Set generator for evaluation of \eta
         self.generator = generator
     
     def set_projection_operators(self, lambda_bd):
@@ -111,10 +125,10 @@ class SRG:
         if ntot != self.Ntot:
             
             zeros = np.zeros((ntot, ntot))
-            P_matrix = build_coupled_channel_matrix(P_matrix, zeros, zeros,
-                                                    P_matrix)
-            Q_matrix = build_coupled_channel_matrix(Q_matrix, zeros, zeros,
-                                                    Q_matrix)
+            P_matrix = tl.build_coupled_channel_matrix(P_matrix, zeros, zeros,
+                                                       P_matrix)
+            Q_matrix = tl.build_coupled_channel_matrix(Q_matrix, zeros, zeros,
+                                                       Q_matrix)
         
         # Save both operators for evaluations of \eta
         self.P_matrix = P_matrix
@@ -374,21 +388,23 @@ class SRG:
         return solver
     
     def srg_evolve(
-            self, lambda_initial, lambda_array, lambda_bd_array=np.empty(0),
-            method='hamiltonian'):
+            self, lambda_array, lambda_bd_array=np.empty(0),
+            lambda_initial=20.0, save=False, method='hamiltonian'):
         """
         Evolve the Hamiltonian at each value of \lambda, and possibly
         \Lambda_BD for block-diagonal decoupling.
         
         Parameters
         ----------
-        lambda_initial : float
-            Initial value of lambda [fm^-1]. Technically this should be
-            infinity but a large value (~20 fm^-1) is sufficient.
         lambda_array : 1-D ndarray
             SRG evolution parameters \lambda [fm^-1].
         lambda_bd_array : 1-D ndarray, optional
             \Lambda_BD values for block-diagonal generator [fm^-1].
+        lambda_initial : float, optional
+            Initial value of lambda [fm^-1]. Technically this should be
+            infinity but a large value (~20 fm^-1) is sufficient.
+        save : bool, optional
+            If true, saves the evolved potentials.
         method : str, optional
             The default method is to solve the flow equation
                 dH(s)/ds = [\eta(s), H(s)],
@@ -409,6 +425,9 @@ class SRG:
         Could implement the scipy.integrate.solve_ivp(...) ODE solver.
             
         """
+        
+        # Start time
+        t0 = time.time() 
 
         # Evolve the Hamiltonian (or U) to each value of \lambda and store in
         # a dictionary (loop over \Lambda_BD as well for block-diagonal)
@@ -459,9 +478,63 @@ class SRG:
                 
                 # Store evolved Hamiltonian (or U) matrix in dictionary
                 d[lamb] = self.vector_to_matrix(solution_vector)
+        
+        # End time
+        t1 = time.time()
+        
+        # Print details
+        mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
+        print('_'*85)
+        lamb_str = tl.convert_number_to_string(lambda_array[-1])
+        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
+              f' {mins:.4f} minutes.')
+        print('_'*85)
+        print('\nSpecifications:\n')
+        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
+        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
+              f'ntot = {self.ntot:d}')
+        print(f'method = SRG, generator = {self.generator}')
+        if self.generator == 'Block-diag':
+            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
+            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
+    
+        # Save evolved potentials
+        if save:
+            
+            # Get relative kinetic energy and convert to [fm^-2]
+            T_matrix = self.load_kinetic_energy() / Potential.hbar_sq_over_m
+
+            if self.generator == 'Block-diag':
+                
+                # Additionally loop over \Lambda_BD
+                for lambda_bd in lambda_bd_array:
+                    for lamb in lambda_array:
+
+                        # Scattering units here [fm^-2]
+                        H_matrix = d[lambda_bd][lamb]
+                    
+                        # Subtract off kinetic energy [fm^-2]
+                        V_matrix = H_matrix - T_matrix
+                    
+                        # Save evolved potential in units [fm]
+                        self.save_potential(V_matrix, 'srg', self.generator,
+                                            lamb, lambda_bd)
+                
+            # Only need to loop over \lambda for band-diagonal generators
+            else:
+            
+                for lamb in lambda_array:
+
+                    # Scattering units here [fm^-2]
+                    H_matrix = d[lamb]
+                    
+                    # Subtract off kinetic energy [fm^-2]
+                    V_matrix = H_matrix - T_matrix
+                    
+                    # Save evolved potential in units [fm]
+                    self.save_potential(V_matrix, 'srg', self.generator, lamb)
             
         return d
-    
     
 def get_transformation(H_initial, H_evolved):
     """
