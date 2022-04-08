@@ -374,27 +374,23 @@ class MomentumDistribution:
         self.deltaU2_func = RectBivariateSpline(k_array, k_array,
                                                 deltaU_squared, kx=1, ky=1)
 
-# [sub-classes of MomentumDistributions] Not sure about this yet!
+# [sub-classes of MomentumDistributions]
 # There should probably be a distinction of multiplying by \theta(...) and
 # multiplying by \int dx/2 \theta(...). Where should these functions be?
-# 1. Separate .py file in code/modules as sub-class of momentum distributions?
+# Keep this as methods within SingleNucleon, Pair, Deuteron.
 
 # [sub-classes of MomentumDistributions]
-# Do only n_contributions(meshgrids, kF_tau_array, kF_taup_array) which
-# calculates the contributions to the momentum distribution (for each script:
+# Do only compute_momentum_distribution(q_array, Q_array, nucleus_name, Z, N, pair, density='EDF')
+# which calculates the contributions to the momentum distribution (for each script:
 # snmd.py, pmd.py, dmd.py).
+# gets rho_p_array, rho_n_array = load_densities()
+# converts to kF_p_array, kF_n_array and inputs these with R_array and dR
+# into previous functions
+# Include save option (np.savetxt()?) Make a save_momentum_distribution function in main script?
 
 # [sub-classes of MomentumDistributions]
-# Add method that calculates n(q, Q=0) for pmd.py.
-
-# [sub-classes of MomentumDistribution]
-# We could do run_momentum_distribution() and save_momentum_distribution()
-# where the latter (maybe) relies on np.savetxt().
-# Include option for n(q, Q=0).
-# Will rely on densities.py. Do not break pn and np convention.
-# run_momentum_distribution() will call super().set_matrix_elements() which
-# saves \delta U matrix elements (called using super()). Alternatively, can
-# make the matrix elements an argument of n_contributions().
+# Add method that calculates n(q, Q=0) for pmd.py. Should be similar to above.
+# Include save option (np.savetxt()?)
 
 # [Main script]
 # Add load_momentum_distribution() function which gives the
@@ -404,8 +400,8 @@ class MomentumDistribution:
 # * This could extend to three functions with an overheaf function if you want.
 # * output : Either q_array, (and Q_array?), n_array or n_func.
 
-# [Main script]
-# Add method to integrate out Q-dependence of pmd's. See quasideuteron.ipynb
+# [pmd.py]
+# Add a function that integrates out Q-dependence of pmd's. See quasideuteron.ipynb
 # for example.
 
 # Copy the last function of dmd.py and add to src.ipynb for now. Pretty sure

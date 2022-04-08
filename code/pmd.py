@@ -7,7 +7,7 @@ Date: March 17, 2022
 The Pair class calculates pair momentum distributions (pmd) with SRG-evolved
 operators assuming the evolved wave function is given by HF treated in LDA.
 This class is a sub-class of the MomentumDistribution class from
-momentum_distributions.py
+momentum_distributions.py.
 
 Last update: April 8, 2022
 
@@ -24,6 +24,23 @@ from momentum_distributions import MomentumDistribution
 
 
 class Pair(MomentumDistribution):
+    """
+    Input parameters of the potential when calling this class.
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+
+    """
+
+    # It might make most sense to have an __init__ that runs save_deltaU_funcs
         
     def n_I(self, q_array, Q_array, R_array, dR, kF1_array, kF2_array):
         """
