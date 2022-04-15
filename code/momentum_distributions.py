@@ -6,29 +6,32 @@ File: momentum_distributions.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 17, 2022
 
-Handles momentum distribution codes and data. Momentum distributions are
-computed using sub-classes from snmd.py, pmd.py, and dmd.py, and SRG-
-transformed potentials from potentials.py. Momentum distribution data is
-stored in data/momentum_distributions. These codes also rely on nucleonic
-densities taken from external codes or data.
+Handles momentum distribution codes. Momentum distributions are computed using
+sub-classes from snmd.py, pmd.py, and dmd.py, and SRG-transformed potentials
+from potentials.py. Momentum distribution data is stored in
+data/momentum_distributions. These codes also rely on nucleonic densities
+taken from external codes or data.
      
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: April 8, 2022
+Last update: April 15, 2022
 
 """
 
 # To-do: Probably want a function that gets k_array, k_weights independent of
 # the channel.
 # To-do: Make sure description above makes sense.
+# To-do: Make save functions automatically create /nucleus_name sub-directories
 
 # Python imports
 import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 
 # Imports from A.T. codes
+from modules.labels import replace_periods
 from modules.tools import channel_L_value, coupled_channel
+from modules.wave_function import wave_function
 from potentials import Potential
 from srg import get_transformation
 
@@ -58,8 +61,8 @@ class MomentumDistribution:
         self.ntot = ntot
 
     def get_hamiltonians(
-            self, channel, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
-            delta_lambda=np.inf):
+            self, channel, generator, lamb, lambda_initial=None, kvnn_inv=None,
+            delta_lambda=None):
         """
         Get the initial and SRG-evolved Hamiltonians.
         
@@ -99,7 +102,7 @@ class MomentumDistribution:
                               self.ntot)
 
         # Standard initial Hamiltonian
-        if lambda_initial == np.inf:
+        if lambda_initial == None:
             H_initial = potential.load_hamiltonian()
 
         # Forward-SRG-evolved Hamiltonian as starting point
@@ -112,16 +115,16 @@ class MomentumDistribution:
                                                        lambda_initial)
 
         # Backwards-SRG-evolved Hamiltonian as starting point
-        if kvnn_inv:
+        if kvnn_inv != None:
             potential_hard = Potential(kvnn_inv, channel, self.kmax, self.kmid,
                                        self.ntot)
             H_hard_initial = potential_hard.load_hamiltonian()
             if generator == 'Block-diag':
                 H_hard_evolved = potential_hard.load_hamiltonian(
-                    'srg', generator, 1.0, lambda_bd=lambda_initial)
+                    'srg', generator, 1.0, lambda_bd=delta_lambda)
             else:
                 H_hard_evolved = potential_hard.load_hamiltonian(
-                    'srg', generator, lambda_initial)
+                    'srg', generator, delta_lambda)
             # Get SRG transformation for inverse transformation
             U_hard = get_transformation(H_hard_initial, H_hard_evolved)
             # Do inverse transformation on initial Hamiltonian
@@ -181,8 +184,8 @@ class MomentumDistribution:
         return deltaU, deltaU_squared
 
     def save_deltaU_funcs(
-            self, channels, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
-            delta_lambda=np.inf):
+            self, channels, generator, lamb, lambda_initial=None,
+            kvnn_inv=None, delta_lambda=None):
         """
         Save the function \delta U(k,k') and \delta U(k,k')^2 summing over all
         partial wave channels. We must define functions with \tau=\tau' and
@@ -297,8 +300,8 @@ class MomentumDistribution:
                                                    deltaU2_pn, kx=1, ky=1)
         
     def save_deuteron_deltaU_funcs(
-            self, generator, lamb, lambda_initial=np.inf, kvnn_inv=0,
-            delta_lambda=np.inf):
+            self, generator, lamb, lambda_initial=None, kvnn_inv=None,
+            delta_lambda=None):
         """
         Save the function \delta U(k,k') and \delta U(k,k')^2 for the deuteron
         momentum distribution (meaing 3S1-3D1 only). No 2J+1 factor since we
@@ -338,6 +341,9 @@ class MomentumDistribution:
         # Get momentum mesh (channel argument doesn't matter here)
         k_array, k_weights = Potential(
             self.kvnn, channel, self.kmax, self.kmid, self.ntot).load_mesh()
+        
+        # Set mesh as instance attribute
+        self.k_array, self.k_weights = k_array, k_weights
 
         # For dividing out momenta/weights
         factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
@@ -349,6 +355,10 @@ class MomentumDistribution:
 
         # Get SRG transformation U(k, k') [unitless]
         U_matrix_unitless = get_transformation(H_initial, H_evolved)
+        
+        # Need the deuteron wave function to get kF values for calculation
+        psi_k_unitless = wave_function(H_initial, U_matrix=U_matrix_unitless)
+        self.psi_k = psi_k_unitless / factor_array_cc  # [fm^3/2]
 
         # Isolate 2-body term and convert to fm^3
         I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
@@ -373,42 +383,83 @@ class MomentumDistribution:
         # Interpolate \delta U^2(k,k') 
         self.deltaU2_func = RectBivariateSpline(k_array, k_array,
                                                 deltaU_squared, kx=1, ky=1)
+        
+    def load_snmd(
+            self, nucleon, nucleus_name, density, channels, generator, lamb,
+            lambda_initial=None, kvnn_inv=None, delta_lambda=None):
+        """
+        Loads single-nucleon momentum distribution from 
+        data/momentum_distributions. Here the specifications of the potential,
+        SRG evolution, nucleon, and density dictate the file name.
 
-# [sub-classes of MomentumDistributions]
-# There should probably be a distinction of multiplying by \theta(...) and
-# multiplying by \int dx/2 \theta(...). Where should these functions be?
-# Keep this as methods within SingleNucleon, Pair, Deuteron.
+        Parameters
+        ----------
+        nucleon : str
+            Specify 'proton' or 'neutron'.
+        nucleus_name : str
+            Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
+        density : str
+            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
+        channels : tuple
+            Partial wave channels to include in the calculation.
+        generator : str
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_initial : float, optional
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_inv : int, optional
+            This number specifies a potential for which inverse-SRG
+            transformations will be applied to the initial Hamiltonian
+                H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+            where the transformations are evaluated at \delta \lambda.
+        delta_lambda : float, optional
+            SRG evolution parameter \lambda for inverse-SRG transformations
+            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            for this to run.
 
-# [sub-classes of MomentumDistributions]
-# Do only compute_momentum_distribution(q_array, Q_array, nucleus_name, Z, N, pair, density='EDF')
-# which calculates the contributions to the momentum distribution (for each script:
-# snmd.py, pmd.py, dmd.py).
-# gets rho_p_array, rho_n_array = load_densities()
-# converts to kF_p_array, kF_n_array and inputs these with R_array and dR
-# into previous functions
-# Include save option (np.savetxt()?) Make a save_momentum_distribution function in main script?
-
-# [sub-classes of MomentumDistributions]
-# Add method that calculates n(q, Q=0) for pmd.py. Should be similar to above.
-# Include save option (np.savetxt()?)
+        """
+        
+        # Directory for distributions data
+        data_directory = f'data/momentum_distributions/{nucleus_name}/'
+        
+        # Create file name
+        file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
+                     f'_kmid_{self.kmid}_ntot_{self.ntot}')
+        
+        for channel in self.channels:
+            file_name += f'_{channel}'
+        
+        file_name += f'_{self.generator}'
+        if self.generator == 'Block-diag':
+            file_name += f'_LambdaBD_{self.lamb}'
+        else:
+            file_name += f'_lambda_{self.lamb}'
+        
+        if self.lambda_initial != None:
+            file_name += f'_lambda_initial_{self.lambda_initial}'
+            
+        if self.kvnn_inv != None:
+            file_name += (f'_kvnn_inv_{self.kvnn_inv}'
+                          f'_delta_lamb_{self.delta_lambda}')
+        
+        file_name = replace_periods(file_name) + '.dat'
+        
+        
+        return None
+    
+    def load_pair_momentum_distribution():
+        return None
+    
+    def load_deuteron_momentum_distribution():
+        return None
 
 # [Main script]
 # Add load_momentum_distribution() function which gives the
 # momentum distribution given distribution_type = 'pn', 'pp', 'nn', 'p', 'n',
 # or 'd', and optional arguments: nucleus, Z, N, density_type,
 # interpolate=False, contributions=False, zero_total_momentum=False.
-# * This could extend to three functions with an overheaf function if you want.
+# * This could extend to three functions with an overhead function if you want.
 # * output : Either q_array, (and Q_array?), n_array or n_func.
-
-# [pmd.py]
-# Add a function that integrates out Q-dependence of pmd's. See quasideuteron.ipynb
-# for example.
-
-# Copy the last function of dmd.py and add to src.ipynb for now. Pretty sure
-# it's only used in one figure suggesting that it should be part of the
-# function that plots that figure.
-
-# Same idea for partial wave decomposition (see above).
-
-# Add a note to try and understand the K integration in deuteron (does that
-# even make sense?)

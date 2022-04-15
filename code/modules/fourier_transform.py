@@ -9,7 +9,7 @@ Date: March 31, 2021
 Functions for Fourier transforming from momentum space to coordinate space or
 vice versa.
 
-Last update: March 17, 2022.
+Last update: April 15, 2022.
 
 """
 
@@ -52,7 +52,7 @@ def hankel_transformation_k2r(L, k_array, k_weights, r_array):
         
     # Create meshgrid of k and r
     k_cols, r_rows = np.meshgrid(k_array, r_array)
-    _, k_weights_cols = np.meshgrid(k_weights, r_array, indexing='ij')
+    k_weights_cols, _ = np.meshgrid(k_weights, r_array)
         
     M = 2/np.pi * k_cols**2 * k_weights_cols * spherical_jn(L, k_cols*r_rows)
 

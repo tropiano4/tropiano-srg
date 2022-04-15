@@ -84,7 +84,7 @@ class Potential:
         # Set instance attribute for coupled-channel Boolean
         self.coupled_channel_bool = tl.coupled_channel(self.channel)
             
-        # Get potential directory and set instance attribute
+        # Get potential directory and set as instance attribute
         kmax_int = int(kmax)
         kmid_int = int(kmid)
         potential_directory = ('../potentials/vsrg_macos/vsrg_kvnn'

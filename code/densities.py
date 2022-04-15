@@ -11,7 +11,7 @@ So far we have densities from the SLy4 Skyrme functional using HFBRAD code,
 densities from the Gogny functional, and densities from VMC calculations
 (see www.phy.anl.gov/theory/research/density/).
 
-Last update: March 17, 2022
+Last update: April 9, 2022
 
 """
 
@@ -27,7 +27,7 @@ import numpy as np
 from modules.labels import replace_periods
 
 
-def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
+def load_density(nucleon, nucleus_name, Z, N, edf='SLY4'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
     according to
@@ -35,10 +35,10 @@ def load_density(nucleus_name, nucleon, Z, N, edf='SLY4'):
     
     Parameters
     ----------
-    nucleus_name : str
-        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
     nucleon : str
         Specify 'proton' or 'neutron'.
+    nucleus_name : str
+        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
     Z : int
         Proton number of the nucleus.
     N : int
