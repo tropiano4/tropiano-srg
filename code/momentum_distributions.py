@@ -386,7 +386,8 @@ class MomentumDistribution:
         
     def load_snmd(
             self, nucleon, nucleus_name, density, channels, generator, lamb,
-            lambda_initial=None, kvnn_inv=None, delta_lambda=None):
+            lambda_initial=None, kvnn_inv=None, delta_lambda=None,
+            interpolate=False, contributions=False):
         """
         Loads single-nucleon momentum distribution from 
         data/momentum_distributions. Here the specifications of the potential,
@@ -419,13 +420,18 @@ class MomentumDistribution:
             SRG evolution parameter \lambda for inverse-SRG transformations
             [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
             for this to run.
+        interpolate : bool, optional
+            Option to return interpolated function instead of NumPy array.
+        contributions : bool, optional
+            Option to return isolated contributions to the momentum
+            distribution in terms of the I, \delta U, and \delta U^2 terms.
 
         """
         
         # Directory for distributions data
         data_directory = f'data/momentum_distributions/{nucleus_name}/'
         
-        # Create file name
+        # Get file name
         file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
         
@@ -447,6 +453,32 @@ class MomentumDistribution:
         
         file_name = replace_periods(file_name) + '.dat'
         
+        # Load data which includes all contributions to n_\lambda(q)
+        data = np.loadtxt(data_directory + file_name)
+        
+        # Split data into 1-D arrays for each column
+        q_array = data[:, 0]  # Momentum in fm^-1
+        n_total_array = data[:, 1]  # Total distribution
+        
+        if contributions:
+            n_I_array = data[:, 2] # 1 term
+            n_delU_array = data[:, 3] # \delta U term
+            n_delU2_array = data[:, 4] # \delta U^2 term
+        
+        # Interpolate each array (UnivariateSpline is for smoothing whereas
+        # interp1d gives closer value to the actual calculation)
+        n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
+                                kind='linear', fill_value='extrapolate')
+        n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
+                            kind='linear', fill_value='extrapolate')
+        n_delU_func = interp1d(q_array, n_delU_array, bounds_error=False,
+                                kind='linear', fill_value='extrapolate')
+        n_delU2_func = interp1d(q_array, n_delU2_array, bounds_error=False,
+                                kind='linear', fill_value='extrapolate')
+        
+        # Return all contributions with total first
+        # Note, these are functions of q
+        return n_total_func, n_I_func, n_delU_func, n_delU2_func
         
         return None
     
