@@ -11,7 +11,7 @@ SRG-evolving the operator assuming the evolved wave function is given by HF
 treated in LDA. This class is a sub-class of the MomentumDistribution class
 from momentum_distributions.py.
 
-Last update: April 15, 2022
+Last update: April 19, 2022
 
 """
 
@@ -70,6 +70,7 @@ class SingleNucleon(MomentumDistribution):
 
         super().__init__(kvnn, kmax, kmid, ntot)
         
+        # Set-up calculation
         self.save_deltaU_funcs(channels, generator, lamb, lambda_initial,
                                kvnn_inv, delta_lambda)
         
@@ -80,7 +81,7 @@ class SingleNucleon(MomentumDistribution):
         self.lambda_initial = lambda_initial
         self.kvnn_inv = kvnn_inv
         self.delta_lambda = delta_lambda
-        
+
     def get_theta_I(self, q_grid, kF1_grid):
         """
         Evaluates the Heaviside step function \theta(kF1(R) - q) which appears

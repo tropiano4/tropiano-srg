@@ -20,7 +20,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: April 15, 2022
+Last update: April 19, 2022
 
 """
 
@@ -82,6 +82,7 @@ class Deuteron(MomentumDistribution):
 
         super().__init__(kvnn, kmax, kmid, ntot)
         
+        # Set-up calculation
         self.save_deuteron_deltaU_funcs(generator, lamb, lambda_initial,
                                         kvnn_inv, delta_lambda)
         
