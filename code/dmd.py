@@ -20,7 +20,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: April 19, 2022
+Last update: April 20, 2022
 
 """
 
@@ -549,7 +549,7 @@ class Deuteron(MomentumDistribution):
         """
         
         # Directory for distributions data
-        data_directory = 'data/momentum_distributions/H2/'
+        data_directory = '../data/momentum_distributions/H2/'
         
         # Create file name
         file_name = (f'n_kvnn_{self.kvnn}_kmax_{self.kmax}_kmid_{self.kmid}'

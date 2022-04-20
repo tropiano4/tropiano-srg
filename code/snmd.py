@@ -11,7 +11,7 @@ SRG-evolving the operator assuming the evolved wave function is given by HF
 treated in LDA. This class is a sub-class of the MomentumDistribution class
 from momentum_distributions.py.
 
-Last update: April 19, 2022
+Last update: April 20, 2022
 
 """
 
@@ -602,7 +602,7 @@ class SingleNucleon(MomentumDistribution):
         """
         
         # Directory for distributions data
-        data_directory = f'data/momentum_distributions/{nucleus_name}/'
+        data_directory = f'../data/momentum_distributions/{nucleus_name}/'
         
         # Create file name
         file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'

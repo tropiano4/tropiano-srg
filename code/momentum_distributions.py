@@ -15,13 +15,14 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: April 19, 2022
+Last update: April 20, 2022
 
 """
 
 # To-do: Probably want a function that gets k_array, k_weights independent of
-# the channel.
+# the channel? See if you do after doing notebooks.
 # To-do: Make sure description above makes sense.
+# To-do: Further reduce load methods into smaller methods.
 # To-do: Make save functions automatically create /nucleus_name sub-directories
 
 # Python imports
@@ -437,27 +438,26 @@ class MomentumDistribution:
         """
         
         # Directory for distributions data
-        data_directory = f'data/momentum_distributions/{nucleus_name}/'
+        data_directory = f'../data/momentum_distributions/{nucleus_name}/'
         
         # Get file name
         file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
         
-        for channel in self.channels:
+        for channel in channels:
             file_name += f'_{channel}'
         
-        file_name += f'_{self.generator}'
-        if self.generator == 'Block-diag':
-            file_name += f'_LambdaBD_{self.lamb}'
+        file_name += f'_{generator}'
+        if generator == 'Block-diag':
+            file_name += f'_LambdaBD_{lamb}'
         else:
-            file_name += f'_lambda_{self.lamb}'
+            file_name += f'_lambda_{lamb}'
         
-        if self.lambda_initial != None:
-            file_name += f'_lambda_initial_{self.lambda_initial}'
+        if lambda_initial != None:
+            file_name += f'_lambda_initial_{lambda_initial}'
             
-        if self.kvnn_inv != None:
-            file_name += (f'_kvnn_inv_{self.kvnn_inv}'
-                          f'_delta_lamb_{self.delta_lambda}')
+        if kvnn_inv != None:
+            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
         
         file_name = replace_periods(file_name) + '.dat'
         
@@ -470,9 +470,9 @@ class MomentumDistribution:
 
         # Get isolated contributions too (1-D arrays)
         if contributions:
-            n_I_array = data[:, 2] # 1 term
-            n_delU_array = data[:, 3] # \delta U term
-            n_delU2_array = data[:, 4] # \delta U^2 term
+            n_I_array = data[:, 2]  # 1 term
+            n_delU_array = data[:, 3]  # \delta U term
+            n_delU2_array = data[:, 4]  # \delta U^2 term
         
         # Interpolate (UnivariateSpline is for smoothing whereas interp1d
         # gives closer value to the actual calculation)
@@ -500,17 +500,17 @@ class MomentumDistribution:
         elif contributions:
             return (q_array, n_total_array, n_I_array, n_delU_array,
                     n_delU2_array)
-        # Return the total momentum distribution only as a function
+        # Return the total momentum distribution as a function
         elif interpolate:
             return n_total_func
-        # Return the total momentum distribution only as an array of the data
+        # Return the total momentum distribution as an array of the data
         else:
             return q_array, n_total_array
 
     def get_pair_momentum_distribution(
             self, pair, nucleus_name, density, channels, generator, lamb,
             lambda_initial=None, kvnn_inv=None, delta_lambda=None,
-            contributions=False, interpolate=False, Q_zero=False):
+            Q_equals_zero=False, contributions=False, interpolate=False):
         """
         Loads pair momentum distribution data from data/momentum_distributions.
         Here the arguments of the function specify the file name and directory.
@@ -543,14 +543,14 @@ class MomentumDistribution:
             SRG evolution parameter \lambda for inverse-SRG transformations
             [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
             for this to run.
+        Q_equals_zero : bool, optional
+            Option to get the pair momentum distribution at Q = 0: n(q, Q=0)
+            which has units [fm^6].
         contributions : bool, optional
             Option to return isolated contributions to the momentum
             distribution in terms of the I, \delta U, and \delta U^2 terms.
         interpolate : bool, optional
             Option to return interpolated function instead of NumPy array.
-        Q_zero : bool, optional
-            Option to get the pair momentum distribution at Q = 0: n(q, Q=0)
-            which has units [fm^6].
             
         Returns
         -------
@@ -562,34 +562,79 @@ class MomentumDistribution:
         """
         
         # Directory for distributions data
-        data_directory = f'data/momentum_distributions/{nucleus_name}/'
+        data_directory = f'../data/momentum_distributions/{nucleus_name}/'
         
         # Get file name
         file_name = (f'n_{pair}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
         
-        for channel in self.channels:
+        for channel in channels:
             file_name += f'_{channel}'
         
-        file_name += f'_{self.generator}'
-        if self.generator == 'Block-diag':
-            file_name += f'_LambdaBD_{self.lamb}'
+        file_name += f'_{generator}'
+        if generator == 'Block-diag':
+            file_name += f'_LambdaBD_{lamb}'
         else:
-            file_name += f'_lambda_{self.lamb}'
-        
-        if self.lambda_initial != None:
-            file_name += f'_lambda_initial_{self.lambda_initial}'
-            
-        if self.kvnn_inv != None:
-            file_name += (f'_kvnn_inv_{self.kvnn_inv}'
-                          f'_delta_lamb_{self.delta_lambda}')
+            file_name += f'_lambda_{lamb}'
+       
+        if lambda_initial != None:
+            file_name += f'_lambda_initial_{lambda_initial}'
+           
+        if kvnn_inv != None:
+            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
             
         # Split into cases on whether Q = 0
-        if Q_zero:
+        if Q_equals_zero:
             
             file_name = replace_periods(file_name + '_Q0') + '.dat'
             
-            # ...
+            # Load data which includes all contributions to n_\lambda(q,Q=0)
+            data = np.loadtxt(data_directory + file_name)
+        
+            # Momentum values and total distribution (1-D arrays)
+            q_array = data[:, 0]
+            n_total_array = data[:, 1]
+
+            # Get isolated contributions too (1-D arrays)
+            if contributions:
+                n_I_array = data[:, 2]  # 1 term
+                n_delU_array = data[:, 3]  # \delta U term
+                n_delU2_array = data[:, 4]  # \delta U^2 term
+        
+            # Interpolate (UnivariateSpline is for smoothing whereas interp1d
+            # gives closer value to the actual calculation)
+            if interpolate:
+            
+                # Total distribution (function)
+                n_total_func = interp1d(
+                    q_array, n_total_array, bounds_error=False, kind='linear',
+                    fill_value='extrapolate')
+            
+                # Isolated contributions too (functions)
+                if contributions:
+                    n_I_func = interp1d(
+                        q_array, n_I_array, bounds_error=False, kind='linear',
+                        fill_value='extrapolate')
+                    n_delU_func = interp1d(
+                        q_array, n_delU_array, bounds_error=False,
+                        kind='linear', fill_value='extrapolate')
+                    n_delU2_func = interp1d(
+                        q_array, n_delU2_array, bounds_error=False,
+                        kind='linear', fill_value='extrapolate')
+        
+            # Return all contributions as functions
+            if contributions and interpolate:
+                return n_total_func, n_I_func, n_delU_func, n_delU2_func
+            # Return all contributions as arrays of the data
+            elif contributions:
+                return (q_array, n_total_array, n_I_array, n_delU_array,
+                        n_delU2_array)
+            # Return the total momentum distribution as a function
+            elif interpolate:
+                return n_total_func
+            # Return the total momentum distribution as an array of the data
+            else:
+                return q_array, n_total_array
         
         # Q > 0
         else:
@@ -629,23 +674,125 @@ class MomentumDistribution:
                     n_delU2_func = RectBivariateSpline(
                         q_array, Q_array, n_delU2_array, kx=1, ky=1)
         
-        # There needs to be cases for Q = 0
+            # Return all contributions as functions
+            if contributions and interpolate:
+                return n_total_func, n_I_func, n_delU_func, n_delU2_func
+            # Return all contributions as arrays of the data
+            elif contributions:
+                return (q_array, Q_array, n_total_array, n_I_array,
+                        n_delU_array, n_delU2_array)
+            # Return the total momentum distribution as a function
+            elif interpolate:
+                return n_total_func
+            # Return the total momentum distribution as an array of the data
+            else:
+                return q_array, Q_array, n_total_array
+    
+    def get_deuteron_momentum_distribution(
+            self, generator, lamb, lambda_initial=None, kvnn_inv=None,
+            delta_lambda=None, contributions=False, interpolate=False):
+        """
+        Loads deuteron momentum distribution data from
+        data/momentum_distributions. Here the arguments of the function
+        specify the file name and directory. There is an option to return
+        interpolated function(s) instead.
+
+        Parameters
+        ----------
+        generator : str
+            SRG generator 'Wegner', 'T', or 'Block-diag'.
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_initial : float, optional
+            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
+            This allows one to use an SRG-evolved potential as the starting
+            point.
+        kvnn_inv : int, optional
+            This number specifies a potential for which inverse-SRG
+            transformations will be applied to the initial Hamiltonian
+                H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+            where the transformations are evaluated at \delta \lambda.
+        delta_lambda : float, optional
+            SRG evolution parameter \lambda for inverse-SRG transformations
+            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            for this to run.
+        contributions : bool, optional
+            Option to return isolated contributions to the momentum
+            distribution in terms of the I, \delta U, and \delta U^2 terms.
+        interpolate : bool, optional
+            Option to return interpolated function instead of NumPy array.
+            
+        Returns
+        -------
+        output : tuple or func
+            The output depends on the arguments of contributions and
+            interpolate. The momentum distribution has units [fm^3] and the
+            momentum values has units [fm^-1].
+
+        """
+        
+        # Directory for distributions data
+        data_directory = '../data/momentum_distributions/H2/'
+        
+        # Get file name
+        file_name = (f'n_kvnn_{self.kvnn}_kmax_{self.kmax}_kmid_{self.kmid}'
+                     f'_ntot_{self.ntot}_{generator}')
+        
+        if generator == 'Block-diag':
+            file_name += f'_LambdaBD_{lamb}'
+        else:
+            file_name += f'_lambda_{lamb}'
+        
+        if lambda_initial != None:
+            file_name += f'_lambda_initial_{lambda_initial}'
+            
+        if kvnn_inv != None:
+            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
+        
+        file_name = replace_periods(file_name) + '.dat'
+        
+        # Load data which includes all contributions to n_\lambda(q)
+        data = np.loadtxt(data_directory + file_name)
+        
+        # Momentum values and total distribution (1-D arrays)
+        q_array = data[:, 0]
+        n_total_array = data[:, 1]
+
+        # Get isolated contributions too (1-D arrays)
+        if contributions:
+            n_I_array = data[:, 2]  # 1 term
+            n_delU_array = data[:, 3]  # \delta U term
+            n_delU2_array = data[:, 4]  # \delta U^2 term
+        
+        # Interpolate (UnivariateSpline is for smoothing whereas interp1d
+        # gives closer value to the actual calculation)
+        if interpolate:
+            
+            # Total distribution (function)
+            n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
+                                    kind='linear', fill_value='extrapolate')
+            
+            # Isolated contributions too (functions)
+            if contributions:
+                n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
+                                    kind='linear', fill_value='extrapolate')
+                n_delU_func = interp1d(
+                    q_array, n_delU_array, bounds_error=False, kind='linear',
+                    fill_value='extrapolate')
+                n_delU2_func = interp1d(
+                    q_array, n_delU2_array, bounds_error=False, kind='linear',
+                    fill_value='extrapolate')
+        
         # Return all contributions as functions
         if contributions and interpolate:
             return n_total_func, n_I_func, n_delU_func, n_delU2_func
         # Return all contributions as arrays of the data
         elif contributions:
-            return (q_array, Q_array, n_total_array, n_I_array, n_delU_array,
+            return (q_array, n_total_array, n_I_array, n_delU_array,
                     n_delU2_array)
-        # Return the total momentum distribution only as a function
+        # Return the total momentum distribution as a function
         elif interpolate:
             return n_total_func
-        # Return the total momentum distribution only as an array of the data
+        # Return the total momentum distribution as an array of the data
         else:
             return q_array, n_total_array
-    
-    def load_deuteron_momentum_distribution():
-        return None
-    
-    
-    # Likely need more functions for this...
