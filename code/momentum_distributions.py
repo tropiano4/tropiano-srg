@@ -11,7 +11,7 @@ using sub-classes from snmd.py, pmd.py, and dmd.py, and SRG-transformed
 potentials from potentials.py. Momentum distribution data is stored in
 data/momentum_distributions. These codes also rely on nucleonic densities
 taken from external codes or data.
-     
+
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
@@ -402,7 +402,7 @@ class MomentumDistribution:
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
+            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
         channels : tuple
             Partial wave channels to include in the calculation.
         generator : str
@@ -523,7 +523,7 @@ class MomentumDistribution:
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
+            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
         channels : tuple
             Partial wave channels to include in the calculation.
         generator : str

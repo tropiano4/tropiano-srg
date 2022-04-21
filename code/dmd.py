@@ -467,16 +467,6 @@ class Deuteron(MomentumDistribution):
         ----------
         q_array : 1-D ndarray
             Momentum values [fm^-1].
-        nucleon : str
-            Specify 'proton' or 'neutron'.
-        nucleus_name : str
-            Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
-        Z : int
-            Proton number of the nucleus.
-        N : int
-            Neutron number of the nucleus.
-        density : str, optional
-            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
         save : bool, optional
             Option to save data in data/momentum_distributions directory.
 
@@ -585,32 +575,3 @@ class Deuteron(MomentumDistribution):
             f.write('\n' + line)
 
         f.close()
-        
-
-# Run this script to compute and save momentum distributions
-if __name__ == '__main__':
-    
-    # Specific imports
-    import time
-    from potentials import Potential
-    
-    # Default inputs
-    kvnn = 6
-    kmax, kmid, ntot = 15.0, 3.0, 120
-    generator = 'Wegner'
-    lamb = 1.35
-    
-    dmd = Deuteron(kvnn, kmax, kmid, ntot, generator, lamb)
-    
-    # Get momentum values (channel argument doesn't matter here)
-    potential = Potential(kvnn, '1S0', kmax, kmid, ntot)
-    q_array, _ = potential.load_mesh() 
-    
-    t0 = time.time()
-        
-    n_array = dmd.compute_momentum_distribution(q_array, save=True)
-            
-    t1 = time.time()
-    mins = (t1-t0)/60
-        
-    print(f'Done after {mins:.2f} minutes.')

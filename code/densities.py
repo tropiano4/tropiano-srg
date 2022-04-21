@@ -19,6 +19,7 @@ Last update: April 9, 2022
 # To-do: Probably want this to be a class too.
 # To-do: Check zero division problem again.
 # To-do: How to do AV18 densities (properly). See comment in function.
+# To-do: Change edf to a better name.
 
 # Python imports
 import numpy as np
@@ -27,7 +28,7 @@ import numpy as np
 from modules.labels import replace_periods
 
 
-def load_density(nucleon, nucleus_name, Z, N, edf='SLY4'):
+def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
     according to
@@ -44,7 +45,7 @@ def load_density(nucleon, nucleus_name, Z, N, edf='SLY4'):
     N : int
         Neutron number of the nucleus.
     edf : str, optional
-        Name of EDF (e.g., 'SLY4').
+        Name of EDF (e.g., 'SLy4').
         
     Returns
     -------
@@ -59,15 +60,15 @@ def load_density(nucleon, nucleus_name, Z, N, edf='SLY4'):
     relative k and C.o.M. K which rely on kF(R) values. These values can be
     zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
     extremely small number so the codes run correctly to avoid zero division
-    errors. (This only happens for edf = 'AV18' densities.)
+    errors. (This only happens for edf = 'VMC' densities.)
     
     """
 
 
     # Go to directory corresponding to specified nucleus and EDF
-    if edf == 'SLY4':
+    if edf == 'SLy4':
         
-        densities_directory = f'../densities/HFBRAD_{edf}/{nucleus_name}/'
+        densities_directory = f'../densities/HFBRAD_SLY4/{nucleus_name}/'
         file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
         column_number = 1
         
@@ -80,14 +81,14 @@ def load_density(nucleon, nucleus_name, Z, N, edf='SLY4'):
         elif nucleon == 'neutron':
             column_number = 2
     
-    # Technically it doesn't make sense to have a case edf == AV18 since
-    # AV18 does not use an EDF. It would also make more sense to call it VMC.
-    elif edf == 'AV18':
+    # Technically it doesn't make sense to have a case edf == VMC since
+    # VMC does not use an EDF.
+    elif edf == 'VMC':
         
         densities_directory = '../densities/{edf}/'
         file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
         
-        # AV18 files either have single \rho column for N=Z nuclei or
+        # VMC files either have single \rho column for N=Z nuclei or
         # two columns for proton (1) and neutron (3)
         if N == Z:
             column_number = 1
@@ -259,7 +260,7 @@ if __name__ == '__main__':
         Z = nuclei_list[1]
         N = nuclei_list[2]
         
-        R_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'SLy4')
             
         curve_color = fg.xkcd_colors(i)
 
@@ -284,7 +285,7 @@ if __name__ == '__main__':
         Z = nuclei_list[1]
         N = nuclei_list[2]
         
-        R_array, rho_array = load_density(nucleus, nucleon, Z, N)
+        R_array, rho_array = load_density(nucleus, nucleon, Z, N, 'SLy4')
         
         kF_array = (3*np.pi**2*rho_array)**(1/3)
         

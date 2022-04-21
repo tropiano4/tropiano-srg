@@ -510,7 +510,7 @@ class SingleNucleon(MomentumDistribution):
         return 4*np.pi * np.sum(integrand_R, axis=-1)
     
     def compute_momentum_distribution(
-            self, q_array, nucleon, nucleus_name, Z, N, density='SLY4',
+            self, q_array, nucleon, nucleus_name, Z, N, density='Gogny',
             save=False):
         """
         Single-nucleon momentum distribution for a specified nucleus.
@@ -528,7 +528,7 @@ class SingleNucleon(MomentumDistribution):
         N : int
             Neutron number of the nucleus.
         density : str, optional
-            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
+            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
         save : bool, optional
             Option to save data in data/momentum_distributions directory.
 
@@ -597,7 +597,7 @@ class SingleNucleon(MomentumDistribution):
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLY4', 'Gogny').
+            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
 
         """
         
@@ -642,53 +642,3 @@ class SingleNucleon(MomentumDistribution):
             f.write('\n' + line)
 
         f.close()
-        
-
-# Run this script to compute and save momentum distributions
-if __name__ == '__main__':
-    
-    # Specific imports
-    import time
-    from potentials import Potential
-    
-    # Default inputs
-    kvnn = 6
-    kmax, kmid, ntot = 15.0, 3.0, 120
-    channels = ('1S0', '3S1')
-    generator = 'Wegner'
-    lamb = 1.35
-    
-    snmd = SingleNucleon(kvnn, kmax, kmid, ntot, channels, generator, lamb)
-    
-    # Get momentum values (channel argument doesn't matter here)
-    potential = Potential(kvnn, '1S0', kmax, kmid, ntot)
-    q_array, _ = potential.load_mesh() 
-    
-    # Calculate for Gogny nuclei
-    density = 'Gogny'
-    nuclei = (
-        ('He4', 2, 2), ('Li7', 3, 4), ('Be9', 4, 5), ('C12', 6, 6),
-        ('O16', 8, 8), ('Al27', 13, 14), ('Ca40', 20, 20), ('Ca48', 20, 28),
-        ('Ti48', 22, 26), ('Fe56', 26, 30), ('Cu63', 29, 34),
-        ('Ag107', 47, 60), ('Sn118', 50, 68), ('Ce140', 58, 82),
-        ('Ta181', 73, 108), ('Au197', 79, 118), ('Pb208', 82, 126),
-        ('U238', 92, 146)
-    )
-    
-    for nucleus in nuclei:
-        
-        nucleus_name = nucleus[0]
-        Z = nucleus[1]
-        N = nucleus[2]
-        
-        t0 = time.time()
-        
-        for nucleon in ('proton', 'neutron'):
-            
-            n_array = snmd.compute_momentum_distribution(
-                q_array, nucleon, nucleus_name, Z, N, density, save=True)
-            
-        t1 = time.time()
-        mins = (t1-t0)/60
-        
-        print(f'Done with {nucleus_name} after {mins:.2f} minutes.')
