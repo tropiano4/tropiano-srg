@@ -85,7 +85,7 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     # VMC does not use an EDF.
     elif edf == 'VMC':
         
-        densities_directory = '../densities/{edf}/'
+        densities_directory = '../data/densities/{edf}/'
         file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
         
         # VMC files either have single \rho column for N=Z nuclei or
