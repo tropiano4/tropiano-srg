@@ -6,19 +6,17 @@ File: densities.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 27, 2021
 
-Handles nucleonic densities from the directory data/densities.
+Handles nucleonic densities from data sub-directories.
 So far we have densities from the SLy4 Skyrme functional using HFBRAD code,
-densities from the Gogny functional, and densities from VMC calculations
-(see www.phy.anl.gov/theory/research/density/).
+densities from the Gogny functional using HFBTHO code, and densities from VMC
+calculations (see www.phy.anl.gov/theory/research/density/).
 
-Last update: April 9, 2022
+Last update: April 23, 2022
 
 """
 
-# To-do: Could always rename this script (e.g., nuclei.py).
-# To-do: Probably want this to be a class too.
 # To-do: Check zero division problem again.
-# To-do: How to do AV18 densities (properly). See comment in function.
+# To-do: How to do VMC densities (properly). See comment in function.
 # To-do: Change edf to a better name.
 
 # Python imports
@@ -28,6 +26,7 @@ import numpy as np
 from modules.labels import replace_periods
 
 
+# Maybe this should be a module?
 def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
@@ -85,8 +84,8 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     # VMC does not use an EDF.
     elif edf == 'VMC':
         
-        densities_directory = '../data/densities/{edf}/'
-        file_name = '{nucleus_name}_densities_{N:d}_{Z:d}.txt'
+        densities_directory = '../data/vmc/densities/'
+        file_name = f'{nucleus_name}_single_nucleon.txt'
         
         # VMC files either have single \rho column for N=Z nuclei or
         # two columns for proton (1) and neutron (3)
@@ -110,7 +109,7 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     
     return R_array, rho_array
 
-
+# Maybe this should be in tools or spectroscopic_factors_figures.ipynb for now?
 def convert_l_to_string(l):
     """
     Returns the spectroscopic notation of the orbital angular momentum value
@@ -146,7 +145,7 @@ def convert_l_to_string(l):
         print('Input l value is outside the range of this function.')
         return None
 
-
+# This should definitely be in spectroscopic_factors_figures.ipynb for now.
 def sp_states(nucleus, print_statement=False):
     """
     Return all the occupied single-particle states of the given nucleus.
