@@ -1,4 +1,0 @@
-       Parameter(Nfac=100)
-       Parameter(NPMAX=700,NMMAX=700)
-       Parameter(NSQ=90)
-       Parameter(MAXP=11,NCOEFQ=10,KMAX1=30)
