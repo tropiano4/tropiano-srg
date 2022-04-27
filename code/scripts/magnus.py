@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: April 8, 2022
+Last update: April 27, 2022
 
 """
 
@@ -37,8 +37,8 @@ from sympy import bernoulli
 import time
 
 # Imports from A.T. codes
-from srg import SRG
-import modules.tools as tl
+from .srg import SRG
+from .tools import convert_number_to_string
 
 
 class Magnus(SRG):
@@ -329,7 +329,7 @@ class Magnus(SRG):
         # Print details
         mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
         print('_'*85)
-        lamb_str = tl.convert_number_to_string(lambda_array[-1])
+        lamb_str = convert_number_to_string(lambda_array[-1])
         print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
               f' {mins:.4f} minutes.')
         print('_'*85)
@@ -339,7 +339,7 @@ class Magnus(SRG):
               f'ntot = {self.ntot:d}')
         print(f'method = Magnus, generator = {self.generator}')
         if self.generator == 'Block-diag':
-            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
+            lambda_bd_str = convert_number_to_string(lambda_bd_array[-1])
             print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
         print(f'k_max = {k_max:d}, ds = {ds:.1e}')
         

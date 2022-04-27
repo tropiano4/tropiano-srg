@@ -28,7 +28,7 @@ Below are several examples of kvnn numbers:
     901     Wendt LO non-local potential (9 fm^-1 cutoff)
     902     Wendt LO non-local potential (20 fm^-1 cutoff)
 
-Last update: April 8, 2022
+Last update: April 27, 2022
 
 """
 
@@ -41,7 +41,7 @@ Last update: April 8, 2022
 import numpy as np
 
 # Imports from A.T. codes
-import modules.tools as tl
+from .tools import build_coupled_channel_matrix, coupled_channel
 
 class Potential:
     
@@ -82,14 +82,14 @@ class Potential:
         self.kvnn_string = kvnn_string
         
         # Set instance attribute for coupled-channel Boolean
-        self.coupled_channel_bool = tl.coupled_channel(self.channel)
+        self.coupled_channel_bool = coupled_channel(self.channel)
             
         # Get potential directory and set as instance attribute
         kmax_int = int(kmax)
         kmid_int = int(kmid)
-        potential_directory = ('../potentials/vsrg_macos/vsrg_kvnn'
-                               f'_{kvnn_string}_lam12.0_kmax{kmax_int:d}'
-                               f'_kmid{kmid_int:d}_ntot{ntot:d}/')
+        potential_directory = (f'../data/potentials/vsrg_kvnn_{kvnn_string}'
+                               f'_lam12.0_kmax{kmax_int:d}_kmid{kmid_int:d}'
+                               f'_ntot{ntot:d}/')
         self.potential_directory = potential_directory
         
     def get_file_name(
@@ -230,7 +230,7 @@ class Potential:
             v12 = np.reshape(data[:, 3], (self.ntot, self.ntot))
             v21 = np.reshape(data[:, 4], (self.ntot, self.ntot))
             v22 = np.reshape(data[:, 5], (self.ntot, self.ntot))
-            V_matrix = tl.build_coupled_channel_matrix(v11, v12, v21, v22)
+            V_matrix = build_coupled_channel_matrix(v11, v12, v21, v22)
         
         else:
         
@@ -262,8 +262,8 @@ class Potential:
             zeros = np.zeros((self.ntot, self.ntot))
         
             # Build coupled-channel T_rel matrix
-            T_matrix = tl.build_coupled_channel_matrix(T_matrix, zeros, zeros,
-                                                       T_matrix)
+            T_matrix = build_coupled_channel_matrix(T_matrix, zeros, zeros,
+                                                    T_matrix)
         
         return T_matrix
     

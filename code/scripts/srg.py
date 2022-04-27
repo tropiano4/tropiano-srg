@@ -20,7 +20,7 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: April 8, 2022
+Last update: April 27, 2022
 
 """
 
@@ -37,8 +37,8 @@ from scipy.integrate import ode
 import time
 
 # Imports from A.T. codes
-from potentials import Potential
-import modules.tools as tl
+from .potentials import Potential
+from .tools import build_coupled_channel_matrix, convert_number_to_string
 
 
 class SRG(Potential):
@@ -125,10 +125,10 @@ class SRG(Potential):
         if ntot != self.Ntot:
             
             zeros = np.zeros((ntot, ntot))
-            P_matrix = tl.build_coupled_channel_matrix(P_matrix, zeros, zeros,
-                                                       P_matrix)
-            Q_matrix = tl.build_coupled_channel_matrix(Q_matrix, zeros, zeros,
-                                                       Q_matrix)
+            P_matrix = build_coupled_channel_matrix(P_matrix, zeros, zeros,
+                                                    P_matrix)
+            Q_matrix = build_coupled_channel_matrix(Q_matrix, zeros, zeros,
+                                                    Q_matrix)
         
         # Save both operators for evaluations of \eta
         self.P_matrix = P_matrix
@@ -485,7 +485,7 @@ class SRG(Potential):
         # Print details
         mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
         print('_'*85)
-        lamb_str = tl.convert_number_to_string(lambda_array[-1])
+        lamb_str = convert_number_to_string(lambda_array[-1])
         print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
               f' {mins:.4f} minutes.')
         print('_'*85)
@@ -495,7 +495,7 @@ class SRG(Potential):
               f'ntot = {self.ntot:d}')
         print(f'method = SRG, generator = {self.generator}')
         if self.generator == 'Block-diag':
-            lambda_bd_str = tl.convert_number_to_string(lambda_bd_array[-1])
+            lambda_bd_str = convert_number_to_string(lambda_bd_array[-1])
             print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
     
         # Save evolved potentials

@@ -15,7 +15,7 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: April 20, 2022
+Last update: April 27, 2022
 
 """
 
@@ -30,11 +30,11 @@ import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 
 # Imports from A.T. codes
-from modules.labels import replace_periods
-from modules.tools import channel_L_value, coupled_channel
-from modules.wave_function import wave_function
-from potentials import Potential
-from srg import get_transformation
+from .labels import replace_periods
+from .potentials import Potential
+from .srg import get_transformation
+from .tools import channel_L_value, coupled_channel
+from .wave_function import wave_function
 
 
 class MomentumDistribution:

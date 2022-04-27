@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for labeling figures and file names.
 
-Last update: March 26, 2022
+Last update: April 27, 2022
 
 """
 
@@ -196,30 +196,30 @@ def label_kvnn(kvnn, full_label=True):
         else:
             label = 'EMN N' + r'$^4$' + 'LO'
         
-    # RKE N3LO (400, 450, 500 MeV cutoffs)
+    # SMS N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         if full_label:
             if kvnn == 105:
-                label = 'RKE N' + r'$^3$' + 'LO 400 MeV'
+                label = 'SMS N' + r'$^3$' + 'LO 400 MeV'
             elif kvnn == 106:
-                label = 'RKE N' + r'$^3$' + 'LO 450 MeV'
+                label = 'SMS N' + r'$^3$' + 'LO 450 MeV'
             elif kvnn == 107:
-                label = 'RKE N' + r'$^3$' + 'LO 500 MeV'
+                label = 'SMS N' + r'$^3$' + 'LO 500 MeV'
         else:
-            label = 'RKE N' + r'$^3$' + 'LO'
-    # RKE N4LO (400, 450, 500, 550 MeV cutoffs)
+            label = 'SMS N' + r'$^3$' + 'LO'
+    # SMS N4LO (400, 450, 500, 550 MeV cutoffs)
     elif kvnn in [110, 111, 112, 113]:
         if full_label:
             if kvnn == 110:
-                label = 'RKE N' + r'$^4$' + 'LO 400 MeV'
+                label = 'SMS N' + r'$^4$' + 'LO 400 MeV'
             elif kvnn == 111:
-                label = 'RKE N' + r'$^4$' + 'LO 450 MeV'
+                label = 'SMS N' + r'$^4$' + 'LO 450 MeV'
             elif kvnn == 112:
-                label = 'RKE N' + r'$^4$' + 'LO 500 MeV'
+                label = 'SMS N' + r'$^4$' + 'LO 500 MeV'
             elif kvnn == 113:
-                label = 'RKE N' + r'$^4$' + 'LO 550 MeV'
+                label = 'SMS N' + r'$^4$' + 'LO 550 MeV'
         else:
-            label = 'RKE N' + r'$^4$' + 'LO'
+            label = 'SMS N' + r'$^4$' + 'LO'
         
     # Gezerlis N2LO (1 and 1.2 fm cutoff)
     elif kvnn in [222, 224]:

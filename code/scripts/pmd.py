@@ -11,7 +11,7 @@ operator assuming the evolved wave function is given by HF treated in LDA.
 This class is a sub-class of the MomentumDistribution class from
 momentum_distributions.py.
 
-Last update: April 20, 2022
+Last update: April 27, 2022
 
 """
 
@@ -21,10 +21,10 @@ Last update: April 20, 2022
 import numpy as np
 
 # Imports from A.T. codes
-from densities import load_density
-from modules.integration import gaussian_quadrature_mesh
-from modules.labels import replace_periods
-from momentum_distributions import MomentumDistribution
+from .densities import load_density
+from .integration import gaussian_quadrature_mesh
+from .labels import replace_periods
+from .momentum_distributions import MomentumDistribution
 
 
 class Pair(MomentumDistribution):

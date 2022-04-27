@@ -20,7 +20,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: April 20, 2022
+Last update: April 27, 2022
 
 """
 
@@ -35,11 +35,11 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 
 # Imports from A.T. codes
-from densities import load_density
-from modules.fourier_transform import hankel_transformation_k2r
-from modules.integration import gaussian_quadrature_mesh
-from modules.labels import replace_periods
-from momentum_distributions import MomentumDistribution
+from .densities import load_density
+from .fourier_transform import hankel_transformation_k2r
+from .integration import gaussian_quadrature_mesh
+from .labels import replace_periods
+from .momentum_distributions import MomentumDistribution
 
 
 class Deuteron(MomentumDistribution):

@@ -21,8 +21,9 @@ import numpy.linalg as la
 from scipy.interpolate import RectBivariateSpline
 
 # Imports from A.T. codes
-from .tools import build_coupled_channel_matrix, \
-    decompose_coupled_channel_matrix
+from .tools import (
+    build_coupled_channel_matrix, decompose_coupled_channel_matrix
+)
 
 
 def phase_shifts(e_array, V_matrix, k_array, k_weights):
