@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib.
 
-Last update: May 2, 2022
+Last update: May 6, 2022
 
 """
 
@@ -23,44 +23,46 @@ Last update: May 2, 2022
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import interp2d
 
 # Imports from A.T. codes
 from .labels import label_ticks
 
 
-def setup_rc_params(presentation=False):
+def set_rc_parameters():
     """
-    Set matplotlib's rc parameters for figures. Run this function in Jupyter
+    Set matplotlib's RC parameters for figures. Run this function in Jupyter
     notebooks or Python scripts when you want fancy-looking plots.
-        
-    Parameters
-    ----------
-    presentation : bool, optional
-        Option to enlarge font sizes for presentations.
+    
+    Notes
+    -----
+    To get usetex=True to work, you need LaTeX, dvipng, and Ghostscript>9.0.
+    Will additionally cause issues if you don't have add-on things 
+    (e.g., "cm-super: CM-Super family of fonts"). I got around this by 
+    downloading TeX Live.
     
     """
 
-    if presentation:
-        fontsize = 14
-    else:
-        fontsize = 9
+    # Defaults for font
+    fontsize = 14
     black = 'k'
 
     mpl.rcdefaults()  # Set to defaults
-
-    # This will give an error if you don't have LaTeX
+    
+    # Set LaTeX fonts (this will give an error if you don't have LaTeX)
     mpl.rc('text', usetex=True)
     mpl.rcParams['font.size'] = fontsize
     mpl.rcParams['text.usetex'] = True
     mpl.rcParams['font.family'] = 'serif'
 
+    # Settings for axes
     # mpl.rcParams['axes.labelsize'] = fontsize
     mpl.rcParams['axes.edgecolor'] = black
     # mpl.rcParams['axes.xmargin'] = 0
     mpl.rcParams['axes.labelcolor'] = black
     # mpl.rcParams['axes.titlesize'] = fontsize
 
+    # Settings for ticks
     mpl.rcParams['ytick.direction'] = 'in'
     mpl.rcParams['xtick.direction'] = 'in'
     mpl.rcParams['xtick.labelsize'] = fontsize
@@ -75,14 +77,12 @@ def setup_rc_params(presentation=False):
     mpl.rcParams['ytick.minor.size'] = 2.4
     mpl.rcParams['xtick.major.size'] = 3.9  # Default 3.5
     mpl.rcParams['ytick.major.size'] = 3.9
-    
-    # Added by A.T.
-    # Puts tick marks (not labels) on top and right axes
+    # Puts ticks on top and right axes as well
     mpl.rcParams['xtick.top'] = True
     mpl.rcParams['ytick.right'] = True
     
+    # Settings for overall figure
     ppi = 72  # points per inch
-    # dpi = 150
     # mpl.rcParams['figure.titlesize'] = fontsize
     mpl.rcParams['figure.dpi'] = 150  # To show up reasonably in notebooks
     mpl.rcParams['figure.constrained_layout.use'] = False
@@ -94,6 +94,7 @@ def setup_rc_params(presentation=False):
     mpl.rcParams['figure.constrained_layout.h_pad'] = 3. / ppi  # 3 points
     mpl.rcParams['figure.constrained_layout.w_pad'] = 3. / ppi
 
+    # Settings for legend
     #  mpl.rcParams['legend.title_fontsize'] = fontsize
     #  mpl.rcParams['legend.fontsize'] = fontsize
     # Inherits from axes.edgecolor, to match
@@ -109,112 +110,54 @@ def setup_rc_params(presentation=False):
     mpl.rcParams['patch.linewidth'] = 0.8
     mpl.rcParams['hatch.linewidth'] = 0.5
 
-    # bbox = 'tight' can distort the figure size when saved 
-    # (that's its purpose)
-    # mpl.rc('savefig', transparent=False, bbox='tight', pad_inches=0.04,
-    #        dpi=350, format='png')
-    # mpl.rc('savefig', transparent=False, bbox=None, dpi=400, format='png')
+    # Settings for saving figure
     mpl.rc('savefig', bbox='tight', dpi=400)
     
 
-def interpolate_matrix(x_array, M, x_max, ntot=500):
+def interpolate_matrix(
+        x_array, y_array, M_array, x_max, y_max, x_tot=500, y_tot=500):
     """
     Interpolate matrix over given array for high resolution contour plots.
 
     Parameters
     ----------
     x_array : 1-D ndarray
-        Array of x points where the matrix M = M(x, x).
-    M : 2-D ndarray
+        Array of x points where the matrix M = M(x, y).
+    y_array : 1-D ndarray
+        Array of y points where the matrix M = M(x, y).
+    M_array : 2-D ndarray
         Matrix to be interpolated.
     x_max : float
-        Maximum value of x. This functions interpolates M up to this value.
-    ntot : int, optional
-        Desired length of the interpolated matrix and new x array.
+        Return points up to this maximum value of x.
+    y_max : float
+        Return points up to this maximum value of y.
+    x_tot : int, optional
+        Desired number of points in x.
+    y_tot : int, optional
+        Desired number of points in y.
         
     Returns
     -------
     x_array_new : 1-D ndarray
-        Array of ntot x points.
-    M_new : 2-D ndarray
-        Interpolated matrix.
-        
-    """
-    
-    # This is a tricky way to select all the x points in the given array that 
-    # are within the specified range of 0 to x_max
-    
-    # List of boolean values
-    bool_list = x_array <= x_max 
-    
-    # The number of points in x_array less than x_max
-    ntot = len(list(filter(None, bool_list)))
-    
-    # Resize x_array and M to size that you want to plot
-    x_array_resized = x_array[:ntot]
-    M_resized = M[:ntot, :ntot]
-    
-    # Use interp2d to interpolate the truncated matrix
-    M_func = interp2d(x_array_resized, x_array_resized, M_resized)
-
-    # New x array for interpolation (dimension ntot x 1)
-    x_array_new = np.linspace(x_array_resized[0], x_array_resized[-1], ntot)
-    
-    # New matrix (dimension ntot x ntot)
-    M_new = M_func(x_array_new, x_array_new) 
-    
-    return x_array_new, M_new
-
-
-def interpolate_vector(x_array, y_array, x_max, ntot=500, order='linear'):
-    """
-    Interpolate vector given array for high resolution plots.
-    
-    Parameters
-    ----------
-    x_array : 1-D ndarray
-        Array of x points where the vector y_array = y(x).
-    y_array : 1-D ndarray
-        Vector to be interpolated.
-    x_max : float
-        Maximum value of x. This functions interpolates y up to this value.
-    ntot : int, optional
-        Desired length of the interpolated vector and new x array.
-    order : str, optional
-        Order for interpolation. Default is 'linear'.
-        
-    Returns
-    -------
-    x_array_new : 1-D ndarray
-        Array of ntot x points.
+        Dense array of x points up to x_max with shape (x_tot,).
     y_array_new : 1-D ndarray
-        Interpolated vector.
+        Dense array of y points up to y_max with shape (y_tot,).
+    M_array_new : 2-D ndarray
+        Dense matrix evaluated up to (x_max, y_max) with shape (x_tot, y_tot).
         
     """
-    
-    # This is a tricky way to select all the x points in the given array that 
-    # are within the specified range of 0 to x_max
-    
-    # List of boolean values (True or False)
-    bool_list = x_array <= x_max 
-    
-    # The number of points in the given momentum array less than k_max
-    n = len(list(filter(None, bool_list)))
-    
-    # Resize x_array and M to size that you want to plot
-    x_array_resized = x_array[:n]
-    y_array_resized = y_array[:n]
-    
-    # Use interp1d to interpolate the truncated vector
-    y_func = interp1d(x_array_resized, y_array_resized, kind=order)
 
-    # New x array for interpolation (dimension ntot x 1)
-    x_array_new = np.linspace(x_array_resized[0], x_array_resized[-1], ntot)
+    # Use interp2d to interpolate the truncated matrix
+    M_func = interp2d(x_array, y_array, M_array)
+
+    # Dense x and y arrays for interpolation
+    x_array_dense = np.linspace(x_array, x_max, x_tot)
+    y_array_dense = np.linspace(y_array, y_max, y_tot)
     
-    # New y array (dimension ntot x 1)
-    y_array_new = y_func(x_array_new) 
+    # Dense matrix
+    M_array_dense = M_func(x_array_dense, y_array_dense) 
     
-    return x_array_new, y_array_new
+    return x_array_dense, y_array_dense, M_array_dense
 
 
 def line_styles(curve_number):
@@ -256,7 +199,6 @@ def line_styles(curve_number):
         error = "Curve number is too high to match with default line style."
         suggestion = "Manually assign styles to each curve."
         print_statement = error + ' ' + suggestion
-        
         print(print_statement)
         
         return 'solid'
@@ -286,14 +228,14 @@ def xkcd_colors(curve_number):
     
     """
     
-    colors = [
+    colors = (
         'xkcd:black', 'xkcd:red', 'xkcd:blue', 'xkcd:green', 'xkcd:orange',
         'xkcd:purple', 'xkcd:grey', 'xkcd:brown', 'xkcd:pink',
         'xkcd:turquoise', 'xkcd:olive', 'xkcd:gold', 'xkcd:indigo',
         'xkcd:magenta', 'xkcd:tan', 'xkcd:crimson', 'xkcd:navy', 'xkcd:lime',
         'xkcd:plum', 'xkcd:chocolate', 'xkcd:coral', 'xkcd:darkgreen',
         'xkcd:khaki'
-    ]
+    )
     
     try:
         
@@ -304,7 +246,6 @@ def xkcd_colors(curve_number):
         error = "Curve number is too high to match with default color."
         suggestion = "Manually assign colors to each curve."
         print_statement = error + ' ' + suggestion
-        
         print(print_statement)
         
         return 'xkcd:black'
@@ -362,18 +303,20 @@ def add_colorbar(
     # Make these strings
     levels_ticks_strings = label_ticks(levels_ticks)
 
-    # Adjust space for colorbar.
-    f.subplots_adjust(right=0.8)
-    cbar_ax = f.add_axes((0.85, 0.15, 0.05, 0.7))
+    # # Adjust space for colorbar.
+    # f.subplots_adjust(right=0.8)
+    # cbar_ax = f.add_axes((0.85, 0.15, 0.05, 0.7))
                                          
-    # Set colorbar
-    cbar = f.colorbar(ax_cbar, cax=cbar_ax, ticks=levels_ticks)
-    cbar.ax.tick_params(labelsize=tick_size)
-    cbar.ax.set_yticklabels(levels_ticks_strings)
+    # # Set colorbar
+    # cbar = f.colorbar(ax_cbar, cax=cbar_ax, ticks=levels_ticks)
+    # cbar.ax.tick_params(labelsize=tick_size)
+    # cbar.ax.set_yticklabels(levels_ticks_strings)
 
-    # Add label?
-    if label != None:
-        cbar.ax.set_title(label, fontsize=label_size, pad=15)
+    # # Add label?
+    # if label != None:
+    #     cbar.ax.set_title(label, fontsize=label_size, pad=15)
+    
+    plt.colorbar(ticks=levels_ticks, label=label, labelsize=tick_size, fontsize=label_size)
 
     return f, ax_cbar
     
@@ -418,4 +361,5 @@ def plot_contours(x_array, z_data, axes_max, colorbar_limits, color_style):
 
     #     Add matrix to figure
 
-    return f, ax, ax_cbar
+    # return f, ax, ax_cbar
+    return f, ax
