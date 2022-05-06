@@ -15,13 +15,10 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: April 27, 2022
+Last update: May 3, 2022
 
 """
 
-# To-do: Probably want a function that gets k_array, k_weights independent of
-# the channel? See if you do after doing notebooks.
-# To-do: Make sure description above makes sense.
 # To-do: Further reduce load methods into smaller methods.
 # To-do: Make save functions automatically create /nucleus_name sub-directories
 
@@ -30,6 +27,9 @@ import numpy as np
 from scipy.interpolate import interp1d, RectBivariateSpline
 
 # Imports from A.T. codes
+from .integration import (
+    unattach_weights_from_matrix, unattach_weights_from_vector
+)
 from .labels import replace_periods
 from .potentials import Potential
 from .srg import get_transformation
@@ -38,23 +38,26 @@ from .wave_function import wave_function
 
 
 class MomentumDistribution:
+    """
+    Parent class of the SingleNucleon, Pair, and Deuteron momentum distribution
+    classes. This sets up the calculation using SRG-evolved potentials from
+    the Potentials class.
+    
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+
+    """
 
     def __init__(self, kvnn, kmax, kmid, ntot):
-        """
-        Save the inputs of the potential excluding the channels argument.
-
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-
-        """
+        """Save the inputs of the potential excluding the channels argument."""
 
         self.kvnn = kvnn
         self.kmax = kmax
@@ -237,11 +240,6 @@ class MomentumDistribution:
         k_array, k_weights = Potential(
             self.kvnn, '1S0', self.kmax, self.kmid, self.ntot).load_mesh()
 
-        # For dividing out momenta/weights
-        factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
-        # For coupled-channel matrices
-        factor_array_cc = np.concatenate((factor_array, factor_array))
-
         # Initialize \delta U linear term
         deltaU_pp = np.zeros((self.ntot, self.ntot))
         deltaU_pn = np.zeros((self.ntot, self.ntot))
@@ -259,16 +257,18 @@ class MomentumDistribution:
 
             # Get SRG transformation U(k, k') [unitless]
             U_matrix_unitless = get_transformation(H_initial, H_evolved)
+            
+            # Coupled-channel?
+            cc_bool = coupled_channel(channel)
 
             # Isolate 2-body term and convert to fm^3
-            if coupled_channel(channel):
+            if cc_bool:
                 I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
-                row, col = np.meshgrid(factor_array_cc, factor_array_cc)
             else:
                 I_matrix_unitless = np.eye(self.ntot, self.ntot)
-                row, col = np.meshgrid(factor_array, factor_array)
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
-            delta_U_matrix = delta_U_matrix_unitless / row / col  # fm^3
+            delta_U_matrix = unattach_weights_from_matrix(
+                k_array, k_weights, delta_U_matrix_unitless, cc_bool)  # fm^3
             
             # 2J+1 factor
             J = int(channel[-1])
@@ -346,10 +346,6 @@ class MomentumDistribution:
         # Set mesh as instance attribute
         self.k_array, self.k_weights = k_array, k_weights
 
-        # For dividing out momenta/weights
-        factor_array = np.sqrt((2*k_weights)/np.pi) * k_array
-        factor_array_cc = np.concatenate((factor_array, factor_array))
-
         # Get initial and evolved Hamiltonians
         H_initial, H_evolved = self.get_hamiltonians(
             channel, generator, lamb, lambda_initial, kvnn_inv, delta_lambda)
@@ -359,13 +355,14 @@ class MomentumDistribution:
         
         # Need the deuteron wave function to get kF values for calculation
         psi_k_unitless = wave_function(H_initial, U_matrix=U_matrix_unitless)
-        self.psi_k = psi_k_unitless / factor_array_cc  # [fm^3/2]
+        self.psi_k = unattach_weights_from_vector(
+            k_array, k_weights, psi_k_unitless, coupled_channel=True)  # fm^3/2
 
         # Isolate 2-body term and convert to fm^3
         I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
-        row, col = np.meshgrid(factor_array_cc, factor_array_cc)
         delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
-        delta_U_matrix = delta_U_matrix_unitless / row / col  # fm^3
+        delta_U_matrix = unattach_weights_from_matrix(
+            k_array, k_weights, delta_U_matrix_unitless, coupled_channel=True)
 
         # Get matrix elements for full 3S1-3D1 partial wave channel including
         # the isospin CG = 1/\sqrt(2)
@@ -402,7 +399,7 @@ class MomentumDistribution:
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
+            Name of density (e.g., 'SLy4', 'Gogny').
         channels : tuple
             Partial wave channels to include in the calculation.
         generator : str
@@ -523,7 +520,7 @@ class MomentumDistribution:
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
+            Name of density (e.g., 'SLy4', 'Gogny').
         channels : tuple
             Partial wave channels to include in the calculation.
         generator : str

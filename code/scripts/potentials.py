@@ -41,31 +41,34 @@ Last update: April 27, 2022
 import numpy as np
 
 # Imports from A.T. codes
+from .integration import attach_weights_to_matrix, unattach_weights_from_matrix
 from .tools import build_coupled_channel_matrix, coupled_channel
 
 class Potential:
+    """
+    Handles potentials from data/potentials directory.
+    
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+
+    """
     
     # Define class attribute for h-bar^2 / M [MeV fm^2]
     hbar_sq_over_m = 41.47
     
     def __init__(self, kvnn, channel, kmax, kmid, ntot):
-        """
-        Set the specifications of the potential as instance attributes and
-        record the relevant directory.
-
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        channel : str
-            The partial wave channel (e.g. '1S0').
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-
+        """Set the specifications of the potential as instance attributes and
+        records the relevant directory.
         """
 
         self.kvnn = kvnn
@@ -93,8 +96,8 @@ class Potential:
         self.potential_directory = potential_directory
         
     def get_file_name(
-            self, file_type, generator='', lamb=0.0, lambda_bd=0.0, k_max=0,
-            ds=0.0):
+            self, file_type, generator=None, lamb=None, lambda_bd=None,
+            k_max=None, ds=None):
         """
         Handles file names for momentum meshes, initial potentials, and SRG-
         or Magnus-evolved potentials.
@@ -187,8 +190,8 @@ class Potential:
         return k_array, k_weights
     
     def load_potential(
-            self, method='initial', generator='', lamb=0.0, lambda_bd=0.0,
-            k_max=0, ds=0.0):
+            self, method='initial', generator=None, lamb=None, lambda_bd=None,
+            k_max=None, ds=None):
         """
         Loads the potential. This function is capable of loading SRG- or
         Magnus-evolved potentials as well.
@@ -268,8 +271,8 @@ class Potential:
         return T_matrix
     
     def load_hamiltonian(
-            self, method='initial', generator='', lamb=0.0, lambda_bd=0.0,
-            k_max=0, ds=0.0):
+            self, method='initial', generator=None, lamb=None, lambda_bd=None,
+            k_max=None, ds=None):
         """
         Loads the NN Hamiltonian. This function is capable of loading SRG-
         or Magnus-evolved Hamiltonians as well.
@@ -312,8 +315,8 @@ class Potential:
         return H_matrix
     
     def save_potential(
-            self, V_matrix, method, generator, lamb, lambda_bd=0.0, k_max=0,
-            ds=0.0):
+            self, V_matrix, method, generator, lamb, lambda_bd=None,
+            k_max=None, ds=None):
         """
         This function is used for saving SRG- or Magnus-evolved potentials.
     
@@ -411,18 +414,11 @@ class Potential:
         """
         
         k_array, k_weights = self.load_mesh()
-        factor_array = k_array * np.sqrt(2/np.pi*k_weights)
-    
-        # If coupled channel, double the length of the mesh arrays
-        if self.coupled_channel_bool:
-            factor_array = np.concatenate((factor_array, factor_array))
-            
-        # Build meshgrids of momentum and weights factor
-        col, row = np.meshgrid(factor_array, factor_array)
     
         # Multiply the potential by the integration measure giving the fm^-2 
         # conversion and multiplying by hbar_sq_over_m gives the MeV conversion
-        V_matrix_MeV = V_matrix_fm * row * col * self.hbar_sq_over_m
+        V_matrix_MeV = self.hbar_sq_over_m * attach_weights_to_matrix(
+            k_array, k_weights, V_matrix_fm, self.coupled_channel_bool)
     
         return V_matrix_MeV
     
@@ -446,17 +442,10 @@ class Potential:
         """
     
         k_array, k_weights = self.load_mesh()
-        factor_array = k_array * np.sqrt(2/np.pi*k_weights)
-    
-        # If coupled channel, double the length of the mesh arrays
-        if self.coupled_channel_bool:
-            factor_array = np.concatenate((factor_array, factor_array))
-            
-        # Build meshgrids of momentum and weights factor
-        col, row = np.meshgrid(factor_array, factor_array)
     
         # Dividing the potential by the integration measure gives the MeV fm^3 
         # conversion and dividing by hbar_sq_over_m gives the fm conversion
-        V_matrix_fm = V_matrix_MeV / (row*col*self.hbar_sq_over_m)
+        V_matrix_fm = 1/self.hbar_sq_over_m * unattach_weights_from_matrix(
+            k_array, k_weights, V_matrix_MeV, self.coupled_channel_bool)
     
         return V_matrix_fm

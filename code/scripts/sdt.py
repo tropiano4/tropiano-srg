@@ -19,6 +19,9 @@ Last update: March 17, 2022
 # Python imports
 import numpy as np
 
+# Imports from A.T. codes
+from .integration import get_factor_meshgrid
+
 
 def expectation_value(H):
     """Calculates the expectation value of H with dimensionality N."""
@@ -48,15 +51,8 @@ def sigma(H, k_array, k_weights, coupled_channel=False):
     
     """
     
-    # Create square root of integration measure
-    factor_array = np.sqrt(2/np.pi*k_weights) * k_array
-    
-    # Double length of factor_array for coupled-channels
-    if coupled_channel: 
-        
-        factor_array = np.concatenate((factor_array, factor_array))
-    
-    col, row = np.meshgrid(factor_array, factor_array)
+    # Get the integration measure (weights)
+    col, row = get_factor_meshgrid(k_array, k_weights, coupled_channel)
         
     # Compute squared Hamiltonian with factors
     H2_with_factors = (H*col) @ (H*row)
@@ -64,7 +60,7 @@ def sigma(H, k_array, k_weights, coupled_channel=False):
     # Convert H^2 back to mesh-independent quantity (units fm)
     H2 = H2_with_factors / row / col
 
-    return np.sqrt( expectation_value(H2)-expectation_value(H)**2 )
+    return np.sqrt(expectation_value(H2) - expectation_value(H)**2)
 
 
 def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
@@ -91,15 +87,8 @@ def inner_product(H, Hp, k_array, k_weights, coupled_channel=False):
     
     """
     
-    # Create square root of integration measure
-    factor_array = np.sqrt(2/np.pi*k_weights) * k_array
-
-    # Double length of factor_array for coupled-channels
-    if coupled_channel: 
-        
-        factor_array = np.concatenate((factor_array, factor_array))
-    
-    col, row = np.meshgrid(factor_array, factor_array)
+    # Get the integration measure (weights)
+    col, row = get_factor_meshgrid(k_array, k_weights, coupled_channel)
     
     # HHp is the matrix product of H^{\dagger} H (we're assuming H is real)
     HHp_with_factors = (H.T*col) @ (Hp*row)

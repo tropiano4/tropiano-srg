@@ -128,7 +128,7 @@ def channel_L_value(channel):
     elif channel_letter == 'Q':
         return 12
     else:
-        print('Input channel is outside the range of this function.')
+        print("Input channel is outside the range of this function.")
         return None
     
     
@@ -149,10 +149,10 @@ def coupled_channel(channel):
     """
     
     # List of coupled channels
-    coupled_channels = [
+    coupled_channels = (
         '3S1', '3P2', '3D3', '3F4', '3G5', '3H6', '3I7', '3K8', '3L9', '3M10',
         '3N11', '3O12', '3Q13'
-    ]
+    )
 
     boolean_value = channel in coupled_channels
     

@@ -21,7 +21,7 @@ from .tools import find_index
 
 
 def wave_function(
-        H_matrix, eps=-2.22, U_matrix=np.empty(0), print_normalization=False):
+        H_matrix, eps=-2.22, U_matrix=None, print_normalization=False):
     """
     Diagonalizes the Hamiltonian and returns the wave function of the state
     nearest energy = eps. The wave function is unitless, that is, the momenta 
@@ -51,7 +51,7 @@ def wave_function(
         
         1 = 2/\pi \int_0^{\infty} dk k^2 |k><k|,
         
-    which means the unitless wave functions include a factor of \sqrt(2/\pi).
+    which means the unitless wave functions include the integration measure.
         
     """
     
@@ -65,12 +65,12 @@ def wave_function(
     psi = eigenvectors[:, eps_index] 
 
     # Evolve wave function?
-    if U_matrix.any():
+    if U_matrix is not None:
         psi = U_matrix @ psi
         
     # Check normalization?
     if print_normalization:
         normalization = np.sum(psi**2)
-        print(f'Normalization = {normalization:.5f}.')
+        print(f"Normalization = {normalization:.5f}.")
             
     return psi

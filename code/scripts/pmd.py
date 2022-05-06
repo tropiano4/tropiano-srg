@@ -11,7 +11,7 @@ operator assuming the evolved wave function is given by HF treated in LDA.
 This class is a sub-class of the MomentumDistribution class from
 momentum_distributions.py.
 
-Last update: April 27, 2022
+Last update: May 2, 2022
 
 """
 
@@ -28,44 +28,45 @@ from .momentum_distributions import MomentumDistribution
 
 
 class Pair(MomentumDistribution):
+    """
+    Computes pair momentum distributions SRG-evolving the operator assuming
+    the evolved wave function is given by HF treated in LDA.
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+    channels : tuple
+        Partial wave channels to include in the calculation.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float
+        SRG evolution parameter \lambda [fm^-1].
+    lambda_initial : float, optional
+        SRG evolution parameter \lambda for initial Hamiltonian [fm^-1]. This
+        allows one to use an SRG-evolved potential as the starting point.
+    kvnn_inv : int, optional
+        This number specifies a potential for which inverse-SRG transformations
+        will be applied to the initial Hamiltonian
+            H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+        where the transformations are evaluated at \delta \lambda.
+    delta_lambda : float, optional
+        SRG evolution parameter \lambda for inverse-SRG transformations
+        [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified for
+        this to run.
+
+    """
 
     def __init__(
             self, kvnn, kmax, kmid, ntot, channels, generator, lamb,
             lambda_initial=None, kvnn_inv=None, delta_lambda=None):
-        """
-        Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes.
-
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-        channels : tuple
-            Partial wave channels to include in the calculation.
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-        lamb : float
-            SRG evolution parameter \lambda [fm^-1].
-        lambda_initial : float, optional
-            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
-            This allows one to use an SRG-evolved potential as the starting
-            point.
-        kvnn_inv : int, optional
-            This number specifies a potential for which inverse-SRG
-            transformations will be applied to the initial Hamiltonian
-            H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
-            where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
-            SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
-
-        """
+        """Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes."""
 
         super().__init__(kvnn, kmax, kmid, ntot)
         
@@ -402,7 +403,7 @@ class Pair(MomentumDistribution):
         N : int
             Neutron number of the nucleus.
         density : str, optional
-            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
+            Name of density (e.g., 'SLy4', 'Gogny').
         save : bool, optional
             Option to save data in data/momentum_distributions directory.
 
@@ -496,7 +497,7 @@ class Pair(MomentumDistribution):
         nucleus_name : str
             Name of the nucleus (e.g., 'O16', 'Ca40', etc.)
         density : str
-            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
+            Name of density (e.g., 'SLy4', 'Gogny').
 
         """
         
@@ -591,7 +592,7 @@ class Pair(MomentumDistribution):
         N : int
             Neutron number of the nucleus.
         density : str, optional
-            Name of nucleonic density (e.g., 'SLy4', 'Gogny').
+            Name of density (e.g., 'SLy4', 'Gogny').
         save : bool, optional
             Option to save data in data/momentum_distributions directory.
 

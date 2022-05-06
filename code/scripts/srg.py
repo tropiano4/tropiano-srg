@@ -20,7 +20,7 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: April 27, 2022
+Last update: May 2, 2022
 
 """
 
@@ -42,27 +42,30 @@ from .tools import build_coupled_channel_matrix, convert_number_to_string
 
 
 class SRG(Potential):
+    """
+    Evolves potentials to band-diagonal or block-diagonal decoupled form with
+    respect to the flow parameter \lambda [fm^-1], and possibly \Lambda_BD.
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+            
+    """
     
     def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
-        """
-        Loads the initial Hamiltonian and other relevant operators depending
+        """Loads the initial Hamiltonian and other relevant operators depending
         on the specifications of the potential and the SRG generator.
-        
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        channel : str
-            The partial wave channel (e.g. '1S0').
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-            
         """
 
         # Call Potential class given the potential specifications
@@ -378,7 +381,7 @@ class SRG(Potential):
         # Print an error message if method is invalid
         else:
             
-            raise RuntimeError('Need to specify a valid method.')
+            raise RuntimeError("Need to specify a valid method.")
             
         # Following the example in Hergert:2016iju with modifications to
         # nsteps and error tolerances
@@ -388,8 +391,8 @@ class SRG(Potential):
         return solver
     
     def srg_evolve(
-            self, lambda_array, lambda_bd_array=np.empty(0),
-            lambda_initial=20.0, save=False, method='hamiltonian'):
+            self, lambda_array, lambda_bd_array=None, lambda_initial=20.0,
+            save=False, method='hamiltonian'):
         """
         Evolve the Hamiltonian at each value of \lambda, and possibly
         \Lambda_BD for block-diagonal decoupling.
@@ -484,19 +487,19 @@ class SRG(Potential):
         
         # Print details
         mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
-        print('_'*85)
+        print("_"*85)
         lamb_str = convert_number_to_string(lambda_array[-1])
-        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
-              f' {mins:.4f} minutes.')
-        print('_'*85)
-        print('\nSpecifications:\n')
-        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
-        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
-              f'ntot = {self.ntot:d}')
-        print(f'method = SRG, generator = {self.generator}')
+        print(f"Done evolving to final \lambda = {lamb_str} fm^-1 after"
+              f" {mins:.4f} minutes.")
+        print("_"*85)
+        print("\nSpecifications:\n")
+        print(f"kvnn = {self.kvnn:d}, channel = {self.channel}")
+        print(f"kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, "
+              f"ntot = {self.ntot:d}")
+        print(f"method = SRG, generator = {self.generator}")
         if self.generator == 'Block-diag':
             lambda_bd_str = convert_number_to_string(lambda_bd_array[-1])
-            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
+            print(f"Final \Lambda_BD = {lambda_bd_str} fm^-1")
     
         # Save evolved potentials
         if save:

@@ -20,7 +20,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: April 27, 2022
+Last update: May 2, 2022
 
 """
 
@@ -43,42 +43,43 @@ from .momentum_distributions import MomentumDistribution
 
 
 class Deuteron(MomentumDistribution):
+    """
+    Computes deuteron momentum distributions SRG-evolving the operator
+    assuming the evolved wave function is given by HF treated in LDA.
+
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lamb : float
+        SRG evolution parameter \lambda [fm^-1].
+    lambda_initial : float, optional
+        SRG evolution parameter \lambda for initial Hamiltonian [fm^-1]. This
+        allows one to use an SRG-evolved potential as the starting point.
+    kvnn_inv : int, optional
+        This number specifies a potential for which inverse-SRG transformations
+        will be applied to the initial Hamiltonian
+            H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
+        where the transformations are evaluated at \delta \lambda.
+    delta_lambda : float, optional
+        SRG evolution parameter \lambda for inverse-SRG transformations
+        [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified for
+        this to run.
+
+    """
 
     def __init__(
-            self, kvnn, kmax, kmid, ntot, generator, lamb,
-            lambda_initial=None, kvnn_inv=None, delta_lambda=None):
-        """
-        Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes.
-
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-        lamb : float
-            SRG evolution parameter \lambda [fm^-1].
-        lambda_initial : float, optional
-            SRG evolution parameter \lambda for initial Hamiltonian [fm^-1].
-            This allows one to use an SRG-evolved potential as the starting
-            point.
-        kvnn_inv : int, optional
-            This number specifies a potential for which inverse-SRG
-            transformations will be applied to the initial Hamiltonian
-            H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
-            where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
-            SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
-
-        """
+            self, kvnn, kmax, kmid, ntot, generator, lamb, lambda_initial=None,
+            kvnn_inv=None, delta_lambda=None):
+        """Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes."""
 
         super().__init__(kvnn, kmax, kmid, ntot)
         
@@ -482,7 +483,7 @@ class Deuteron(MomentumDistribution):
         
         # Use R values in accordance with densities code from densities.py
         # Nuclei arguments don't matter here - just getting R values
-        R_array, _ = load_density('proton', 'C12', 6, 6)
+        R_array, _ = load_density('proton', 'C12', 6, 6, 'SLy4')
         dR = R_array[2] - R_array[1]  # Assuming linear spacing
         
         # Transform wave function to coordinate space

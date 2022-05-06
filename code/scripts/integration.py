@@ -9,7 +9,7 @@ Date: March 26, 2021
 Functions for creating integration points and weights under Gaussian
 quadrature.
 
-Last update: March 17, 2022
+Last update: May 2, 2022
 
 """
 
@@ -20,7 +20,7 @@ from numpy.polynomial.legendre import leggauss
 
 
 def gaussian_quadrature_mesh(
-        xmax, ntot, xmin=0, xmid=0, nmod=0, method='legendre'):
+        xmax, ntot, xmin=0, xmid=None, nmod=None, method='legendre'):
     """
     Creates an integration mesh from [xmin, xmax] under Gaussian quadrature.
     Option to split into two connected meshes by specifying the mid-point and
@@ -54,7 +54,7 @@ def gaussian_quadrature_mesh(
     """
     
     # Standard (no mid-point)
-    if nmod == 0 and xmid == 0:
+    if xmid == None:
         
         # Interval [-1, 1]
         if method == 'legendre':
@@ -68,6 +68,10 @@ def gaussian_quadrature_mesh(
         
     # Split into two meshes
     else:
+        
+        # In case nmod wasn't specified, take nmod = ntot/2 rounding up
+        if nmod == None:
+            nmod = round(ntot/2, 0)
         
         # Interval [-1, 1]
         if method == 'legendre':
@@ -88,3 +92,199 @@ def gaussian_quadrature_mesh(
         x_weights = np.concatenate((x_weights_1, x_weights_2))
     
     return x_array, x_weights
+
+
+def momentum_mesh(kmax, kmid, ntot):
+    """
+    Generate a momentum mesh like the ones in data/potentials.
+    
+    Parameters
+    ----------
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+    
+    Returns
+    -------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    
+    """
+    
+    k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot, xmid=kmid)
+    
+    return k_array, k_weights
+
+
+def get_factor_array(k_array, k_weights, coupled_channel=False):
+    """
+    Gets the square root of the integration measure as an array, that is,
+        \sqrt(2/\pi * w_i) * k_i,
+    where i specifies each point in the mesh.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    coupled_channel : bool, optional
+        True if the channel is a coupled-channel.
+        
+    Returns
+    -------
+    factor_array: 1-D ndarray
+        Square root of the integration measure [fm^-3/2].
+    
+    """
+    
+    factor_array = np.sqrt(2/np.pi * k_weights) * k_array
+    
+    if coupled_channel:
+        factor_array = np.concatenate((factor_array, factor_array))
+    
+    return factor_array
+
+
+def get_factor_meshgrid(k_array, k_weights, coupled_channel):
+    """
+    Gets the square root of the integration measure as meshgrids, that is,
+        \sqrt(2/\pi) * w_i) * k_i and \sqrt(2/\pi) * w_j) * k_j,
+    where the indices i and j run over an operator.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    coupled_channel : bool, optional
+        True if the channel is a coupled-channel.
+    
+    Returns
+    -------
+    row : 2-D ndarray
+        Rows of square root integration measure meshgrid [fm^-3/2].
+    col : 2-D ndarray
+        Columns of square root integration measure meshgrid [fm^-3/2].
+    
+    """
+    
+    factor_array = get_factor_array(k_array, k_weights, coupled_channel)
+    
+    row, col = np.meshgrid(factor_array, factor_array, indexing='ij')
+    
+    return row, col
+
+
+def attach_weights_to_vector(k_array, k_weights, v, coupled_channel=False):
+    """
+    Attaches weights to a vector.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    v : 1-D ndarray
+        Input vector.
+    coupled_channel : bool, optional
+        True if the channel is a coupled-channel.
+    
+    Returns
+    -------
+    output : 1-D ndarray
+        Output vector with weights attached. Units are [v] * fm^-3/2.
+
+    """
+    
+    factor_array = get_factor_array(k_array, k_weights, coupled_channel)
+
+    return v * factor_array
+
+
+def unattach_weights_from_vector(k_array, k_weights, v, coupled_channel=False):
+    """
+    Unattaches weights from a vector.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    v : 1-D ndarray
+        Input vector.
+    coupled_channel : bool, optional
+        True if the channel is a coupled-channel.
+    
+    Returns
+    -------
+    output : 1-D ndarray
+        Output vector without weights. Units are [v] * fm^3/2.
+
+    """
+
+    factor_array = get_factor_array(k_array, k_weights, coupled_channel)
+
+    return v / factor_array
+
+
+def attach_weights_to_matrix(k_array, k_weights, M, coupled_channel=False):
+    """
+    Attaches weights to matrix.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    M : 2-D ndarray
+        Input matrix.
+    coupled_channel : bool, optional
+        True if the operator is coupled-channel.
+    
+    Returns
+    -------
+    output : 2-D ndarray
+        Output matrix with weights attached. Units are [M] * fm^-3.
+
+    """
+    
+    row, col = get_factor_meshgrid(k_array, k_weights, coupled_channel)
+
+    return M * row * col
+
+
+def unattach_weights_from_matrix(k_array, k_weights, M, coupled_channel=False):
+    """
+    Unattaches weights from a matrix.
+    
+    Parameters
+    ----------
+    k_array : 1-D ndarray
+        Momentum array [fm^-1].
+    k_weights : 1-D ndarray
+        Momentum weights [fm^-1].
+    M : 2-D ndarray
+        Input matrix.
+    coupled_channel : bool, optional
+        True if the operator is coupled-channel.
+    
+    Returns
+    -------
+    output : 2-D ndarray
+        Output matrix without weights. Units are [M] * fm^3.
+
+    """
+
+    row, col = get_factor_meshgrid(k_array, k_weights, coupled_channel)
+
+    return M / row / col

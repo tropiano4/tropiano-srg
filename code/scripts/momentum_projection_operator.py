@@ -18,12 +18,12 @@ Last update: March 17, 2022
 import numpy as np
 
 # Imports from A.T. codes
+from .integration import unattach_weights_from_vector
 from .tools import build_coupled_channel_matrix, find_index
 
 
 def momentum_projection_operator(
-        q, k_array, k_weights, coupled=False, U_matrix=np.empty(0),
-        smeared=True):
+        q, k_array, k_weights, coupled=False, U_matrix=None, smeared=True):
     """
     Momentum projection operator in momentum space. When applied to a wave
     function, returns the wave function at momentum value q. For an evolved
@@ -78,28 +78,27 @@ def momentum_projection_operator(
         
         delta_function_array[q_index] = 1
     
-    # Create square root of integration measure
-    factor_array = np.sqrt(2/np.pi*k_weights) * k_array
-    
-    # Divide by integration measure
-    delta_function_array /= factor_array
+    # Divide out integration measure
+    delta_function_array = unattach_weights_from_vector(
+        k_array, k_weights, delta_function_array, coupled)
     
     # Build momentum projection operator
-    col, row = np.meshgrid(delta_function_array, delta_function_array)
+    row, col = np.meshgrid(delta_function_array, delta_function_array,
+                           indexing='ij')
     operator = row*col
 
     # Make coupled-channel operator?
     if coupled:
     
         # Matrix of zeros (ntot x ntot) for off-diagonal blocks
-        zeros = np.zeros( (ntot, ntot) )
+        zeros = np.zeros((ntot, ntot))
     
         # Build coupled channel operator
         operator = build_coupled_channel_matrix(operator, zeros, zeros,
                                                 operator)
             
     # Evolve operator?
-    if U_matrix.any():
+    if U_matrix is not None:
         operator = U_matrix @ operator @ U_matrix.T
 
     return operator

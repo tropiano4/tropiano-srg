@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib.
 
-Last update: March 26, 2022
+Last update: May 2, 2022
 
 """
 
@@ -242,10 +242,10 @@ def line_styles(curve_number):
     """
     
     # Note, the last two are 'densely dashed' and 'densely dashdotted'
-    line_styles = [
+    line_styles = (
         'solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1) ),
         (0, (3, 1, 1, 1) )
-    ]
+    )
     
     try:
         
@@ -253,8 +253,8 @@ def line_styles(curve_number):
     
     except IndexError:
         
-        error = 'Curve number is too high to match with default line style.'
-        suggestion = 'Manually assign styles to each curve.'
+        error = "Curve number is too high to match with default line style."
+        suggestion = "Manually assign styles to each curve."
         print_statement = error + ' ' + suggestion
         
         print(print_statement)
@@ -301,8 +301,8 @@ def xkcd_colors(curve_number):
     
     except IndexError:
         
-        error = 'Curve number is too high to match with default color.'
-        suggestion = 'Manually assign colors to each curve.'
+        error = "Curve number is too high to match with default color."
+        suggestion = "Manually assign colors to each curve."
         print_statement = error + ' ' + suggestion
         
         print(print_statement)
@@ -354,7 +354,7 @@ def adjust_axes(
 
 
 def add_colorbar(
-        f, ax_cbar, colorbar_limits, label='', label_size=18, tick_size=18):
+        f, ax_cbar, colorbar_limits, label=None, label_size=18, tick_size=18):
     """Add a colorbar to a contour plot."""
     
     # Tick marks on colorbar
@@ -370,8 +370,9 @@ def add_colorbar(
     cbar = f.colorbar(ax_cbar, cax=cbar_ax, ticks=levels_ticks)
     cbar.ax.tick_params(labelsize=tick_size)
     cbar.ax.set_yticklabels(levels_ticks_strings)
-    # Will not set a label if label=''
-    if label:
+
+    # Add label?
+    if label != None:
         cbar.ax.set_title(label, fontsize=label_size, pad=15)
 
     return f, ax_cbar

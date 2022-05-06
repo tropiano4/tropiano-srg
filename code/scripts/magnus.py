@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: April 27, 2022
+Last update: May 2, 2022
 
 """
 
@@ -42,27 +42,31 @@ from .tools import convert_number_to_string
 
 
 class Magnus(SRG):
+    """
+    Evolves potentials to band-diagonal or block-diagonal decoupled form with
+    respect to the flow parameter \lambda [fm^-1], and possibly \Lambda_BD
+    using the Magnus expansion implementation of the SRG.
+    
+    Parameters
+    ----------
+    kvnn : int
+    This number specifies the potential.
+    channel : str
+    The partial wave channel (e.g. '1S0').
+    kmax : float
+    Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+    Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+    Number of momentum points in mesh.
+    generator : str
+    SRG generator 'Wegner', 'T', or 'Block-diag'.
+            
+    """
     
     def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
-        """
-        Loads the initial Hamiltonian and other relevant operators depending
+        """Loads the initial Hamiltonian and other relevant operators depending
         on the specifications of the potential and the SRG generator.
-        
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        channel : str
-            The partial wave channel (e.g. '1S0').
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-            
         """
         
         # Call SRG class given the potential specifications and SRG generator
@@ -206,7 +210,7 @@ class Magnus(SRG):
         return O_matrix
     
     def magnus_evolve(
-            self, lambda_array, lambda_bd_array=np.empty(0), k_max=6, ds=1e-5,
+            self, lambda_array, lambda_bd_array=None, k_max=6, ds=1e-5,
             save=False):
         """
         Evolve the Hamiltonian using the Magnus expansion to each value of
@@ -328,20 +332,20 @@ class Magnus(SRG):
         
         # Print details
         mins = round((t1-t0)/60.0, 4)  # Minutes elapsed evolving H(s)
-        print('_'*85)
+        print("_"*85)
         lamb_str = convert_number_to_string(lambda_array[-1])
-        print(f'Done evolving to final \lambda = {lamb_str} fm^-1 after'
-              f' {mins:.4f} minutes.')
-        print('_'*85)
-        print('\nSpecifications:\n')
-        print(f'kvnn = {self.kvnn:d}, channel = {self.channel}')
-        print(f'kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, '
-              f'ntot = {self.ntot:d}')
-        print(f'method = Magnus, generator = {self.generator}')
+        print(f"Done evolving to final \lambda = {lamb_str} fm^-1 after"
+              f" {mins:.4f} minutes.")
+        print("_"*85)
+        print("\nSpecifications:\n")
+        print(f"kvnn = {self.kvnn:d}, channel = {self.channel}")
+        print(f"kmax = {self.kmax:.1f}, kmid = {self.kmid:.1f}, "
+              f"ntot = {self.ntot:d}")
+        print(f"method = Magnus, generator = {self.generator}")
         if self.generator == 'Block-diag':
             lambda_bd_str = convert_number_to_string(lambda_bd_array[-1])
-            print(f'Final \Lambda_BD = {lambda_bd_str} fm^-1')
-        print(f'k_max = {k_max:d}, ds = {ds:.1e}')
+            print(f"Final \Lambda_BD = {lambda_bd_str} fm^-1")
+        print(f"k_max = {k_max:d}, ds = {ds:.1e}")
         
         # Save evolved potentials
         if save:
@@ -441,16 +445,16 @@ class Magnus(SRG):
             # Check for OverflowError (\Omega(s) -> \infty)
             except OverflowError:
                 
-                print('_'*85)
-                print('Infinities or NaNs encountered in \Omega(s).\n'
-                      'Try using a smaller step-size.')
+                print("_"*85)
+                print("Infinities or NaNs encountered in \Omega(s).\n"
+                      "Try using a smaller step-size.")
                 return eta_norms_array[:i], O_norms_array[:i]
             
             except ValueError:
                 
-                print('_'*85)
-                print('Infinities or NaNs encountered in \Omega(s).\n'
-                      'Try using a smaller step-size.')
+                print("_"*85)
+                print("Infinities or NaNs encountered in \Omega(s).\n"
+                      "Try using a smaller step-size.")
                 return eta_norms_array[:i], O_norms_array[:i]
 
         return eta_norms_array, O_norms_array
@@ -475,7 +479,23 @@ class MagnusSplit(Magnus):
     infinity. This method prevents the Magnus evolution from running into NaN
     or infinity errors.
     
-    Notes:
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    kmax : float
+        Maximum value in the momentum mesh [fm^-1].
+    kmid : float
+        Mid-point value in the momentum mesh [fm^-1].
+    ntot : int
+        Number of momentum points in mesh.
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+
+    Notes
+    -----
     * Evolving kvnn = 902 or 6 takes an enormous amount of time but it is
       possible using this method.
     * This class only works with band-diagonal generators! Will raise an
@@ -484,25 +504,8 @@ class MagnusSplit(Magnus):
     """
     
     def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
-        """
-        Loads the initial Hamiltonian and other relevant operators depending
+        """Loads the initial Hamiltonian and other relevant operators depending
         on the specifications of the potential and the SRG generator.
-        
-        Parameters
-        ----------
-        kvnn : int
-            This number specifies the potential.
-        channel : str
-            The partial wave channel (e.g. '1S0').
-        kmax : float
-            Maximum value in the momentum mesh [fm^-1].
-        kmid : float
-            Mid-point value in the momentum mesh [fm^-1].
-        ntot : int
-            Number of momentum points in mesh.
-        generator : str
-            SRG generator 'Wegner', 'T', or 'Block-diag'.
-            
         """
         
         # Call Magnus class given the potential specifications and SRG 
@@ -551,8 +554,7 @@ class MagnusSplit(Magnus):
             
         return dO_matrix
     
-    def magnus_split_evolve(
-            self, lambda_array, lambda_bd_array=np.empty(0), k_max=6, ds=1e-5):
+    def magnus_split_evolve(self, lambda_array, k_max=6, ds=1e-5):
         """
         Evolve the Hamiltonian using the Magnus expansion and "split thing"
         approach to each value of \lambda, and possibly \Lambda_BD for block-
@@ -612,11 +614,11 @@ class MagnusSplit(Magnus):
                 # Check for NaN's and infinities
                 if np.isnan(H_matrix).any() or np.isinf(H_matrix).any():
                     
-                    print('_'*85)
-                    error = 'Infinities or NaNs encountered in Hamiltonian.'
+                    print("_"*85)
+                    error = "Infinities or NaNs encountered in Hamiltonian."
                     print(error)
-                    print(f's = {s:.5e}')
-                    suggestion = 'Try setting ds to a smaller value.'
+                    print(f"s = {s:.5e}")
+                    suggestion = "Try setting ds to a smaller value."
                     print(suggestion)
                     
                     return d

@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Contains several functions for calculation of long-distance NN observables.
 
-Last update: March 17, 2022
+Last update: May 2, 2022
 
 """
 
@@ -21,9 +21,11 @@ from scipy.interpolate import CubicSpline
 
 # Imports from A.T. codes
 from .fourier_transform import hankel_transformation_r2k
+from .integration import attach_weights_to_matrix, unattach_weights_from_vector
+from .tools import build_coupled_channel_matrix
 
 
-def r2_operator(k_array, k_weights, r_array, dr, a=500, U_matrix=np.empty(0)):
+def r2_operator(k_array, k_weights, r_array, dr, a=None, U_matrix=None):
     """
     r^2 operator in momentum space. To calculate the expectation value <r^2>,
     use this operator with the unitless wave functions. For an evolved
@@ -42,8 +44,8 @@ def r2_operator(k_array, k_weights, r_array, dr, a=500, U_matrix=np.empty(0)):
     dr : float
         Coordinates step-size (weight) [fm].
     a : float, optional
-        Parameter in a regulator exponential function exp^(-r^2/a^2).
-        If a > 100 fm, we assume the exponential function is 1.
+        Parameter in a regulator exponential function exp^(-r^2/a^2). If a
+        value is specified, the function will apply the regulator.
     U_matrix : 2-D ndarray, optional
         SRG transformation matrix [unitless]. If no transformation is provided,
         the function will not evolve the operator.
@@ -60,7 +62,7 @@ def r2_operator(k_array, k_weights, r_array, dr, a=500, U_matrix=np.empty(0)):
     """
     
     # Set up regulator function
-    if a < 100:
+    if a != None:
     
         regulator = np.exp(-r_array**2/a**2)
         
@@ -79,26 +81,19 @@ def r2_operator(k_array, k_weights, r_array, dr, a=500, U_matrix=np.empty(0)):
     # matrix
     ss_block = s_transformation @ r2_coordinate_space @ s_transformation.T
     dd_block = d_transformation @ r2_coordinate_space @ d_transformation.T
-    
-    # Get integration measure
-    factor_array = np.concatenate(
-        (np.sqrt(2*k_weights/np.pi)*k_array,
-         np.sqrt(2*k_weights/np.pi)*k_array)
-    )
-    col, row = np.meshgrid(factor_array, factor_array)
-        
-    ntot = len(k_array)
         
     # Matrix of zeros (m x m) for coupled-channel operator
+    ntot = len(k_array)
     zeros = np.zeros((ntot, ntot))
         
     # Build coupled channel operator with integration measure built-in
-    r2_momentum_space = row * col * np.vstack(
-        (np.hstack((ss_block, zeros)), np.hstack((zeros, dd_block)))
-    )
+    r2_momentum_space_no_weights = build_coupled_channel_matrix(
+        ss_block, zeros, zeros, dd_block)
+    r2_momentum_space = attach_weights_to_matrix(
+        k_array, k_weights, r2_momentum_space_no_weights, coupled_channel=True)
     
     # Evolve operator?
-    if U_matrix.any():
+    if U_matrix is not None:
         r2_momentum_space = U_matrix @ r2_momentum_space @ U_matrix.T
         
     return r2_momentum_space
@@ -160,11 +155,10 @@ def rms_radius_from_kspace(psi, k_array, k_weights):
     """
     
     ntot = len(k_array)
-    factor_array = np.sqrt(k_weights) * k_array
         
     # Load wave function in momentum space
-    u_array = psi[:ntot] / factor_array
-    w_array = psi[ntot:] / factor_array
+    u_array = unattach_weights_from_vector(k_array, k_weights, psi[:ntot])
+    w_array = unattach_weights_from_vector(k_array, k_weights, psi[ntot:])
         
     # Interpolate with CubicSpline
     # This is a function of k (float or array)
@@ -213,11 +207,10 @@ def quadrupole_moment_from_kspace(psi, k_array, k_weights):
     """
         
     ntot = len(k_array)
-    factor_array = np.sqrt(k_weights) * k_array
         
     # Load wave function in momentum space
-    u_array = psi[:ntot] / factor_array
-    w_array = psi[ntot:] / factor_array
+    u_array = unattach_weights_from_vector(k_array, k_weights, psi[:ntot])
+    w_array = unattach_weights_from_vector(k_array, k_weights, psi[ntot:])
         
     # Interpolate with CubicSpline
     # This is a function of k (float or array)

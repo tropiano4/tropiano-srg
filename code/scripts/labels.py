@@ -73,20 +73,20 @@ def label_channel(channel, label_coupled_channel=True):
         elif L == 'N':
             L2 = 'Q'
             
-        label = r'$^{%s}{\rm %s}_{%s}-^{%s}{\rm %s}_{%s}$' % (S, L, J,
+        label = r"$^{%s}{\rm %s}_{%s}-^{%s}{\rm %s}_{%s}$" % (S, L, J,
                                                               S, L2, J)
         
     else:
         
-        label = r'$^{%s}{\rm %s}_{%s}$' % (S, L, J)
+        label = r"$^{%s}{\rm %s}_{%s}$" % (S, L, J)
     
     return label
 
 
-def label_generator(generator, lambda_bd=0.00):
+def label_generator(generator, lambda_bd=None):
     """
     Converts an SRG generator string argument to a label.
-    (e.g. generator = 'Wegner' gives r'$G = H_D$').
+    (e.g. generator = 'Wegner' gives r"$G = H_D$").
     
     Parameters
     ----------
@@ -107,26 +107,26 @@ def label_generator(generator, lambda_bd=0.00):
         
         # In the case, lambda_bd is not entered as an argument, the function
         # returns only G = H_{BD}
-        if lambda_bd == 0.00:
-            label = r'$G=H_{BD}$'
+        if lambda_bd == None:
+            label = r"$G=H_{BD}$"
             
         # Otherwise, present with lambda_bd value
         else:
             lambda_bd_str = convert_number_to_string(lambda_bd)
-            label = r'$G=H_{BD}$' + f' ({lambda_bd_str} fm' + r'$^{-1}$' + ')'
+            label = r"$G=H_{BD}$" + f" ({lambda_bd_str} fm" + r"$^{-1}$" + ")"
             
     elif generator == 'Wegner':
-        label = r'$G=H_{D}$'
+        label = r"$G=H_{D}$"
         
     elif generator == 'T':
-        label = r'$G=T_{rel}$'
+        label = r"$G=T_{rel}$"
 
     return label
 
 
 def label_kvnn(kvnn, full_label=True):
     """
-    Converts a kvnn number to a label (e.g. kvnn = 6 gives 'AV18').
+    Converts a kvnn number to a label (e.g. kvnn = 6 gives "AV18").
     
     Parameters
     ----------
@@ -135,7 +135,7 @@ def label_kvnn(kvnn, full_label=True):
     full_label : bool, optional
         For some labels, there is a shorter version. Set full_label = False
         for the shorter version. For example, kvnn = 902 gives
-        '\Lambda = 20 fm^-1' normally, but the shorter version is '20 fm^-1'.
+        "\Lambda = 20 fm^-1" normally, but the shorter version is "20 fm^-1".
         
     Returns
     -------
@@ -151,102 +151,102 @@ def label_kvnn(kvnn, full_label=True):
 
     # Paris
     if kvnn == 1:
-        label = 'Paris'
+        label = "Paris"
 
     # Bonn
     elif kvnn == 2:
-        label = 'Bonn'
+        label = "Bonn"
 
     # Reid93 potential
     elif kvnn == 3:
-        label = 'Reid93'
+        label = "Reid93"
 
     # Nijmegen I potential
     elif kvnn == 4:
-        label = 'Nijmegen I'
+        label = "Nijmegen I"
 
     # Nijmegen II potential
     elif kvnn == 5:
-        label = 'Nijmegen II'
+        label = "Nijmegen II"
 
     # Argonne v18
     elif kvnn == 6:
-        label = 'AV18'
+        label = "AV18"
 
     # CD-Bonn
     elif kvnn == 7:
-        label = 'CD-Bonn'
+        label = "CD-Bonn"
         
     # Entem/Machleidt N3LO (500 MeV cutoff)   
     elif kvnn == 10:
         if full_label:
-            label = 'EM N' + r'$^3$' + 'LO 500 MeV'
+            label = "EM N" + r"$^3$" + "LO 500 MeV"
         else:
-            label = 'EM N' + r'$^3$' + 'LO'
+            label = "EM N" + r"$^3$" + "LO"
         
     # EMN N4LO (450, 500, 550 MeV cutoffs)
     elif kvnn in [74, 79, 84]:
         if full_label:
             if kvnn == 74:
-                label = 'EMN N' + r'$^4$' + 'LO 450 MeV'
+                label = "EMN N" + r"$^4$" + "LO 450 MeV"
             elif kvnn == 79:
-                label = 'EMN N' + r'$^4$' + 'LO 500 MeV'
+                label = "EMN N" + r"$^4$" + "LO 500 MeV"
             elif kvnn == 84:
-                label = 'EMN N' + r'$^4$' + 'LO 550 MeV'
+                label = "EMN N" + r"$^4$" + "LO 550 MeV"
         else:
-            label = 'EMN N' + r'$^4$' + 'LO'
+            label = "EMN N" + r"$^4$" + "LO"
         
     # SMS N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         if full_label:
             if kvnn == 105:
-                label = 'SMS N' + r'$^3$' + 'LO 400 MeV'
+                label = "SMS N" + r"$^3$" + "LO 400 MeV"
             elif kvnn == 106:
-                label = 'SMS N' + r'$^3$' + 'LO 450 MeV'
+                label = "SMS N" + r"$^3$" + "LO 450 MeV"
             elif kvnn == 107:
-                label = 'SMS N' + r'$^3$' + 'LO 500 MeV'
+                label = "SMS N" + r"$^3$" + "LO 500 MeV"
         else:
-            label = 'SMS N' + r'$^3$' + 'LO'
+            label = "SMS N" + r"$^3$" + "LO"
     # SMS N4LO (400, 450, 500, 550 MeV cutoffs)
     elif kvnn in [110, 111, 112, 113]:
         if full_label:
             if kvnn == 110:
-                label = 'SMS N' + r'$^4$' + 'LO 400 MeV'
+                label = "SMS N" + r"$^4$" + "LO 400 MeV"
             elif kvnn == 111:
-                label = 'SMS N' + r'$^4$' + 'LO 450 MeV'
+                label = "SMS N" + r"$^4$" + "LO 450 MeV"
             elif kvnn == 112:
-                label = 'SMS N' + r'$^4$' + 'LO 500 MeV'
+                label = "SMS N" + r"$^4$" + "LO 500 MeV"
             elif kvnn == 113:
-                label = 'SMS N' + r'$^4$' + 'LO 550 MeV'
+                label = "SMS N" + r"$^4$" + "LO 550 MeV"
         else:
-            label = 'SMS N' + r'$^4$' + 'LO'
+            label = "SMS N" + r"$^4$" + "LO"
         
     # Gezerlis N2LO (1 and 1.2 fm cutoff)
     elif kvnn in [222, 224]:
         if full_label:
             if kvnn == 222:
-                label = 'GT+ N' + r'$^2$' + 'LO 1 fm'
+                label = "GT+ N" + r"$^2$" + "LO 1 fm"
             elif kvnn == 224:
-                label = 'GT+ N' + r'$^2$' + 'LO 1.2 fm'
+                label = "GT+ N" + r"$^2$" + "LO 1.2 fm"
         else:
-            label = 'GT+ N' + r'$^2$' + 'LO'
+            label = "GT+ N" + r"$^2$" + "LO"
         
     # Wendt LO non-local potentials
     elif kvnn == 900:  # Cutoff 4 fm^-1
         if full_label:
-            label = r'$\Lambda = 4$' + ' fm' + r'$^{-1}$'
+            label = r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
         else:
-            label = '4 fm' + r'$^{-1}$'
+            label = "4 fm" + r"$^{-1}$"
     elif kvnn == 901:  # Cutoff 9 fm^-1
         if full_label:
-            label = r'$\Lambda = 9$' + ' fm' + r'$^{-1}$'
+            label = r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
         else:
-            label = '9 fm' + r'$^{-1}$'
+            label = "9 fm" + r"$^{-1}$"
     elif kvnn == 902:  # Cutoff 20 fm^-1
         if full_label:
-            label = r'$\Lambda = 20$' + ' fm' + r'$^{-1}$'
+            label = r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
         else:
-            label = '20 fm' + r'$^{-1}$'
+            label = "20 fm" + r"$^{-1}$"
 
     return label
 
@@ -254,7 +254,7 @@ def label_kvnn(kvnn, full_label=True):
 def label_lambda(lamb, generator='Wegner'):
     """
     Converts a lambda evolution parameter to a label
-    (e.g. lamb = 2 gives r'$\lambda=2 fm^-1$').
+    (e.g. lamb = 2 gives r"$\lambda=2 fm^-1$").
     
     Parameters
     ----------
@@ -275,11 +275,11 @@ def label_lambda(lamb, generator='Wegner'):
         
         # Label \Lambda_BD
         if generator == 'Block-diag':
-            label = r'$\Lambda_{BD}=\infty$' + ' fm' + r'$^{-1}$'
+            label = r"$\Lambda_{BD}=\infty$" + " fm" + r"$^{-1}$"
             
         # Label \lambda
         else:
-            label = r'$\lambda=\infty$' + ' fm' + r'$^{-1}$'
+            label = r"$\lambda=\infty$" + " fm" + r"$^{-1}$"
             
     # Finite lamb
     else:
@@ -289,11 +289,11 @@ def label_lambda(lamb, generator='Wegner'):
         
         # Label \Lambda_BD
         if generator == 'Block-diag':
-            label = r'$\Lambda_{BD}=%s$' % lamb_str + ' fm' + r'$^{-1}$'
+            label = r"$\Lambda_{BD}=%s$" % lamb_str + " fm" + r"$^{-1}$"
             
         # Label \lambda
         else:
-            label = r'$\lambda=%s$' % lamb_str + ' fm' + r'$^{-1}$'
+            label = r"$\lambda=%s$" % lamb_str + " fm" + r"$^{-1}$"
             
     return label
     
@@ -301,7 +301,7 @@ def label_lambda(lamb, generator='Wegner'):
 def label_nucleus(nucleus_name):
     """
     Converts a nucleus string (e.g., 'C12') to a label with the mass number in
-    the exponent appearing before the element (e.g., '^{12}C').
+    the exponent appearing before the element (e.g., "^{12}C").
 
     Parameters
     ----------
@@ -332,7 +332,7 @@ def label_nucleus(nucleus_name):
             
             element += char
             
-    nucleus_label = r'$^{%s}$' % mass_number + element
+    nucleus_label = r"$^{%s}$" % mass_number + element
             
     return nucleus_label
 
@@ -349,14 +349,14 @@ def label_sp_state(sp_state):
     Returns
     -------
     output : str
-        String for figure label (e.g., '1s_{\frac{1}{2}}').
+        String for figure label (e.g., "1s_{\frac{1}{2}}").
         
     """
     
     numerator = 2*int(sp_state[-3]) + 1
     denominator = 2
     
-    return r'$%s_{%d/%d}$' % (sp_state[:2], numerator, denominator)
+    return r"$%s_{%d/%d}$" % (sp_state[:2], numerator, denominator)
 
 
 def label_ticks(ticks):
@@ -396,18 +396,18 @@ def label_ticks(ticks):
             
         # If digits = 0, then display integers
         if i == 0:
-            tick_labels.append('%d' % tick)
+            tick_labels.append("%d" % tick)
         # Otherwise, display floats with the correct number of digits
         elif i == 1:
-            tick_labels.append('%.1f' % tick)
+            tick_labels.append("%.1f" % tick)
         elif i == 2:
-            tick_labels.append('%.2f' % tick)
+            tick_labels.append("%.2f" % tick)
         elif i == 3:
-            tick_labels.append('%.3f' % tick)
+            tick_labels.append("%.3f" % tick)
         elif i == 4:
-            tick_labels.append('%.4f' % tick)
+            tick_labels.append("%.4f" % tick)
         else:
-            tick_labels.append('%.f' % tick)
+            tick_labels.append("%.f" % tick)
         
     return tick_labels
 

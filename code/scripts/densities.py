@@ -11,7 +11,7 @@ So far we have densities from the SLy4 Skyrme functional using HFBRAD code,
 densities from the Gogny functional using HFBTHO code, and densities from VMC
 calculations (see www.phy.anl.gov/theory/research/density/).
 
-Last update: April 27, 2022
+Last update: May 3, 2022
 
 """
 
@@ -22,12 +22,8 @@ Last update: April 27, 2022
 # Python imports
 import numpy as np
 
-# Imports from A.T. codes
-from .labels import replace_periods
 
-
-# Maybe this should be a module?
-def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
+def load_density(nucleon, nucleus_name, Z=None, N=None, density='Gogny'):
     """
     Loads a nucleonic density for the given nucleus. Densities are normalized
     according to
@@ -39,12 +35,12 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
         Specify 'proton' or 'neutron'.
     nucleus_name : str
         Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
-    Z : int
-        Proton number of the nucleus.
-    N : int
-        Neutron number of the nucleus.
-    edf : str, optional
-        Name of EDF (e.g., 'SLy4').
+    Z : int, optional
+        Proton number of the nucleus. This argument is required for SLy4.
+    N : int, optional
+        Neutron number of the nucleus. This argument is required for SLy4.
+    density : str, optional
+        Name of density (e.g., 'SLy4').
         
     Returns
     -------
@@ -59,30 +55,28 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     relative k and C.o.M. K which rely on kF(R) values. These values can be
     zero if the density \rho(R) = 0. We must replace zeros in \rho(R) with an
     extremely small number so the codes run correctly to avoid zero division
-    errors. (This only happens for edf = 'VMC' densities.)
+    errors. (This only happens for VMC densities.)
     
     """
 
 
-    # Go to directory corresponding to specified nucleus and EDF
-    if edf == 'SLy4':
+    # Go to directory corresponding to the specified nucleus and density
+    if density == 'SLy4':
         
-        densities_directory = f'../data/dft/{edf}/{nucleus_name}/'
+        densities_directory = f'../data/dft/{density}/{nucleus_name}/'
         file_name = f'{nucleon}_{N:d}_{Z:d}.dens'
         column_number = 1
         
-    elif edf == 'Gogny':
+    elif density == 'Gogny':
         
-        densities_directory = f'../data/dft/{edf}/{nucleus_name}/'
+        densities_directory = f'../data/dft/{density}/{nucleus_name}/'
         file_name = 'DensityQP.dat'
         if nucleon == 'proton':
             column_number = 1
         elif nucleon == 'neutron':
             column_number = 2
     
-    # Technically it doesn't make sense to have a case edf == VMC since
-    # VMC does not use an EDF.
-    elif edf == 'VMC':
+    elif density == 'VMC':
         
         densities_directory = '../data/vmc/densities/'
         file_name = f'{nucleus_name}_single_nucleon.txt'
@@ -108,126 +102,3 @@ def load_density(nucleon, nucleus_name, Z, N, edf='Gogny'):
     rho_array[zero_case] = 1e-30
     
     return R_array, rho_array
-
-# Maybe this should be in tools or spectroscopic_factors_figures.ipynb for now?
-def convert_l_to_string(l):
-    """
-    Returns the spectroscopic notation of the orbital angular momentum value
-    l (e.g., l = 2 returns 'd').
-
-    Parameters
-    ----------
-    l : int
-        Orbital angular momentum of the single-particle (s.p.) state.
-
-    Returns
-    -------
-    l_str : str
-        Spectroscopic notation of s.p. state orbital angular momentum.
-
-    """
-
-    if l == 0:
-        return 's'
-    elif l == 1:
-        return 'p'
-    elif l == 2:
-        return 'd'
-    elif l == 3:
-        return 'f'
-    elif l == 4:
-        return 'g'
-    elif l == 5:
-        return 'h'
-    elif l == 6:
-        return 'i'
-    else:
-        print('Input l value is outside the range of this function.')
-        return None
-
-# This should definitely be in spectroscopic_factors_figures.ipynb for now.
-def sp_states(nucleus, print_statement=False):
-    """
-    Return all the occupied single-particle states of the given nucleus.
-    
-    Parameters
-    ----------
-    nucleus : tuple
-        Details for various nuclei formatted as a tuple:
-        (name (str), Z (int), N (int)) (e.g., ('O16', 8, 8)).
-    print_statement : bool, optional
-        Option to print information for each s.p. state in nucleus.
-    
-    Returns
-    -------
-    output : list
-        List of lists where the first (second) corresponds to all the occupied
-        neutron (proton) s.p. states, which are strings (e.g., '1s0p5' means
-        1s with j=1/2).
-    
-    Notes
-    -----
-    Currently we're assuming the SLy4 interaction.
-    
-    """
-    
-    # Get nucleus name, proton number, and neutron number
-    nucleus_name = nucleus[0]
-    Z = nucleus[1]
-    N = nucleus[2]
-    
-    # Go to HFBRAD directory
-    densities_directory = f'../../data/dft/SLy4/{nucleus_name}/'
-    file_name = f'hfb_{N}_{Z}.spe'
-    
-    # Open file and add each occupied s.p. state to list
-    neutron_states = []
-    proton_states = []
-    
-    f = open(densities_directory + file_name, 'r')
-    
-    for line in f:
-        
-        unit = line.strip().split() # Split up row into list
-        
-        # Make sure you're going through the correct data
-        if (len(unit) == 12) and (unit[0] in ('1', '2')):
-            
-            # Only do occupied states:
-            if float(unit[6]) == 1:
-            
-                # Integer specifying neutron or proton
-                nucleon_number = unit[0]
-        
-                # j value
-                j = int(unit[1])/2
-        
-                # Orbital angular momentum (int)
-                l = int(unit[2])
-                # Orbital angular momentum (str)
-                l_str = convert_l_to_string(l)
-        
-                # Is this correct? (# of nodes)
-                n = unit[11]
-            
-                # Convert s.p. state to string and append to list
-                state_str = f'{n}{l_str}{j:.1f}'
-            
-                # Add string to neutron or proton list with periods replaced
-                # by 'p'
-                if nucleon_number == '1': # Neutron
-                    neutron_states.append(replace_periods(state_str))
-                elif nucleon_number == '2': # Proton
-                    proton_states.append(replace_periods(state_str))
-            
-                # Print information for each state?
-                if print_statement:
-                
-                    info = 'Nuc={:s}, N={:s}, state={:s}'.format(
-                        nucleon_number, unit[4], state_str
-                    )
-                    print(info)
-                
-    f.close()
-    
-    return [neutron_states, proton_states]
