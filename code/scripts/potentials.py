@@ -34,6 +34,8 @@ Last update: April 27, 2022
 
 # To-do: Change file naming convention to be more consistent across scripts.
 #        E.g., use convert_number_to_string() for labeling \lambda, etc.
+# To-do: Change get_file_name method to work for saving figures too (i.e., it
+#        has to be general in terms of .out or .png)
 # To-do: Use np.savetxt() to save potentials? Definitely a simpler way.
 # To-do: Should probably incorporate dU/ds = \eta U method?
 
@@ -43,6 +45,7 @@ import numpy as np
 # Imports from A.T. codes
 from .integration import attach_weights_to_matrix, unattach_weights_from_matrix
 from .tools import build_coupled_channel_matrix, coupled_channel
+
 
 class Potential:
     """

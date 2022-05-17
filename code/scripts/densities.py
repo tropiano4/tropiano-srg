@@ -15,10 +15,6 @@ Last update: May 3, 2022
 
 """
 
-# To-do: Check zero division problem again.
-# To-do: How to do VMC densities (properly). See comment in function.
-# To-do: Change edf to a better name.
-
 # Python imports
 import numpy as np
 

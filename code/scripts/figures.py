@@ -6,41 +6,34 @@ File: figures.py
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: May 3, 2019
 
-Useful functions for plotting figures with matplotlib.
+Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: May 6, 2022
+Last update: May 11, 2022
 
 """
 
-# To-do: Currently keeping setup_rc_params as it was. But there are probably
-# many more things to mess with.
-# To-do: Could add y_array argument to interpolate matrix. I'm assuming it's
-# a matrix M(x, x) currently. Update plotting functions below as well.
-# To-do: Couldn't you just input x_array and M_matrix, interpolate, evaluate
-# on new mesh (np.linspace(x_min, x_max, ntot)), and return the new arrays?
-
 # Python imports
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp2d
 
 # Imports from A.T. codes
-from .labels import label_ticks
+from .tools import coupled_channel, convert_number_to_string
 
 
 def set_rc_parameters():
     """
-    Set matplotlib's RC parameters for figures. Run this function in Jupyter
-    notebooks or Python scripts when you want fancy-looking plots.
-    
+    Set matplotlib's RC parameters for figures.
+
     Notes
     -----
-    To get usetex=True to work, you need LaTeX, dvipng, and Ghostscript>9.0.
-    Will additionally cause issues if you don't have add-on things 
-    (e.g., "cm-super: CM-Super family of fonts"). I got around this by 
-    downloading TeX Live.
-    
+    * To get usetex=True to work, you need LaTeX, dvipng, and
+      Ghostscript>9.0. Will additionally cause issues if you don't have 
+      add-on things (e.g., "cm-super: CM-Super family of fonts"). I got
+      around this by downloading TeX Live.
+    * I've also commented out some of the axes and title fontsizes to
+      customize on a plot-to-plot basis.
+
     """
 
     # Defaults for font
@@ -48,11 +41,11 @@ def set_rc_parameters():
     black = 'k'
 
     mpl.rcdefaults()  # Set to defaults
-    
+
     # Set LaTeX fonts (this will give an error if you don't have LaTeX)
     mpl.rc('text', usetex=True)
     mpl.rcParams['font.size'] = fontsize
-    mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['text.usetex'  ] = True
     mpl.rcParams['font.family'] = 'serif'
 
     # Settings for axes
@@ -69,9 +62,9 @@ def set_rc_parameters():
     mpl.rcParams['ytick.labelsize'] = fontsize
     mpl.rcParams['xtick.color'] = black
     mpl.rcParams['ytick.color'] = black
-    # Make the ticks thin enough to not be visible at the limits of the plot
-    mpl.rcParams['xtick.major.width'] = mpl.rcParams['axes.linewidth'] * 0.95
-    mpl.rcParams['ytick.major.width'] = mpl.rcParams['axes.linewidth'] * 0.95
+    # Make the ticks thin to not be visible at the limits of the plot
+    mpl.rcParams['xtick.major.width'] = mpl.rcParams['axes.linewidth']*0.95
+    mpl.rcParams['ytick.major.width'] = mpl.rcParams['axes.linewidth']*0.95
     # The minor ticks are little too small, make them both bigger.
     mpl.rcParams['xtick.minor.size'] = 2.4  # Default 2.0
     mpl.rcParams['ytick.minor.size'] = 2.4
@@ -80,7 +73,7 @@ def set_rc_parameters():
     # Puts ticks on top and right axes as well
     mpl.rcParams['xtick.top'] = True
     mpl.rcParams['ytick.right'] = True
-    
+
     # Settings for overall figure
     ppi = 72  # points per inch
     # mpl.rcParams['figure.titlesize'] = fontsize
@@ -109,10 +102,9 @@ def set_rc_parameters():
     # This is for legend edgewidth, since it does not have its own option
     mpl.rcParams['patch.linewidth'] = 0.8
     mpl.rcParams['hatch.linewidth'] = 0.5
-
+    
     # Settings for saving figure
     mpl.rc('savefig', bbox='tight', dpi=400)
-    
 
 def interpolate_matrix(
         x_array, y_array, M_array, x_max, y_max, x_tot=500, y_tot=500):
@@ -135,7 +127,7 @@ def interpolate_matrix(
         Desired number of points in x.
     y_tot : int, optional
         Desired number of points in y.
-        
+    
     Returns
     -------
     x_array_new : 1-D ndarray
@@ -143,223 +135,581 @@ def interpolate_matrix(
     y_array_new : 1-D ndarray
         Dense array of y points up to y_max with shape (y_tot,).
     M_array_new : 2-D ndarray
-        Dense matrix evaluated up to (x_max, y_max) with shape (x_tot, y_tot).
-        
+        Dense matrix evaluated up to (x_max, y_max) with
+        shape (x_tot, y_tot).
+    
     """
 
     # Use interp2d to interpolate the truncated matrix
     M_func = interp2d(x_array, y_array, M_array)
 
     # Dense x and y arrays for interpolation
-    x_array_dense = np.linspace(x_array, x_max, x_tot)
-    y_array_dense = np.linspace(y_array, y_max, y_tot)
-    
+    x_array_dense = np.linspace(0.0, x_max, x_tot)
+    y_array_dense = np.linspace(0.0, y_max, y_tot)
+
     # Dense matrix
     M_array_dense = M_func(x_array_dense, y_array_dense) 
-    
+
     return x_array_dense, y_array_dense, M_array_dense
 
+# Update this after looking at potential_contours function in operator_evolution.ipynb
+def adjust_axes(
+        axes, x_label, y_label, x_label_size=16, y_label_size=16,
+        x_label_top=False, prevent_overlapping_xticks=False,
+        prevent_overlapping_yticks=False):
+    """
+    Adjusts axes labels and ticks in a sub-plots figure. Additionally, 
+    can shift x-label to the top from bottom axis.
+    
+    Parameters
+    ----------
+    axes : 1-D or 2-D array of axes.Axes objects
+        Axes objects from matplotlib subplots function.
+    x_label : str
+        Label for the x-axis.
+    y_label : str
+        Label for the y-axis.
+    x_label_size : float, optional
+        Fontsize for the x-axis label.
+    y_label_size : float, optional
+        Fontsize for the y-axis label.
+    x_label_top : bool, optional
+        Option to put the x-labels on the top (not bottom).
+    prevent_overlapping_xticks : bool, optional
+        Option to prevent overlapping x tick labels.
+    prevent_overlapping_xyicks : bool, optional
+        Option to prevent overlapping y tick labels.
+    
+    Returns
+    -------
+    output : 1-D or 2-D array of axes.Axes objects
+        Adjusted Axes objects.
+    
+    """
+    
+    # 1-D sub-plots figure (multiple columns and one row)
+    if axes.ndim == 1:
+        
+        for i, ax in enumerate(axes):
+            
+            # Label every x-axis
+            ax.set_xlabel(x_label, fontsize=x_label_size)
+                
+            # Only label far-left y-axis
+            if i == 0:
+                ax.set_ylabel(y_label, fontsize=y_label_size)
+                
+            # Shift x-axes labels to top?
+            if x_label_top:
+                ax.xaxis.set_label_position('top')
+                ax.tick_params(labeltop=True, labelbottom=False)
+                
+            # Prevent overlapping x tick labels where the last column
+            # contains the full set of ticks
+            if prevent_overlapping_xticks and i < len(axes)-1:
+                xticks = ax.xaxis.get_major_ticks()
+                xticks[-1].set_visible(False)
+
+    # 2-D sub-plots figure
+    elif axes.ndim == 2:
+
+        for i, axes_row in enumerate(axes):
+            for j, ax in enumerate(axes_row):
+                
+                # Label the top x-axes
+                if x_label_top:
+                    ax.xaxis.set_label_position('top')
+                    ax.tick_params(labeltop=True, labelbottom=False)
+                    
+                    # Label x-axes for first row
+                    if i == 0:
+                        ax.set_xlabel(x_label, fontsize=x_label_size)
+                    
+                # Label x-axes for bottom row
+                else:
+                
+                    if i == len(axes)-1:
+                        ax.set_xlabel(x_label, fontsize=x_label_size)
+
+                # Label the far-left y-axes
+                if j == 0:
+                    ax.set_ylabel(y_label, fontsize=y_label_size)
+
+    return ax
 
 def line_styles(curve_number):
     """
-    Default line styles for plotting figures with many curves. Styles are set
-    by the ordering of curves on the plot. Do not use this function for plots
-    with more than six curves. An error message will display when a number
-    higher than six is used and the function will return 'solid'.
-    
+    Default line styles for plotting figures with many curves. Styles are
+    set by the ordering of curves on the plot. Do not use this function
+    for plots with more than six curves. An error message will display
+    when a number higher than six is used and the function will return
+    'solid'.
+
     Parameters
     ----------
     curve_number : int
         The curve number being assigned a line style.
-    
+
     Returns
     -------
     out : str
-        The line style argument to be used in plotting functions. For example,
-        
-        plt.plot(x, y_1, linestyle=line_style(0))
-        plt.plot(x, y_2, linestyle=line_style(3))
-        
+        The line style argument to be used in plotting functions. E.g.,
+    
+            plt.plot(x, y_1, linestyle=line_style(0))
+            plt.plot(x, y_2, linestyle=line_style(3))
+    
         plots two curves as solid and dotted lines.
-    
+
     """
-    
+
     # Note, the last two are 'densely dashed' and 'densely dashdotted'
     line_styles = (
         'solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1) ),
         (0, (3, 1, 1, 1) )
     )
-    
+
     try:
-        
+    
         return line_styles[curve_number]
-    
+
     except IndexError:
-        
-        error = "Curve number is too high to match with default line style."
-        suggestion = "Manually assign styles to each curve."
-        print_statement = error + ' ' + suggestion
-        print(print_statement)
-        
+    
+        error_message = ("Curve number is too high to match with default "
+                         "line style. Manually assign styles to each "
+                         "curve.")
+        print(error_message)
+    
         return 'solid'
-    
-    
+
 def xkcd_colors(curve_number):
     """
-    Default curve colors for plotting figures with many curves. Colors are set
-    by the ordering of curves on the plot. Do not use this function for plots
-    with more than 23 curves. An error message will display when a number
-    higher than 23 is used and the function will return 'xkcd:black'.
-    
+    Default curve colors for plotting figures with many curves. Colors are
+    set by the ordering of curves on the plot. Do not use this function
+    for plots with more than 23 curves. An error message will display when
+    a number higher than 23 is used and the function will return
+    'xkcd:black'.
+
     Parameters
     ----------
     curve_number : int
         The curve number being assigned a color.
-    
+
     Returns
     -------
     out : str
-        The color argument to be used in plotting functions. For example,
-        
-        plt.plot(x, y_1, color=xkcd_colors(0))
-        plt.plot(x, y_2, color=xkcd_colors(1))
-        
+        The color argument to be used in plotting functions. E.g.,
+    
+            plt.plot(x, y_1, color=xkcd_colors(0))
+            plt.plot(x, y_2, color=xkcd_colors(1))
+    
         plots two curves as black and red lines.
-    
+
     """
-    
+
     colors = (
         'xkcd:black', 'xkcd:red', 'xkcd:blue', 'xkcd:green', 'xkcd:orange',
         'xkcd:purple', 'xkcd:grey', 'xkcd:brown', 'xkcd:pink',
         'xkcd:turquoise', 'xkcd:olive', 'xkcd:gold', 'xkcd:indigo',
-        'xkcd:magenta', 'xkcd:tan', 'xkcd:crimson', 'xkcd:navy', 'xkcd:lime',
-        'xkcd:plum', 'xkcd:chocolate', 'xkcd:coral', 'xkcd:darkgreen',
-        'xkcd:khaki'
+        'xkcd:magenta', 'xkcd:tan', 'xkcd:crimson', 'xkcd:navy',
+        'xkcd:lime', 'xkcd:plum', 'xkcd:chocolate', 'xkcd:coral',
+        'xkcd:darkgreen', 'xkcd:khaki'
     )
-    
+
     try:
-        
-        return colors[curve_number]
     
+        return colors[curve_number]
+
     except IndexError:
-        
-        error = "Curve number is too high to match with default color."
-        suggestion = "Manually assign colors to each curve."
-        print_statement = error + ' ' + suggestion
-        print(print_statement)
-        
+    
+        error_message = ("Curve number is too high to match with default "
+                         "color. Manually assign colors to each curve.")
+        print(error_message)
+    
         return 'xkcd:black'
     
+def label_channel(channel, label_coupled_channel=True):
+    """
+    Converts a channel string argument to a label.
     
-def adjust_axes(
-            f, ax, axes_limits, x_label, y_label, label_size=16, wspace=0.0,
-            hspace=0.0, invert_y=False):
-    """Adjust the x- and y-axes of the figure."""
-  
-    # Get the shape of the figure from ax
-    # ...
-    # case for single plot
-    # case for one row, multiple columns
-    # case for multiple rows, multiple columns
+    Parameters
+    ----------
+    channel : str
+        The partial wave channel (e.g. '1S0').
+    label_coupled_channel : bool, optional
+        Option to label full coupled-channel (e.g., '3S1-3D1' instead of
+        '3S1' only).
+        
+    Returns
+    -------
+    label : str
+        Label for the channel.
+        
+    """
     
-    # Amount of white space in-between sub-plots
-    f.subplots_adjust(hspace=hspace, wspace=wspace)
-
-    # Loop over rows/cols.
-    for i in range(len(ax)):
+    # Get S, L, and J as strings where L is given by 'S', 'P', etc.
+    S = channel[0]
+    L = channel[1]
+    J = channel[2]
+    
+    # Make label with super- and sub-scripts
+    # Label coupled channel?
+    if label_coupled_channel and coupled_channel(channel):
         
-        # Set axes limits
-        ax[i].set_xlim(axes_limits)
-        ax[i].set_ylim(axes_limits)
-        
-        # Switch from x-axis from bottom to top
-        ax[i].xaxis.set_label_position('top')
-        ax[i].tick_params(labeltop=True, labelbottom=False)
-
-        # Label axes
-        ax[i].set_xlabel(x_label, fontsize=label_size)
-        if i == 0:  # Far left column
-            ax[i].set_ylabel(y_label, fontsize=label_size)
-
-        # Prevent overlapping x-axis tick marks?
-        if wspace == 0.0 and i < len(ax) - 1:
-            xticks = ax[i].xaxis.get_major_ticks()
-            xticks[-1].set_visible(False)
+        # Get L + 2 value
+        if L == 'S':
+            L2 = 'D'
+        elif L == 'P':
+            L2 = 'F'
+        elif L == 'D':
+            L2 = 'G'
+        elif L == 'F':
+            L2 = 'H'
+        elif L == 'G':
+            L2 = 'I'
+        elif L == 'H':
+            L2 = 'K'
+        elif L == 'I':
+            L2 = 'L'
+        elif L == 'K':
+            L2 = 'M'
+        elif L == 'L':
+            L2 = 'N'
+        elif L == 'M':
+            L2 = 'O'
+        elif L == 'N':
+            L2 = 'Q'
             
-    
-    # Invert y-axis?
-    if invert_y:
-        plt.gca().invert_yaxis()
-
-    return f, ax
-
-
-def add_colorbar(
-        f, ax_cbar, colorbar_limits, label=None, label_size=18, tick_size=18):
-    """Add a colorbar to a contour plot."""
-    
-    # Tick marks on colorbar
-    levels_ticks = np.linspace(colorbar_limits[0], colorbar_limits[1], 9)
-    # Make these strings
-    levels_ticks_strings = label_ticks(levels_ticks)
-
-    # # Adjust space for colorbar.
-    # f.subplots_adjust(right=0.8)
-    # cbar_ax = f.add_axes((0.85, 0.15, 0.05, 0.7))
-                                         
-    # # Set colorbar
-    # cbar = f.colorbar(ax_cbar, cax=cbar_ax, ticks=levels_ticks)
-    # cbar.ax.tick_params(labelsize=tick_size)
-    # cbar.ax.set_yticklabels(levels_ticks_strings)
-
-    # # Add label?
-    # if label != None:
-    #     cbar.ax.set_title(label, fontsize=label_size, pad=15)
-    
-    plt.colorbar(ticks=levels_ticks, label=label, labelsize=tick_size, fontsize=label_size)
-
-    return f, ax_cbar
-    
-    
-def plot_contours(x_array, z_data, axes_max, colorbar_limits, color_style):
-
-    # Note, this function should not assume anything about the data.
-
-    # Getting the figure size based on the number of keys in the dictionary
-    # ...
-    # case for single plot
-    # case for one row, multiple columns
-    # case for multiple rows, multiple columns (might make a function?)
-    row_number = 1
-    col_number = len(z_data)
-    figure_size = (4*col_number*1.25, 4*row_number)  # Extra width for colorbar
-
-    # Initializing the figure with figure size from above.
-    plt.close('all')
-    f, ax = plt.subplots(row_number, col_number, sharex=True, sharey=True,
-                         figsize=figure_size)
-    
-    # Control the number of contour levels assuming min = -max
-    levels_number = 61
-    levels = np.linspace(colorbar_limits[0], colorbar_limits[1], levels_number)
-
-    # if multiplot figure
-    for i, key in enumerate(z_data):
+        label = r"$^{%s}{\rm %s}_{%s}-^{%s}{\rm %s}_{%s}$" % (S, L, J,
+                                                              S, L2, J)
         
-        z_matrix = z_data[key]
+    else:
         
-        # Interpolate from 0 to some finite value less than max of x and y
-        x_array_int, z_matrix_int = interpolate_matrix(x_array, z_matrix,
-                                                       axes_max+0.2)
+        label = r"$^{%s}{\rm %s}_{%s}$" % (S, L, J)
+    
+    return label
+
+def label_generator(generator, lambda_bd=None):
+    """
+    Converts an SRG generator string argument to a label.
+    (e.g. generator = 'Wegner' gives r"$G = H_D$").
+    
+    Parameters
+    ----------
+    generator : str
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
+    lambda_bd : float, optional
+        SRG \Lambda_BD value for block-diagonal generator [fm^-1].
         
-        ax_cbar = ax[i].contourf(x_array_int, x_array_int, z_matrix_int,
-                                 levels, cmap=color_style, extend='both')
+    Returns
+    -------
+    label : str
+        Label for the generator.
         
-    #     Add dictionary element to figure
+    """
 
-    # else
+    # Block-diagonal
+    if generator == 'Block-diag':
+        
+        # In the case, lambda_bd is not entered as an argument, the function
+        # returns only G = H_{BD}
+        if lambda_bd == None:
+            label = r"$G=H_{BD}$"
+            
+        # Otherwise, present with lambda_bd value
+        else:
+            lambda_bd_str = convert_number_to_string(lambda_bd)
+            label = (r"$G=H_{BD}$" + f" ({lambda_bd_str} fm" + r"$^{-1}$"
+                     + ")")
+            
+    elif generator == 'Wegner':
+        label = r"$G=H_{D}$"
+        
+    elif generator == 'T':
+        label = r"$G=T_{rel}$"
 
-    #     Add matrix to figure
+    return label
 
-    # return f, ax, ax_cbar
-    return f, ax
+def label_kvnn(kvnn, full_label=True):
+    """
+    Converts a kvnn number to a label (e.g. kvnn = 6 gives "AV18").
+    
+    Parameters
+    ----------
+    kvnn : int
+        This number specifies the potential.
+    full_label : bool, optional
+        For some labels, there is a shorter version. Set
+        full_label = False for the shorter version. For example,
+        kvnn = 902 gives "\Lambda = 20 fm^-1" normally, but the shorter
+        version is "20 fm^-1".
+        
+    Returns
+    -------
+    label : str
+        Label for the potential.
+        
+    Notes
+    -----
+    It might be worth adding the cutoff to the full_label version for all the
+    potentials (e.g. EM N3LO 500 MeV).
+        
+    """
+
+    # Paris
+    if kvnn == 1:
+        label = "Paris"
+
+    # Bonn
+    elif kvnn == 2:
+        label = "Bonn"
+
+    # Reid93 potential
+    elif kvnn == 3:
+        label = "Reid93"
+
+    # Nijmegen I potential
+    elif kvnn == 4:
+        label = "Nijmegen I"
+
+    # Nijmegen II potential
+    elif kvnn == 5:
+        label = "Nijmegen II"
+
+    # Argonne v18
+    elif kvnn == 6:
+        label = "AV18"
+
+    # CD-Bonn
+    elif kvnn == 7:
+        label = "CD-Bonn"
+        
+    # Entem/Machleidt N3LO (500 MeV cutoff)   
+    elif kvnn == 10:
+        if full_label:
+            label = "EM N" + r"$^3$" + "LO 500 MeV"
+        else:
+            label = "EM N" + r"$^3$" + "LO"
+        
+    # EMN N4LO (450, 500, 550 MeV cutoffs)
+    elif kvnn in [74, 79, 84]:
+        if full_label:
+            if kvnn == 74:
+                label = "EMN N" + r"$^4$" + "LO 450 MeV"
+            elif kvnn == 79:
+                label = "EMN N" + r"$^4$" + "LO 500 MeV"
+            elif kvnn == 84:
+                label = "EMN N" + r"$^4$" + "LO 550 MeV"
+        else:
+            label = "EMN N" + r"$^4$" + "LO"
+        
+    # SMS N3LO (400, 450, 500 MeV cutoffs)
+    elif kvnn in [105, 106, 107]:
+        if full_label:
+            if kvnn == 105:
+                label = "SMS N" + r"$^3$" + "LO 400 MeV"
+            elif kvnn == 106:
+                label = "SMS N" + r"$^3$" + "LO 450 MeV"
+            elif kvnn == 107:
+                label = "SMS N" + r"$^3$" + "LO 500 MeV"
+        else:
+            label = "SMS N" + r"$^3$" + "LO"
+    # SMS N4LO (400, 450, 500, 550 MeV cutoffs)
+    elif kvnn in [110, 111, 112, 113]:
+        if full_label:
+            if kvnn == 110:
+                label = "SMS N" + r"$^4$" + "LO 400 MeV"
+            elif kvnn == 111:
+                label = "SMS N" + r"$^4$" + "LO 450 MeV"
+            elif kvnn == 112:
+                label = "SMS N" + r"$^4$" + "LO 500 MeV"
+            elif kvnn == 113:
+                label = "SMS N" + r"$^4$" + "LO 550 MeV"
+        else:
+            label = "SMS N" + r"$^4$" + "LO"
+        
+    # Gezerlis N2LO (1 and 1.2 fm cutoff)
+    elif kvnn in [222, 224]:
+        if full_label:
+            if kvnn == 222:
+                label = "GT+ N" + r"$^2$" + "LO 1 fm"
+            elif kvnn == 224:
+                label = "GT+ N" + r"$^2$" + "LO 1.2 fm"
+        else:
+            label = "GT+ N" + r"$^2$" + "LO"
+        
+    # Wendt LO non-local potentials
+    elif kvnn == 900:  # Cutoff 4 fm^-1
+        if full_label:
+            label = r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
+        else:
+            label = "4 fm" + r"$^{-1}$"
+    elif kvnn == 901:  # Cutoff 9 fm^-1
+        if full_label:
+            label = r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
+        else:
+            label = "9 fm" + r"$^{-1}$"
+    elif kvnn == 902:  # Cutoff 20 fm^-1
+        if full_label:
+            label = r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
+        else:
+            label = "20 fm" + r"$^{-1}$"
+
+    return label
+
+def label_lambda(lamb, generator='Wegner'):
+    """
+    Converts a lambda evolution parameter to a label
+    (e.g. lamb = 2 gives r"$\lambda=2 fm^-1$").
+    
+    Parameters
+    ----------
+    lamb : float
+        SRG evolution parameter \lambda or \Lambda_BD [fm^-1].
+    generator : str, optional
+        SRG generator 'Wegner', 'T', or 'Block-diag'. Determines whether
+        lamb is referring to \lambda or \Lambda_BD.
+        
+    Returns
+    -------
+    label : str
+        Label for the lambda.
+        
+    """
+    
+    if lamb == np.inf:
+        
+        # Label \Lambda_BD
+        if generator == 'Block-diag':
+            label = r"$\Lambda_{BD}=\infty$" + " fm" + r"$^{-1}$"
+
+            
+        # Label \lambda
+        else:
+            label = r"$\lambda=\infty$" + " fm" + r"$^{-1}$"
+            
+    # Finite lamb
+    else:
+        
+        # Make \lambda or \Lambda_BD a string
+        lamb_str = convert_number_to_string(lamb)
+        
+        # Label \Lambda_BD
+        if generator == 'Block-diag':
+            label = r"$\Lambda_{BD}=%s$" % lamb_str + " fm" + r"$^{-1}$"
+            
+        # Label \lambda
+        else:
+            label = rf"$\lambda={lamb_str}$" + " fm" + r"$^{-1}$"
+            
+    return label
+
+def label_nucleus(nucleus_name):
+    """
+    Converts a nucleus string (e.g., 'C12') to a label with the mass 
+    number in the exponent appearing before the element (e.g., "^{12}C").
+
+    Parameters
+    ----------
+    nucleus_name : str
+        Specify the nucleus (e.g., 'O16', 'Ca40', etc.)
+
+    Returns
+    -------
+    nucleus_label : str
+        Label for nucleus.
+
+    """
+    
+    # Create mass number and element strings by looping over characters
+    # of input nucleus string
+    mass_number = ''
+    element = ''
+    
+    for char in nucleus_name:
+        
+        # This gives a ValueError if char is a letter
+        try:
+            
+            number = int(char) 
+            mass_number += str(number)
+        
+        except ValueError:
+            
+            element += char
+            
+    nucleus_label = rf"$^{{{mass_number}}}$" + element
+            
+    return nucleus_label
+
+def label_sp_state(sp_state):
+    """
+    Convert single-particle state to a label.
+    
+    Parameters
+    ----------
+    sp_state : str
+        s.p. state as a string (e.g., '1s0p5').
+        
+    Returns
+    -------
+    output : str
+        String for figure label (e.g., "1s_{\frac{1}{2}}").
+        
+    """
+    
+    numerator = 2*int(sp_state[-3]) + 1
+    denominator = 2
+    
+    return rf"${sp_state[:2]}_{{{numerator}/{denominator}}}$"
+
+def label_ticks(ticks):
+    """
+    Converts axes or colorbar ticks to string formatted labels displaying
+    the correct number of digits.
+    
+    Parameters
+    ----------
+    ticks : 1-D ndarray
+        Array of tick values for given axis or colorbar.
+        
+    Returns
+    -------
+    tick_labels : list
+        List of tick labels which are strings.
+        
+    Notes
+    -----
+    This function assumes a linearly-spaced array of ticks. Needs further
+    generalization for log-spacing.
+        
+    """
+    
+    
+    tick_labels = []
+    # # This won't work for some reason
+    # for tick in ticks:
+    #     tick_labels.append(convert_number_to_string(tick))
+
+    # Keep track of the maximum number of digits to be displayed i
+    for tick in ticks:
+        
+        i = 0
+        while abs(round(tick,i) - tick) > 1e-5:
+            i += 1
+            
+        # If digits = 0, then display integers
+        if i == 0:
+            tick_labels.append("%d" % tick)
+        # Otherwise, display floats with the correct number of digits
+        elif i == 1:
+            tick_labels.append("%.1f" % tick)
+        elif i == 2:
+            tick_labels.append("%.2f" % tick)
+        elif i == 3:
+            tick_labels.append("%.3f" % tick)
+        elif i == 4:
+            tick_labels.append("%.4f" % tick)
+        else:
+            tick_labels.append("%.f" % tick)
+        
+    return tick_labels

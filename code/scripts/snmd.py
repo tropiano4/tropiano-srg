@@ -11,7 +11,7 @@ SRG-evolving the operator assuming the evolved wave function is given by HF
 treated in LDA. This class is a sub-class of the MomentumDistribution class
 from momentum_distributions.py.
 
-Last update: May 2, 2022
+Last update: May 6, 2022
 
 """
 
@@ -24,8 +24,8 @@ from numpy.polynomial.legendre import leggauss
 # Imports from A.T. codes
 from .densities import load_density
 from .integration import gaussian_quadrature_mesh
-from .labels import replace_periods
 from .momentum_distributions import MomentumDistribution
+from .tools import replace_periods
 
 
 class SingleNucleon(MomentumDistribution):

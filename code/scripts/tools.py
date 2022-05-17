@@ -8,7 +8,7 @@ Date: March 17, 2021
 
 This script contains several useful functions for general purposes.
 
-Last update: March 17, 2021
+Last update: May 6, 2022
 
 """
 
@@ -214,3 +214,39 @@ def find_index(x, x_array):
     """
     
     return np.fabs(x_array-x).argmin()
+
+
+def replace_periods(file_name):
+    """
+    Replaces all periods in a file name with a 'p'. This is necessary for 
+    adding figures to LaTeX files which don't like periods unless they specify
+    a file type. For this reason, do not include the file type extension in 
+    the file name (i.e. .jpg, .pdf, etc.)
+    
+    Parameters
+    ----------
+    file_name : str
+        Original name of the file including periods. Should not include the
+        extension (e.g., .pdf).
+    
+    Returns
+    -------
+    new_file_name : str
+        New file name replacing periods with 'p'.
+        
+    """
+    
+    # Initialize new file name
+    new_file_name = ''
+    
+    # Loop over each character in the original file name and append to the new
+    # file name replacing periods with 'p'
+    for letter in file_name:
+        
+        if letter == '.':
+            
+            letter = 'p'
+            
+        new_file_name += letter
+        
+    return new_file_name
