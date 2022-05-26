@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: May 11, 2022
+Last update: May 23, 2022
 
 """
 
@@ -413,19 +413,19 @@ def label_generator(generator, lambda_bd=None):
         # In the case, lambda_bd is not entered as an argument, the function
         # returns only G = H_{BD}
         if lambda_bd == None:
-            label = r"$G=H_{BD}$"
+            label = r"$G=H_{\rm{BD}}$"
             
         # Otherwise, present with lambda_bd value
         else:
             lambda_bd_str = convert_number_to_string(lambda_bd)
-            label = (r"$G=H_{BD}$" + f" ({lambda_bd_str} fm" + r"$^{-1}$"
+            label = (r"$G=H_{\rm{BD}}$" + f" ({lambda_bd_str} fm" + r"$^{-1}$"
                      + ")")
             
     elif generator == 'Wegner':
-        label = r"$G=H_{D}$"
+        label = r"$G=H_{\rm{D}}$"
         
     elif generator == 'T':
-        label = r"$G=T_{rel}$"
+        label = r"$G=T_{\rm{rel}}$"
 
     return label
 
@@ -580,7 +580,7 @@ def label_lambda(lamb, generator='Wegner'):
         
         # Label \Lambda_BD
         if generator == 'Block-diag':
-            label = r"$\Lambda_{BD}=\infty$" + " fm" + r"$^{-1}$"
+            label = r"$\Lambda_{\rm{BD}}=\infty$" + " fm" + r"$^{-1}$"
 
             
         # Label \lambda
@@ -595,7 +595,7 @@ def label_lambda(lamb, generator='Wegner'):
         
         # Label \Lambda_BD
         if generator == 'Block-diag':
-            label = r"$\Lambda_{BD}=%s$" % lamb_str + " fm" + r"$^{-1}$"
+            label = r"$\Lambda_{\rm{BD}}=%s$" % lamb_str + " fm" + r"$^{-1}$"
             
         # Label \lambda
         else:
