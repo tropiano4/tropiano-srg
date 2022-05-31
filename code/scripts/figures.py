@@ -8,12 +8,13 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: May 23, 2022
+Last update: May 31, 2022
 
 """
 
 # Python imports
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp2d
 
@@ -280,6 +281,28 @@ def line_styles(curve_number):
         print(error_message)
     
         return 'solid'
+    
+def tab10_colors(curve_number):
+    """
+    Default curve colors for plotting figures with many curves. Colors are
+    set by the ordering of curves on the plot. These colors are the default
+    matplotlib colors.
+
+    Parameters
+    ----------
+    curve_number : int
+        The curve number being assigned a color.
+
+    Returns
+    -------
+    out : str
+        The color argument to be used in plotting functions.
+
+    """
+    
+    cmap = plt.get_cmap("tab10")
+    
+    return cmap(curve_number)
 
 def xkcd_colors(curve_number):
     """
