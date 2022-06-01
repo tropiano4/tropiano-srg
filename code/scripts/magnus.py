@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: May 2, 2022
+Last update: June 1, 2022
 
 """
 
@@ -400,7 +400,7 @@ class Magnus(SRG):
 
         return d
     
-    def get_norms(self, s_array):
+    def get_norms(self, s_array, k_max=6):
         """
         This function evolves over a linearly-spaced array keeping track of
         the norms ||\eta(s)|| and ||\Omega(s)||.
@@ -410,6 +410,8 @@ class Magnus(SRG):
         s_array : 1-D ndarray
             Linearly-spaced array of the SRG flow parameter s [fm^4]. This
             array must start from s = 0.
+        k_max : int, optional
+            d\Omega(s)/ds sum from 0 to k_max.
 
         Returns
         -------
@@ -419,6 +421,9 @@ class Magnus(SRG):
             Frobenius norms of \Omega(s) [unitless].
 
         """
+        
+        # Evaluate 0 to k_max terms in d\Omega(s)/ds sum
+        self.k_max = k_max
         
         ntot = len(s_array)
         eta_norms_array = np.zeros(ntot)
