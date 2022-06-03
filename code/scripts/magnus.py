@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: June 1, 2022
+Last update: June 2, 2022
 
 """
 
@@ -50,17 +50,17 @@ class Magnus(SRG):
     Parameters
     ----------
     kvnn : int
-    This number specifies the potential.
+        This number specifies the potential.
     channel : str
-    The partial wave channel (e.g. '1S0').
+        The partial wave channel (e.g. '1S0').
     kmax : float
-    Maximum value in the momentum mesh [fm^-1].
+        Maximum value in the momentum mesh [fm^-1].
     kmid : float
-    Mid-point value in the momentum mesh [fm^-1].
+        Mid-point value in the momentum mesh [fm^-1].
     ntot : int
-    Number of momentum points in mesh.
+        Number of momentum points in mesh.
     generator : str
-    SRG generator 'Wegner', 'T', or 'Block-diag'.
+        SRG generator 'Wegner', 'T', or 'Block-diag'.
             
     """
     
@@ -415,6 +415,9 @@ class Magnus(SRG):
 
         Returns
         -------
+        s_array : 1-D ndarray
+            Same s_array as input s_array, but possibly truncated at values
+            where ||\eta(s)|| and/or ||\Omega(s)|| diverge.
         eta_norms_array : 1-D ndarray
             Frobenius norms of \eta(s) [fm^-4].
         O_norms_array : 1-D ndarray
@@ -436,7 +439,7 @@ class Magnus(SRG):
         ds = s_array[1]-s_array[0]
 
         # Step in s until s_final is reached
-        for i, s in enumerate(s_array):
+        for i in range(ntot):
 
             # Next step in s
             try:
@@ -453,16 +456,16 @@ class Magnus(SRG):
                 print("_"*85)
                 print("Infinities or NaNs encountered in \Omega(s).\n"
                       "Try using a smaller step-size.")
-                return eta_norms_array[:i], O_norms_array[:i]
+                return s_array[:i], eta_norms_array[:i], O_norms_array[:i]
             
             except ValueError:
                 
                 print("_"*85)
                 print("Infinities or NaNs encountered in \Omega(s).\n"
                       "Try using a smaller step-size.")
-                return eta_norms_array[:i], O_norms_array[:i]
+                return s_array[:i], eta_norms_array[:i], O_norms_array[:i]
 
-        return eta_norms_array, O_norms_array
+        return s_array, eta_norms_array, O_norms_array
     
     
 class MagnusSplit(Magnus):
