@@ -71,7 +71,7 @@ def gaussian_quadrature_mesh(
         
         # In case nmod wasn't specified, take nmod = ntot/2 rounding up
         if nmod == None:
-            nmod = round(ntot/2, 0)
+            nmod = int(round(ntot/2, 0))
         
         # Interval [-1, 1]
         if method == 'legendre':
