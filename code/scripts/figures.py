@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: May 31, 2022
+Last update: June 28, 2022
 
 """
 
@@ -562,20 +562,11 @@ def label_kvnn(kvnn, full_label=True):
         
     # Wendt LO non-local potentials
     elif kvnn == 900:  # Cutoff 4 fm^-1
-        if full_label:
-            label = r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
-        else:
-            label = "4 fm" + r"$^{-1}$"
+        label = r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
     elif kvnn == 901:  # Cutoff 9 fm^-1
-        if full_label:
-            label = r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
-        else:
-            label = "9 fm" + r"$^{-1}$"
+        label = r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
     elif kvnn == 902:  # Cutoff 20 fm^-1
-        if full_label:
-            label = r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
-        else:
-            label = "20 fm" + r"$^{-1}$"
+        label = r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
 
     return label
 
