@@ -10,7 +10,7 @@ Operator for projecting onto the relative momentum state |q>. This is
 sometimes referred to as the momentum occuptation operator. In second
 quantization, it is given by a^{\dagger}_q a_q.
 
-Last update: March 17, 2022
+Last update: July 8, 2022
 
 """
 
@@ -79,8 +79,8 @@ def momentum_projection_operator(
         delta_function_array[q_index] = 1
     
     # Divide out integration measure
-    delta_function_array = unattach_weights_from_vector(
-        k_array, k_weights, delta_function_array, coupled)
+    delta_function_array = unattach_weights_from_vector(k_array, k_weights,
+                                                        delta_function_array)
     
     # Build momentum projection operator
     row, col = np.meshgrid(delta_function_array, delta_function_array,
