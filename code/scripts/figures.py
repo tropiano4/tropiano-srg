@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: June 28, 2022
+Last update: July 20, 2022
 
 """
 
@@ -16,7 +16,7 @@ Last update: June 28, 2022
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import interp2d
+from scipy.interpolate import interp1d, interp2d
 
 # Imports from A.T. codes
 from .tools import coupled_channel, convert_number_to_string
@@ -145,98 +145,50 @@ def interpolate_matrix(
     M_func = interp2d(x_array, y_array, M_array)
 
     # Dense x and y arrays for interpolation
-    x_array_dense = np.linspace(0.0, x_max, x_tot)
-    y_array_dense = np.linspace(0.0, y_max, y_tot)
+    x_array_dense = np.linspace(x_array[0], x_max, x_tot)
+    y_array_dense = np.linspace(y_array[0], y_max, y_tot)
 
     # Dense matrix
     M_array_dense = M_func(x_array_dense, y_array_dense) 
 
     return x_array_dense, y_array_dense, M_array_dense
 
-# Update this after looking at potential_contours function in operator_evolution.ipynb
-def adjust_axes(
-        axes, x_label, y_label, x_label_size=16, y_label_size=16,
-        x_label_top=False, prevent_overlapping_xticks=False,
-        prevent_overlapping_yticks=False):
+def interpolate_vector(x_array, v_array, x_max, x_tot=500, order='linear'):
     """
-    Adjusts axes labels and ticks in a sub-plots figure. Additionally, 
-    can shift x-label to the top from bottom axis.
-    
+    Interpolate vector over given array for high resolution plots.
+
     Parameters
     ----------
-    axes : 1-D or 2-D array of axes.Axes objects
-        Axes objects from matplotlib subplots function.
-    x_label : str
-        Label for the x-axis.
-    y_label : str
-        Label for the y-axis.
-    x_label_size : float, optional
-        Fontsize for the x-axis label.
-    y_label_size : float, optional
-        Fontsize for the y-axis label.
-    x_label_top : bool, optional
-        Option to put the x-labels on the top (not bottom).
-    prevent_overlapping_xticks : bool, optional
-        Option to prevent overlapping x tick labels.
-    prevent_overlapping_xyicks : bool, optional
-        Option to prevent overlapping y tick labels.
+    x_array : 1-D ndarray
+        Array of x points where the vector v = v(x).
+    v_array : 1-D ndarray
+        Vector to be interpolated.
+    x_max : float
+        Return points up to this maximum value of x.
+    x_tot : int, optional
+        Desired number of points.
+    order : str, optional
+        Order for interpolation. Default is 'linear'.
     
     Returns
     -------
-    output : 1-D or 2-D array of axes.Axes objects
-        Adjusted Axes objects.
+    x_array_new : 1-D ndarray
+        Dense array of x points up to x_max with shape (x_tot,).
+    v_array_new : 1-D ndarray
+        Dense vector evaluated up to x_max with shape (x_tot,).
     
     """
-    
-    # 1-D sub-plots figure (multiple columns and one row)
-    if axes.ndim == 1:
-        
-        for i, ax in enumerate(axes):
-            
-            # Label every x-axis
-            ax.set_xlabel(x_label, fontsize=x_label_size)
-                
-            # Only label far-left y-axis
-            if i == 0:
-                ax.set_ylabel(y_label, fontsize=y_label_size)
-                
-            # Shift x-axes labels to top?
-            if x_label_top:
-                ax.xaxis.set_label_position('top')
-                ax.tick_params(labeltop=True, labelbottom=False)
-                
-            # Prevent overlapping x tick labels where the last column
-            # contains the full set of ticks
-            if prevent_overlapping_xticks and i < len(axes)-1:
-                xticks = ax.xaxis.get_major_ticks()
-                xticks[-1].set_visible(False)
 
-    # 2-D sub-plots figure
-    elif axes.ndim == 2:
+    # Use interp1d to interpolate the truncated matrix
+    v_func = interp1d(x_array, v_array, kind=order)
 
-        for i, axes_row in enumerate(axes):
-            for j, ax in enumerate(axes_row):
-                
-                # Label the top x-axes
-                if x_label_top:
-                    ax.xaxis.set_label_position('top')
-                    ax.tick_params(labeltop=True, labelbottom=False)
-                    
-                    # Label x-axes for first row
-                    if i == 0:
-                        ax.set_xlabel(x_label, fontsize=x_label_size)
-                    
-                # Label x-axes for bottom row
-                else:
-                
-                    if i == len(axes)-1:
-                        ax.set_xlabel(x_label, fontsize=x_label_size)
+    # Dense x array for interpolation
+    x_array_dense = np.linspace(x_array[0], x_max, x_tot)
 
-                # Label the far-left y-axes
-                if j == 0:
-                    ax.set_ylabel(y_label, fontsize=y_label_size)
+    # Dense vector
+    v_array_dense = v_func(x_array_dense) 
 
-    return ax
+    return x_array_dense, v_array_dense
 
 def line_styles(curve_number):
     """
