@@ -13,7 +13,3 @@ __Contact__
 ===========
 
 tropiano.4@osu.edu
-
-__License__
-===========
-MIT license
