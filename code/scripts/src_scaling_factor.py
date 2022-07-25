@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-File: a2.py
+File: src_scaling_factor.py
 
 Author: A. J. Tropiano (tropiano.4@osu.edu)
 Date: March 17, 2022
@@ -10,7 +10,7 @@ Function that computes the SRC scaling factor a_2. This is the quantity
 associated with the plateau of inclusive cross section ratios A/d of electron-
 scattering from nucleus A to deuteron d targets at 1.45 < x < 1.9.
 
-Last update: March 17, 2022
+Last update: July 25, 2022
 
 """
 
@@ -20,7 +20,7 @@ import numpy as np
 
 def a2(A, n_p_array, n_n_array, n_d_array, q_array, q_weights):
     """
-    a_2 scaling factors evaluated by integrating single-nucleon momentum
+    SRC scaling factor a_2 evaluated by integrating single-nucleon momentum
     distributions over high momentum.
     
         a2 ~ 2/A*[\int dq q^2 (n_p^A(q) + n_n^A(q))] / [\int dq q^2 n_d(q)]
