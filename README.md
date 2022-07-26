@@ -1,7 +1,7 @@
 __Nuclear physics at low renormalization group resolution__
 ===========================================================
 
-This repository contains codes and files relevant to SRG work done by Anthony Tropiano and collaborators.
+This repository contains codes and files relevant to similarity renormalization group (SRG) work done by Anthony Tropiano and collaborators.
 Jupyter notebooks in __code__ generate figures of SRG evolution and applications to short-range correlation physics, the quasi-deuteron model, and more, where the figure files are stored in __figures__. 
 Notebooks rely on scripts stored in __code/scripts__ and data files in __data__.
 
