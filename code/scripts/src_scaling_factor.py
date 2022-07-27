@@ -18,7 +18,7 @@ Last update: July 25, 2022
 import numpy as np
 
 
-def a2(A, n_p_array, n_n_array, n_d_array, q_array, q_weights):
+def compute_a2(A, n_p_array, n_n_array, n_d_array, q_array, q_weights):
     """
     SRC scaling factor a_2 evaluated by integrating single-nucleon momentum
     distributions over high momentum.
