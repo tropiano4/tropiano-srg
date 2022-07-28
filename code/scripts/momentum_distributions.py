@@ -15,7 +15,7 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: May 6, 2022
+Last update: July 28, 2022
 
 """
 
@@ -65,7 +65,7 @@ class MomentumDistribution:
 
     def get_hamiltonians(
             self, channel, generator, lamb, lambda_initial=None, kvnn_inv=None,
-            delta_lambda=None):
+            lambda_m=None):
         """
         Get the initial and SRG-evolved Hamiltonians.
         
@@ -86,10 +86,10 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified for
+            this to run.
             
         Returns
         -------
@@ -124,10 +124,10 @@ class MomentumDistribution:
             H_hard_initial = potential_hard.load_hamiltonian()
             if generator == 'Block-diag':
                 H_hard_evolved = potential_hard.load_hamiltonian(
-                    'srg', generator, 1.0, lambda_bd=delta_lambda)
+                    'srg', generator, 1.0, lambda_bd=lambda_m)
             else:
                 H_hard_evolved = potential_hard.load_hamiltonian(
-                    'srg', generator, delta_lambda)
+                    'srg', generator, lambda_m)
             # Get SRG transformation for inverse transformation
             U_hard = get_transformation(H_hard_initial, H_hard_evolved)
             # Do inverse transformation on initial Hamiltonian
@@ -188,7 +188,7 @@ class MomentumDistribution:
 
     def save_deltaU_funcs(
             self, channels, generator, lamb, lambda_initial=None,
-            kvnn_inv=None, delta_lambda=None):
+            kvnn_inv=None, lambda_m=None):
         """
         Save the function \delta U(k,k') and \delta U(k,k')^2 summing over all
         partial wave channels. We must define functions with \tau=\tau' and
@@ -211,15 +211,15 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified for
+            this to run.
 
         Notes
         -----
         We are taking \lambda=1.0 fm^-1 for block-diagonal decoupling and
-        assuming parameters lamb, lambda_initial, and delta_lambda correspond
+        assuming parameters lamb, lambda_initial, and lambda_m correspond
         to \Lambda_BD.
         
         """
@@ -251,8 +251,7 @@ class MomentumDistribution:
 
             # Get initial and evolved Hamiltonians
             H_initial, H_evolved = self.get_hamiltonians(
-                channel, generator, lamb, lambda_initial, kvnn_inv,
-                delta_lambda)
+                channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
             # Get SRG transformation U(k, k') [unitless]
             U_matrix_unitless = get_transformation(H_initial, H_evolved)
@@ -301,7 +300,7 @@ class MomentumDistribution:
         
     def save_deuteron_deltaU_funcs(
             self, generator, lamb, lambda_initial=None, kvnn_inv=None,
-            delta_lambda=None):
+            lambda_m=None):
         """
         Save the function \delta U(k,k') and \delta U(k,k')^2 for the deuteron
         momentum distribution (meaing 3S1-3D1 only). No 2J+1 factor since we
@@ -322,15 +321,15 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified for
+            this to run.
 
         Notes
         -----
         We are taking \lambda=1.0 fm^-1 for block-diagonal decoupling and
-        assuming parameters lamb, lambda_initial, and delta_lambda correspond
+        assuming parameters lamb, lambda_initial, and lambda_m correspond
         to \Lambda_BD.
         
         """
@@ -347,7 +346,7 @@ class MomentumDistribution:
 
         # Get initial and evolved Hamiltonians
         H_initial, H_evolved = self.get_hamiltonians(
-            channel, generator, lamb, lambda_initial, kvnn_inv, delta_lambda)
+            channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
         # Get SRG transformation U(k, k') [unitless]
         U_matrix_unitless = get_transformation(H_initial, H_evolved)
@@ -383,7 +382,7 @@ class MomentumDistribution:
         
     def get_single_nucleon_momentum_distribution(
             self, nucleon, nucleus_name, density, channels, generator, lamb,
-            lambda_initial=None, kvnn_inv=None, delta_lambda=None,
+            lambda_initial=None, kvnn_inv=None, lambda_m=None,
             contributions=False, interpolate=False):
         """
         Loads single-nucleon momentum distribution data from
@@ -414,9 +413,9 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified
             for this to run.
         contributions : bool, optional
             Option to return isolated contributions to the momentum
@@ -453,7 +452,7 @@ class MomentumDistribution:
             file_name += f'_lambda_initial_{lambda_initial}'
             
         if kvnn_inv != None:
-            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
+            file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
         
         file_name = replace_periods(file_name) + '.dat'
         
@@ -505,7 +504,7 @@ class MomentumDistribution:
 
     def get_pair_momentum_distribution(
             self, pair, nucleus_name, density, channels, generator, lamb,
-            lambda_initial=None, kvnn_inv=None, delta_lambda=None,
+            lambda_initial=None, kvnn_inv=None, lambda_m=None,
             Q_equals_zero=False, contributions=False, interpolate=False):
         """
         Loads pair momentum distribution data from data/momentum_distributions.
@@ -535,9 +534,9 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified
             for this to run.
         Q_equals_zero : bool, optional
             Option to get the pair momentum distribution at Q = 0: n(q, Q=0)
@@ -577,7 +576,7 @@ class MomentumDistribution:
             file_name += f'_lambda_initial_{lambda_initial}'
            
         if kvnn_inv != None:
-            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
+            file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
             
         # Split into cases on whether Q = 0
         if Q_equals_zero:
@@ -686,7 +685,7 @@ class MomentumDistribution:
     
     def get_deuteron_momentum_distribution(
             self, generator, lamb, lambda_initial=None, kvnn_inv=None,
-            delta_lambda=None, contributions=False, interpolate=False):
+            lambda_m=None, contributions=False, interpolate=False):
         """
         Loads deuteron momentum distribution data from
         data/momentum_distributions. Here the arguments of the function
@@ -708,10 +707,10 @@ class MomentumDistribution:
             transformations will be applied to the initial Hamiltonian
                 H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
             where the transformations are evaluated at \delta \lambda.
-        delta_lambda : float, optional
+        lambda_m : float, optional
             SRG evolution parameter \lambda for inverse-SRG transformations
-            [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified
-            for this to run.
+            [fm^-1]. Note, both kvnn_inv and lambda_m must be specified for
+            this to run.
         contributions : bool, optional
             Option to return isolated contributions to the momentum
             distribution in terms of the I, \delta U, and \delta U^2 terms.
@@ -743,7 +742,7 @@ class MomentumDistribution:
             file_name += f'_lambda_initial_{lambda_initial}'
             
         if kvnn_inv != None:
-            file_name += f'_kvnn_inv_{kvnn_inv}_delta_lamb_{delta_lambda}'
+            file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
         
         file_name = replace_periods(file_name) + '.dat'
         

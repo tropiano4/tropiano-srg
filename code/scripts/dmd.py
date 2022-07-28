@@ -20,7 +20,7 @@ Notes on normalizations:
         4\pi / (2\pi)^3 \int dk k^2 < n_d(k) > = 1,
      where angled-brackets indicate nuclear-averaging (integration over R).
 
-Last update: May 6, 2022
+Last update: July 28, 2022
 
 """
 
@@ -69,30 +69,30 @@ class Deuteron(MomentumDistribution):
         will be applied to the initial Hamiltonian
             H_initial = U_{kvnn_inv}^{\dagger} H_kvnn U_{kvnn_inv},
         where the transformations are evaluated at \delta \lambda.
-    delta_lambda : float, optional
+    lambda_m : float, optional
         SRG evolution parameter \lambda for inverse-SRG transformations
-        [fm^-1]. Note, both kvnn_inv and delta_lambda must be specified for
+        [fm^-1]. Note, both kvnn_inv and lambda_m must be specified for
         this to run.
 
     """
 
     def __init__(
             self, kvnn, kmax, kmid, ntot, generator, lamb, lambda_initial=None,
-            kvnn_inv=None, delta_lambda=None):
+            kvnn_inv=None, lambda_m=None):
         """Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes."""
 
         super().__init__(kvnn, kmax, kmid, ntot)
         
         # Set-up calculation
         self.save_deuteron_deltaU_funcs(generator, lamb, lambda_initial,
-                                        kvnn_inv, delta_lambda)
+                                        kvnn_inv, lambda_m)
         
         # Set instance attributes for saving files
         self.generator = generator
         self.lamb = lamb
         self.lambda_initial = lambda_initial
         self.kvnn_inv = kvnn_inv
-        self.delta_lambda = delta_lambda
+        self.lambda_m = lambda_m
         
     def get_theta_I(self, q_grid, kF_grid):
         """
@@ -555,8 +555,7 @@ class Deuteron(MomentumDistribution):
             file_name += f'_lambda_initial_{self.lambda_initial}'
             
         if self.kvnn_inv != None:
-            file_name += (f'_kvnn_inv_{self.kvnn_inv}'
-                          f'_delta_lamb_{self.delta_lambda}')
+            file_name += f'_kvnn_inv_{self.kvnn_inv}_lamb_m_{self.lambda_m}'
         
         file_name = replace_periods(file_name) + '.dat'
         
