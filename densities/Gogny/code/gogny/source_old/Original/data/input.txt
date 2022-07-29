@@ -1,6 +1,0 @@
-b_0 = 1.5411
-Convergence = 1.e-4
-N_0 = 10
-N = 8
-Z = 3
-GOGNY = 1
