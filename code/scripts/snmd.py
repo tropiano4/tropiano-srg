@@ -3,7 +3,7 @@
 """
 File: snmd.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 The SingleNucleon class calculates single-nucleon momentum distributions (snmd)

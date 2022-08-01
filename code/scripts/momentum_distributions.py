@@ -3,7 +3,7 @@
 """
 File: momentum_distributions.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 Initializes momentum distribution codes. Momentum distributions are computed

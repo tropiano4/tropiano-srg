@@ -3,7 +3,7 @@
 """
 File: levinger_constant.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: July 27, 2022
 
 Function that computes the Levinger constant L. This quantity relates nuclear

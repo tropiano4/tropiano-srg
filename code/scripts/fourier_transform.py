@@ -3,7 +3,7 @@
 """
 File: fourier_transform.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 31, 2021
 
 Functions for Fourier transforming from momentum space to coordinate space or

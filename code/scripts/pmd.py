@@ -3,7 +3,7 @@
 """
 File: pmd.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 The Pair class calculates pair momentum distributions (pmd) SRG-evolving the 

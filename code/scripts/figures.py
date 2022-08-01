@@ -3,7 +3,7 @@
 """
 File: figures.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.

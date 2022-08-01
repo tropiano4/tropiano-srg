@@ -3,7 +3,7 @@
 """
 File: phase_shifts.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 3, 2019
 
 Compute NN scattering phase shifts.

@@ -3,7 +3,7 @@
 """
 File: magnus.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: June 3, 2019
 
 The Magnus class evolves potentials to band-diagonal or block-diagonal

@@ -3,7 +3,7 @@
 """
 File: densities.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 27, 2021
 
 Handles nucleonic densities from data sub-directories.

@@ -3,7 +3,7 @@
 """
 File: dmd.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 The Deuteron class calculates deuteron momentum distributions (dmd) SRG-

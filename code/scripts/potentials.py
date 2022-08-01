@@ -3,8 +3,7 @@
 """
 File: potentials.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
-Date: March 22, 2019
+Author: A. J. Tropiano (atropiano@anl.gov)
 
 Handles potentials from data/potentials directory. Potentials are organized by
 a kvnn number, a partial wave channel, and the details of their momentum mesh.

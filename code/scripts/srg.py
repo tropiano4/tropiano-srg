@@ -3,7 +3,7 @@
 """
 File: srg.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 1, 2019
 
 The SRG class evolves potentials to band-diagonal or block-diagonal decoupled

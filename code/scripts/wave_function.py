@@ -3,7 +3,7 @@
 """
 File: wave_function.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 3, 2019
 
 Function for calculation of wave functions given a Hamiltonian.

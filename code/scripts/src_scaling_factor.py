@@ -3,7 +3,7 @@
 """
 File: src_scaling_factor.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 Function that computes the SRC scaling factor a_2. This is the quantity

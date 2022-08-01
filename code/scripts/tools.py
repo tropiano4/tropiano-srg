@@ -3,7 +3,7 @@
 """
 File: tools.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2021
 
 This script contains several useful functions for general purposes.

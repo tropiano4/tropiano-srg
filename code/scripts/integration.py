@@ -3,7 +3,7 @@
 """
 File: integration.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 26, 2021
 
 Functions for creating integration points and weights under Gaussian

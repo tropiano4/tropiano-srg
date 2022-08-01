@@ -3,7 +3,7 @@
 """
 File: sdt.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: January 28, 2020
 
 Functions for comparing two Hamiltonians or potentials based off spectral
