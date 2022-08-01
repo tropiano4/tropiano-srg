@@ -16,4 +16,4 @@ Many of the data files in [data](https://github.com/tropiano4/tropiano-srg/tree/
 __Contact__
 ===========
 
-tropiano.4@osu.edu
+atropiano@anl.gov
