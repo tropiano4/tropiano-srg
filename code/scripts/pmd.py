@@ -104,7 +104,7 @@ class Pair(MomentumDistribution):
 
         Returns
         -------
-        angle_avg_grid : 3-D 4-D ndarray
+        angle_avg_grid : 3-D or 4-D ndarray
             Angle-averaging integral [unitless] that weights the corresponding
             term in the momentum distribution evaluated on meshgrids of kF1(R),
             kF2(R) (or kF2(R')), Q, and q (or k).
