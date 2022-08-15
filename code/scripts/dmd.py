@@ -24,11 +24,11 @@ Last update: July 28, 2022
 
 """
 
-# To-do: Make sure R_array parameter is described correctly.
-# To-do: There are several things that overlap (if not slightly) with the
-# single-nucleon momentum distribution code. This suggests making Deuteron
-# inherit SingleNucleon.
-# To-do: Think about integration over K. Does this even make sense?
+# Todo: Make sure R_array parameter is described correctly.
+# Todo: There are several things that overlap (if not slightly) with the
+#  single-nucleon momentum distribution code. This suggests making Deuteron
+#  inherit SingleNucleon.
+# Todo: Think about integration over K. Does this even make sense?
 
 # Python imports
 import numpy as np

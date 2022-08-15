@@ -12,8 +12,8 @@ Last update: May 2, 2022
 
 """
 
-# To-do: Some functions here only work for the 3S1-3D1. This code still needs
-# to be further generalized.
+# Todo: Some functions here only work for the 3S1-3D1. This code still needs
+#  to be further generalized.
 
 # Python imports
 import numpy as np

@@ -12,8 +12,8 @@ Last update: March 17, 2022
 
 """
 
-# To-do: Still having issues with shifts in \pi. Better solution?
-# To-do: Try a different implementation of calculating phase shifts?
+# Todo: Still having issues with shifts in \pi. Better solution?
+# Todo: Try a different implementation of calculating phase shifts?
 
 # Python imports
 import numpy as np

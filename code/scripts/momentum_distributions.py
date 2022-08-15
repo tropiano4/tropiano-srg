@@ -19,8 +19,8 @@ Last update: July 28, 2022
 
 """
 
-# To-do: Further reduce load methods into smaller methods.
-# To-do: Make save functions automatically create /nucleus_name subdirectories
+# Todo: Further reduce load methods into smaller methods.
+# Todo: Make save functions automatically create /nucleus_name subdirectories.
 
 # Python imports
 import numpy as np

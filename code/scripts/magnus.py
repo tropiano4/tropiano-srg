@@ -23,10 +23,10 @@ Last update: June 2, 2022
 
 """
 
-# To-do: Add print_info optional argument and save during first \lambda loop
-# in magnus_evolve (make Potential.save_potential() take H not V).
-# To-do: Might be a better way of evaluating B_k and k!
-# To-do: Could maybe clean up looping over s (make neater)?
+# Todo: Add print_info optional argument and save during first \lambda loop
+#  in magnus_evolve (make Potential.save_potential() take H not V).
+# Todo: Might be a better way of evaluating B_k and k!
+# Todo: Could maybe clean up looping over s (make neater)?
 
 # Python imports
 from math import factorial

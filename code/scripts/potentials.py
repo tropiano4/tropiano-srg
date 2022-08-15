@@ -31,12 +31,12 @@ Last update: April 27, 2022
 
 """
 
-# To-do: Change file naming convention to be more consistent across scripts.
+# Todo: Change file naming convention to be more consistent across scripts.
 #        E.g., use convert_number_to_string() for labeling \lambda, etc.
-# To-do: Change get_file_name method to work for saving figures too (i.e., it
+# Todo: Change get_file_name method to work for saving figures too (i.e., it
 #        has to be general in terms of .out or .png)
-# To-do: Use np.savetxt() to save potentials? Definitely a simpler way.
-# To-do: Should probably incorporate dU/ds = \eta U method?
+# Todo: Use np.savetxt() to save potentials? Definitely a simpler way.
+# Todo: Should probably incorporate dU/ds = \eta U method?
 
 # Python imports
 import numpy as np

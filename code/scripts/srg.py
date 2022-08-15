@@ -24,11 +24,11 @@ Last update: May 2, 2022
 
 """
 
-# To-do: Add print_info optional argument and save during first \lambda loop
-# in srg_evolve (make Potential.save_potential() take H not V).
-# To-do: Implement solve_ivp in evolve() method?
-# To-do: Is there a way to reshape matrices and vectors without looping?
-# To-do: Update all instances of SRG_unitary_transformation calls.
+# Todo: Add print_info optional argument and save during first \lambda loop
+#  in srg_evolve (make Potential.save_potential() take H not V).
+# Todo: Implement solve_ivp in evolve() method?
+# Todo: Is there a way to reshape matrices and vectors without looping?
+# Todo: Update all instances of SRG_unitary_transformation calls.
 
 # Python imports
 import numpy as np

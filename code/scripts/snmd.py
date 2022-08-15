@@ -15,7 +15,7 @@ Last update: July 28, 2022
 
 """
 
-# To-do: Make sure R_array parameter is described correctly.
+# Todo: Make sure R_array parameter is described correctly.
 
 # Python imports
 import numpy as np
