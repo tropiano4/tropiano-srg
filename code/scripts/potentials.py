@@ -17,7 +17,7 @@ Below are several examples of kvnn numbers:
     10      Entem-Machleidt N3LO (500 MeV cutoff)      
     12      Entem-Machleidt N3LO (600 MeV cutoff)
     13      Entem-Machleidt N3LOW (400 MeV cutoff)
-    32      Epelbaum et al N3LO (550/600 MeV cutoff)
+    32      Epelbaum et al. N3LO (550/600 MeV cutoff)
     79      Entem-Machleidt-Nosyk N4LO (500 MeV cutoff)
     90      Reinert-Krebs-Epelbaum LO (400 MeV cutoff)
     111	    Reinert-Krebs-Epelbaum N4LO (450 MeV cutoff)
@@ -64,10 +64,10 @@ class Potential:
         Number of momentum points in mesh.
 
     """
-    
+
     # Define class attribute for h-bar^2 / M [MeV fm^2]
     hbar_sq_over_m = 41.47
-    
+
     def __init__(self, kvnn, channel, kmax, kmid, ntot):
         """Set the specifications of the potential as instance attributes and
         records the relevant directory.
@@ -81,14 +81,14 @@ class Potential:
 
         # Need kvnn as string (can cause error if kvnn < 10)
         if kvnn < 10:
-            kvnn_string = '0'+str(kvnn)
+            kvnn_string = '0' + str(kvnn)
         else:
             kvnn_string = str(kvnn)
         self.kvnn_string = kvnn_string
-        
+
         # Set instance attribute for coupled-channel Boolean
         self.coupled_channel_bool = coupled_channel(self.channel)
-            
+
         # Get potential directory and set as instance attribute
         kmax_int = int(kmax)
         kmid_int = int(kmid)
@@ -96,7 +96,7 @@ class Potential:
                                f'_lam12.0_kmax{kmax_int:d}_kmid{kmid_int:d}'
                                f'_ntot{ntot:d}/')
         self.potential_directory = potential_directory
-        
+
     def get_file_name(
             self, file_type, generator=None, lamb=None, lambda_bd=None,
             k_max=None, ds=None):
@@ -126,48 +126,48 @@ class Potential:
             Name of the file.
 
         """
-        
+
         if file_type == 'mesh':
-            
+
             file_name = (f'vsrg_{self.channel}_kvnn_{self.kvnn_string}'
                          '_lam12.0_reg_0_3_0_mesh.out')
-            
+
         elif file_type == 'initial':
-            
+
             file_name = (f'vnn_{self.channel}_kvnn_{self.kvnn_string}'
                          '_lam12.0_reg_0_3_0.out')
-            
+
         elif file_type == 'srg' or file_type == 'magnus':
-            
+
             file_name = (f'vnn_{self.channel}_kvnn_{self.kvnn_string}'
                          f'_{file_type}_{generator}')
-            
+
             # Get \lambda with correct number of decimals
             if lamb == round(lamb, 1):
                 lamb_str = str(round(lamb, 1))
             else:
                 lamb_str = str(round(lamb, 2))
-            
+
             # Add \Lambda_BD to name for block-diagonal generator
-            if generator == 'Block-diag':  
+            if generator == 'Block-diag':
                 file_name += f'{lambda_bd:.2f}_lambda{lamb_str}'
             else:
                 file_name += f'_lambda{lamb_str}'
-            
+
             # Add k_max and ds for Magnus evolution
             if file_type == 'magnus':
                 file_name += f'_k{k_max:d}_ds{ds:.1e}'
 
             file_name += '.out'
-            
+
         else:
-            
+
             raise RuntimeError(
                 "Invalid file type. Please specify one of the following:\n"
                 "\t'mesh', 'initial', 'srg', or 'magnus'.")
-        
+
         return file_name
-        
+
     def load_mesh(self):
         """
         Loads the relative momentum and weights associated with the potential.
@@ -184,13 +184,13 @@ class Potential:
         # Load mesh file
         mesh_file = self.get_file_name('mesh')
         data = np.loadtxt(self.potential_directory + mesh_file)
-    
+
         # Momentum is the first column and weights are the second
         k_array = data[:, 0]  # fm^-1
         k_weights = data[:, 1]  # fm^-1
 
         return k_array, k_weights
-    
+
     def load_potential(
             self, method='initial', generator=None, lamb=None, lambda_bd=None,
             k_max=None, ds=None):
@@ -220,7 +220,7 @@ class Potential:
             Potential matrix [fm].
         
         """
-        
+
         # Get file name for the potential matrix elements
         file_name = self.get_file_name(method, generator, lamb, lambda_bd,
                                        k_max, ds)
@@ -230,19 +230,19 @@ class Potential:
 
         # Coupled-channel potential?
         if self.coupled_channel_bool:
-        
+
             v11 = np.reshape(data[:, 2], (self.ntot, self.ntot))
             v12 = np.reshape(data[:, 3], (self.ntot, self.ntot))
             v21 = np.reshape(data[:, 4], (self.ntot, self.ntot))
             v22 = np.reshape(data[:, 5], (self.ntot, self.ntot))
             V_matrix = build_coupled_channel_matrix(v11, v12, v21, v22)
-        
+
         else:
-        
+
             V_matrix = np.reshape(data[:, 2], (self.ntot, self.ntot))
 
         return V_matrix
-    
+
     def load_kinetic_energy(self):
         """
         Loads relative kinetic energy.
@@ -253,25 +253,24 @@ class Potential:
             Relative kinetic energy matrix [MeV].
         
         """
-    
+
         # Load momentum array [fm^-1]
         k_array, _ = self.load_mesh()
-    
+
         # Matrix of (h-bar*k)^2 / M along diagonal [MeV]
-        T_matrix = np.diag(k_array**2) * self.hbar_sq_over_m
-    
+        T_matrix = np.diag(k_array ** 2) * self.hbar_sq_over_m
+
         # Coupled-channel operator?
         if self.coupled_channel_bool:
-        
             # Matrix of zeros (n x n)
             zeros = np.zeros((self.ntot, self.ntot))
-        
+
             # Build coupled-channel T_rel matrix
             T_matrix = build_coupled_channel_matrix(T_matrix, zeros, zeros,
                                                     T_matrix)
-        
+
         return T_matrix
-    
+
     def load_hamiltonian(
             self, method='initial', generator=None, lamb=None, lambda_bd=None,
             k_max=None, ds=None):
@@ -301,21 +300,21 @@ class Potential:
             Hamiltonian matrix [MeV].
         
         """
-        
+
         # Load relative kinetic energy [MeV]
         T_matrix = self.load_kinetic_energy()
-    
+
         # Load potential [fm]
         V_matrix_fm = self.load_potential(method, generator, lamb, lambda_bd,
                                           k_max, ds)
 
         # Convert potential to units MeV
         V_matrix = self.convert_V_to_MeV(V_matrix_fm)
-    
+
         H_matrix = T_matrix + V_matrix
-    
+
         return H_matrix
-    
+
     def save_potential(
             self, V_matrix, method, generator, lamb, lambda_bd=None,
             k_max=None, ds=None):
@@ -340,62 +339,60 @@ class Potential:
             Step-size in the flow parameter s [fm^4] (for Magnus evolution).
         
         """
-        
+
         # Get file name for the potential matrix elements
         file_name = self.get_file_name(method, generator, lamb, lambda_bd,
                                        k_max, ds)
 
         # Get momenta and weights
         k_array, k_weights = self.load_mesh()
-        
+
         f = open(self.potential_directory + file_name, 'w')
-    
+
         # Write each sub-block as a column for coupled-channel potentials
         if self.coupled_channel_bool:
-        
+
             header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format(
                 'k', 'kp', 'V11', 'V12', 'V21', 'V22'
             )
             f.write('#' + header + '\n')
-        
+
             for i, (ik, iw) in enumerate(zip(k_array, k_weights)):
                 for j, (jk, jw) in enumerate(zip(k_array, k_weights)):
-
                     # Divide out the integration measure 2/\pi dk k^2
                     # Units go from fm^-2 to fm
-                    factor = np.pi / (2.0*ik*jk*np.sqrt(iw*jw))
-                    
+                    factor = np.pi / (2.0 * ik * jk * np.sqrt(iw * jw))
+
                     v11 = V_matrix[i, j] * factor
-                    v12 = V_matrix[i, j+self.ntot] * factor
-                    v21 = V_matrix[i+self.ntot, j] * factor
-                    v22 = V_matrix[i+self.ntot, j+self.ntot] * factor
-                
+                    v12 = V_matrix[i, j + self.ntot] * factor
+                    v21 = V_matrix[i + self.ntot, j] * factor
+                    v22 = V_matrix[i + self.ntot, j + self.ntot] * factor
+
                     line = ('{:^15.6f}{:^15.6f}'.format(ik, jk)
                             + '{:^23e}{:^23e}'.format(v11, v12)
                             + '{:^23e}{:^23e}'.format(v21, v22))
-                
+
                     f.write(line + '\n')
-                
+
         else:
-        
+
             header = '{:^15s}{:^15s}{:^23s}'.format('k', 'kp', 'V')
             f.write('#' + header + '\n')
-        
-            for i, (ik, iw) in enumerate( zip(k_array, k_weights) ):
-                for j, (jk, jw) in enumerate( zip(k_array, k_weights) ):
 
+            for i, (ik, iw) in enumerate(zip(k_array, k_weights)):
+                for j, (jk, jw) in enumerate(zip(k_array, k_weights)):
                     # Divide out the integration measure 2/\pi dk k^2
                     # Units go from fm^-2 to fm
-                    factor = np.pi / (2.0*ik*jk*np.sqrt(iw*jw))
-                
+                    factor = np.pi / (2.0 * ik * jk * np.sqrt(iw * jw))
+
                     v = V_matrix[i, j] * factor
-                
+
                     line = '{:^15.6f}{:^15.6f}{:^23e}'.format(ik, jk, v)
-                
-                    f.write(line+'\n')
-                
+
+                    f.write(line + '\n')
+
         f.close()
-    
+
     def convert_V_to_MeV(self, V_matrix_fm):
         """
         Converts the potential from units fm to MeV with respect to the
@@ -414,16 +411,16 @@ class Potential:
             Potential matrix with integration measure [MeV].
 
         """
-        
+
         k_array, k_weights = self.load_mesh()
-    
+
         # Multiply the potential by the integration measure giving the fm^-2 
         # conversion and multiplying by hbar_sq_over_m gives the MeV conversion
         V_matrix_MeV = self.hbar_sq_over_m * attach_weights_to_matrix(
             k_array, k_weights, V_matrix_fm, self.coupled_channel_bool)
-    
+
         return V_matrix_MeV
-    
+
     def convert_V_to_fm(self, V_matrix_MeV):
         """
         Converts the potential from units MeV to fm with respect to the
@@ -442,12 +439,12 @@ class Potential:
             Potential matrix without integration measure [fm].
 
         """
-    
+
         k_array, k_weights = self.load_mesh()
-    
+
         # Dividing the potential by the integration measure gives the MeV fm^3 
         # conversion and dividing by hbar_sq_over_m gives the fm conversion
-        V_matrix_fm = 1/self.hbar_sq_over_m * unattach_weights_from_matrix(
+        V_matrix_fm = 1 / self.hbar_sq_over_m * unattach_weights_from_matrix(
             k_array, k_weights, V_matrix_MeV, self.coupled_channel_bool)
-    
+
         return V_matrix_fm

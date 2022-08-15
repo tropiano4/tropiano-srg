@@ -54,23 +54,23 @@ def wave_function(
     which means the unitless wave functions include the integration measure.
         
     """
-    
+
     # Diagonalize Hamiltonian
     eigenvalues, eigenvectors = la.eig(H_matrix)
-    
+
     # Index of the wave function
     eps_index = find_index(eps, eigenvalues)
-    
+
     # Full wave function (unitless)
-    psi = eigenvectors[:, eps_index] 
+    psi = eigenvectors[:, eps_index]
 
     # Evolve wave function?
     if U_matrix is not None:
         psi = U_matrix @ psi
-        
+
     # Check normalization?
     if print_normalization:
-        normalization = np.sum(psi**2)
+        normalization = np.sum(psi ** 2)
         print(f"Normalization = {normalization:.5f}.")
-            
+
     return psi

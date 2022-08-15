@@ -54,11 +54,11 @@ def compute_L(A, Z, N, n_pn_array, n_d_array):
         Levinger constant [unitless].
         
     """
-    
+
     # Check that the numbers A, Z, and N make sense
-    if A != Z+N:
+    if A != Z + N:
         raise RuntimeError("Incomptatible values of A, Z, and N.")
-        
-    ratio_array = A/(N*Z) * n_pn_array / n_d_array
-    
+
+    ratio_array = A / (N * Z) * n_pn_array / n_d_array
+
     return np.mean(ratio_array)

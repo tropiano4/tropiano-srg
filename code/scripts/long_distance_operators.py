@@ -60,19 +60,19 @@ def r2_operator(k_array, k_weights, r_array, dr, a=None, U_matrix=None):
     This function is specific to the 3S1-3D1 coupled-channel.
         
     """
-    
+
     # Set up regulator function
-    if a != None:
-    
-        regulator = np.exp(-r_array**2/a**2)
-        
+    if a is not None:
+
+        regulator = np.exp(-r_array ** 2 / a ** 2)
+
     else:
-        
+
         regulator = 1
-        
+
     # Initialize r^2 in coordinate space first where r^2 is a diagonal matrix
-    r2_coordinate_space = np.diag(r_array**2) * regulator
-     
+    r2_coordinate_space = np.diag(r_array ** 2) * regulator
+
     # Transform operator to momentum space
     s_transformation = hankel_transformation_r2k(0, k_array, r_array, dr)
     d_transformation = hankel_transformation_r2k(2, k_array, r_array, dr)
@@ -81,21 +81,21 @@ def r2_operator(k_array, k_weights, r_array, dr, a=None, U_matrix=None):
     # matrix
     ss_block = s_transformation @ r2_coordinate_space @ s_transformation.T
     dd_block = d_transformation @ r2_coordinate_space @ d_transformation.T
-        
+
     # Matrix of zeros (m x m) for coupled-channel operator
     ntot = len(k_array)
     zeros = np.zeros((ntot, ntot))
-        
+
     # Build coupled channel operator with integration measure built-in
     r2_momentum_space_no_weights = build_coupled_channel_matrix(
         ss_block, zeros, zeros, dd_block)
     r2_momentum_space = attach_weights_to_matrix(
         k_array, k_weights, r2_momentum_space_no_weights, coupled_channel=True)
-    
+
     # Evolve operator?
     if U_matrix is not None:
         r2_momentum_space = U_matrix @ r2_momentum_space @ U_matrix.T
-        
+
     return r2_momentum_space
 
 
@@ -119,10 +119,10 @@ def rms_radius_from_rspace(psi, r2_operator):
         RMS radius [fm].
     
     """
-    
+
     # Calculate the expectation value <\psi|r^2|\psi>
     r2 = psi.T @ r2_operator @ psi
-    
+
     return 0.5 * np.sqrt(r2)
 
 
@@ -153,37 +153,37 @@ def rms_radius_from_kspace(psi, k_array, k_weights):
     This function is specific to the 3S1-3D1 coupled-channel.
         
     """
-    
+
     ntot = len(k_array)
-        
+
     # Load wave function in momentum space
     u_array = unattach_weights_from_vector(k_array, k_weights, psi[:ntot])
     w_array = unattach_weights_from_vector(k_array, k_weights, psi[ntot:])
-        
+
     # Interpolate with CubicSpline
     # This is a function of k (float or array)
-    u_func = CubicSpline(k_array, u_array) 
+    u_func = CubicSpline(k_array, u_array)
     w_func = CubicSpline(k_array, w_array)
-        
+
     # Calculate derivatives of u(k) and w(k) using original k_array
-    u_deriv_func = u_func.derivative() # This is a function
+    u_deriv_func = u_func.derivative()  # This is a function
     # This is an array with as many points as k_array and k_weights
     u_deriv_array = u_deriv_func(k_array)
-    
+
     # Same but for D-wave
     w_deriv_func = w_func.derivative()
     w_deriv_array = w_deriv_func(k_array)
-        
+
     # RMS radius integrand in momentum-space
-    integrand = ((k_array*u_deriv_array)**2 + (k_array*w_deriv_array)**2
-                 + 6*w_array**2)
-        
+    integrand = ((k_array * u_deriv_array) ** 2 + (k_array * w_deriv_array) ** 2
+                 + 6 * w_array ** 2)
+
     # The sum over the integrand (which is weighted by k_weights) gives the 
     # value of <r^2>
-    r2 = np.sum(k_weights*integrand)
-        
+    r2 = np.sum(k_weights * integrand)
+
     # The RMS radius of deuteron is given by 1/2 * sqrt(r^2)
-    return 0.5*np.sqrt(r2)
+    return 0.5 * np.sqrt(r2)
 
 
 def quadrupole_moment_from_kspace(psi, k_array, k_weights):
@@ -205,32 +205,34 @@ def quadrupole_moment_from_kspace(psi, k_array, k_weights):
         Quadrupole moment of deuteron [fm^2].
     
     """
-        
+
     ntot = len(k_array)
-        
+
     # Load wave function in momentum space
     u_array = unattach_weights_from_vector(k_array, k_weights, psi[:ntot])
     w_array = unattach_weights_from_vector(k_array, k_weights, psi[ntot:])
-        
+
     # Interpolate with CubicSpline
     # This is a function of k (float or array)
-    u_func = CubicSpline(k_array, u_array) 
+    u_func = CubicSpline(k_array, u_array)
     w_func = CubicSpline(k_array, w_array)
-        
+
     # Calculate derivatives of u(k) and w(k) using original k_array
-    u_deriv_func = u_func.derivative() # This is a function
+    u_deriv_func = u_func.derivative()  # This is a function
     # This is an array with as many points as k_array and k_weights
     u_deriv_array = u_deriv_func(k_array)
-    
+
     # Same but for D-wave
     w_deriv_func = w_func.derivative()
     w_deriv_array = w_deriv_func(k_array)
-        
+
     # Quadrupole moment integrand in momentum-space
-    integrand = np.sqrt(8) * ((k_array**2*u_deriv_array*w_deriv_array
-                               + 3*k_array*w_array*u_deriv_array)
-                              + (k_array*w_deriv_array)**2 + 6*w_array**2)
-        
+    integrand = np.sqrt(8) * (
+            (k_array ** 2 * u_deriv_array * w_deriv_array
+             + 3 * k_array * w_array * u_deriv_array)
+            + (k_array * w_deriv_array) ** 2 + 6 * w_array ** 2
+    )
+
     # The sum over the integrand (which is weighted by k_weights) gives the 
     # value of <Q>
-    return -1/20 * np.sum(k_weights*integrand)
+    return -1 / 20 * np.sum(k_weights * integrand)

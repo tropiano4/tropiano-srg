@@ -54,12 +54,12 @@ def momentum_projection_operator(
         Momentum projection operator [fm^3].
         
     """
-    
+
     ntot = len(k_array)
-        
+
     # Find index of nearest q in k_array
     q_index = find_index(q, k_array)
-        
+
     # Construct delta function
     delta_function_array = np.zeros(ntot)
 
@@ -68,35 +68,34 @@ def momentum_projection_operator(
     #               + \delta_{k_(i-1), q}/4
     #               + \delta_{k_(i+1), q}/4
     if smeared:
-    
-        delta_function_array[q_index] = 1/2
-        delta_function_array[q_index-1] = 1/4
-        delta_function_array[q_index+1] = 1/4
+
+        delta_function_array[q_index] = 1 / 2
+        delta_function_array[q_index - 1] = 1 / 4
+        delta_function_array[q_index + 1] = 1 / 4
 
     # Assume \delta(k-q) = \delta_{k_i, q}
     else:
-        
+
         delta_function_array[q_index] = 1
-    
+
     # Divide out integration measure
     delta_function_array = unattach_weights_from_vector(k_array, k_weights,
                                                         delta_function_array)
-    
+
     # Build momentum projection operator
     row, col = np.meshgrid(delta_function_array, delta_function_array,
                            indexing='ij')
-    operator = row*col
+    operator = row * col
 
     # Make coupled-channel operator?
     if coupled:
-    
         # Matrix of zeros (ntot x ntot) for off-diagonal blocks
         zeros = np.zeros((ntot, ntot))
-    
+
         # Build coupled channel operator
         operator = build_coupled_channel_matrix(operator, zeros, zeros,
                                                 operator)
-            
+
     # Evolve operator?
     if U_matrix is not None:
         operator = U_matrix @ operator @ U_matrix.T

@@ -8,7 +8,7 @@ Date: March 17, 2022
 
 The SingleNucleon class calculates single-nucleon momentum distributions (snmd)
 SRG-evolving the operator assuming the evolved wave function is given by HF 
-treated in LDA. This class is a sub-class of the MomentumDistribution class
+treated in LDA. This class is a subclass of the MomentumDistribution class
 from momentum_distributions.py.
 
 Last update: July 28, 2022
@@ -70,11 +70,11 @@ class SingleNucleon(MomentumDistribution):
         """Sets \delta U(k,k') and \delta U^2(k,k') functions as attributes."""
 
         super().__init__(kvnn, kmax, kmid, ntot)
-        
+
         # Set-up calculation
         self.save_deltaU_funcs(channels, generator, lamb, lambda_initial,
                                kvnn_inv, lambda_m)
-        
+
         # Set instance attributes for saving files
         self.channels = channels
         self.generator = generator
@@ -103,15 +103,15 @@ class SingleNucleon(MomentumDistribution):
             and kF1(R).
 
         """
-        
+
         theta_grid = np.zeros_like(q_grid)
-        
+
         # Gives 1 if q < kF1(R)
         theta_grid[q_grid < kF1_grid] = 1
-        
+
         # This is a (ntot_q, ntot_R) shape array
         return theta_grid
-    
+
     def angle_avg_deltaU(self, q_grid, kF1_grid, kF2_grid, k_grid):
         """
         Evaluate angle-average involving Heaviside step function in the
@@ -145,29 +145,30 @@ class SingleNucleon(MomentumDistribution):
         there shouldn't be?
 
         """
-        
+
         angle_avg_grid = np.zeros_like(q_grid)
-        
+
         # Evaluate each boolean case and use these to fill in the meshgrid
-        
+
         # This condition applies to each case: q < kF1
         common_constraint = q_grid < kF1_grid
-        
+
         # Case 3: q-kF < 2k < kF+q
-        mask_3 = (common_constraint * (q_grid-kF2_grid < 2*k_grid)
-                  * (2*k_grid < kF2_grid+q_grid))
-        angle_avg_grid[mask_3] = ((kF2_grid**2 - (q_grid-2*k_grid)**2)
-                                  / (8*k_grid*q_grid))[mask_3]
-            
+        mask_3 = (common_constraint * (q_grid - kF2_grid < 2 * k_grid)
+                  * (2 * k_grid < kF2_grid + q_grid))
+        angle_avg_grid[mask_3] = ((kF2_grid ** 2 - (q_grid - 2 * k_grid) ** 2)
+                                  / (8 * k_grid * q_grid))[mask_3]
+
         # Case 2: q < kF and kF-q <= 2k < kF+q
         mask_2 = (common_constraint * (q_grid < kF2_grid) *
-                  (kF2_grid-q_grid <= 2*k_grid) * (2*k_grid < kF2_grid+q_grid))
-        angle_avg_grid[mask_2] = ((kF2_grid**2 - (q_grid-2*k_grid)**2)
-                                  / (8*k_grid*q_grid))[mask_2]
-        
+                  (kF2_grid - q_grid <= 2 * k_grid) * (
+                          2 * k_grid < kF2_grid + q_grid))
+        angle_avg_grid[mask_2] = ((kF2_grid ** 2 - (q_grid - 2 * k_grid) ** 2)
+                                  / (8 * k_grid * q_grid))[mask_2]
+
         # Case 1: q < kF and 2k < kF-q
         mask_1 = (common_constraint * (q_grid < kF2_grid)
-                  * (2*k_grid < kF2_grid-q_grid))
+                  * (2 * k_grid < kF2_grid - q_grid))
         angle_avg_grid[mask_1] = 1
 
         # This is a (ntot_q, ntot_R, ntot_k) shape array
@@ -203,45 +204,48 @@ class SingleNucleon(MomentumDistribution):
             matrix elements.
 
         """
-        
+
         angle_avg_grid = np.zeros_like(kF1_grid)
-        
+
         # Evaluate each boolean case and use these to fill in the meshgrid
-        
+
         # Case 4: 2k+K < 2kF1 and -4 < (4k^2-4kF2^2+K^2)/(kK) < 4
-        mask_4 = ((2*k_grid+K_grid <= 2*kF1_grid)
-                  * (-4 < (4*k_grid**2-4*kF2_grid**2+K_grid**2)
-                     / (k_grid*K_grid))
-                  * ((4*k_grid**2-4*kF2_grid**2+K_grid**2)
-                     /(k_grid*K_grid) <= 4))
-        angle_avg_grid[mask_4] = ((4*kF2_grid**2-(K_grid-2*k_grid)**2 )
-                                  / (8*k_grid*K_grid))[mask_4]
-            
+        mask_4 = ((2 * k_grid + K_grid <= 2 * kF1_grid)
+                  * (-4 < (4 * k_grid ** 2 - 4 * kF2_grid ** 2 + K_grid ** 2)
+                     / (k_grid * K_grid))
+                  * ((4 * k_grid ** 2 - 4 * kF2_grid ** 2 + K_grid ** 2)
+                     / (k_grid * K_grid) <= 4))
+        angle_avg_grid[mask_4] = \
+            ((4 * kF2_grid ** 2 - (K_grid - 2 * k_grid) ** 2)
+             / (8 * k_grid * K_grid))[mask_4]
+
         # Case 3: 2k+K < 2kF2 and -4 < (4k^2 - 4kF1^2 + K^2)/(kK) < 4
-        mask_3 = ((2*k_grid+K_grid <= 2*kF2_grid)
-                  * (-4 < (4*k_grid**2-4*kF1_grid**2+K_grid**2)
-                     / (k_grid*K_grid))
-                  * ((4*k_grid**2-4*kF1_grid**2+K_grid**2)
-                     / (k_grid*K_grid) <= 4 ))
-        angle_avg_grid[mask_3] = ((4*kF1_grid**2-(K_grid-2*k_grid)**2)
-                                  / (8*k_grid*K_grid))[mask_3]
-            
+        mask_3 = ((2 * k_grid + K_grid <= 2 * kF2_grid)
+                  * (-4 < (4 * k_grid ** 2 - 4 * kF1_grid ** 2 + K_grid ** 2)
+                     / (k_grid * K_grid))
+                  * ((4 * k_grid ** 2 - 4 * kF1_grid ** 2 + K_grid ** 2)
+                     / (k_grid * K_grid) <= 4))
+        angle_avg_grid[mask_3] = \
+            ((4 * kF1_grid ** 2 - (K_grid - 2 * k_grid) ** 2)
+             / (8 * k_grid * K_grid))[mask_3]
+
         # Case 2: 2k+K > 2kF1 and 2k+K > 2kF2 and 4k^2+K^2 < 2(kF1^2+kF2^2)
-        mask_2 = ((2*k_grid+K_grid > 2*kF1_grid)
-                  * (2*k_grid+K_grid > 2*kF2_grid)
-                  * (4*k_grid**2+K_grid**2 <= 2*(kF1_grid**2+kF2_grid**2))) 
-        angle_avg_grid[mask_2] = ((2*(kF1_grid**2+kF2_grid**2) 
-                                   - 4*k_grid**2-K_grid**2)
-                                  / (4*k_grid*K_grid))[mask_2]
+        mask_2 = ((2 * k_grid + K_grid > 2 * kF1_grid)
+                  * (2 * k_grid + K_grid > 2 * kF2_grid)
+                  * (4 * k_grid ** 2 + K_grid ** 2 <= 2 * (
+                        kF1_grid ** 2 + kF2_grid ** 2)))
+        angle_avg_grid[mask_2] = ((2 * (kF1_grid ** 2 + kF2_grid ** 2)
+                                   - 4 * k_grid ** 2 - K_grid ** 2)
+                                  / (4 * k_grid * K_grid))[mask_2]
 
         # Case 1: 2k+K < 2kF1 and 2k+K < 2kF2
-        mask_1 = ((2*k_grid+K_grid <= 2*kF1_grid)
-                  * (2*k_grid+K_grid <= 2*kF2_grid))
+        mask_1 = ((2 * k_grid + K_grid <= 2 * kF1_grid)
+                  * (2 * k_grid + K_grid <= 2 * kF2_grid))
         angle_avg_grid[mask_1] = 1
-        
+
         # This is a (ntot_q, ntot_R, ntot_K, ntot_k) shape array
         return angle_avg_grid
-        
+
     def get_I_term(self, q_array, R_array, dR, kF1_array):
         """
         Evaluates the I term in U n(q) U^\dagger ~ I n(q) I.
@@ -264,23 +268,23 @@ class SingleNucleon(MomentumDistribution):
             Momentum distribution [fm^3] from I term as a function of q.
 
         """
-        
+
         # Initialize 2-D meshgrids (q, R)
         q_grid, R_grid = np.meshgrid(q_array, R_array, indexing='ij')
-        
+
         # Get 2-D kF1(R) meshgrid
         _, kF1_grid = np.meshgrid(q_array, kF1_array, indexing='ij')
-        
+
         # Evaluate the Heaviside step function in I term
         theta_grid = self.get_theta_I(q_grid, kF1_grid)
-        
+
         # Calculate R integrand (ntot_q, ntot_R)
-        integrand_R = theta_grid * R_grid**2 * dR
+        integrand_R = theta_grid * R_grid ** 2 * dR
 
         # Integrate over R leaving a (ntot_q, 1) shape array
         # Factor of 2 is overall factor for summation over spin projections
-        return 2 * 4*np.pi * np.sum(integrand_R, axis=-1)
-    
+        return 2 * 4 * np.pi * np.sum(integrand_R, axis=-1)
+
     def get_deltaU_term(self, q_array, R_array, dR, kF1_array, kF2_array):
         """
         Evaluates second and third terms in U n(q) U^\dagger ~ \delta U. Here
@@ -307,14 +311,14 @@ class SingleNucleon(MomentumDistribution):
             Momentum distribution [fm^3] from \delta U term as a function of q.
 
         """
-        
+
         # Set number of k points for integration over k
         ntot_k = 40  # Typical integration goes up to kF ~ 1.3 fm^-1
-        
+
         # Initialize 3-D meshgrids (q, R, k) with k values equal to 0
         q_grid, R_grid, k_grid = np.meshgrid(
             q_array, R_array, np.zeros(ntot_k), indexing='ij')
-        
+
         # Get 3-D kF1(R) and kF2(R) meshgrids and initialize k weights mesh
         _, kF1_grid, dk_grid = np.meshgrid(
             q_array, kF1_array, np.zeros(ntot_k), indexing='ij')
@@ -325,25 +329,24 @@ class SingleNucleon(MomentumDistribution):
         # k_array using Gaussian quadrature
         for iq, q in enumerate(q_array):
             for ikF2, kF2 in enumerate(kF2_array):
-
                 # Create integration meshgrid k_array up to (kF2 + q)/2 which
                 # corresponds to the upper limit of \theta(kF2(R) - |q-2k|)
-                k_max = (kF2 + q)/2
- 
+                k_max = (kF2 + q) / 2
+
                 # Get Gaussian quadrature mesh
                 k_array, k_weights = gaussian_quadrature_mesh(k_max, ntot_k)
-                
+
                 # Fill in k_grid and dk_grid given the specific k_array
                 k_grid[iq, ikF2, :] = k_array
                 dk_grid[iq, ikF2, :] = k_weights
-        
+
         # Evaluate angle-average over Heaviside step functions in \delta U 
         # term for \tau and \tau'
         angle_avg_pp_grid = self.angle_avg_deltaU(q_grid, kF1_grid, kF1_grid,
                                                   k_grid)
         angle_avg_pn_grid = self.angle_avg_deltaU(q_grid, kF1_grid, kF2_grid,
                                                   k_grid)
-        
+
         # Evaluate \delta U(k,k) for \tau and \tau'
         deltaU_pp_grid = self.deltaU_pp_func(k_grid)
         deltaU_pn_grid = self.deltaU_pn_func(k_grid)
@@ -353,20 +356,20 @@ class SingleNucleon(MomentumDistribution):
         # Factor of 2 from \delta U + \delta U^\dagger
         # Factor of 8 is from evaluating \int d^3K \delta(K/2 - ...)
         # 2/\pi for two | k_vec > -> | k J L S ... > changes
-        deltaU_factor = 2 * 8 * 2/np.pi * 2
-        
+        deltaU_factor = 2 * 8 * 2 / np.pi * 2
+
         # Calculate the k integrand where we split terms according to pp and
         # pn (ntot_q, ntot_R, ntot_k)
-        integrand_k = (deltaU_factor * k_grid**2 * dk_grid * R_grid**2 * dR
-                       * (deltaU_pp_grid*angle_avg_pp_grid
-                          + deltaU_pn_grid*angle_avg_pn_grid))
-        
+        integrand_k = (deltaU_factor * k_grid ** 2 * dk_grid * R_grid ** 2 * dR
+                       * (deltaU_pp_grid * angle_avg_pp_grid
+                          + deltaU_pn_grid * angle_avg_pn_grid))
+
         # Integrate over k leaving R integrand (ntot_q, ntot_R)
         integrand_R = np.sum(integrand_k, axis=-1)
 
         # Integrate over R leaving a (ntot_q, 1) shape array
-        return 4*np.pi * np.sum(integrand_R, axis=-1)
-    
+        return 4 * np.pi * np.sum(integrand_R, axis=-1)
+
     def get_deltaU2_term(self, q_array, R_array, dR, kF1_array, kF2_array):
         """
         Evaluates fourth term in U n(q) U^\dagger ~ \delta U \delta U^\dagger.
@@ -393,22 +396,22 @@ class SingleNucleon(MomentumDistribution):
             a function of q.
 
         """
-        
+
         ntot_q = len(q_array)
         # Set number of K and k points for integration over K and k
         ntot_K = 40
         ntot_k = 40
-        
+
         # y = cos(\theta) angles for averaging integration over angle between
         # K/2 and k
         ntot_y = 7
         y_array, y_weights = leggauss(ntot_y)
-        
+
         # Initialize 4-D meshgrids (q, R, K, k) with k and K equal to 0
         q_grid, R_grid, K_grid, k_grid = np.meshgrid(
             q_array, R_array, np.zeros(ntot_K), np.zeros(ntot_k),
             indexing='ij')
-        
+
         # Get 4-D kF1(R) and kF2(R) meshgrids and initialize K and k weights
         # meshgrids
         _, kF1_grid, dK_grid, dk_grid = np.meshgrid(
@@ -420,19 +423,18 @@ class SingleNucleon(MomentumDistribution):
         # Loop over q, R, and k to find limits of K integration and then
         # create K integration mesh using Gaussian quadrature
         for iR, R in enumerate(R_array):
-                
+
             kF1, kF2 = kF1_array[iR], kF2_array[iR]
-    
+
             # K integration goes from 0 to kF1+kF2
             K_max = kF1 + kF2
-                
+
             # Get Gaussian quadrature mesh for K integration
             K_array, K_weights = gaussian_quadrature_mesh(K_max, ntot_K)
-              
+
             # Loop over remaining variables and fill in 4-D array
             for iq in range(ntot_q):
                 for ik in range(ntot_k):
-                    
                     # Fill in K_grid and dK_grid given the specific K_array
                     K_grid[iq, iR, :, ik] = K_array
                     dK_grid[iq, iR, :, ik] = K_weights
@@ -440,31 +442,31 @@ class SingleNucleon(MomentumDistribution):
         # Loop over q, R, and K to find limits of k integration and then
         # create k_array using Gaussian quadrature
         for iR, R in enumerate(R_array):
-        
+
             kF1, kF2 = kF1_array[iR], kF2_array[iR]
-        
+
             # Get minimum kF value
             kF_min = min(kF1, kF2)
-            
+
             # K_array only depends on R, so loop over K_grid[0, iR, :, 0]
             for iK, K in enumerate(K_grid[0, iR, :, 0]):
-                
+
                 # Lower limit of k integration
-                k_min = max(K/2 - kF_min, 0)
-                
+                k_min = max(K / 2 - kF_min, 0)
+
                 # Upper limit of k integration
-                if K**2/4 < (kF1**2 + kF2**2)/2:
-                    k_max = min(np.sqrt((kF1**2+kF2**2)/2-K**2/4), kF_min+K/2)
+                if K ** 2 / 4 < (kF1 ** 2 + kF2 ** 2) / 2:
+                    k_max = min(np.sqrt((kF1 ** 2 + kF2 ** 2) / 2 - K ** 2 / 4),
+                                kF_min + K / 2)
                 else:
-                    k_max = kF_min + K/2
+                    k_max = kF_min + K / 2
 
                 # Get Gaussian quadrature mesh for k integration
                 k_array, k_weights = gaussian_quadrature_mesh(
                     k_max, ntot_k, xmin=k_min)
-                
+
                 # Loop over remaining variables and fill in 4-D meshgrid
                 for iq in range(ntot_q):
-                    
                     # Fill in k_grid and dk_grid given the specific k_array
                     k_grid[iq, iR, iK, :] = k_array
                     dk_grid[iq, iR, iK, :] = k_weights
@@ -479,37 +481,39 @@ class SingleNucleon(MomentumDistribution):
         # Set-up 4-D \delta U \delta U^\dagger(k, |q-K/2|) for \tau and \tau'
         deltaU2_pp_grid = np.zeros_like(angle_avg_pp_grid)
         deltaU2_pn_grid = np.zeros_like(angle_avg_pn_grid)
-        
+
         # Integrate over y (angle between q_vector and K_vector)
         for y, dy in zip(y_array, y_weights):
-            
             # Evaluate |q-K/2| meshgrid
-            q_K_grid = np.sqrt(q_grid**2 + K_grid**2/4 - q_grid*K_grid*y)
-            
-            deltaU2_pp_grid += self.deltaU2_pp_func.ev(k_grid, q_K_grid) * dy/2
-            deltaU2_pn_grid += self.deltaU2_pn_func.ev(k_grid, q_K_grid) * dy/2
-        
+            q_K_grid = np.sqrt(
+                q_grid ** 2 + K_grid ** 2 / 4 - q_grid * K_grid * y)
+
+            deltaU2_pp_grid += self.deltaU2_pp_func.ev(k_grid,
+                                                       q_K_grid) * dy / 2
+            deltaU2_pn_grid += self.deltaU2_pn_func.ev(k_grid,
+                                                       q_K_grid) * dy / 2
+
         # Contractions of a's, 1/4 factors, and [1-(-1)^(L+S+T)] factors
         # combine to give 2
         # (2/\pi)^2 for four | k_vec > -> | k J L S ... > changes
-        deltaU2_factor = 2 * (2/np.pi)**2
+        deltaU2_factor = 2 * (2 / np.pi) ** 2
 
         # Calculate the k integrand where we split terms according to pp and
         # pn leaving a (ntot_q, ntot_R, ntot_K, ntot_k) shape array
-        integrand_k = (deltaU2_factor * k_grid**2 * dk_grid * K_grid**2 
-                       * dK_grid * R_grid**2 * dR
-                       * (deltaU2_pp_grid*angle_avg_pp_grid
-                          +deltaU2_pn_grid*angle_avg_pn_grid))
-                      
+        integrand_k = (deltaU2_factor * k_grid ** 2 * dk_grid * K_grid ** 2
+                       * dK_grid * R_grid ** 2 * dR
+                       * (deltaU2_pp_grid * angle_avg_pp_grid
+                          + deltaU2_pn_grid * angle_avg_pn_grid))
+
         # Integrate over k leaving K integrand (ntot_q, ntot_R, ntot_K)
         integrand_K = np.sum(integrand_k, axis=-1)
-        
+
         # Integrate over K leaving R integrand (ntot_q, ntot_R)
         integrand_R = np.sum(integrand_K, axis=-1)
-        
+
         # Integrate over R leaving a (ntot_q, 1) shape array
-        return 4*np.pi * np.sum(integrand_R, axis=-1)
-    
+        return 4 * np.pi * np.sum(integrand_R, axis=-1)
+
     def compute_momentum_distribution(
             self, q_array, nucleon, nucleus_name, Z, N, density='Gogny',
             save=False):
@@ -539,38 +543,38 @@ class SingleNucleon(MomentumDistribution):
             Single-nucleon momentum distribution n^\tau(q) [fm^3].
 
         """
-        
+
         # Load R values and nucleonic densities (the R_array's are the same)
         R_array, rho_p_array = load_density('proton', nucleus_name, Z, N,
                                             density)
         R_array, rho_n_array = load_density('neutron', nucleus_name, Z, N,
                                             density)
         dR = R_array[2] - R_array[1]  # Assuming linear spacing
-        
+
         # Evaluate kF values at each point in R_array
         if nucleon == 'proton':
-            kF1_array = (3*np.pi**2 * rho_p_array)**(1/3)
-            kF2_array = (3*np.pi**2 * rho_n_array)**(1/3)
+            kF1_array = (3 * np.pi ** 2 * rho_p_array) ** (1 / 3)
+            kF2_array = (3 * np.pi ** 2 * rho_n_array) ** (1 / 3)
         else:
-            kF1_array = (3*np.pi**2 * rho_n_array)**(1/3)
-            kF2_array = (3*np.pi**2 * rho_p_array)**(1/3)
-        
+            kF1_array = (3 * np.pi ** 2 * rho_n_array) ** (1 / 3)
+            kF2_array = (3 * np.pi ** 2 * rho_p_array) ** (1 / 3)
+
         # Get each contribution with respect to q (ntot_q, 1)
         n_I = self.get_I_term(q_array, R_array, dR, kF1_array)
         n_deltaU = self.get_deltaU_term(q_array, R_array, dR, kF1_array,
                                         kF2_array)
         n_deltaU2 = self.get_deltaU2_term(q_array, R_array, dR, kF1_array,
                                           kF2_array)
-        
+
         n_total = n_I + n_deltaU + n_deltaU2
-        
+
         if save:
             self.save_momentum_distribution(
-                q_array, n_total, n_I, n_deltaU, n_deltaU2, nucleon, 
+                q_array, n_total, n_I, n_deltaU, n_deltaU2, nucleon,
                 nucleus_name, density)
 
         return n_total
-    
+
     def save_momentum_distribution(
             self, q_array, n_total, n_I, n_deltaU, n_deltaU2, nucleon,
             nucleus_name, density):
@@ -601,41 +605,40 @@ class SingleNucleon(MomentumDistribution):
             Name of density (e.g., 'SLy4', 'Gogny').
 
         """
-        
+
         # Directory for distributions data
         data_directory = f'../data/momentum_distributions/{nucleus_name}/'
-        
+
         # Create file name
         file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
-        
+
         for channel in self.channels:
             file_name += f'_{channel}'
-        
+
         file_name += f'_{self.generator}'
         if self.generator == 'Block-diag':
             file_name += f'_LambdaBD_{self.lamb}'
         else:
             file_name += f'_lambda_{self.lamb}'
-        
-        if self.lambda_initial != None:
+
+        if self.lambda_initial is not None:
             file_name += f'_lambda_initial_{self.lambda_initial}'
-            
-        if self.kvnn_inv != None:
+
+        if self.kvnn_inv is not None:
             file_name += f'_kvnn_inv_{self.kvnn_inv}_lamb_m_{self.lambda_m}'
-        
+
         file_name = replace_periods(file_name) + '.dat'
-        
+
         # Open file and write header where we allocate 18 centered spaces for
         # each label
         f = open(data_directory + file_name, 'w')
         header = '#' + '{:^17s}{:^18s}{:^18s}{:^18s}{:^18s}'.format(
             'q', 'total', '1', '\delta U', '\delta U^2')
         f.write(header + '\n')
-    
+
         # Loop over momenta q and write each contribution
         for iq, q in enumerate(q_array):
-
             # Write to data file following the format from the header
             line = (f'{q:^18.6f}{n_total[iq]:^18.6e}{n_I[iq]:^18.6e}'
                     f'{n_deltaU[iq]:^18.6e}{n_deltaU2[iq]:^18.6e}')

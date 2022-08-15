@@ -50,13 +50,13 @@ def compute_a2(A, n_p_array, n_n_array, n_d_array, q_array, q_weights):
     """
 
     # Calculate deuteron denominator
-    denominator = np.sum(q_weights * q_array**2 * n_d_array)
-    
+    denominator = np.sum(q_weights * q_array ** 2 * n_d_array)
+
     # Calculate probability distribution of the numerator
-    p_a_array = q_array**2 / A * (n_p_array+n_n_array)
-        
+    p_a_array = q_array ** 2 / A * (n_p_array + n_n_array)
+
     # Calculate numerator
-    numerator = np.sum(q_weights*p_a_array)
-        
+    numerator = np.sum(q_weights * p_a_array)
+
     # Compute a_2
     return numerator / denominator

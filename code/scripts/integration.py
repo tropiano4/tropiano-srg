@@ -52,45 +52,45 @@ def gaussian_quadrature_mesh(
         Integration weights.
 
     """
-    
+
     # Standard (no mid-point)
-    if xmid == None:
-        
+    if xmid is None:
+
         # Interval [-1, 1]
         if method == 'legendre':
             y_array, y_weights = leggauss(ntot)
         elif method == 'chebyshev':
             y_array, y_weights = chebgauss(ntot)
-        
+
         # Convert from interval [-1, 1] to [a, b]
-        x_array = 0.5 * (y_array+1) * (xmax-xmin) + xmin
-        x_weights = (xmax-xmin) / 2 * y_weights
-        
+        x_array = 0.5 * (y_array + 1) * (xmax - xmin) + xmin
+        x_weights = (xmax - xmin) / 2 * y_weights
+
     # Split into two meshes
     else:
-        
+
         # In case nmod wasn't specified, take nmod = ntot/2 rounding up
-        if nmod == None:
-            nmod = int(round(ntot/2, 0))
-        
+        if nmod is None:
+            nmod = int(round(ntot / 2, 0))
+
         # Interval [-1, 1]
         if method == 'legendre':
             y_array_1, y_weights_1 = leggauss(nmod)
-            y_array_2, y_weights_2 = leggauss(ntot-nmod)
+            y_array_2, y_weights_2 = leggauss(ntot - nmod)
         elif method == 'chebyshev':
             y_array_1, y_weights_1 = chebgauss(nmod)
-            y_array_2, y_weights_2 = chebgauss(ntot-nmod)
-        
+            y_array_2, y_weights_2 = chebgauss(ntot - nmod)
+
         # Convert from interval [-1, 1] to [a, b] for both sides of the mesh
-        x_array_1 = 0.5 * (y_array_1+1) * (xmid-xmin) + xmin
-        x_weights_1 = (xmid-xmin) / 2 * y_weights_1
-        x_array_2 = 0.5 * (y_array_2+1) * (xmax-xmid) + xmid
-        x_weights_2 = (xmax-xmid) / 2 * y_weights_2
-    
+        x_array_1 = 0.5 * (y_array_1 + 1) * (xmid - xmin) + xmin
+        x_weights_1 = (xmid - xmin) / 2 * y_weights_1
+        x_array_2 = 0.5 * (y_array_2 + 1) * (xmax - xmid) + xmid
+        x_weights_2 = (xmax - xmid) / 2 * y_weights_2
+
         # Combine both sides of the mesh
         x_array = np.concatenate((x_array_1, x_array_2))
         x_weights = np.concatenate((x_weights_1, x_weights_2))
-    
+
     return x_array, x_weights
 
 
@@ -115,9 +115,9 @@ def momentum_mesh(kmax, kmid, ntot):
         Momentum weights [fm^-1].
     
     """
-    
+
     k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot, xmid=kmid)
-    
+
     return k_array, k_weights
 
 
@@ -142,12 +142,12 @@ def get_factor_array(k_array, k_weights, coupled_channel=False):
         Square root of the integration measure [fm^-3/2].
     
     """
-    
-    factor_array = np.sqrt(2/np.pi * k_weights) * k_array
-    
+
+    factor_array = np.sqrt(2 / np.pi * k_weights) * k_array
+
     if coupled_channel:
         factor_array = np.concatenate((factor_array, factor_array))
-    
+
     return factor_array
 
 
@@ -174,11 +174,11 @@ def get_factor_meshgrid(k_array, k_weights, coupled_channel):
         Columns of square root integration measure meshgrid [fm^-3/2].
     
     """
-    
+
     factor_array = get_factor_array(k_array, k_weights, coupled_channel)
-    
+
     row, col = np.meshgrid(factor_array, factor_array, indexing='ij')
-    
+
     return row, col
 
 
@@ -203,7 +203,7 @@ def attach_weights_to_vector(k_array, k_weights, v, coupled_channel=False):
         Output vector with weights attached. Units are [v] * fm^-3/2.
 
     """
-    
+
     factor_array = get_factor_array(k_array, k_weights, coupled_channel)
 
     return v * factor_array
@@ -257,7 +257,7 @@ def attach_weights_to_matrix(k_array, k_weights, M, coupled_channel=False):
         Output matrix with weights attached. Units are [M] * fm^-3.
 
     """
-    
+
     row, col = get_factor_meshgrid(k_array, k_weights, coupled_channel)
 
     return M * row * col

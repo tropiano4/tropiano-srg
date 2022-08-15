@@ -49,12 +49,13 @@ def hankel_transformation_k2r(L, k_array, k_weights, r_array):
     Check conventions.
     
     """
-        
+
     # Create meshgrid of k and r
     k_cols, r_rows = np.meshgrid(k_array, r_array)
     k_weights_cols, _ = np.meshgrid(k_weights, r_array)
-        
-    M = 2/np.pi * k_cols**2 * k_weights_cols * spherical_jn(L, k_cols*r_rows)
+
+    M = 2 / np.pi * k_cols ** 2 * k_weights_cols * spherical_jn(L,
+                                                                k_cols * r_rows)
 
     return M
 
@@ -85,7 +86,7 @@ def hankel_transformation_r2k(L, k_array, r_array, dr):
 
     # Create meshgrid of k and r
     r_cols, k_rows = np.meshgrid(r_array, k_array)
-        
-    M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows*r_cols)
+
+    M = np.sqrt(dr) * r_cols * spherical_jn(L, k_rows * r_cols)
 
     return M
