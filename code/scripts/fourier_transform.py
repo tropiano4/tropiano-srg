@@ -14,7 +14,7 @@ Last update: April 15, 2022.
 """
 
 # Todo: Try to understand difference between function here and one in
-# spectroscopic_factor.ipynb.
+#  spectroscopic_factor.ipynb.
 
 # Python imports
 import numpy as np

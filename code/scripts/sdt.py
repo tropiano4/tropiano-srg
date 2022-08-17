@@ -14,8 +14,6 @@ Last update: March 17, 2022
 
 """
 
-# Todo: Better way to code sigma function?
-
 # Python imports
 import numpy as np
 

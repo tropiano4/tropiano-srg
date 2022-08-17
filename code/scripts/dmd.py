@@ -24,7 +24,6 @@ Last update: July 28, 2022
 
 """
 
-# Todo: Make sure R_array parameter is described correctly.
 # Todo: There are several things that overlap (if not slightly) with the
 #  single-nucleon momentum distribution code. This suggests making Deuteron
 #  inherit SingleNucleon.
@@ -234,9 +233,9 @@ class Deuteron(MomentumDistribution):
         q_array : 1-D ndarray
             Momentum values [fm^-1].
         R_array : 1-D ndarray
-            C.o.M. coordinates [fm].
+            C.o.M. position [fm].
         dR : float
-            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+            C.o.M. position step-size (assuming linearly-spaced array) [fm].
         kF_array : 1-D ndarray
             Deuteron Fermi momentum [fm^-1] with respect to R.
 
@@ -273,9 +272,9 @@ class Deuteron(MomentumDistribution):
         q_array : 1-D ndarray
             Momentum values [fm^-1].
         R_array : 1-D ndarray
-            C.o.M. coordinates [fm].
+            C.o.M. position [fm].
         dR : float
-            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+            C.o.M. position step-size (assuming linearly-spaced array) [fm].
         kF_array : 1-D ndarray
             Deuteron Fermi momentum [fm^-1] with respect to R.
 
@@ -344,9 +343,9 @@ class Deuteron(MomentumDistribution):
         q_array : 1-D ndarray
             Momentum values [fm^-1].
         R_array : 1-D ndarray
-            C.o.M. coordinates [fm].
+            C.o.M. position [fm].
         dR : float
-            C.o.M. coordinates step-size (assuming linearly-spaced array) [fm].
+            C.o.M. position step-size (assuming linearly-spaced array) [fm].
         kF_array : 1-D ndarray
             Deuteron Fermi momentum [fm^-1] with respect to R.
 
