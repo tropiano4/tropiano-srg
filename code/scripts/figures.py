@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: July 20, 2022
+Last update: November 29, 2022
 
 """
 
@@ -19,7 +19,9 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d
 
 # Imports from A.T. codes
-from .tools import coupled_channel, convert_number_to_string
+from .tools import (
+    coupled_channel, convert_l_to_string, convert_number_to_string
+)
 
 
 def set_rc_parameters():
@@ -642,6 +644,33 @@ def label_sp_state(sp_state):
     denominator = 2
 
     return rf"${sp_state[:2]}_{{{numerator}/{denominator}}}$"
+
+
+def label_nlj_state(n, l, j):
+    """
+    Convert single-particle state to a label.
+    
+    Parameters
+    ----------
+    n : int
+        Principal quantum number n = 1, 2, 3, ...
+    l : int
+        Orbital angular momentum l = 0, 1, 2, ...
+    j : float
+        Total angular momentum j = 1/2, 3/2, 5/2, ...
+        
+    Returns
+    -------
+    output : str
+        String for figure label (e.g., "1s_{\frac{1}{2}}").
+        
+    """
+    
+    l_str = convert_l_to_string(l)  # E.g., 's', 'p', 'd', ...
+    numerator = 2*int(j) + 1
+    denominator = 2
+
+    return rf"${n}{l_str}_{{{numerator}/{denominator}}}$"
 
 
 def label_ticks(ticks):
