@@ -8,7 +8,7 @@ Date: March 17, 2021
 
 This script contains several useful functions for general purposes.
 
-Last update: May 6, 2022
+Last update: November 29, 2022
 
 """
 
@@ -131,7 +131,44 @@ def channel_L_value(channel):
         print("Input channel is outside the range of this function.")
         return None
 
+    
+def convert_l_to_string(l):
+    """
+    Returns the spectroscopic notation of the orbital angular momentum value
+    l (e.g., l = 2 returns 'd').
 
+    Parameters
+    ----------
+    l : int
+        Orbital angular momentum of the single-particle (s.p.) state.
+
+    Returns
+    -------
+    output : str
+        Spectroscopic notation of s.p. state orbital angular momentum.
+
+    """
+
+    if l == 0:
+        return 's'
+    elif l == 1:
+        return 'p'
+    elif l == 2:
+        return 'd'
+    elif l == 3:
+        return 'f'
+    elif l == 4:
+        return 'g'
+    elif l == 5:
+        return 'h'
+    elif l == 6:
+        return 'i'
+    else:
+        raise RuntimeError(
+            "Input l value is outside the range of this function."
+        )
+
+        
 def coupled_channel(channel):
     """
     Boolean value on whether the given channel is a coupled-channel.
