@@ -1094,7 +1094,7 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
                     psi_alpha_array[i] = psi(alpha, q_vector, sigma, tau,
                                              cg_table, phi_functions)
                     
-                    I_array += abs(psi_alpha_array)**2
+                I_array += abs(psi_alpha_array)**2
                     
     return I_array
 
@@ -1131,7 +1131,7 @@ def compute_delta_U_terms(
         )
             
         # Train the integrator
-        integ(integrand, nitn=10, neval=200)
+        integ(integrand, nitn=5, neval=200)
 
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
@@ -1179,7 +1179,7 @@ def compute_delta_U2_term(
         )
             
         # Train the integrator
-        integ(integrand, nitn=10, neval=200)
+        integ(integrand, nitn=5, neval=200)
 
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
@@ -1234,24 +1234,24 @@ def compute_momentum_distribution(
     else:
     
         # Compute \delta U + \delta U^\dagger term using vegas
-        print("Beginning \delta U linear terms.")
+        print("Beginning \delta U linear terms.\n")
         t0 = time.time()
         delta_U_array, delta_U_errors = compute_delta_U_terms(
             q_array, tau, sp_basis.occ_states, cg_table, channels, phi_functions,
             delta_U_functions, delta_U_dagger_functions
         )
         t1 = time.time()
-        print(f"Done after {(t1-t0)/3600:.3f} hours.")
+        print(f"Done after {(t1-t0)/3600:.3f} hours.\n")
     
         # Compute \delta U \delta U^\dagger term using vegas
-        print("Beginning \delta U \delta U^\dagger term.")
+        print("Beginning \delta U \delta U^\dagger term.\n")
         t2 = time.time()
         delta_U2_array, delta_U2_errors = compute_delta_U2_term(
             q_array, tau, sp_basis.occ_states, cg_table, channels,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
         t3 = time.time()
-        print(f"Done after {(t3-t2)/3600:.3f} hours.")
+        print(f"Done after {(t3-t2)/3600:.3f} hours.\n")
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
@@ -1310,9 +1310,15 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     kvnn = 6  # AV18
     
+    # He4
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
         ipm=False, save=True
     )
     
-    # Add more runs here!
+    # O16
+    nucleus_name, Z, N = 'O16', 8, 8
+    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
+        ipm=False, save=True
+    )
