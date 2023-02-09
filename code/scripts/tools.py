@@ -8,7 +8,7 @@ Date: March 17, 2021
 
 This script contains several useful functions for general purposes.
 
-Last update: November 29, 2022
+Last update: February 8, 2023
 
 """
 
@@ -187,8 +187,9 @@ def coupled_channel(channel):
 
     # List of coupled channels
     coupled_channels = (
-        '3S1', '3P2', '3D3', '3F4', '3G5', '3H6', '3I7', '3K8', '3L9', '3M10',
-        '3N11', '3O12', '3Q13'
+        '3S1', '3D1', '3P2', '3F2', '3D3', '3G3', '3F4', '3H4', '3G5', '3I5',
+        '3H6', '3K6', '3I7', '3L7', '3K8', '3M8', '3L9', '3N9', '3M10', '3O10',
+        '3N11', '3Q11'
     )
 
     boolean_value = channel in coupled_channels
