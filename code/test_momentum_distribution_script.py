@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. In this version, we test several
 `vegas` options to speed-up the code.
 
-Last update: February 7, 2023
+Last update: February 14, 2023
 
 """
 
@@ -29,11 +29,6 @@ import time
 import vegas
 
 # Imports from scripts
-# from .integration import momentum_mesh, unattach_weights_from_matrix
-# from .potentials import Potential
-# from .srg import get_transformation
-# from .tools import convert_l_to_string, coupled_channel
-# from .woodsaxon import ws
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
 from scripts.srg import get_transformation
@@ -42,14 +37,42 @@ from scripts.woodsaxon import ws
 
 
 class SingleParticleState:
+    """
+    Single-particle state class. Packs together the following single-particle
+    quantum numbers into one object.
+    
+    Parameters
+    ----------
+    n : int
+        Principal quantum number n = 1, 2, ...
+    l : int
+        Orbital angular momentum l = 0, 1, ...
+    j : float
+        Total angular momentum j = 1/2, 3/2, ...
+    m_j : float
+        Total angular momentum projection m_j = -j, -j+1, ..., j.
+    tau : float
+        Isospin projection tau = 1/2 or -1/2.
+    
+    """
     
     
     def __init__(self, n, l, j, m_j, tau):
+        
+        # Check if m_j is valid
+        if abs(m_j) > j:
+            raise RuntimeError("m_j is not valid.")
+            
+        # Check that |\tau| = 1/2
+        if abs(tau) != 1/2:
+            raise RuntimeError("tau is not valid.")
+            
         self.n = n
         self.l = l
         self.j = j
         self.m_j = m_j
         self.tau = tau
+        
         if tau == 1/2:
             self.nucleon = 'proton'
         elif tau == -1/2:
@@ -57,18 +80,26 @@ class SingleParticleState:
         
         
     def __eq__(self, sp_state):
+
         if (
             self.n == sp_state.n and self.l == sp_state.l
             and self.j == sp_state.j and self.m_j == sp_state.m_j
             and self.tau == sp_state.tau
         ):
+            
             return True
+        
         else:
+            
             return False
         
         
     def __str__(self):
+        
+        # Spectroscopic notation of orbital angular momentum
         l_str = convert_l_to_string(self.l)  # E.g., 's', 'p', 'd', ...
+        
+        # Display j subscript as a fraction
         numerator = 2*int(self.j) + 1
         denominator = 2
 
@@ -78,7 +109,7 @@ class SingleParticleState:
 class SingleParticleBasis:
     """
     Single-particle basis class. Handles the wave functions associated with the
-    Wood-Saxon potential from the subroutine in woodsaxon.f90. Generates wave
+    Wood-Saxon potential from the subroutine in woodsaxon.f90. Outputs wave
     functions in coordinate and momentum space.
     
     Parameters
@@ -600,470 +631,6 @@ def get_channel_str(Lp, L, S, J):
         channel += f"-{2*S+1}{L_str}{J}"
 
     return channel
-    """Total isospin according to antisymmetry."""
-    
-    # Make sure [1-(-1)^(L+S+T)] is not zero
-    if (1-(-1)**(L+S)) == 0:
-        T = 1
-    else:
-        T = 0
-        
-    return T
-
-
-def delta_U_matrix_element(
-        k_vector, kp_vector, sigma_1, sigma_2, sigma_3, sigma_4, tau_1, tau_2,
-        tau_3, tau_4, cg_table, channels, delta_U_functions,
-        delta_U_dagger_functions, hermitian_conjugate=False
-):
-    """Returns the plane-wave matrix element of \delta U."""
-        
-    # Check spin conservation
-    if sigma_1 + sigma_2 != sigma_3 + sigma_4:
-        return 0
-        
-    # Check isospin conservation
-    if tau_1 + tau_2 != tau_3 + tau_4:
-        return 0
-        
-    # Unpack k_vector and k'_vector into their magnitudes and angles
-    k = la.norm(k_vector)
-    theta_k = np.arccos(k_vector[2]/k)
-    phi_k = np.arctan2(k_vector[1], k_vector[0])
-    kp = la.norm(kp_vector)
-    theta_kp = np.arccos(kp_vector[2]/kp)
-    phi_kp = np.arctan2(kp_vector[1], kp_vector[0])
-
-    # Set total spin and total isospin projections
-    M_S = sigma_1 + sigma_2
-    M_T = tau_1 + tau_2
-        
-    # Loop over partial wave channels
-    delta_U_matrix_element = 0
-    for channel in channels:
-            
-        # Determine channel quantum numbers
-        L, Lp, S, J = get_channel_quantum_numbers(channel)
-            
-        # Determine total isospin
-        T = get_total_isospin(L, S)
-            
-        # Only proceed forward if |M_S| <= S and |M_T| <= T
-        if abs(M_S) <= S and abs(M_T) <= T:
-            
-            # Calculate 1-(-1)^(L'+S+T) and 1-(-1)^(L+S+T) factors
-            factor = (1-(-1)**(Lp+S+T)) * (1-(-1)**(L+S+T))
-            
-            # Spin CG's
-            spin_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
-            spin_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
-                    
-            # Isospin CG's
-            isospin_12_cg = cg_table[(1/2, tau_1, 1/2, tau_2, T, M_T)]
-            isospin_34_cg = cg_table[(1/2, tau_3, 1/2, tau_4, T, M_T)]
-
-            # \delta U(k, k') or \delta U^\dagger(k, k')
-            if hermitian_conjugate:
-                delta_U_partial_wave = delta_U_dagger_functions[channel].ev(k,
-                                                                            kp)
-            else:
-                delta_U_partial_wave = delta_U_functions[channel].ev(k, kp)
-
-            # Loop over possible M_J values
-            M_J_array = np.arange(-J, J+1, 1)
-            for M_J in M_J_array:
-                
-                # M_L and M_L' are fixed
-                M_L = M_J - M_S
-                M_Lp = M_J - M_S
-                
-                # Only proceed forward if |M_L| <= L and |M_L'| <= L'
-                if abs(M_L) <= L and abs(M_Lp) <= Lp:
-                    
-                    # L-S coupling CG's
-                    L_S_J_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
-                    Lp_S_J_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
-                    
-                    # Spherical harmonics
-                    Y_L = sph_harm(M_L, L, phi_k, theta_k)
-                    Y_Lp = np.conj(sph_harm(M_Lp, Lp, phi_kp, theta_kp))
-
-                    delta_U_matrix_element += (
-                        1/2 * 2/np.pi * spin_12_cg * spin_34_cg * isospin_12_cg
-                        * isospin_34_cg * L_S_J_cg * Lp_S_J_cg * factor * Y_L
-                        * Y_Lp * delta_U_partial_wave
-                    )
-                        
-    return delta_U_matrix_element
-
-
-def delta_U2_matrix_elements(
-        k_vector, qK_vector, kp_vector, sigma_1, sigma_2, sigma, sigmap,
-        sigma_3, sigma_4, tau_1, tau_2, tau, taup, tau_3, tau_4, cg_table,
-        channels, delta_U_functions, delta_U_dagger_functions
-):
-    """Returns the plane-wave matrix elements of \delta U^2."""
-        
-    # Check spin conservation
-    if sigma_1 + sigma_2 != sigma + sigmap:
-        return 0
-    if sigma + sigmap != sigma_3 + sigma_4:
-        return 0
-        
-    # Check isospin conservation
-    if tau_1 + tau_2 != tau + taup:
-        return 0
-    if tau + taup != tau_3 + tau_4:
-        return 0
-        
-    # Unpack vectors into their magnitudes and angles
-    k = la.norm(k_vector)
-    theta_k = np.arccos(k_vector[2]/k)
-    phi_k = np.arctan2(k_vector[1], k_vector[0])
-        
-    qK = la.norm(qK_vector)
-    theta_qK = np.arccos(qK_vector[2]/qK)
-    phi_qK = np.arctan2(qK_vector[1], qK_vector[0])
-        
-    kp = la.norm(kp_vector)
-    theta_kp = np.arccos(kp_vector[2]/kp)
-    phi_kp = np.arctan2(kp_vector[1], kp_vector[0])
-
-    # Set total spin and total isospin projections
-    M_S = sigma + sigmap
-    M_T = tau + taup
-        
-    # Loop over partial wave channels
-    delta_U2_matrix_element = 0
-    for channel in channels:
-            
-        # Determine channel quantum numbers
-        L, Lp, S, J = get_channel_quantum_numbers(channel)
-            
-        # Determine total isospin
-        T = get_total_isospin(L, S)
-            
-        # Only proceed forward if |M_S| <= S and |M_T| <= T
-        if abs(M_S) <= S and abs(M_T) <= T:
-            
-            # Calculate 1-(-1)^(L'+S+T) and 1-(-1)^(L+S+T) factors
-            factor = ((1-(-1)**(L+S+T)) * (1-(-1)**(Lp+S+T))
-                      * (1-(-1)**(Lp+S+T)) * (1-(-1)**(L+S+T)))
-            
-            # Spin CG's
-            spin_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
-            spin_ssp_cg = cg_table[(1/2, sigma, 1/2, sigmap, S, M_S)]
-            spin_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
-                    
-            # Isospin CG's
-            isospin_12_cg = cg_table[(1/2, tau_1, 1/2, tau_2, T, M_T)]
-            isospin_ttp_cg = cg_table[(1/2, tau, 1/2, taup, T, M_T)]
-            isospin_34_cg = cg_table[(1/2, tau_3, 1/2, tau_4, T, M_T)]
-                
-            # Get channel string for calling \delta U functions           
-            channel_1 = get_channel_str(L, Lp, S, J)
-            channel_2 = get_channel_str(Lp, L, S, J)
-                
-            # \delta U(k, q-K/2) and \delta U^\dagger(q-K/2, k')
-            delta_U_partial_wave = delta_U_functions[channel_1].ev(k, qK)
-            delta_U_dag_partial_wave = (
-                delta_U_dagger_functions[channel_2].ev(qK, kp)
-            )
-
-            # Loop over possible M_J values
-            M_J_array = np.arange(-J, J+1, 1)
-            for M_J in M_J_array:
-                
-                # M_L and M_L' are fixed
-                M_L = M_J - M_S
-                M_Lp = M_J - M_S
-                
-                # Only proceed forward if |M_L| <= L and |M_L'| <= L'
-                if abs(M_L) <= L and abs(M_Lp) <= Lp:
-                    
-                    # L-S coupling CG's
-                    L_S_J_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
-                    Lp_S_J_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
-                    
-                    # Spherical harmonics
-                    Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
-                    Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
-                    Y_L_kp = np.conj(sph_harm(M_L, L, phi_kp, theta_kp))
-
-                    delta_U2_matrix_element += (
-                        (1/2 * 2/np.pi)**2 * spin_12_cg * spin_ssp_cg**2
-                        * spin_34_cg * isospin_12_cg * isospin_ttp_cg**2
-                        * isospin_34_cg * L_S_J_cg**2 * Lp_S_J_cg**2 * factor
-                        * Y_L_k * np.conj(Y_Lp_qK) * Y_Lp_qK * Y_L_kp
-                        * delta_U_partial_wave * delta_U_dag_partial_wave
-                    )
-                        
-    return delta_U2_matrix_element
-
-
-def delta_U_term_integrand(
-        q, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions, momenta_array
-):
-    """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
-    
-    # Spin projections
-    spins = np.array([1/2, -1/2])
-    
-    # Create vector form of q choosing z-axis along q
-    q_vector = np.array([0, 0, q])
-
-    # Relative momenta k
-    k, theta_k, phi_k = momenta_array[:3]
-    k_vector = np.array([k * np.sin(theta_k) * np.cos(phi_k),
-                          k * np.sin(theta_k) * np.sin(phi_k),
-                          k * np.cos(theta_k)])
-        
-    # C.o.M. momenta K
-    K, theta_K, phi_K = momenta_array[3:6]
-    K_vector = np.array([K * np.sin(theta_K) * np.cos(phi_K),
-                          K * np.sin(theta_K) * np.sin(phi_K),
-                          K * np.cos(theta_K)])
-        
-    # Calculate the Jacobian determinant
-    jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)  
-        
-    # Sum over spin projections
-    integrand = 0
-    for sigma_1 in spins:
-        for sigma_2 in spins:
-            for sigma_3 in spins:
-                sigma = sigma_1 + sigma_2 - sigma_3
-                # Make sure \sigma = +1/2 or -1/2
-                if sigma in spins:
-                        
-                    # Sum over occupied states \alpha and \beta
-                    for alpha in occ_states:
-                            
-                        # \tau_\alpha, \tau, \tau, \tau_\alpha matrix element
-                        matrix_element_ta_t_t_ta = delta_U_matrix_element(
-                            k_vector, q_vector-K_vector/2, sigma_1, sigma_2,
-                            sigma, sigma_3, alpha.tau, tau, tau, alpha.tau,
-                            cg_table, channels, delta_U_functions,
-                            delta_U_dagger_functions
-                        )
-                            
-                        # \tau, \tau_\alpha, \tau_\alpha, \tau matrix element
-                        matrix_element_dag_t_ta_ta_t = delta_U_matrix_element(
-                            q_vector-K_vector/2, k_vector, sigma, sigma_3,
-                            sigma_1, sigma_2, tau, alpha.tau, alpha.tau, tau,
-                            cg_table, channels, delta_U_functions,
-                            delta_U_dagger_functions, hermitian_conjugate=True
-                        )
-                            
-                        for beta in occ_states:
-                                
-                            # \tau, \tau_\beta, \tau, \tau_\beta matrix element
-                            matrix_element_t_tb_t_tb = delta_U_matrix_element(
-                                k_vector, q_vector-K_vector/2, sigma_1, sigma_2,
-                                sigma, sigma_3, tau, beta.tau, tau, beta.tau,
-                                cg_table, channels, delta_U_functions,
-                                delta_U_dagger_functions
-                            )
-                                
-                            # \tau, \tau_\beta, \tau, \tau_\beta matrix element
-                            matrix_element_dag_t_tb_t_tb = (
-                                delta_U_matrix_element(
-                                    q_vector-K_vector/2, k_vector, sigma,
-                                    sigma_3, sigma_1, sigma_2, tau, beta.tau,
-                                    tau, beta.tau, cg_table, channels,
-                                    delta_U_functions, delta_U_dagger_functions,
-                                    hermitian_conjugate=True
-                                )
-                            )
-                                
-                            # Full integrand of the \delta U and
-                            # \delta U^\dagger linear terms
-                            integrand += 1/2 * jacobian * (
-                                matrix_element_t_tb_t_tb
-                                * np.conj(
-                                    psi(alpha, K_vector/2+k_vector,sigma_1, tau,
-                                        cg_table, phi_functions)
-                                )
-                                * np.conj(
-                                    psi(beta, K_vector/2-k_vector, sigma_2,
-                                        beta.tau, cg_table, phi_functions)
-                                )
-                                * psi(beta, K_vector-q_vector, sigma_3,
-                                      beta.tau, cg_table, phi_functions)
-                                * psi(alpha, q_vector, sigma, tau, cg_table,
-                                      phi_functions)
-                                - matrix_element_ta_t_t_ta
-                                * np.conj(
-                                    psi(alpha, K_vector/2+k_vector, sigma_1,
-                                        alpha.tau, cg_table, phi_functions)
-                                )
-                                * np.conj(
-                                    psi(beta, K_vector/2-k_vector, sigma_2, tau,
-                                        cg_table, phi_functions)
-                                )
-                                * psi(alpha, K_vector-q_vector, sigma_3,
-                                      alpha.tau, cg_table, phi_functions)
-                                * psi(beta, q_vector, sigma, tau, cg_table,
-                                      phi_functions)
-                                + matrix_element_dag_t_tb_t_tb
-                                * np.conj(
-                                    psi(alpha, q_vector, sigma, tau, cg_table,
-                                        phi_functions)
-                                )
-                                * np.conj(
-                                    psi(beta, K_vector-q_vector, sigma_3,
-                                        beta.tau, cg_table, phi_functions)
-                                )
-                                * psi(beta, K_vector/2-k_vector, sigma_2,
-                                      beta.tau, cg_table, phi_functions)
-                                * psi(alpha, K_vector/2+k_vector, sigma_1, tau,
-                                      cg_table, phi_functions)
-                                - matrix_element_dag_t_ta_ta_t
-                                * np.conj(
-                                    psi(beta, q_vector, sigma, tau, cg_table,
-                                        phi_functions)
-                                )
-                                * np.conj(
-                                    psi(alpha, K_vector-q_vector, sigma_3,
-                                        alpha.tau, cg_table, phi_functions)
-                                )
-                                * psi(beta, K_vector/2-k_vector, sigma_2, tau,
-                                      cg_table, phi_functions)
-                                * psi(alpha, K_vector/2+k_vector, sigma_1,
-                                      alpha.tau, cg_table, phi_functions)
-                            )
-
-    return integrand.real
-
-
-def delta_U2_term_integrand(
-        q, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions, momenta_array
-):
-    """Evaluate the integrand of the \delta U \delta U^\dagger term."""
-    
-    # Spin projections
-    spins = np.array([1/2, -1/2])
-
-    # Create vector form of q choosing z-axis along q
-    q_vector = np.array([0, 0, q])
-
-    # Relative momenta k
-    k, theta_k, phi_k = momenta_array[:3]
-    k_vector = np.array([k * np.sin(theta_k) * np.cos(phi_k),
-                         k * np.sin(theta_k) * np.sin(phi_k),
-                         k * np.cos(theta_k)])
-        
-    # Relative momenta k'
-    kp, theta_kp, phi_kp = momenta_array[3:6]
-    kp_vector = np.array([kp * np.sin(theta_kp) * np.cos(phi_kp),
-                          kp * np.sin(theta_kp) * np.sin(phi_kp),
-                          kp * np.cos(theta_kp)])
-        
-    # C.o.M. momenta K
-    K, theta_K, phi_K = momenta_array[6:9]
-    K_vector = np.array([K * np.sin(theta_K) * np.cos(phi_K),
-                         K * np.sin(theta_K) * np.sin(phi_K),
-                         K * np.cos(theta_K)])
-        
-    # Calculate the Jacobian determinant
-    jacobian = (k**2 * np.sin(theta_k) * kp**2 * np.sin(theta_kp) * K**2
-                * np.sin(theta_K))
-        
-    # Sum over spin projections
-    integrand = 0 
-    for sigma_1 in spins:
-        for sigma_2 in spins:
-            for sigma_3 in spins:
-                sigma_4 = sigma_1 + sigma_2 - sigma_3
-                for sigmap in spins:
-                    sigma = sigma_1 + sigma_2 - sigmap
-                        
-                    # Make sure \sigma = +1/2 or -1/2
-                    if sigma_4 in spins and sigma in spins:
-                            
-                        # Loop over \tau'
-                        for taup in spins:
-                        
-                            # Sum over occupied states \alpha and \beta
-                            for alpha in occ_states:
-                                for beta in occ_states:
-                                        
-                                    # \tau_\alpha \tau_\beta \tau \tau'
-                                    # \tau \tau' \tau_\alpha \tau_\beta
-                                    # matrix elements
-                                    matrix_elements_ta_tb = (
-                                        delta_U2_matrix_elements(
-                                            k_vector, q_vector-K_vector/2,
-                                            kp_vector, sigma_1, sigma_2, sigma,
-                                            sigmap, sigma_3, sigma_4, alpha.tau,
-                                            beta.tau, tau, taup, alpha.tau,
-                                            beta.tau, cg_table, channels,
-                                            delta_U_functions,
-                                            delta_U_dagger_functions
-                                        )
-                                    )
-                                        
-                                    # \tau_\alpha \tau_\beta \tau \tau'
-                                    # \tau \tau' \tau_\beta \tau_\alpha
-                                    # matrix elements
-                                    matrix_elements_tb_ta = (
-                                        delta_U2_matrix_elements(
-                                            k_vector, q_vector-K_vector/2,
-                                            kp_vector, sigma_1, sigma_2, sigma,
-                                            sigmap, sigma_3, sigma_4, alpha.tau,
-                                            beta.tau, tau, taup, beta.tau,
-                                            alpha.tau, cg_table, channels,
-                                            delta_U_functions,
-                                            delta_U_dagger_functions
-                                        )
-                                    )
-
-                                    # Full integrand of the \delta U
-                                    # \delta U^\dagger term
-                                    integrand += 1/4 * jacobian * (
-                                        np.conj(
-                                            psi(
-                                                alpha, K_vector/2+k_vector,
-                                                sigma_1, alpha.tau, cg_table,
-                                                phi_functions
-                                            )
-                                        )
-                                        * np.conj(
-                                            psi(
-                                                beta, K_vector/2-k_vector,
-                                                sigma_2, beta.tau, cg_table,
-                                                phi_functions
-                                            )
-                                        )
-                                        * (
-                                            matrix_elements_ta_tb
-                                            * psi(
-                                                beta, K_vector/2-kp_vector,
-                                                sigma_4, beta.tau, cg_table,
-                                                phi_functions
-                                            )
-                                            * psi(
-                                                alpha, K_vector/2+kp_vector,
-                                                sigma_3, alpha.tau, cg_table,
-                                                phi_functions
-                                            )
-                                            - matrix_elements_tb_ta
-                                            * psi(
-                                                alpha, K_vector/2-kp_vector,
-                                                sigma_4, alpha.tau, cg_table,
-                                                phi_functions
-                                            )
-                                            * psi(
-                                                beta, K_vector/2+kp_vector,
-                                                sigma_3, beta.tau, cg_table,
-                                                phi_functions
-                                            )
-                                        )
-                                    )
-
-    return integrand.real
 
 
 def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
@@ -1087,7 +654,7 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
                 psi_alpha_array = np.zeros_like(q_array, dtype='complex')
                 for i, q in enumerate(q_array):
                         
-                    # Make q a vector along the z-axis
+                    # Choose z-axis to be along q_vector
                     q_vector = np.array([0, 0, q])
                     
                     # Single-particle wave function
@@ -1099,7 +666,289 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
     return I_array
 
 
-def compute_delta_U_terms(
+def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
+    """Returns a list of every combination of quantum numbers in the \delta U
+    linear terms that gives a non-zero product of Clebsch-Gordan coefficients.
+    """
+    
+    spins = np.array([1/2, -1/2])
+    quantum_number_combinations = []
+
+    # Many loops over quantum numbers
+    for sigma_1 in spins:
+        for sigma_2 in spins:
+            
+            M_S = sigma_1 + sigma_2
+            
+            for sigma_3 in spins:
+                for sigma_4 in spins:
+                    
+                    for alpha in occ_states:
+
+                        # \sigma_1 l_\alpha CG
+                        if abs(alpha.m_j-sigma_1) > alpha.l:
+                            sig1_alpha_cg = 0
+                        else:
+                            sig1_alpha_cg = cg_table[(
+                                alpha.l, alpha.m_j-sigma_1, 1/2, sigma_1, alpha.j, alpha.m_j
+                            )]
+                                
+                        # \sigma_3 l_\alpha CG
+                        if abs(alpha.m_j-sigma_3) > alpha.l:
+                            sig3_alpha_cg = 0
+                        else:
+                            sig3_alpha_cg = cg_table[(
+                                alpha.l, alpha.m_j-sigma_3, 1/2, sigma_3, alpha.j, alpha.m_j
+                            )]
+                                
+                        # \sigma_4 l_\alpha CG
+                        if abs(alpha.m_j-sigma_4) > alpha.l:
+                            sig4_alpha_cg = 0
+                        else:
+                            sig4_alpha_cg = cg_table[(
+                                alpha.l, alpha.m_j-sigma_4, 1/2, sigma_4, alpha.j, alpha.m_j
+                            )]
+                                
+                        for beta in occ_states:
+                                
+                            # \sigma_2 l_\beta CG
+                            if abs(beta.m_j-sigma_2) > beta.l:
+                                sig2_beta_cg = 0
+                            else:
+                                sig2_beta_cg = cg_table[(
+                                    beta.l, beta.m_j-sigma_2, 1/2, sigma_2, beta.j, beta.m_j
+                                )]
+                                
+                            # \sigma_4 l_\beta CG
+                            if abs(beta.m_j-sigma_4) > beta.l:
+                                sig4_beta_cg = 0
+                            else:
+                                sig4_beta_cg = cg_table[(
+                                    beta.l, beta.m_j-sigma_4, 1/2, sigma_4, beta.j, beta.m_j
+                                )]
+                                
+                            # \sigma_3 l_\beta CG
+                            if abs(beta.m_j-sigma_3) > beta.l:
+                                sig3_beta_cg = 0
+                            else:
+                                sig3_beta_cg = cg_table[(
+                                    beta.l, beta.m_j-sigma_3, 1/2, sigma_3, beta.j, beta.m_j
+                                )]
+                                
+                            for channel in channels:
+                                    
+                                L, Lp, S, J = get_channel_quantum_numbers(channel)
+                                T = get_total_isospin(L, S)
+                                    
+                                if abs(M_S) <= S:
+                                        
+                                    # \sigma_1 \sigma_2 S M_S CG
+                                    sig_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
+                                    # \sigma_3 \sigma_4 S M_S CG
+                                    sig_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
+                                    
+                                    for M_J in np.arange(-J, J+1, 1):
+                                            
+                                        M_L = M_J - M_S
+                                        M_Lp = M_L
+                                            
+                                        # L S J CG
+                                        if abs(M_L) > L:
+                                            lsj_cg = 0
+                                        else:
+                                            lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+                                        # L' S J CG
+                                        if abs(M_Lp) > Lp:
+                                            lpsj_cg = 0
+                                        else:
+                                            lpsj_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
+                                            
+                                        # L S T factor
+                                        lst_factor = 1-(-1)**(L+S+T)
+                                        # L' S T factor
+                                        lpst_factor = 1-(-1)**(Lp+S+T)
+                                            
+                                        for M_T in np.arange(-T, T+1, 1):
+                                            
+                                            # \tau \tau_\beta T M_T CG
+                                            if tau + beta.tau == M_T:
+                                                ttb_cg = cg_table[(1/2, tau, 1/2, beta.tau, T, M_T)]
+                                            else:
+                                                ttb_cg = 0
+                                            
+                                            if alpha.tau + tau == M_T:
+                                                # \tau_\alpha \tau T M_T CG
+                                                tat_cg = cg_table[(1/2, alpha.tau, 1/2, tau, T, M_T)]
+                                                # \tau \tau_\alpha T M_T CG
+                                                tta_cg = cg_table[(1/2, tau, 1/2, alpha.tau, T, M_T)]
+                                            else:
+                                                tat_cg, tta_cg = 0, 0
+                                                
+                                            # Kronecker \delta functions
+                                            del_alpha = int(tau==alpha.tau)
+                                            del_beta = int(tau==beta.tau)
+                                                
+                                                
+                                            # product
+                                            product = (
+                                                sig_12_cg * sig_34_cg * lsj_cg
+                                                * lpsj_cg * lst_factor
+                                                * lpst_factor * (
+                                                    sig1_alpha_cg * sig2_beta_cg
+                                                    * (
+                                                        ttb_cg**2 * sig3_alpha_cg * sig4_beta_cg * del_alpha
+                                                        - tat_cg * tta_cg * sig4_alpha_cg * sig3_beta_cg * del_beta
+                                                    )
+                                                    + sig1_alpha_cg * sig2_beta_cg
+                                                    * (
+                                                        ttb_cg**2 * sig3_alpha_cg * sig4_beta_cg * del_alpha
+                                                        - tta_cg * tat_cg * sig4_alpha_cg * sig3_beta_cg * del_beta
+                                                    )
+                                                )                                                 
+                                            )
+                                            
+                                            if product != 0:
+                                                            
+                                                d = {
+                                                    'sigma_1': sigma_1,
+                                                    'sigma_2': sigma_2,
+                                                    'sigma_3': sigma_3,
+                                                    'sigma_4': sigma_4,
+                                                    'alpha': alpha,
+                                                    'beta': beta,
+                                                    'channel': channel,
+                                                    'T': T, 'M_T': M_T,
+                                                    'S': S, 'M_S': M_S,
+                                                    'L': L, 'M_L': M_L,
+                                                    'Lp': Lp, 'M_Lp': M_Lp,
+                                                    'J': J, 'M_J': M_J
+                                                }
+                                                            
+                                                quantum_number_combinations.append(d)
+    
+    return quantum_number_combinations
+
+
+def delta_U_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, momenta_array
+):
+    """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
+
+    # Choose z-axis to be along q_vector
+    q_vector = np.array([0, 0, q])
+
+    # Relative momenta k
+    k, theta_k, phi_k = momenta_array[:3]
+    k_vector = np.array([k * np.sin(theta_k) * np.cos(phi_k),
+                         k * np.sin(theta_k) * np.sin(phi_k),
+                         k * np.cos(theta_k)])
+        
+    # C.o.M. momenta K
+    K, theta_K, phi_K = momenta_array[3:6]
+    K_vector = np.array([K * np.sin(theta_K) * np.cos(phi_K),
+                         K * np.sin(theta_K) * np.sin(phi_K),
+                         K * np.cos(theta_K)])
+    
+    # Calculate vector q-K/2
+    qK_vector = q_vector - K_vector/2
+    qK = la.norm(qK_vector)
+    theta_qK = np.arccos(qK_vector[2]/qK)
+    phi_qK = np.arctan2(qK_vector[1], qK_vector[0])
+        
+    # Calculate the Jacobian determinant
+    jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
+    
+    integrand = 0
+    for d in quantum_numbers:
+        
+        # Unpack dictionary
+        sigma_1 = d['sigma_1']
+        sigma_2 = d['sigma_2']
+        sigma_3 = d['sigma_3']
+        sigma_4 = d['sigma_4']
+        alpha = d['alpha']
+        beta = d['beta']
+        channel = d['channel']
+        T, M_T = d['T'], d['M_T']
+        S, M_S = d['S'], d['M_S']
+        L, M_L = d['L'], d['M_L']
+        Lp, M_Lp = d['Lp'], d['M_Lp']
+        J, M_J = d['J'], d['M_J']
+        
+        # \sigma_1 \sigma_2 S M_S CG
+        sig_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
+        # \sigma_3 \sigma_4 S M_S CG
+        sig_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
+            
+        # \tau \tau_\beta T M_T CG
+        if tau + beta.tau == M_T:
+            ttb_cg = cg_table[(1/2, tau, 1/2, beta.tau, T, M_T)]
+        else:
+            ttb_cg = 0
+                                            
+        if alpha.tau + tau == M_T:
+            # \tau_\alpha \tau T M_T CG
+            tat_cg = cg_table[(1/2, alpha.tau, 1/2, tau, T, M_T)]
+            # \tau \tau_\alpha T M_T CG
+            tta_cg = cg_table[(1/2, tau, 1/2, alpha.tau, T, M_T)]
+        else:
+            tat_cg, tta_cg = 0, 0
+        
+        # L S J CG
+        lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+        # L' S J CG
+        lpsj_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
+        
+        # L S T factor
+        lst_factor = 1-(-1)**(L+S+T)
+        # L' S T factor
+        lpst_factor = 1-(-1)**(Lp+S+T)
+        
+        # Spherical harmonics
+        Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
+        Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
+        Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
+        Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
+
+        # \delta U_{L,L'}(k, q-K/2)
+        delta_U_partial_wave = delta_U_functions[channel].ev(k, qK)
+        # \delta U^\dagger_{L,L'}(q-K/2, k)
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel].ev(qK, k)
+        
+        # Single-particle wave functions
+        psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
+                           cg_table, phi_functions)
+        psi_beta_k2 = psi(beta, K_vector/2-k_vector, sigma_2, beta.tau,
+                          cg_table, phi_functions)
+        psi_alpha_q = psi(alpha, q_vector, sigma_3, tau, cg_table,
+                          phi_functions)
+        psi_beta_Kq = psi(beta, K_vector-q_vector, sigma_4, beta.tau, cg_table,
+                          phi_functions)
+        psi_alpha_Kq = psi(alpha, K_vector-q_vector, sigma_4, alpha.tau,
+                           cg_table, phi_functions)
+        psi_beta_q = psi(beta, q_vector, sigma_3, tau, cg_table, phi_functions)
+    
+        integrand += (
+            1/2 * (1/2*2/np.pi) * jacobian * sig_12_cg * sig_34_cg
+            * lsj_cg * lpsj_cg * lst_factor * lpst_factor * (
+                delta_U_partial_wave * Y_L_k * np.conj(Y_Lp_qK)
+                * np.conj(psi_alpha_k1) * np.conj(psi_beta_k2) * (
+                    ttb_cg**2 * psi_beta_Kq * psi_alpha_q -
+                    tat_cg * tta_cg * psi_alpha_Kq * psi_beta_q
+                )
+                + delta_U_dag_partial_wave * Y_L_qK * np.conj(Y_Lp_k)
+                * psi_alpha_k1 * psi_beta_k2 * (
+                    ttb_cg**2 * np.conj(psi_alpha_q) * np.conj(psi_beta_Kq)
+                    - tta_cg * tat_cg * np.conj(psi_alpha_Kq) * np.conj(psi_beta_q)
+                )
+            )
+        )
+    
+    return integrand.real
+
+
+def compute_delta_U_term(
         q_array, tau, occ_states, cg_table, channels, phi_functions,
         delta_U_functions, delta_U_dagger_functions
 ):
@@ -1109,6 +958,10 @@ def compute_delta_U_terms(
         
     delta_U_array = np.zeros_like(q_array)
     delta_U_errors = np.zeros_like(q_array)
+    
+    # Get an organized list of quantum numbers to sum over
+    quantum_numbers = delta_U_quantum_numbers(tau, occ_states, cg_table,
+                                              channels)
         
     # Set-up integration with vegas
     k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
@@ -1126,19 +979,23 @@ def compute_delta_U_terms(
         t0 = time.time()
         
         integrand = functools.partial(
-            delta_U_term_integrand, q, tau, occ_states, cg_table, channels,
+            delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
             
         # Train the integrator
         integ(integrand, nitn=5, neval=200)
-
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e3)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=3e3)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
-            
+
         t1 = time.time()
 
         percent = (i+1)/len(q_array)*100
@@ -1146,6 +1003,332 @@ def compute_delta_U_terms(
         print(f"{percent:.2f}% done after {mins:.3f} minutes.")
                     
     return delta_U_array, delta_U_errors
+
+
+def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
+    """Returns a list of every combination of quantum numbers in the \delta U^2
+    term that gives a non-zero product of Clebsch-Gordan coefficients.
+    """
+    
+    spins = np.array([1/2, -1/2])
+    quantum_number_combinations = []
+    
+    # Many loops over quantum numbers
+    for sigma_1 in spins:
+        for sigma_2 in spins:
+            
+            M_S = sigma_1 + sigma_2
+            
+            for sigma_3 in spins:
+                for sigma_4 in spins:
+                    for taup in spins:
+                        
+                        M_T = tau + taup
+                        
+                        for alpha in occ_states:
+                            
+                            # \sigma_1 l_\alpha CG
+                            if abs(alpha.m_j-sigma_1) > alpha.l:
+                                sig1_alpha_cg = 0
+                            else:
+                                sig1_alpha_cg = cg_table[(
+                                    alpha.l, alpha.m_j-sigma_1, 1/2, sigma_1, alpha.j, alpha.m_j
+                                )]
+                                
+                            # \sigma_3 l_\alpha CG
+                            if abs(alpha.m_j-sigma_3) > alpha.l:
+                                sig3_alpha_cg = 0
+                            else:
+                                sig3_alpha_cg = cg_table[(
+                                    alpha.l, alpha.m_j-sigma_3, 1/2, sigma_3, alpha.j, alpha.m_j
+                                )]
+                                
+                            # \sigma_4 l_\alpha CG
+                            if abs(alpha.m_j-sigma_4) > alpha.l:
+                                sig4_alpha_cg = 0
+                            else:
+                                sig4_alpha_cg = cg_table[(
+                                    alpha.l, alpha.m_j-sigma_4, 1/2, sigma_4, alpha.j, alpha.m_j
+                                )]
+                                
+                            for beta in occ_states:
+                                
+                                # \sigma_2 l_\beta CG
+                                if abs(beta.m_j-sigma_2) > beta.l:
+                                    sig2_beta_cg = 0
+                                else:
+                                    sig2_beta_cg = cg_table[(
+                                        beta.l, beta.m_j-sigma_2, 1/2, sigma_2, beta.j, beta.m_j
+                                    )]
+                                
+                                # \sigma_4 l_\beta CG
+                                if abs(beta.m_j-sigma_4) > beta.l:
+                                    sig4_beta_cg = 0
+                                else:
+                                    sig4_beta_cg = cg_table[(
+                                        beta.l, beta.m_j-sigma_4, 1/2, sigma_4, beta.j, beta.m_j
+                                    )]
+                                
+                                # \sigma_3 l_\beta CG
+                                if abs(beta.m_j-sigma_3) > beta.l:
+                                    sig3_beta_cg = 0
+                                else:
+                                    sig3_beta_cg = cg_table[(
+                                        beta.l, beta.m_j-sigma_3, 1/2, sigma_3, beta.j, beta.m_j
+                                    )]
+                                
+                                for channel_1 in channels:
+                                    
+                                    L, Lp, S, J = get_channel_quantum_numbers(channel_1)
+                                    T = get_total_isospin(L, S)
+                                    
+                                    if abs(M_T) <= T and abs(M_S) <= S:
+                                        
+                                        # \sigma_1 \sigma_2 S M_S CG
+                                        sig_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
+                                        # \sigma_3 \sigma_4 S M_S CG
+                                        sig_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
+            
+                                        # \tau_\alpha \tau_\beta T M_T CG
+                                        tau_ab_T_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, T, M_T)]
+                                        # \tau \tau' T M_T CG
+                                        tau_ttp_T_cg = cg_table[(1/2, tau, 1/2, taup, T, M_T)]
+                                        
+                                        for M_J in np.arange(-J, J+1, 1):
+                                            
+                                            M_L = M_J - M_S
+                                            M_Lp = M_L
+                                            
+                                            # L S J CG
+                                            if abs(M_L) > L:
+                                                lsj_cg = 0
+                                            else:
+                                                lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+                                            # L' S J CG
+                                            if abs(M_Lp) > Lp:
+                                                lpsj_cg = 0
+                                            else:
+                                                lpsj_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
+                                            
+                                            # L S T factor
+                                            lst_factor = 1-(-1)**(L+S+T)
+                                            # L' S T factor
+                                            lpst_factor = 1-(-1)**(Lp+S+T)
+                                            
+                                            for channel_2 in channels:
+                                                
+                                                Lpp, Lppp, S_temp, Jp = get_channel_quantum_numbers(channel_2)
+                                                Tp = get_total_isospin(Lpp, S_temp)
+                                                M_Tp = M_T
+                                    
+                                                if S_temp == S and abs(M_Tp) <= Tp:
+                                                    
+                                                    # \tau_\alpha \tau_\beta T' M_T' CG
+                                                    tau_ab_Tp_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, Tp, M_Tp)]
+                                                    # \tau \tau' T' M_T' CG
+                                                    tau_ttp_Tp_cg = cg_table[(1/2, tau, 1/2, taup, Tp, M_Tp)]
+                                                    
+                                                    for M_Jp in np.arange(-Jp, Jp+1, 1):
+                                            
+                                                        M_Lpp = M_Jp - M_S
+                                                        M_Lppp = M_Lpp
+                                                        
+                                                        # L'' S J' CG
+                                                        if abs(M_Lpp) > Lpp:
+                                                            lppsjp_cg = 0
+                                                        else:
+                                                            lppsjp_cg = cg_table[(Lpp, M_Lpp, S, M_S, Jp, M_Jp)]
+                                                        # L''' S J' CG
+                                                        if abs(M_Lppp) > Lppp:
+                                                            lpppsjp_cg = 0
+                                                        else:
+                                                            lpppsjp_cg = cg_table[(Lppp, M_Lppp, S, M_S, Jp, M_Jp)]
+                                                            
+                                                        # L'' S T' factor
+                                                        lppst_factor = 1-(-1)**(Lpp+S+Tp)
+                                                        # L''' S T' factor
+                                                        lpppst_factor = 1-(-1)**(Lppp+S+Tp)
+                                                    
+                                                        # product
+                                                        product = (
+                                                            sig1_alpha_cg
+                                                            * sig2_beta_cg
+                                                            * (
+                                                                sig3_alpha_cg
+                                                                * sig4_beta_cg
+                                                                - (-1)**(Tp-1)
+                                                                * sig3_beta_cg
+                                                                * sig4_alpha_cg
+                                                            )
+                                                            * sig_12_cg * sig_34_cg
+                                                            * tau_ab_T_cg * tau_ttp_T_cg
+                                                            * tau_ttp_Tp_cg * tau_ab_Tp_cg
+                                                            * lsj_cg * lpsj_cg
+                                                            * lppsjp_cg * lpppsjp_cg
+                                                            * lst_factor * lpst_factor
+                                                            * lppst_factor * lpppst_factor
+                                                        )
+    
+                                                        if product != 0:
+                                                            
+                                                            d = {
+                                                                'sigma_1': sigma_1,
+                                                                'sigma_2': sigma_2,
+                                                                'sigma_3': sigma_3,
+                                                                'sigma_4': sigma_4,
+                                                                'taup': taup,
+                                                                'alpha': alpha,
+                                                                'beta': beta,
+                                                                'channel_1': channel_1,
+                                                                'T': T, 'M_T': M_T,
+                                                                'S': S, 'M_S': M_S,
+                                                                'L': L, 'M_L': M_L,
+                                                                'Lp': Lp, 'M_Lp': M_Lp,
+                                                                'J': J, 'M_J': M_J,
+                                                                'channel_2': channel_2,
+                                                                'Tp': Tp, 'M_Tp': M_Tp,
+                                                                'Lpp': Lpp, 'M_Lpp': M_Lpp,
+                                                                'Lppp': Lppp, 'M_Lppp': M_Lppp,
+                                                                'Jp': Jp, 'M_Jp': M_Jp
+                                                            }
+                                                            
+                                                            quantum_number_combinations.append(d)
+    
+    return quantum_number_combinations
+
+
+def delta_U2_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, momenta_array
+):
+    """Evaluate the integrand of the \delta U \delta U^\dagger term."""
+
+    # Choose z-axis to be along q_vector
+    q_vector = np.array([0, 0, q])
+
+    # Relative momenta k
+    k, theta_k, phi_k = momenta_array[:3]
+    k_vector = np.array([k * np.sin(theta_k) * np.cos(phi_k),
+                         k * np.sin(theta_k) * np.sin(phi_k),
+                         k * np.cos(theta_k)])
+        
+    # Relative momenta k'
+    kp, theta_kp, phi_kp = momenta_array[3:6]
+    kp_vector = np.array([kp * np.sin(theta_kp) * np.cos(phi_kp),
+                          kp * np.sin(theta_kp) * np.sin(phi_kp),
+                          kp * np.cos(theta_kp)])
+        
+    # C.o.M. momenta K
+    K, theta_K, phi_K = momenta_array[6:9]
+    K_vector = np.array([K * np.sin(theta_K) * np.cos(phi_K),
+                         K * np.sin(theta_K) * np.sin(phi_K),
+                         K * np.cos(theta_K)])
+    
+    # Calculate vector q-K/2
+    qK_vector = q_vector - K_vector/2
+    qK = la.norm(qK_vector)
+    theta_qK = np.arccos(qK_vector[2]/qK)
+    phi_qK = np.arctan2(qK_vector[1], qK_vector[0])
+        
+    # Calculate the Jacobian determinant
+    jacobian = (k**2 * np.sin(theta_k) * kp**2 * np.sin(theta_kp) * K**2
+                * np.sin(theta_K))
+    
+    integrand = 0
+    for d in quantum_numbers:
+        
+        # Unpack dictionary
+        sigma_1 = d['sigma_1']
+        sigma_2 = d['sigma_2']
+        sigma_3 = d['sigma_3']
+        sigma_4 = d['sigma_4']
+        taup = d['taup']
+        alpha = d['alpha']
+        beta = d['beta']
+        channel_1 = d['channel_1']
+        T, M_T = d['T'], d['M_T']
+        S, M_S = d['S'], d['M_S']
+        L, M_L = d['L'], d['M_L']
+        Lp, M_Lp = d['Lp'], d['M_Lp']
+        J, M_J = d['J'], d['M_J']
+        channel_2 = d['channel_2']
+        Tp, M_Tp = d['Tp'], d['M_Tp']
+        Lpp, M_Lpp = d['Lpp'], d['M_Lpp']
+        Lppp, M_Lppp = d['Lppp'], d['M_Lppp']
+        Jp, M_Jp = d['Jp'], d['M_Jp']
+        
+        # \sigma_1 \sigma_2 S M_S CG
+        sig_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
+        # \sigma_3 \sigma_4 S M_S CG
+        sig_34_cg = cg_table[(1/2, sigma_3, 1/2, sigma_4, S, M_S)]
+            
+        # \tau_\alpha \tau_\beta T M_T CG
+        tau_ab_T_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, T, M_T)]
+        # T M_T \tau \tau' CG
+        tau_ttp_T_cg = cg_table[(1/2, tau, 1/2, taup, T, M_T)]
+        # \tau \tau' T' M_T'  CG
+        tau_ttp_Tp_cg = cg_table[(1/2, tau, 1/2, taup, Tp, M_Tp)]
+        # T' M_T' \tau_\alpha \tau_\beta CG
+        tau_ab_Tp_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, Tp, M_Tp)]
+        
+        # L S J CG
+        lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+        # L' S J CG
+        lpsj_cg = cg_table[(Lp, M_Lp, S, M_S, J, M_J)]
+        # L'' S J' CG
+        lppsjp_cg = cg_table[(Lpp, M_Lpp, S, M_S, Jp, M_Jp)]
+        # L''' S J' CG
+        lpppsjp_cg = cg_table[(Lppp, M_Lppp, S, M_S, Jp, M_Jp)]
+        
+        # L S T factor
+        lst_factor = 1-(-1)**(L+S+T)
+        # L' S T factor
+        lpst_factor = 1-(-1)**(Lp+S+T)
+        # L'' S T' factor
+        lppst_factor = 1-(-1)**(Lpp+S+Tp)
+        # L''' S T' factor
+        lpppst_factor = 1-(-1)**(Lppp+S+Tp)
+        
+        # Spherical harmonics
+        Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
+        Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
+        Y_Lpp_qK = sph_harm(M_Lpp, Lpp, phi_qK, theta_qK)
+        Y_Lppp_kp = sph_harm(M_Lppp, Lppp, phi_kp, theta_kp)
+        
+        # \delta U_{L,L'}(k, q-K/2)
+        delta_U_partial_wave = delta_U_functions[channel_1].ev(k, qK)
+        # \delta U^\dagger_{L'',L'''}(q-K/2, k')
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2].ev(qK,
+                                                                          kp)
+        
+        # Single-particle wave functions
+        psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
+                           cg_table, phi_functions)
+        psi_beta_k2 = psi(beta, K_vector/2-k_vector, sigma_2, beta.tau,
+                          cg_table, phi_functions)
+        psi_alpha_k3 = psi(alpha, K_vector/2+kp_vector, sigma_3, alpha.tau,
+                           cg_table, phi_functions)
+        psi_beta_k4 = psi(beta, K_vector/2-kp_vector, sigma_4, beta.tau,
+                          cg_table, phi_functions)
+        psi_alpha_k4 = psi(alpha, K_vector/2-kp_vector, sigma_4, alpha.tau,
+                           cg_table, phi_functions)
+        psi_beta_k3 = psi(beta, K_vector/2+kp_vector, sigma_3, beta.tau,
+                          cg_table, phi_functions)
+    
+        integrand += (
+            1/4 * (1/2*2/np.pi)**2 * jacobian * sig_12_cg * sig_34_cg
+            * tau_ab_T_cg * tau_ttp_T_cg * tau_ttp_Tp_cg * tau_ab_Tp_cg
+            * lsj_cg * lpsj_cg * lppsjp_cg * lpppsjp_cg * lst_factor
+            * lpst_factor * lppst_factor * lpppst_factor * Y_L_k
+            * np.conj(Y_Lp_qK) * Y_Lpp_qK * np.conj(Y_Lppp_kp)
+            * delta_U_partial_wave * delta_U_dag_partial_wave
+            * np.conj(psi_alpha_k1) * np.conj(psi_beta_k2) * (
+                psi_alpha_k3 * psi_beta_k4
+                - (-1)**(Tp-1) * psi_alpha_k4 * psi_beta_k3
+            )
+        )
+    
+    return integrand.real
 
 
 def compute_delta_U2_term(
@@ -1156,6 +1339,10 @@ def compute_delta_U2_term(
         
     delta_U2_array = np.zeros_like(q_array)
     delta_U2_errors = np.zeros_like(q_array)
+    
+    # Get an organized list of quantum numbers to sum over
+    quantum_numbers = delta_U2_quantum_numbers(tau, occ_states, cg_table,
+                                               channels)
         
     # Set-up integration with vegas
     k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
@@ -1174,19 +1361,23 @@ def compute_delta_U2_term(
         t0 = time.time()
         
         integrand = functools.partial(
-            delta_U2_term_integrand, q, tau, occ_states, cg_table, channels,
+            delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
             
         # Train the integrator
         integ(integrand, nitn=5, neval=200)
-
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e3)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=3e3)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
-            
+
         t1 = time.time()
 
         percent = (i+1)/len(q_array)*100
@@ -1198,13 +1389,13 @@ def compute_delta_U2_term(
 
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, print_normalization=False,
-        ipm=False, save=True
+        ipm_only=False, save=True
 ):
     """Compute the single-nucleon momentum distribution."""
     
     # Compute table of Clebsch-Gordan coefficients
     cg_table = compute_clebsch_gordan_table(4)
-    print("Done calculating Clebsch-Gordan table.")
+    print("Done calculating Clebsch-Gordan table.\n")
     
     # Set-up single-particle states
     sp_basis = SingleParticleBasis(nucleus_name, Z, N, run_woodsaxon=False)
@@ -1216,42 +1407,52 @@ def compute_momentum_distribution(
     )
     
     # Set momentum mesh
-    q_array, q_weights = momentum_mesh(8.0, 2.0, 60)
+    q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
+    # q_array, q_weights = momentum_mesh(8.0, 2.0, 60)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, sp_basis.occ_states, cg_table,
                              phi_functions)
     
     # Independent particle model has no \delta U contributions
-    if ipm:
+    if ipm_only:
         
         delta_U_array = np.zeros_like(I_array)
         delta_U_errors = np.zeros_like(I_array)
         delta_U2_array = np.zeros_like(I_array)
         delta_U2_errors = np.zeros_like(I_array)
     
-    # Include correlations
+    # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
     else:
-    
+        
+        t0 = time.time()
+
         # Compute \delta U + \delta U^\dagger term using vegas
         print("Beginning \delta U linear terms.\n")
-        t0 = time.time()
-        delta_U_array, delta_U_errors = compute_delta_U_terms(
-            q_array, tau, sp_basis.occ_states, cg_table, channels, phi_functions,
-            delta_U_functions, delta_U_dagger_functions
-        )
         t1 = time.time()
-        print(f"Done after {(t1-t0)/3600:.3f} hours.\n")
-    
+        delta_U_array, delta_U_errors = compute_delta_U_term(
+            q_array, tau, sp_basis.occ_states, cg_table, channels,
+            phi_functions, delta_U_functions, delta_U_dagger_functions
+        )
+        t2 = time.time()
+        print(f"Done after {(t2-t1)/3600:.3f} hours.\n")
+        
+        # # TESTING
+        # delta_U_array = np.zeros_like(I_array)
+        # delta_U_errors = np.zeros_like(I_array)
+
         # Compute \delta U \delta U^\dagger term using vegas
         print("Beginning \delta U \delta U^\dagger term.\n")
-        t2 = time.time()
+        t3 = time.time()
         delta_U2_array, delta_U2_errors = compute_delta_U2_term(
             q_array, tau, sp_basis.occ_states, cg_table, channels,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
-        t3 = time.time()
-        print(f"Done after {(t3-t2)/3600:.3f} hours.\n")
+        t4 = time.time()
+        print(f"Done after {(t4-t3)/3600:.3f} hours.\n")
+        
+        t5 = time.time()
+        print(f"Total time elapsed: {(t5-t0)/3600:.3f} hours.\n")
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
@@ -1261,7 +1462,7 @@ def compute_momentum_distribution(
         normalization = compute_normalization(q_array, q_weights, n_array)
         print(f"Normalization = {normalization:.5f}.")
         
-    if save and not(ipm):  # Do not save IPM-only data
+    if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
             nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
             delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
@@ -1278,12 +1479,14 @@ def compute_normalization(q_array, q_weights, n_array):
 
 def save_momentum_distribution(
         nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
-        deltaU_array, deltaU_errors, deltaU2_array, deltaU2_errors
+        delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
-    data = np.vstack((q_array, q_weights, n_array, n_errors, I_array, deltaU_array,
-                      deltaU_errors, deltaU2_array, deltaU2_errors)).T
+    data = np.vstack(
+        (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+         delta_U_errors, delta_U2_array, delta_U2_errors)
+    ).T
             
     if tau == 1/2:
         nucleon = 'proton'
@@ -1297,9 +1500,26 @@ def save_momentum_distribution(
                data, header=hdr)
 
 
-def load_momentum_distribution():
+def load_momentum_distribution(nucleus_name, nucleon):
+    """Load and return the momentum distribution along with the isolated
+    contributions.
+    """
     
-    return None
+    data = np.loadtxt(f"{nucleus_name}_{nucleon}_momentum_distribution.txt")
+    
+    q_array = data[:, 0]
+    q_weights = data[:, 1]
+    n_array = data[:, 2]
+    n_errors = data[:, 3]
+    I_array = data[:, 4]
+    delta_U_array = data[:, 5]
+    delta_U_errors = data[:, 6]
+    delta_U2_array = data[:, 7]
+    delta_U2_errors = data[:, 8]
+    
+    return (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+            delta_U_errors, delta_U2_array, delta_U2_errors)
+
 
 
 if __name__ == '__main__':
@@ -1307,18 +1527,22 @@ if __name__ == '__main__':
     # Set nucleus, nucleon, partial wave channels, and potential
     nucleus_name, Z, N = 'He4', 2, 2
     tau = 1/2
-    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '3P0', '3P1',
+                '1P1')
     kvnn = 6  # AV18
-    
+
     # He4
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-        ipm=False, save=True
+        save=True
     )
     
-    # O16
-    nucleus_name, Z, N = 'O16', 8, 8
-    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-        ipm=False, save=True
-    )
+    # # O16
+    # nucleus_name, Z, N = 'O16', 8, 8
+    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+    #     nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
+    #     save=True
+    # )
+    
+    
