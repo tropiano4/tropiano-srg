@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. In this version, we test several
 `vegas` options to speed-up the code.
 
-Last update: February 21, 2023
+Last update: February 28, 2023
 
 """
 
@@ -21,7 +21,9 @@ Last update: February 21, 2023
 import functools
 import numpy as np
 import numpy.linalg as la
-from scipy.interpolate import interp1d, RectBivariateSpline
+from scipy.interpolate import (
+    interp1d, RectBivariateSpline, RegularGridInterpolator
+)
 from scipy.special import spherical_jn, sph_harm
 import shutil
 from sympy.physics.quantum.cg import CG
@@ -441,97 +443,11 @@ def psi(sp_state, q_vector, sigma, tau, cg_table, phi_functions):
     return phi_sp_wf * cg * Y_lm
 
 
-# def interpolate_delta_U(
-#         kvnn, channel, kmax, kmid, ntot, generator, lamb,
-#         hermitian_conjugate=False
-# ):
-#     """Interpolate \delta U(k, k') for the given channel."""
-    
-#     # Set channel argument to be compatible with potential functions
-#     if channel[:3] in ['3S1', '3D1']:
-#         channel_arg = '3S1'
-#     elif channel[:3] in ['3P2', '3F2']:
-#         channel_arg = '3P2'
-#     elif channel[:3] in ['3D3', '3G3']:
-#         channel_arg = '3D3'
-#     else:
-#         channel_arg = channel[:3]
-        
-#     # Set potential
-#     potential = Potential(kvnn, channel_arg, kmax, kmid, ntot)
-    
-#     # Get momentum mesh
-#     k_array, k_weights = potential.load_mesh()
-    
-#     # Initial and evolved Hamiltonians
-#     H_initial = potential.load_hamiltonian()
-#     if generator == 'Block-diag':
-#         H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
-#                                                lambda_bd=lamb)
-#     else:
-#         H_evolved = potential.load_hamiltonian('srg', generator, lamb)
-    
-#     # Get SRG transformation from Hamiltonians
-#     U_matrix_weights = get_transformation(H_initial, H_evolved)
-    
-#     # Calculate \delta U = U - I
-#     I_matrix_weights = np.eye(len(U_matrix_weights), len(U_matrix_weights))
-#     if hermitian_conjugate:
-#         delU_matrix_weights = (U_matrix_weights - I_matrix_weights).T
-#     else:
-#         delU_matrix_weights = U_matrix_weights - I_matrix_weights
-
-#     # Get specific sub-block if coupled-channel
-#     if channel in ['3S1-3D1', '3P2-3F2', '3D3-3G3']:
-#         delU_matrix = unattach_weights_from_matrix(
-#                 k_array, k_weights, delU_matrix_weights[:ntot,ntot:]
-#         )
-#     elif channel in ['3D1-3S1', '3F2-3P2', '3G3-3D3']:
-#         delU_matrix = unattach_weights_from_matrix(
-#             k_array, k_weights, delU_matrix_weights[ntot:,:ntot]
-#         )
-#     elif channel in ['3D1-3D1', '3F2-3F2', '3G3-3G3']:
-#         delU_matrix = unattach_weights_from_matrix(
-#             k_array, k_weights, delU_matrix_weights[ntot:,ntot:]
-#         )
-#     else:
-#         delU_matrix = unattach_weights_from_matrix(
-#             k_array, k_weights, delU_matrix_weights[:ntot,:ntot]
-#         )
-        
-#     # Interpolate \delta U(k, k')
-#     delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
-
-#     return delU_func
-
-
-# def get_delta_U_functions(
-#         channels, kvnn, kmax=15.0, kmid=3.0, ntot=120, generator='Wegner',
-#         lamb=1.35
-# ):
-#     """Get \delta U and \delta U^\dagger functions."""
-
-#     delta_U_functions = {}
-#     delta_U_dagger_functions = {}
-#     for channel in channels:
-#         delta_U_functions[channel] = interpolate_delta_U(
-#             kvnn, channel, kmax, kmid, ntot, generator, lamb
-#         )
-#         delta_U_dagger_functions[channel] = (
-#             interpolate_delta_U(kvnn, channel, kmax, kmid, ntot, generator,
-#                                 lamb, hermitian_conjugate=True)
-#         )
-        
-#     return delta_U_functions, delta_U_dagger_functions
-
-# UPDATED VERSIONS OF interpolate_delta_U and get_delta_U_functions 02/21/23
 def interpolate_delta_U(
         kvnn, channel, kmax, kmid, ntot, generator, lamb,
-        hermitian_conjugate=False, squared=False
+        hermitian_conjugate=False
 ):
-    """Function that returns interpolated \delta U(k, k') or
-    \delta U^\dagger(k, k') given the partial wave channel.
-    """
+    """Interpolate \delta U(k, k') for the given channel."""
     
     # Set channel argument to be compatible with potential functions
     if channel[:3] in ['3S1', '3D1']:
@@ -547,7 +463,8 @@ def interpolate_delta_U(
     potential = Potential(kvnn, channel_arg, kmax, kmid, ntot)
     
     # Get momentum mesh
-    k_array, k_weights = potential.load_mesh()
+    # k_array, k_weights = potential.load_mesh()
+    k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
     # Initial and evolved Hamiltonians
     H_initial = potential.load_hamiltonian()
@@ -570,23 +487,26 @@ def interpolate_delta_U(
     # Get specific sub-block if coupled-channel
     if channel in ['3S1-3D1', '3P2-3F2', '3D3-3G3']:
         delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[:ntot,ntot:])
+                k_array, k_weights, delU_matrix_weights[:ntot,ntot:]
+        )
     elif channel in ['3D1-3S1', '3F2-3P2', '3G3-3D3']:
         delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[ntot:,:ntot])
+            k_array, k_weights, delU_matrix_weights[ntot:,:ntot]
+        )
     elif channel in ['3D1-3D1', '3F2-3F2', '3G3-3G3']:
         delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[ntot:,ntot:])
+            k_array, k_weights, delU_matrix_weights[ntot:,ntot:]
+        )
     else:
         delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[:ntot,:ntot])
+            k_array, k_weights, delU_matrix_weights[:ntot,:ntot]
+        )
         
-    # Interpolate \delta U(k, k') or [\delta U \delta U^\dagger](k, k')
-    if squared:
-        delU_func = RectBivariateSpline(k_array, k_array, delU_matrix**2)
-    else:
-        delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
-    
+    # Interpolate \delta U(k, k')
+    # delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
+    delU_func = RegularGridInterpolator((k_array, k_array), delU_matrix,
+                                        method='nearest')
+
     return delU_func
 
 
@@ -594,24 +514,113 @@ def get_delta_U_functions(
         channels, kvnn, kmax=15.0, kmid=3.0, ntot=120, generator='Wegner',
         lamb=1.35
 ):
-    """Get \delta U, \delta U^\dagger, and \delta U^2 functions."""
+    """Get \delta U and \delta U^\dagger functions."""
 
     delta_U_functions = {}
     delta_U_dagger_functions = {}
-    delta_U2_functions = {}
     for channel in channels:
         delta_U_functions[channel] = interpolate_delta_U(
             kvnn, channel, kmax, kmid, ntot, generator, lamb
         )
-        delta_U_dagger_functions[channel] = interpolate_delta_U(
-            kvnn, channel, kmax, kmid, ntot, generator, lamb,
-            hermitian_conjugate=True
+        delta_U_dagger_functions[channel] = (
+            interpolate_delta_U(kvnn, channel, kmax, kmid, ntot, generator,
+                                lamb, hermitian_conjugate=True)
         )
-        delta_U2_functions[channel] = interpolate_delta_U(
-            kvnn, channel, kmax, kmid, ntot, generator, lamb, squared=True
-        )
+        
+    return delta_U_functions, delta_U_dagger_functions
 
-    return delta_U_functions, delta_U_dagger_functions, delta_U2_functions
+# # UPDATED VERSIONS OF interpolate_delta_U and get_delta_U_functions 02/21/23
+# def interpolate_delta_U(
+#         kvnn, channel, kmax, kmid, ntot, generator, lamb,
+#         hermitian_conjugate=False, squared=False
+# ):
+#     """Function that returns interpolated \delta U(k, k') or
+#     \delta U^\dagger(k, k') given the partial wave channel.
+#     """
+    
+#     # Set channel argument to be compatible with potential functions
+#     if channel[:3] in ['3S1', '3D1']:
+#         channel_arg = '3S1'
+#     elif channel[:3] in ['3P2', '3F2']:
+#         channel_arg = '3P2'
+#     elif channel[:3] in ['3D3', '3G3']:
+#         channel_arg = '3D3'
+#     else:
+#         channel_arg = channel[:3]
+        
+#     # Set potential
+#     potential = Potential(kvnn, channel_arg, kmax, kmid, ntot)
+    
+#     # Get momentum mesh
+#     k_array, k_weights = potential.load_mesh()
+    
+#     # Initial and evolved Hamiltonians
+#     H_initial = potential.load_hamiltonian()
+#     if generator == 'Block-diag':
+#         H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
+#                                                 lambda_bd=lamb)
+#     else:
+#         H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+    
+#     # Get SRG transformation from Hamiltonians
+#     U_matrix_weights = get_transformation(H_initial, H_evolved)
+    
+#     # Calculate \delta U = U - I
+#     I_matrix_weights = np.eye(len(U_matrix_weights), len(U_matrix_weights))
+#     if hermitian_conjugate:
+#         delU_matrix_weights = (U_matrix_weights - I_matrix_weights).T
+#     else:
+#         delU_matrix_weights = U_matrix_weights - I_matrix_weights
+
+#     # Get specific sub-block if coupled-channel
+#     if channel in ['3S1-3D1', '3P2-3F2', '3D3-3G3']:
+#         delU_matrix = unattach_weights_from_matrix(
+#             k_array, k_weights, delU_matrix_weights[:ntot,ntot:])
+#     elif channel in ['3D1-3S1', '3F2-3P2', '3G3-3D3']:
+#         delU_matrix = unattach_weights_from_matrix(
+#             k_array, k_weights, delU_matrix_weights[ntot:,:ntot])
+#     elif channel in ['3D1-3D1', '3F2-3F2', '3G3-3G3']:
+#         delU_matrix = unattach_weights_from_matrix(
+#             k_array, k_weights, delU_matrix_weights[ntot:,ntot:])
+#     else:
+#         delU_matrix = unattach_weights_from_matrix(
+#             k_array, k_weights, delU_matrix_weights[:ntot,:ntot])
+        
+#     # Interpolate \delta U(k, k') or [\delta U \delta U^\dagger](k, k')
+#     if squared:
+#         # delU_func = RectBivariateSpline(k_array, k_array, delU_matrix**2)
+#         delU_func = RectBivariateSpline(k_array, k_array, delU_matrix**2, kx=5,
+#                                         ky=5)
+#     else:
+#         # delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
+#         delU_func = RectBivariateSpline(k_array, k_array, delU_matrix, kx=5,
+#                                         ky=5)
+    
+#     return delU_func
+
+
+# def get_delta_U_functions(
+#         channels, kvnn, kmax=15.0, kmid=3.0, ntot=120, generator='Wegner',
+#         lamb=1.35
+# ):
+#     """Get \delta U, \delta U^\dagger, and \delta U^2 functions."""
+
+#     delta_U_functions = {}
+#     delta_U_dagger_functions = {}
+#     delta_U2_functions = {}
+#     for channel in channels:
+#         delta_U_functions[channel] = interpolate_delta_U(
+#             kvnn, channel, kmax, kmid, ntot, generator, lamb
+#         )
+#         delta_U_dagger_functions[channel] = interpolate_delta_U(
+#             kvnn, channel, kmax, kmid, ntot, generator, lamb,
+#             hermitian_conjugate=True
+#         )
+#         delta_U2_functions[channel] = interpolate_delta_U(
+#             kvnn, channel, kmax, kmid, ntot, generator, lamb, squared=True
+#         )
+
+#     return delta_U_functions, delta_U_dagger_functions, delta_U2_functions
 
 
 def get_channel_quantum_numbers(channel):
@@ -1000,10 +1009,16 @@ def delta_U_term_integrand(
         Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
         Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
 
+        # # \delta U_{L,L'}(k, q-K/2)
+        # delta_U_partial_wave = delta_U_functions[channel].ev(k, qK)
+        # # \delta U^\dagger_{L,L'}(q-K/2, k)
+        # delta_U_dag_partial_wave = delta_U_dagger_functions[channel].ev(qK, k)
+        
+        # TESTING
         # \delta U_{L,L'}(k, q-K/2)
-        delta_U_partial_wave = delta_U_functions[channel].ev(k, qK)
+        delta_U_partial_wave = delta_U_functions[channel]((k, qK))
         # \delta U^\dagger_{L,L'}(q-K/2, k)
-        delta_U_dag_partial_wave = delta_U_dagger_functions[channel].ev(qK, k)
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel]((qK, k))
         
         # Single-particle wave functions
         psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
@@ -1052,10 +1067,17 @@ def compute_delta_U_term(
     quantum_numbers = delta_U_quantum_numbers(tau, occ_states, cg_table,
                                               channels)
         
-    # Set-up integration with vegas
-    #k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
-    k_limits = [0, 15]  # Relative momenta up to 15^-1
-    K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    # # Set-up integration with vegas
+    # # k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
+    # k_limits = [0, 15]  # Relative momenta up to 15^-1
+    # K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    
+    # TESTING
+    k_array, _ = momentum_mesh(15.0, 3.0, 120)
+    k_max, k_min = max(k_array), min(k_array)
+    k_limits = [k_min, k_max]  # Relative momenta up to 15^-1
+    K_limits = [0, 3]  # C.o.M. momenta up to 2.7 fm^-1
+    
     theta_limits = [0, np.pi]
     phi_limits = [0, 2*np.pi]
 
@@ -1073,15 +1095,15 @@ def compute_delta_U_term(
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
             
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=200)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e3)
-        
         # Train the integrator
-        integ(integrand, nitn=5, neval=1e3)
+        integ(integrand, nitn=5, neval=200)
         # Final result
-        result = integ(integrand, nitn=10, neval=3e3)
+        result = integ(integrand, nitn=10, neval=1e3)
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e3)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=3e3)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
@@ -1287,15 +1309,15 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
     return quantum_number_combinations
 
 
-# def delta_U2_term_integrand(
-#         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-#         delta_U_dagger_functions, momenta_array
-# ):
-#TESTING
 def delta_U2_term_integrand(
-        q, tau, quantum_numbers, cg_table, phi_functions, delta_U2_functions,
-        momenta_array
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, momenta_array
 ):
+# #TESTING
+# def delta_U2_term_integrand(
+#         q, tau, quantum_numbers, cg_table, phi_functions, delta_U2_functions,
+#         momenta_array
+# ):
     """Evaluate the integrand of the \delta U \delta U^\dagger term."""
 
     # Choose z-axis to be along q_vector
@@ -1346,7 +1368,7 @@ def delta_U2_term_integrand(
         L, M_L = d['L'], d['M_L']
         Lp, M_Lp = d['Lp'], d['M_Lp']
         J, M_J = d['J'], d['M_J']
-        #channel_2 = d['channel_2']
+        channel_2 = d['channel_2']
         Tp, M_Tp = d['Tp'], d['M_Tp']
         Lpp, M_Lpp = d['Lpp'], d['M_Lpp']
         Lppp, M_Lppp = d['Lppp'], d['M_Lppp']
@@ -1395,9 +1417,15 @@ def delta_U2_term_integrand(
         # # \delta U^\dagger_{L'',L'''}(q-K/2, k')
         # delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2].ev(qK,
         #                                                                   kp)
-        #TESTING
-        delta_U2_partial_wave = delta_U2_functions[channel_1].ev(k, qK)
-        # No more k' dependence in \delta U \delta U^\dagger???
+        # # TESTING
+        # delta_U2_partial_wave = delta_U2_functions[channel_1].ev(k, qK)
+        # # No more k' dependence in \delta U \delta U^\dagger???
+        
+        # TESTING
+        # \delta U_{L,L'}(k, q-K/2)
+        delta_U_partial_wave = delta_U_functions[channel_1]((k, qK))
+        # \delta U^\dagger_{L'',L'''}(q-K/2, k)
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2]((qK, k))
         
         # Single-particle wave functions
         psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
@@ -1413,44 +1441,44 @@ def delta_U2_term_integrand(
         psi_beta_k3 = psi(beta, K_vector/2+kp_vector, sigma_3, beta.tau,
                           cg_table, phi_functions)
     
-        # integrand += (
-        #     1/4 * (1/2*2/np.pi)**2 * jacobian * sig_12_cg * sig_34_cg
-        #     * tau_ab_T_cg * tau_ttp_T_cg * tau_ttp_Tp_cg * tau_ab_Tp_cg
-        #     * lsj_cg * lpsj_cg * lppsjp_cg * lpppsjp_cg * lst_factor
-        #     * lpst_factor * lppst_factor * lpppst_factor * Y_L_k
-        #     * np.conj(Y_Lp_qK) * Y_Lpp_qK * np.conj(Y_Lppp_kp)
-        #     * delta_U_partial_wave * delta_U_dag_partial_wave
-        #     * np.conj(psi_alpha_k1) * np.conj(psi_beta_k2) * (
-        #         psi_alpha_k3 * psi_beta_k4
-        #         - (-1)**(Tp-1) * psi_alpha_k4 * psi_beta_k3
-        #     )
-        # )
-        #TESTING
         integrand += (
             1/4 * (1/2*2/np.pi)**2 * jacobian * sig_12_cg * sig_34_cg
             * tau_ab_T_cg * tau_ttp_T_cg * tau_ttp_Tp_cg * tau_ab_Tp_cg
             * lsj_cg * lpsj_cg * lppsjp_cg * lpppsjp_cg * lst_factor
             * lpst_factor * lppst_factor * lpppst_factor * Y_L_k
             * np.conj(Y_Lp_qK) * Y_Lpp_qK * np.conj(Y_Lppp_kp)
-            * delta_U2_partial_wave * np.conj(psi_alpha_k1)
-            * np.conj(psi_beta_k2) * (
+            * delta_U_partial_wave * delta_U_dag_partial_wave
+            * np.conj(psi_alpha_k1) * np.conj(psi_beta_k2) * (
                 psi_alpha_k3 * psi_beta_k4
                 - (-1)**(Tp-1) * psi_alpha_k4 * psi_beta_k3
             )
         )
+        # #TESTING
+        # integrand += (
+        #     1/4 * (1/2*2/np.pi)**2 * jacobian * sig_12_cg * sig_34_cg
+        #     * tau_ab_T_cg * tau_ttp_T_cg * tau_ttp_Tp_cg * tau_ab_Tp_cg
+        #     * lsj_cg * lpsj_cg * lppsjp_cg * lpppsjp_cg * lst_factor
+        #     * lpst_factor * lppst_factor * lpppst_factor * Y_L_k
+        #     * np.conj(Y_Lp_qK) * Y_Lpp_qK * np.conj(Y_Lppp_kp)
+        #     * delta_U2_partial_wave * np.conj(psi_alpha_k1)
+        #     * np.conj(psi_beta_k2) * (
+        #         psi_alpha_k3 * psi_beta_k4
+        #         - (-1)**(Tp-1) * psi_alpha_k4 * psi_beta_k3
+        #     )
+        # )
     
     return integrand.real
 
 
-# def compute_delta_U2_term(
-#         q_array, tau, occ_states, cg_table, channels, phi_functions,
-#         delta_U_functions, delta_U_dagger_functions
-# ):
-#TESTING
 def compute_delta_U2_term(
         q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U2_functions
+        delta_U_functions, delta_U_dagger_functions
 ):
+# #TESTING
+# def compute_delta_U2_term(
+#         q_array, tau, occ_states, cg_table, channels, phi_functions,
+#         delta_U2_functions
+# ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
         
     delta_U2_array = np.zeros_like(q_array)
@@ -1460,10 +1488,17 @@ def compute_delta_U2_term(
     quantum_numbers = delta_U2_quantum_numbers(tau, occ_states, cg_table,
                                                channels)
         
-    # Set-up integration with vegas
-    #k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
-    k_limits = [0, 15]  # Relative momenta up to 15^-1
+    # # Set-up integration with vegas
+    # # k_limits = [0, 10]  # Relative momenta up to 10 fm^-1
+    # k_limits = [0, 15]  # Relative momenta up to 15^-1
+    # K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    
+    # TESTING
+    k_array, _ = momentum_mesh(15.0, 3.0, 120)
+    k_max, k_min = max(k_array), min(k_array)
+    k_limits = [k_min, k_max]  # Relative momenta up to 15^-1
     K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    
     theta_limits = [0, np.pi]
     phi_limits = [0, 2*np.pi]
 
@@ -1477,25 +1512,25 @@ def compute_delta_U2_term(
             
         t0 = time.time()
         
-        # integrand = functools.partial(
-        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions
-        # )
-        #TESTING
         integrand = functools.partial(
             delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-            phi_functions, delta_U2_functions
+            phi_functions, delta_U_functions, delta_U_dagger_functions
         )
+        # #TESTING
+        # integrand = functools.partial(
+        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
+        #     phi_functions, delta_U2_functions
+        # )
             
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=200)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e3)
-        
         # Train the integrator
-        integ(integrand, nitn=5, neval=1e3)
+        integ(integrand, nitn=5, neval=200)
         # Final result
-        result = integ(integrand, nitn=10, neval=3e3)
+        result = integ(integrand, nitn=10, neval=1e3)
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e3)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=3e3)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
@@ -1524,13 +1559,13 @@ def compute_momentum_distribution(
     phi_functions = get_sp_wave_functions(sp_basis)
     
     # Set-up \delta U and \delta U^\dagger functions
-    # delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
-    #     channels, kvnn
-    # )
-    #TESTING
-    delta_U_functions, delta_U_dagger_functions, delta_U2_functions = (
-        get_delta_U_functions(channels, kvnn)
+    delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
+        channels, kvnn
     )
+    # #TESTING
+    # delta_U_functions, delta_U_dagger_functions, delta_U2_functions = (
+    #     get_delta_U_functions(channels, kvnn)
+    # )
     
     # Set momentum mesh
     q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
@@ -1570,15 +1605,15 @@ def compute_momentum_distribution(
         # Compute \delta U \delta U^\dagger term using vegas
         print("Beginning \delta U \delta U^\dagger term.\n")
         t3 = time.time()
-        # delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-        #     q_array, tau, sp_basis.occ_states, cg_table, channels,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions
-        # )
-        #TESTING
         delta_U2_array, delta_U2_errors = compute_delta_U2_term(
             q_array, tau, sp_basis.occ_states, cg_table, channels,
-            phi_functions, delta_U2_functions
+            phi_functions, delta_U_functions, delta_U_dagger_functions
         )
+        # #TESTING
+        # delta_U2_array, delta_U2_errors = compute_delta_U2_term(
+        #     q_array, tau, sp_basis.occ_states, cg_table, channels,
+        #     phi_functions, delta_U2_functions
+        # )
         t4 = time.time()
         print(f"Done after {(t4-t3)/3600:.3f} hours.\n")
         
@@ -1659,6 +1694,8 @@ if __name__ == '__main__':
     nucleus_name, Z, N = 'He4', 2, 2
     tau = 1/2
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ['1S0']
+    # channels = ('3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     kvnn = 6  # AV18
 
     # He4
