@@ -217,7 +217,8 @@ class Potential:
         Returns
         -------
         V_matrix : 2-D ndarray
-            Potential matrix [fm].
+            Potential matrix [fm] without integration measure and divided by
+            \hbar^2/M.
         
         """
 
@@ -396,19 +397,20 @@ class Potential:
     def convert_V_to_MeV(self, V_matrix_fm):
         """
         Converts the potential from units fm to MeV with respect to the
-        momentum array and weights of the integration mesh. That is, the
-        returned potential includes integration factors along with dividing
-        out M / h-bar^2.
+        momentum array and weights of the integration mesh, meaning the output
+        includes integration factors.
         
         Parameters
         ----------
         V_matrix_fm : 2-D ndarray
-            Potential matrix [fm].
+            Potential matrix [fm] without integration measure and divided by
+            \hbar^2/M.
 
         Returns
         -------
         V_matrix_MeV : 2-D ndarray
-            Potential matrix with integration measure [MeV].
+            Potential matrix [MeV] with integration measure and no factor of
+            M/\hbar^2.
 
         """
 
@@ -426,17 +428,19 @@ class Potential:
         Converts the potential from units MeV to fm with respect to the
         momentum array and weights of the integration mesh. This is V(k,k') 
         in the following equation:
-            k^2 \psi(k) + \int dk k'^2 V(k,k') \psi(k') = E \psi(k).
+            k^2 \psi(k) + \int dk k'^2 V(k,k') \psi(k') = M/\hbar^2 E \psi(k).
         
         Parameters
         ----------
         V_matrix_MeV : 2-D ndarray
-            Potential matrix with integration measure [MeV].
+            Potential matrix [MeV] with integration measure and no factor of
+            M/\hbar^2.
 
         Returns
         -------
         V_matrix_fm : 2-D ndarray
-            Potential matrix without integration measure [fm].
+            Potential matrix [fm] without integration measure and divided by
+            \hbar^2/M.
 
         """
 
