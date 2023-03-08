@@ -20,7 +20,7 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: May 2, 2022
+Last update: March 7, 2023
 
 """
 
@@ -342,12 +342,15 @@ class SRG(Potential):
             dlamb = 0.5
         else:
             dlamb = 0.1
-
-        # This if statement prevents the solver from over-shooting \lambda 
-        # and takes a step in \lambda equal to the exact amount necessary to 
-        # reach the lambda_final
-        if solver_lambda - dlamb < lambda_final:
-            dlamb = solver_lambda - lambda_final
+            
+        if solver_lambda >= 6.0:
+            dlamb = 1.0
+        elif 2.5 <= solver_lambda < 6.0:
+            dlamb = 0.5
+        elif 1.5 <= solver_lambda < 2.5:
+            dlamb = 0.1
+        else:
+            dlamb = 0.05
 
         return dlamb
 
@@ -383,6 +386,8 @@ class SRG(Potential):
         # nsteps and error tolerances
         solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
                               rtol=1e-6, nsteps=5000000)
+        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
+        #                       rtol=1e-10, nsteps=5000000)
 
         return solver
 
@@ -447,7 +452,7 @@ class SRG(Potential):
                 for lamb in lambda_array:
 
                     # Solve ODE up to lamb
-                    while solver.successful() and solver.t > lamb:
+                    while solver.successful() and round(solver.t, 2) > lamb:
                         # Get ODE solver step-size in \lambda
                         dlamb = self.select_step_size(solver.t, lamb)
 
@@ -466,7 +471,7 @@ class SRG(Potential):
             for lamb in lambda_array:
 
                 # Solve ODE up to lamb and store in dictionary
-                while solver.successful() and solver.t > lamb:
+                while solver.successful() and round(solver.t, 2) > lamb:
                     # Get ODE solver step-size in \lambda
                     dlamb = self.select_step_size(solver.t, lamb)
 
