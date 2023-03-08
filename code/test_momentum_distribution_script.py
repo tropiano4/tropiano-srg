@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. In this version, we test several
 `vegas` options to speed-up the code.
 
-Last update: March 1, 2023
+Last update: March 8, 2023
 
 """
 
@@ -32,7 +32,8 @@ import vegas
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
 from scripts.srg import get_transformation
-from scripts.tools import convert_l_to_string, coupled_channel
+from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
+# GET RID OF REPLACE PERIODS LATER
 from scripts.woodsaxon import ws
 
 
@@ -440,6 +441,59 @@ def psi(sp_state, q_vector, sigma, tau, cg_table, phi_functions):
     return phi_sp_wf * cg * Y_lm
 
 
+### TESTING
+def load_H_evolved(
+        kvnn, channel, generator, lamb, kmax=15.0, kmid=3.0, ntot=120,
+        solver='ode', method='BDF', atol=1e-10, rtol=1e-10, wrt='s'
+):
+    """Load evolved Hamiltonian."""
+    
+    if solver == 'U':
+        
+        H_file_name = (
+            f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
+            f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+        )
+            
+        H_evolved = np.loadtxt("test_srg/" + replace_periods(H_file_name)
+                               + ".txt")
+                
+        U_file_name = (
+            f"U_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax_{kmax}"
+            f"_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+        )
+            
+        U_evolved = np.loadtxt("test_srg/" + replace_periods(U_file_name)
+                               + ".txt")
+        
+        return H_evolved, U_evolved
+        
+    else:
+        
+        file_name = (
+            f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
+            f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+        )
+        H_evolved = np.loadtxt("test_srg/" + replace_periods(file_name)
+                               + ".txt")
+    
+        return H_evolved
+    
+    
+def load_H_3S1_no_coupling(
+    kvnn, generator, lamb, kmax=15.0, kmid=3.0, ntot=120
+):
+    
+    file_name = (
+        f"H_evolved_kvnn_{kvnn}_3S1_3D1_no_coupling_{generator}_lamb_{lamb}"
+        f"_kmax_{kmax}_kmid_{kmid}_ntot_{ntot}_ode_BDF_wrt_lambda"
+    )
+    
+    H_evolved = np.loadtxt("./test_srg/" + replace_periods(file_name) + ".txt")
+    
+    return H_evolved
+
+
 def interpolate_delta_U(
         kvnn, channel, kmax, kmid, ntot, generator, lamb,
         hermitian_conjugate=False
@@ -465,11 +519,28 @@ def interpolate_delta_U(
     
     # Initial and evolved Hamiltonians
     H_initial = potential.load_hamiltonian()
-    if generator == 'Block-diag':
-        H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
-                                                lambda_bd=lamb)
-    else:
-        H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+    
+    # # Old way of getting H(\lambda)
+    # if generator == 'Block-diag':
+    #     H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
+    #                                             lambda_bd=lamb)
+    # else:
+    #     H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+    # # scipy.integrate.solve_ivp with LSODA solving w.r.t. s
+    # H_evolved = load_H_evolved(
+    #     kvnn, channel_arg, generator, lamb, kmax, kmid, ntot,
+    #     solver='solve_ivp', method='LSODA', atol=1e-10, rtol=1e-10, wrt='s'
+    # )
+    
+    # # scipy.integrate.ode with BDF solving for U(\lambda)
+    # H_evolved, U_matrix_weights = load_H_evolved(
+    #     kvnn, channel_arg, generator, lamb, kmax, kmid, ntot, solver='U',
+    #     method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
+    # )
+    
+    # 3S1-3S1 only, no coupling
+    H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
+                                       kmid=kmid, ntot=ntot)
     
     # Get SRG transformation from Hamiltonians
     U_matrix_weights = get_transformation(H_initial, H_evolved)
@@ -501,8 +572,12 @@ def interpolate_delta_U(
         
     # Interpolate \delta U(k, k')
     # delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
+    # delU_func = RegularGridInterpolator(
+    #     (k_array, k_array), delU_matrix, method='nearest', bounds_error=False,
+    #     fill_value=0.0
+    # )
     delU_func = RegularGridInterpolator(
-        (k_array, k_array), delU_matrix, method='nearest', bounds_error=False,
+        (k_array, k_array), delU_matrix, method='cubic', bounds_error=False,
         fill_value=0.0
     )
                                         
@@ -1535,14 +1610,15 @@ if __name__ == '__main__':
     # Set nucleus, nucleon, partial wave channels, and potential
     nucleus_name, Z, N = 'He4', 2, 2
     tau = 1/2
-    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    channels = ['3S1-3S1']
     kvnn = 6  # AV18
 
-    # He4
-    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-        save=True
-    )
+    # # He4
+    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+    #     nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
+    #     save=True
+    # )
     
     # # O16
     # nucleus_name, Z, N = 'O16', 8, 8
@@ -1551,4 +1627,9 @@ if __name__ == '__main__':
     #     save=True
     # )
     
+    # He4
+    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
+        save=False
+    )
     
