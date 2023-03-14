@@ -384,10 +384,10 @@ class SRG(Potential):
 
         # Following the example in Hergert:2016iju with modifications to
         # nsteps and error tolerances
-        solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
-                              rtol=1e-6, nsteps=5000000)
-        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
-        #                       rtol=1e-10, nsteps=5000000)
+        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
+        #                       rtol=1e-6, nsteps=5000000)
+        solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
+                              rtol=1e-10, nsteps=5000000)
 
         return solver
 
