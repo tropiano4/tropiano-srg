@@ -10,10 +10,11 @@ This script serves as a testbed for calculating momentum distributions using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator. This differs from the previous momentum
 distribution calculations by directly utilizing single-particle wave functions
-instead of a local density approximation. In this version, we test several
-`vegas` options to speed-up the code.
+instead of a local density approximation. In this version, we test the
+sensitivity to the numerical implementation of the SRG evolution and how the
+\delta U functions are interpolated.
 
-Last update: March 8, 2023
+Last update: March 14, 2023
 
 """
 
@@ -21,7 +22,7 @@ Last update: March 8, 2023
 import functools
 import numpy as np
 import numpy.linalg as la
-from scipy.interpolate import interp1d, RegularGridInterpolator
+from scipy.interpolate import interp1d, RegularGridInterpolator, RectBivariateSpline
 from scipy.special import spherical_jn, sph_harm
 import shutil
 from sympy.physics.quantum.cg import CG
@@ -517,8 +518,8 @@ def interpolate_delta_U(
     # k_array, k_weights = potential.load_mesh()
     k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
-    # Initial and evolved Hamiltonians
-    H_initial = potential.load_hamiltonian()
+    # # Initial and evolved Hamiltonians
+    # H_initial = potential.load_hamiltonian()
     
     # # Old way of getting H(\lambda)
     # if generator == 'Block-diag':
@@ -526,6 +527,7 @@ def interpolate_delta_U(
     #                                             lambda_bd=lamb)
     # else:
     #     H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+        
     # # scipy.integrate.solve_ivp with LSODA solving w.r.t. s
     # H_evolved = load_H_evolved(
     #     kvnn, channel_arg, generator, lamb, kmax, kmid, ntot,
@@ -533,14 +535,20 @@ def interpolate_delta_U(
     # )
     
     # # scipy.integrate.ode with BDF solving for U(\lambda)
-    # H_evolved, U_matrix_weights = load_H_evolved(
+    # _, U_matrix_weights = load_H_evolved(
     #     kvnn, channel_arg, generator, lamb, kmax, kmid, ntot, solver='U',
     #     method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
     # )
     
-    # 3S1-3S1 only, no coupling
+    # # 3S1-3S1 only, no coupling
+    # H_initial = potential.load_hamiltonian()[:ntot, :ntot]
+    # H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
+    #                                    kmid=kmid, ntot=ntot)[:ntot, :ntot]
+    
+    # 3D1-3D1 only, no coupling
+    H_initial = potential.load_hamiltonian()[ntot:, ntot:]
     H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
-                                       kmid=kmid, ntot=ntot)
+                                       kmid=kmid, ntot=ntot)[ntot:, ntot:]
     
     # Get SRG transformation from Hamiltonians
     U_matrix_weights = get_transformation(H_initial, H_evolved)
@@ -552,34 +560,37 @@ def interpolate_delta_U(
     else:
         delU_matrix_weights = U_matrix_weights - I_matrix_weights
 
-    # Get specific sub-block if coupled-channel
-    if channel in ['3S1-3D1', '3P2-3F2', '3D3-3G3']:
-        delU_matrix = unattach_weights_from_matrix(
-                k_array, k_weights, delU_matrix_weights[:ntot,ntot:]
-        )
-    elif channel in ['3D1-3S1', '3F2-3P2', '3G3-3D3']:
-        delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[ntot:,:ntot]
-        )
-    elif channel in ['3D1-3D1', '3F2-3F2', '3G3-3G3']:
-        delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[ntot:,ntot:]
-        )
-    else:
-        delU_matrix = unattach_weights_from_matrix(
-            k_array, k_weights, delU_matrix_weights[:ntot,:ntot]
-        )
+    # # Get specific sub-block if coupled-channel
+    # if channel in ['3S1-3D1', '3P2-3F2', '3D3-3G3']:
+    #     delU_matrix = unattach_weights_from_matrix(
+    #             k_array, k_weights, delU_matrix_weights[:ntot,ntot:]
+    #     )
+    # elif channel in ['3D1-3S1', '3F2-3P2', '3G3-3D3']:
+    #     delU_matrix = unattach_weights_from_matrix(
+    #         k_array, k_weights, delU_matrix_weights[ntot:,:ntot]
+    #     )
+    # elif channel in ['3D1-3D1', '3F2-3F2', '3G3-3G3']:
+    #     delU_matrix = unattach_weights_from_matrix(
+    #         k_array, k_weights, delU_matrix_weights[ntot:,ntot:]
+    #     )
+    # else:
+    #     delU_matrix = unattach_weights_from_matrix(
+    #         k_array, k_weights, delU_matrix_weights[:ntot,:ntot]
+    #     )
+    # TESTING
+    delU_matrix = unattach_weights_from_matrix(k_array, k_weights,
+                                               delU_matrix_weights[:ntot,:ntot])
         
     # Interpolate \delta U(k, k')
-    # delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
+    delU_func = RectBivariateSpline(k_array, k_array, delU_matrix)
     # delU_func = RegularGridInterpolator(
     #     (k_array, k_array), delU_matrix, method='nearest', bounds_error=False,
     #     fill_value=0.0
     # )
-    delU_func = RegularGridInterpolator(
-        (k_array, k_array), delU_matrix, method='cubic', bounds_error=False,
-        fill_value=0.0
-    )
+    # delU_func = RegularGridInterpolator(
+    #     (k_array, k_array), delU_matrix, method='cubic', bounds_error=False,
+    #     fill_value=0.0
+    # )
                                         
 
     return delU_func
@@ -991,10 +1002,14 @@ def delta_U_term_integrand(
         Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
         Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
         
+        # # \delta U_{L,L'}(k, q-K/2)
+        # delta_U_partial_wave = delta_U_functions[channel]((k, qK))
+        # # \delta U^\dagger_{L,L'}(q-K/2, k)
+        # delta_U_dag_partial_wave = delta_U_dagger_functions[channel]((qK, k))
         # \delta U_{L,L'}(k, q-K/2)
-        delta_U_partial_wave = delta_U_functions[channel]((k, qK))
+        delta_U_partial_wave = delta_U_functions[channel].ev(k, qK)
         # \delta U^\dagger_{L,L'}(q-K/2, k)
-        delta_U_dag_partial_wave = delta_U_dagger_functions[channel]((qK, k))
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel].ev(qK, k)
         
         # Single-particle wave functions
         psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
@@ -1291,8 +1306,8 @@ def delta_U2_term_integrand(
     # Relative momenta k
     k, theta_k, phi_k = momenta_array[:3]
     k_vector = np.array([k * np.sin(theta_k) * np.cos(phi_k),
-                          k * np.sin(theta_k) * np.sin(phi_k),
-                          k * np.cos(theta_k)])
+                         k * np.sin(theta_k) * np.sin(phi_k),
+                         k * np.cos(theta_k)])
         
     # Relative momenta k'
     kp, theta_kp, phi_kp = momenta_array[3:6]
@@ -1303,8 +1318,8 @@ def delta_U2_term_integrand(
     # C.o.M. momenta K
     K, theta_K, phi_K = momenta_array[6:9]
     K_vector = np.array([K * np.sin(theta_K) * np.cos(phi_K),
-                          K * np.sin(theta_K) * np.sin(phi_K),
-                          K * np.cos(theta_K)])
+                         K * np.sin(theta_K) * np.sin(phi_K),
+                         K * np.cos(theta_K)])
     
     # Calculate vector q-K/2
     qK_vector = q_vector - K_vector/2
@@ -1377,10 +1392,14 @@ def delta_U2_term_integrand(
         Y_Lpp_qK = sph_harm(M_Lpp, Lpp, phi_qK, theta_qK)
         Y_Lppp_kp = sph_harm(M_Lppp, Lppp, phi_kp, theta_kp)
         
+        # # \delta U_{L,L'}(k, q-K/2)
+        # delta_U_partial_wave = delta_U_functions[channel_1]((k, qK))
+        # # \delta U^\dagger_{L'',L'''}(q-K/2, k')
+        # delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2]((qK, kp))
         # \delta U_{L,L'}(k, q-K/2)
-        delta_U_partial_wave = delta_U_functions[channel_1]((k, qK))
+        delta_U_partial_wave = delta_U_functions[channel_1].ev(k, qK)
         # \delta U^\dagger_{L'',L'''}(q-K/2, k')
-        delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2]((qK, kp))
+        delta_U_dag_partial_wave = delta_U_dagger_functions[channel_2].ev(qK, kp)
         
         # Single-particle wave functions
         psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, alpha.tau,
@@ -1471,8 +1490,8 @@ def compute_delta_U2_term(
 
 
 def compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=False,
-        ipm_only=False, save=True
+        nucleus_name, Z, N, tau, channels, kvnn, generator='Wegner', lamb=1.35,
+        print_normalization=False, ipm_only=False, save=True
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1486,7 +1505,7 @@ def compute_momentum_distribution(
     
     # Set-up \delta U and \delta U^\dagger functions
     delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
-        channels, kvnn
+        channels, kvnn, generator=generator, lamb=lamb
     )
     
     # Set momentum mesh
@@ -1611,25 +1630,27 @@ if __name__ == '__main__':
     nucleus_name, Z, N = 'He4', 2, 2
     tau = 1/2
     # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
-    channels = ['3S1-3S1']
+    # channels = ['3S1-3S1']
+    channels = ['3D1-3D1']
     kvnn = 6  # AV18
+    # kvnn = 111  # SMS N4LO 450 MeV
+    generator = 'Wegner'
+    # generator = 'T'
+    lamb = 1.35
+    # lamb = 2.0
+    # lamb = 3.0
+    # lamb = 6.0
 
-    # # He4
-    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-    #     save=True
-    # )
+    # He4
+    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+        nucleus_name, Z, N, tau, channels, kvnn, generator=generator, lamb=lamb,
+        print_normalization=True, save=True
+    )
     
     # # O16
     # nucleus_name, Z, N = 'O16', 8, 8
     # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-    #     save=True
+    #     nucleus_name, Z, N, tau, channels, kvnn, lamb=lamb, 
+    #     print_normalization=True, save=True
     # )
-    
-    # He4
-    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, print_normalization=True,
-        save=False
-    )
     
