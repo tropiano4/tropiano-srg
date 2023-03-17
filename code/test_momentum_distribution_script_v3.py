@@ -540,15 +540,20 @@ def interpolate_delta_U(
     #     method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
     # )
     
-    # # 3S1-3S1 only, no coupling
-    # H_initial = potential.load_hamiltonian()[:ntot, :ntot]
-    # H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
-    #                                    kmid=kmid, ntot=ntot)[:ntot, :ntot]
+    if channel_arg == '3S1':
+        # 3S1-3S1 only, no coupling
+        H_initial = potential.load_hamiltonian()[:ntot, :ntot]
+        H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
+                                           kmid=kmid, ntot=ntot)[:ntot, :ntot]
     
-    # 3D1-3D1 only, no coupling
-    H_initial = potential.load_hamiltonian()[ntot:, ntot:]
-    H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
-                                       kmid=kmid, ntot=ntot)[ntot:, ntot:]
+    
+        # # 3D1-3D1 only, no coupling
+        # H_initial = potential.load_hamiltonian()[ntot:, ntot:]
+        # H_evolved = load_H_3S1_no_coupling(kvnn, generator, lamb, kmax=kmax,
+        #                                    kmid=kmid, ntot=ntot)[ntot:, ntot:]
+    else:
+        H_initial = potential.load_hamiltonian()
+        H_evolved = potential.load_hamiltonian('srg', generator, lamb)
     
     # Get SRG transformation from Hamiltonians
     U_matrix_weights = get_transformation(H_initial, H_evolved)
@@ -1631,15 +1636,16 @@ if __name__ == '__main__':
     tau = 1/2
     # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     # channels = ['3S1-3S1']
-    channels = ['3D1-3D1']
+    # channels = ['3D1-3D1']
+    channels = ('1S0', '3S1-3S1')
     kvnn = 6  # AV18
     # kvnn = 111  # SMS N4LO 450 MeV
     generator = 'Wegner'
     # generator = 'T'
-    lamb = 1.35
+    # lamb = 1.35
     # lamb = 2.0
     # lamb = 3.0
-    # lamb = 6.0
+    lamb = 6.0
 
     # He4
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
