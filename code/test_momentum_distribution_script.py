@@ -694,209 +694,201 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
 
 
 def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
-    """Returns a list of every combination of quantum numbers in the \delta U
-    linear terms that gives a non-zero product of Clebsch-Gordan coefficients.
-    """
+  """Returns a list of every combination of quantum numbers in the \delta U
+  linear terms that gives a non-zero product of Clebsch-Gordan coefficients.
+  """
     
-    spins = np.array([1/2, -1/2])
-    quantum_number_combinations = []
+  spins = np.array([1/2, -1/2])
+  quantum_number_combinations = []
     
-    # Many loops over quantum numbers
-    for channel in channels:
+  # Many loops over quantum numbers
+  for channel in channels:
         
-        L, Lp, S, J = get_channel_quantum_numbers(channel)
-        T = get_total_isospin(L, S)
+    L, Lp, S, J = get_channel_quantum_numbers(channel)
+    T = get_total_isospin(L, S)
     
-        # L S T factor
-        lst_factor = 1-(-1)**(L+S+T)
-        # L' S T factor
-        lpst_factor = 1-(-1)**(Lp+S+T)
+    # L S T factor
+    lst_factor = 1-(-1)**(L+S+T)
+    # L' S T factor
+    lpst_factor = 1-(-1)**(Lp+S+T)
         
-        for M_T in np.arange(-T, T+1):
-            
-            for alpha in occ_states:
+    # Channel isospin projection M_T
+    for M_T in np.arange(-T, T+1):
+      
+      # Occupied single-particle state \alpha
+      for alpha in occ_states:
                 
-                # Kronecker \delta function \delta_{\tau_\alpha \tau}
-                del_alpha = int(alpha.tau == tau)
+        # Kronecker \delta function \delta_{\tau_\alpha \tau}
+        del_alpha = int(alpha.tau == tau)
 
-                for beta in occ_states:
+        # Occupied single-particle state \beta
+        for beta in occ_states:
                     
-                    # Kronecker \delta function \delta_{\tau_\beta \tau}
-                    del_beta = int(beta.tau == tau)
+          # Kronecker \delta function \delta_{\tau_\beta \tau}
+          del_beta = int(beta.tau == tau)
                     
-                    # \tau_\alpha \tau_\beta T M_T CG
-                    if alpha.tau + beta.tau == M_T:
-                        isospin_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, T,
-                                               M_T)]
-                    else:
-                        isospin_cg = 0
-                        
-                    for M_J in np.arange(-J, J+1):
-                        
-                        for M_S in np.arange(-S, S+1):
-                            
-                            M_L = M_J - M_S
-                    
-                            # L S J CG
-                            if abs(M_L) <= L:
-                                lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
-                            else:
-                                lsj_cg = 0
-                                
-                            for M_Sp in np.arange(-S, S+1):
-                                
-                                M_Lp = M_J - M_Sp
-                        
-                                # L' S J CG
-                                if abs(M_Lp) <= Lp:
-                                    lpsj_cg = cg_table[(Lp, M_Lp, S, M_Sp, J,
-                                                        M_J)]
-                                else:
-                                    lpsj_cg = 0
-                                    
-                                for sigma_1 in spins:
-                                    
-                                    # \sigma_1 l_\alpha CG
-                                    if abs(alpha.m_j-sigma_1) <= alpha.l:
-                                        sig1_alpha_cg = cg_table[(
-                                            alpha.l, alpha.m_j-sigma_1, 1/2,
-                                            sigma_1, alpha.j, alpha.m_j
-                                        )]
-                                    else:
-                                        sig1_alpha_cg = 0
-                                        
-                                    for sigma_2 in spins:
-                                        
-                                        # \sigma_2 l_\beta CG
-                                        if abs(beta.m_j-sigma_2) <= beta.l:
-                                            sig2_beta_cg = cg_table[(
-                                                beta.l, beta.m_j-sigma_2, 1/2,
-                                                sigma_2, beta.j, beta.m_j
-                                            )]
-                                        else:
-                                            sig2_beta_cg = 0
-                                        
-                                        # \sigma_1 \sigma_2 S M_S CG
-                                        if sigma_1 + sigma_2 == M_S:
-                                            spin_12_cg = cg_table[(
-                                                1/2, sigma_1, 1/2, sigma_2, S,
-                                                M_S
-                                            )]
-                                        else:
-                                            spin_12_cg = 0
-                                            
-                                        # \sigma_1 \sigma_2 S M_S' CG
-                                        if sigma_1 + sigma_2 == M_Sp:
-                                            spin_12p_cg = cg_table[(
-                                                1/2, sigma_1, 1/2, sigma_2, S,
-                                                M_Sp
-                                            )]
-                                        else:
-                                            spin_12p_cg = 0
-                                            
-                                        for sigma in spins:
-                                            
-                                            # \sigma l_\alpha CG
-                                            if abs(alpha.m_j-sigma) <= alpha.l:
-                                                sig_alpha_cg = cg_table[(
-                                                    alpha.l, alpha.m_j-sigma,
-                                                    1/2, sigma, alpha.j,
-                                                    alpha.m_j
-                                                )]
-                                            else:
-                                                sig_alpha_cg = 0
-                                        
-                                            # \sigma l_\beta CG
-                                            if abs(beta.m_j-sigma) <= beta.l:
-                                                sig_beta_cg = cg_table[(
-                                                    beta.l, beta.m_j-sigma,
-                                                    1/2, sigma, beta.j, beta.m_j
-                                                )]
-                                            else:
-                                                sig_beta_cg = 0
-                                                
-                                            for sigmap in spins:
-                                                
-                                                # \sigma' l_\alpha CG
-                                                if abs(alpha.m_j-sigmap) <= alpha.l:
-                                                    sigp_alpha_cg = cg_table[(
-                                                        alpha.l, alpha.m_j-sigmap,
-                                                        1/2, sigmap, alpha.j,
-                                                        alpha.m_j
-                                                    )]
-                                                else:
-                                                    sigp_alpha_cg = 0
-                                            
-                                                # \sigma' l_\beta CG
-                                                if abs(beta.m_j-sigmap) <= beta.l:
-                                                    sigp_beta_cg = cg_table[(
-                                                        beta.l, beta.m_j-sigmap,
-                                                        1/2, sigmap, beta.j,
-                                                        beta.m_j
-                                                    )]
-                                                else:
-                                                    sigp_beta_cg = 0
-                                                    
-                                                # \sigma \sigma' S M_S CG
-                                                if sigma + sigmap == M_S:
-                                                    spin_ssp_cg = cg_table[(
-                                                        1/2, sigma, 1/2, sigmap,
-                                                        S, M_S
-                                                    )]
-                                                else:
-                                                    spin_ssp_cg = 0
-                                                    
-                                                # \sigma \sigma' S M_S' CG
-                                                if sigma + sigmap == M_Sp:
-                                                    spin_sspp_cg = cg_table[(
-                                                        1/2, sigma, 1/2, sigmap,
-                                                        S, M_Sp
-                                                    )]
-                                                else:
-                                                    spin_sspp_cg = 0
-                                                    
-                                                product = (
-                                                    isospin_cg ** 2
-                                                    * lsj_cg * lpsj_cg 
-                                                    * lst_factor * lpst_factor
-                                                    * sig1_alpha_cg
-                                                    * sig2_beta_cg * (
-                                                        del_alpha
-                                                        * sig_alpha_cg
-                                                        * sigp_beta_cg
-                                                        - (-1) ** (T-1)
-                                                        * del_beta
-                                                        * sigp_alpha_cg
-                                                        * sig_beta_cg
-                                                    ) * (
-                                                        spin_12_cg
-                                                        * spin_sspp_cg
-                                                        + spin_12p_cg
-                                                        * spin_ssp_cg
-                                                    )
-                                                )
-                                                
-                                                if product != 0:
-                                                                        
-                                                    d = {
-                                                        'channel': channel,
-                                                        'T': T, 'M_T': M_T,
-                                                        'alpha': alpha,
-                                                        'beta': beta,
-                                                        'J': J, 'M_J': M_J,
-                                                        'S': S, 'M_S': M_S,
-                                                        'M_Sp': M_Sp,
-                                                        'L': L, 'M_L': M_L,
-                                                        'Lp': Lp, 'M_Lp': M_Lp,
-                                                        'sigma_1': sigma_1,
-                                                        'sigma_2': sigma_2,
-                                                        'sigma': sigma,
-                                                        'sigmap': sigmap
-                                                    }
-                                                                        
-                                                    quantum_number_combinations.append(d)
+          # \tau_\alpha \tau_\beta T M_T CG
+          if alpha.tau + beta.tau == M_T:
+            isospin_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, T, M_T)]
+          else:
+            isospin_cg = 0
+          
+          # Channel angular momentum projection M_J
+          for M_J in np.arange(-J, J+1):
             
-    return quantum_number_combinations
+            # Channel spin projection M_S
+            for M_S in np.arange(-S, S+1):
+                 
+              # Channel orbital angular momentum projection M_L  
+              M_L = M_J - M_S
+                    
+              # L S J CG
+              if abs(M_L) <= L:
+                lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+              else:
+                lsj_cg = 0
+              
+              # Channel spin projection M_S'   
+              for M_Sp in np.arange(-S, S+1):
+                
+                # Channel orbital angular momentum projection M_L'  
+                M_Lp = M_J - M_Sp
+                        
+                # L' S J CG
+                if abs(M_Lp) <= Lp:
+                  lpsj_cg = cg_table[(Lp, M_Lp, S, M_Sp, J, M_J)]
+                else:
+                  lpsj_cg = 0
+                
+                # Single-particle spin projection \sigma_1   
+                for sigma_1 in spins:
+                                    
+                  # \sigma_1 l_\alpha CG
+                  if abs(alpha.m_j-sigma_1) <= alpha.l:
+                    sig1_alpha_cg = cg_table[(alpha.l, alpha.m_j-sigma_1, 1/2,
+                                              sigma_1, alpha.j, alpha.m_j)]
+                  else:
+                    sig1_alpha_cg = 0
+                   
+                  # Single-particle spin projection \sigma_2   
+                  for sigma_2 in spins:
+                                        
+                    # \sigma_2 l_\beta CG
+                    if abs(beta.m_j-sigma_2) <= beta.l:
+                      sig2_beta_cg = cg_table[(beta.l, beta.m_j-sigma_2, 1/2,
+                                               sigma_2, beta.j, beta.m_j)]
+                    else:
+                      sig2_beta_cg = 0
+                                        
+                    # \sigma_1 \sigma_2 S M_S CG
+                    if sigma_1 + sigma_2 == M_S:
+                      spin_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S,
+                                             M_S)]
+                    else:
+                      spin_12_cg = 0
+                                            
+                    # \sigma_1 \sigma_2 S M_S' CG
+                    if sigma_1 + sigma_2 == M_Sp:
+                      spin_12p_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S,
+                                              M_Sp)]
+                    else:
+                      spin_12p_cg = 0
+                    
+                    # Single-particle spin projection \sigma   
+                    for sigma in spins:
+                                            
+                      # \sigma l_\alpha CG
+                      if abs(alpha.m_j-sigma) <= alpha.l:
+                        sig_alpha_cg = cg_table[(
+                          alpha.l, alpha.m_j-sigma, 1/2, sigma, alpha.j,
+                          alpha.m_j
+                        )]
+                      else:
+                        sig_alpha_cg = 0
+                                        
+                      # \sigma l_\beta CG
+                      if abs(beta.m_j-sigma) <= beta.l:
+                        sig_beta_cg = cg_table[(beta.l, beta.m_j-sigma, 1/2,
+                                                sigma, beta.j, beta.m_j)]
+                      else:
+                        sig_beta_cg = 0
+                      
+                      # Single-particle spin projection \sigma'    
+                      for sigmap in spins:
+                                                
+                        # \sigma' l_\alpha CG
+                        if abs(alpha.m_j-sigmap) <= alpha.l:
+                          sigp_alpha_cg = cg_table[(
+                            alpha.l, alpha.m_j-sigmap, 1/2, sigmap, alpha.j,
+                            alpha.m_j
+                          )]
+                        else:
+                          sigp_alpha_cg = 0
+                                            
+                        # \sigma' l_\beta CG
+                        if abs(beta.m_j-sigmap) <= beta.l:
+                          sigp_beta_cg = cg_table[(
+                            beta.l, beta.m_j-sigmap, 1/2, sigmap, beta.j,
+                            beta.m_j
+                          )]
+                        else:
+                          sigp_beta_cg = 0
+                                                    
+                        # \sigma \sigma' S M_S CG
+                        if sigma + sigmap == M_S:
+                          spin_ssp_cg = cg_table[(1/2, sigma, 1/2, sigmap, S,
+                                                  M_S)]
+                        else:
+                          spin_ssp_cg = 0
+                                                    
+                        # \sigma \sigma' S M_S' CG
+                        if sigma + sigmap == M_Sp:
+                          spin_sspp_cg = cg_table[(1/2, sigma, 1/2, sigmap, S,
+                                                   M_Sp)]
+                        else:
+                          spin_sspp_cg = 0
+                        
+                        # Product of CG's and factors    
+                        product = (
+                          isospin_cg ** 2 * lsj_cg * lpsj_cg * lst_factor
+                          * lpst_factor * sig1_alpha_cg * sig2_beta_cg * (
+                            del_alpha * sig_alpha_cg * sigp_beta_cg
+                            - (-1) ** (T-1) * del_beta * sigp_alpha_cg
+                            * sig_beta_cg
+                          ) * (
+                            spin_12_cg * spin_sspp_cg + spin_12p_cg
+                            * spin_ssp_cg
+                          )
+                        )
+                        
+                        # Add this set of quantum numbers to the list if the
+                        # product is nonzero
+                        if product != 0:
+                                                                        
+                          d = {
+                            'channel': channel,
+                            'T': T,
+                            'M_T': M_T,
+                            'alpha': alpha,
+                            'beta': beta,
+                            'J': J,
+                            'M_J': M_J,
+                            'S': S, 
+                            'M_S': M_S,
+                            'M_Sp': M_Sp,
+                            'L': L,
+                            'M_L': M_L,
+                            'Lp': Lp,
+                            'M_Lp': M_Lp,
+                            'sigma_1': sigma_1,
+                            'sigma_2': sigma_2,
+                            'sigma': sigma,
+                            'sigmap': sigmap
+                          }
+                                                                        
+                          quantum_number_combinations.append(d)
+            
+  return quantum_number_combinations
 
 
 def delta_U_term_integrand(
@@ -940,11 +932,17 @@ def delta_U_term_integrand(
         alpha = d['alpha']
         beta = d['beta']
         channel = d['channel']
-        T, M_T = d['T'], d['M_T']
-        S, M_S, M_Sp = d['S'], d['M_S'], d['M_Sp']
-        L, M_L = d['L'], d['M_L']
-        Lp, M_Lp = d['Lp'], d['M_Lp']
-        J, M_J = d['J'], d['M_J']
+        T = d['T']
+        M_T = d['M_T']
+        S = d['S']
+        M_S = d['M_S']
+        M_Sp = d['M_Sp']
+        L = d['L']
+        M_L = d['M_L']
+        Lp = d['Lp']
+        M_Lp = d['M_Lp']
+        J = d['J']
+        M_J = d['M_J']
         
         # \sigma_1 \sigma_2 S M_S CG
         spin_12_cg = cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
@@ -1076,266 +1074,266 @@ def compute_delta_U_term(
 
 
 def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
-    """Returns a list of every combination of quantum numbers in the \delta U^2
-    term that gives a non-zero product of Clebsch-Gordan coefficients.
-    """
+  """Returns a list of every combination of quantum numbers in the \delta U^2
+  term that gives a non-zero product of Clebsch-Gordan coefficients.
+  """
     
-    spins = np.array([1/2, -1/2])
-    quantum_number_combinations = []
+  spins = np.array([1/2, -1/2])
+  quantum_number_combinations = []
     
-    # Many loops over quantum numbers
-    for channel_1 in channels:
+  # Many loops over quantum numbers
+  for channel_1 in channels:
   
-        L, Lp, S, J = get_channel_quantum_numbers(channel_1)
-        T = get_total_isospin(L, S)
+    L, Lp, S, J = get_channel_quantum_numbers(channel_1)
+    T = get_total_isospin(L, S)
         
-        # L S T factor
-        lst_factor = 1-(-1)**(L+S+T)
-        # L' S T factor
-        lpst_factor = 1-(-1)**(Lp+S+T)
+    # L S T factor
+    lst_factor = 1-(-1)**(L+S+T)
+    # L' S T factor
+    lpst_factor = 1-(-1)**(Lp+S+T)
         
-        for channel_2 in channels:
+    for channel_2 in channels:
             
-            Lpp, Lppp, Sp, Jp = get_channel_quantum_numbers(channel_2)
-            Tp = get_total_isospin(Lpp, Sp)
+      Lpp, Lppp, Sp, Jp = get_channel_quantum_numbers(channel_2)
+      Tp = get_total_isospin(Lpp, Sp)
             
-            # Evaluate Kronecker \delta in S and S'
-            if Sp == S:
+      # Evaluate Kronecker \delta in S and S'
+      if Sp == S:
             
-                # L'' S T' factor
-                lppstp_factor = 1-(-1)**(Lpp+S+Tp)
-                # L''' S T' factor
-                lpppstp_factor = 1-(-1)**(Lppp+S+Tp)
-                
-                for M_T in np.arange(-T, T+1):
-                    for M_Tp in np.arange(-Tp, Tp+1):
-                        for alpha in occ_states:
-                            for beta in occ_states:
+        # L'' S T' factor
+        lppstp_factor = 1-(-1)**(Lpp+S+Tp)
+        # L''' S T' factor
+        lpppstp_factor = 1-(-1)**(Lppp+S+Tp)
+        
+        # Channel isospin projection M_T
+        for M_T in np.arange(-T, T+1):
+          # Channel isospin projection M_T'
+          for M_Tp in np.arange(-Tp, Tp+1):
+            # Occupied single-particle state \alpha
+            for alpha in occ_states:
+              # Occupied single-particle state \beta
+              for beta in occ_states:
                                 
-                                # \tau_\alpha \tau_\beta T M_T CG
-                                if alpha.tau + beta.tau == M_T:
-                                    isospin_ab_cg = cg_table[(
-                                        1/2, alpha.tau, 1/2, beta.tau, T, M_T
-                                    )]
-                                else:
-                                    isospin_ab_cg = 0
+                # \tau_\alpha \tau_\beta T M_T CG
+                if alpha.tau + beta.tau == M_T:
+                  isospin_ab_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, T,
+                                            M_T)]
+                else:
+                  isospin_ab_cg = 0
                                     
-                                # \tau_\alpha \tau_\beta T' M_T' CG
-                                if alpha.tau + beta.tau == M_Tp:
-                                    isospin_abp_cg = cg_table[(
-                                        1/2, alpha.tau, 1/2, beta.tau, Tp, M_Tp
-                                    )]
-                                else:
-                                    isospin_abp_cg = 0
+                # \tau_\alpha \tau_\beta T' M_T' CG
+                if alpha.tau + beta.tau == M_Tp:
+                  isospin_abp_cg = cg_table[(1/2, alpha.tau, 1/2, beta.tau, Tp,
+                                             M_Tp)]
+                else:
+                  isospin_abp_cg = 0
+                
+                # Single-particle isospin projection \tau'    
+                for taup in spins:
                                     
-                                for taup in spins:
-                                    
-                                    # \tau \tau' T M_T CG
-                                    if tau + taup == M_T:
-                                        isospin_ttp_cg = cg_table[(
-                                            1/2, tau, 1/2, taup, T, M_T
-                                        )]
-                                    else:
-                                        isospin_ttp_cg = 0
+                  # \tau \tau' T M_T CG
+                  if tau + taup == M_T:
+                    isospin_ttp_cg = cg_table[(1/2, tau, 1/2, taup, T, M_T)]
+                  else:
+                    isospin_ttp_cg = 0
                                         
-                                    # \tau \tau' T' M_T' CG
-                                    if tau + taup == M_Tp:
-                                        isospin_ttpp_cg = cg_table[(
-                                            1/2, tau, 1/2, taup, Tp, M_Tp
-                                        )]
-                                    else:
-                                        isospin_ttpp_cg = 0
-                                        
-                                    for M_J in np.arange(-J, J+1):
-                                        for M_Jp in np.arange(-Jp, Jp+1):
-                                            for M_S in np.arange(-S, S+1):
+                  # \tau \tau' T' M_T' CG
+                  if tau + taup == M_Tp:
+                    isospin_ttpp_cg = cg_table[(1/2, tau, 1/2, taup, Tp, M_Tp)]
+                  else:
+                    isospin_ttpp_cg = 0
+                  
+                  # Channel angular momentum projection M_J    
+                  for M_J in np.arange(-J, J+1):
+                    # Channel angular momentum projection M_J'
+                    for M_Jp in np.arange(-Jp, Jp+1):
+                      # Channel spin projection M_S
+                      for M_S in np.arange(-S, S+1):
+                        
+                        # Channel orbital angular momentum projection M_L  
+                        M_L = M_J - M_S
                                                 
-                                                M_L = M_J - M_S
+                        # L S J CG
+                        if abs(M_L) <= L:
+                          lsj_cg = cg_table[(L, M_L, S, M_S, J, M_J)]
+                        else:
+                          lsj_cg = 0
+                        
+                        # Channel spin projection M_S'    
+                        for M_Sp in np.arange(-S, S+1):
+                          
+                          # Channel orbital angular momentum projection M_L'  
+                          M_Lp = M_J - M_Sp
                                                 
-                                                # L S J CG
-                                                if abs(M_L) <= L:
-                                                        lsj_cg = cg_table[(
-                                                            L, M_L, S, M_S, J,
-                                                            M_J
-                                                        )]
-                                                else:
-                                                    lsj_cg = 0
+                          # L' S J CG
+                          if abs(M_Lp) <= Lp:
+                            lpsj_cg = cg_table[(Lp, M_Lp, S, M_Sp, J, M_J)]
+                          else:
+                            lpsj_cg = 0
                                                     
-                                                for M_Sp in np.arange(-S, S+1):
+                          # Evaluate Kronecker \delta in M_S' and M_S''
+                          M_Spp = M_Sp
+                          
+                          # Channel orbital angular momentum projection M_L''
+                          M_Lpp = M_Jp - M_Spp
                                                     
-                                                    M_Lp = M_J - M_Sp
-                                                
-                                                    # L' S J CG
-                                                    if abs(M_Lp) <= Lp:
-                                                        lpsj_cg = cg_table[(
-                                                            Lp, M_Lp, S, M_Sp,
-                                                            J, M_J
-                                                        )]
-                                                    else:
-                                                        lpsj_cg = 0
-                                                    
-                                                    # Evaluate Kronecker \delta
-                                                    M_Spp = M_Sp
-                                                    
-                                                    M_Lpp = M_Jp - M_Spp
-                                                    
-                                                    # L'' S' J' CG
-                                                    if abs(M_Lpp) <= Lpp and abs(M_Spp) <= Sp:
-                                                        lppsj_cg = cg_table[(
-                                                            Lpp, M_Lpp, Sp,
-                                                            M_Spp, Jp, M_Jp
-                                                        )]
-                                                    else:
-                                                        lppsj_cg = 0
+                          # L'' S' J' CG
+                          if abs(M_Lpp) <= Lpp and abs(M_Spp) <= Sp:
+                            lppsj_cg = cg_table[(Lpp, M_Lpp, Sp, M_Spp, Jp,
+                                                 M_Jp)]
+                          else:
+                            lppsj_cg = 0
+                          
+                          # Channel spin projection M_S'''    
+                          for M_Sppp in np.arange(-Sp, Sp+1):
+                            
+                            # Channel orbital angular momentum projection M_L'''  
+                            M_Lppp = M_Jp - M_Sppp
                                                         
-                                                    for M_Sppp in np.arange(-Sp, Sp+1):
-                                                        
-                                                        M_Lppp = M_Jp - M_Sppp
-                                                        
-                                                        # L''' S' J' CG
-                                                        if abs(M_Lppp) <= Lppp and abs(M_Sppp) <= Sp:
-                                                            lpppsj_cg = cg_table[(
-                                                                Lppp, M_Lppp, Sp,
-                                                                M_Sppp, Jp, M_Jp
-                                                            )]
-                                                        else:
-                                                            lpppsj_cg = 0
+                            # L''' S' J' CG
+                            if abs(M_Lppp) <= Lppp and abs(M_Sppp) <= Sp:
+                              lpppsj_cg = cg_table[(Lppp, M_Lppp, Sp, M_Sppp,
+                                                    Jp, M_Jp)]
+                            else:
+                              lpppsj_cg = 0
+                            
+                            # Single-particle spin projection \sigma_1    
+                            for sigma_1 in spins:
                                                             
-                                                        for sigma_1 in spins:
-                                                            
-                                                            # \sigma_1 l_\alpha CG
-                                                            if abs(alpha.m_j-sigma_1) <= alpha.l:
-                                                                sig1_alpha_cg = cg_table[(
-                                                                    alpha.l, alpha.m_j-sigma_1, 1/2,
-                                                                    sigma_1, alpha.j, alpha.m_j
-                                                                )]
-                                                            else:
-                                                                sig1_alpha_cg = 0
+                              # \sigma_1 l_\alpha CG
+                              if abs(alpha.m_j-sigma_1) <= alpha.l:
+                                sig1_alpha_cg = cg_table[(
+                                  alpha.l, alpha.m_j-sigma_1, 1/2, sigma_1,
+                                  alpha.j, alpha.m_j
+                                )]
+                              else:
+                                sig1_alpha_cg = 0
+                                
+                              # Single-particle spin projection \sigma_2                           
+                              for sigma_2 in spins:
                                                                 
-                                                            for sigma_2 in spins:
-                                                                
-                                                                # \sigma_2 l_\beta CG
-                                                                if abs(beta.m_j-sigma_2) <= beta.l:
-                                                                    sig2_beta_cg = cg_table[(
-                                                                        beta.l, beta.m_j-sigma_2, 1/2,
-                                                                        sigma_2, beta.j, beta.m_j
-                                                                    )]
-                                                                else:
-                                                                    sig2_beta_cg = 0
+                                # \sigma_2 l_\beta CG
+                                if abs(beta.m_j-sigma_2) <= beta.l:
+                                  sig2_beta_cg = cg_table[(
+                                    beta.l, beta.m_j-sigma_2, 1/2, sigma_2,
+                                    beta.j, beta.m_j
+                                  )]
+                                else:
+                                  sig2_beta_cg = 0
             
-                                                                # \sigma_1 \sigma_2 S M_S CG
-                                                                if sigma_1 + sigma_2 == M_S:
-                                                                    spin_12_cg = cg_table[(
-                                                                        1/2, sigma_1, 1/2,
-                                                                        sigma_2, S, M_S
-                                                                    )]
-                                                                else:
-                                                                    spin_12_cg = 0
-                                                                
-                                                                for sigma_3 in spins:
+                                # \sigma_1 \sigma_2 S M_S CG
+                                if sigma_1 + sigma_2 == M_S:
+                                  spin_12_cg = cg_table[(1/2, sigma_1, 1/2,
+                                                         sigma_2, S, M_S)]
+                                else:
+                                  spin_12_cg = 0
+                                
+                                # Single-particle spin projection \sigma_3  
+                                for sigma_3 in spins:
                                                                     
-                                                                    # \sigma_3 l_\alpha CG
-                                                                    if abs(alpha.m_j-sigma_3) <= alpha.l:
-                                                                        sig3_alpha_cg = cg_table[(
-                                                                            alpha.l, alpha.m_j-sigma_3, 1/2,
-                                                                            sigma_3, alpha.j, alpha.m_j
-                                                                        )]
-                                                                    else:
-                                                                        sig3_alpha_cg = 0
+                                  # \sigma_3 l_\alpha CG
+                                  if abs(alpha.m_j-sigma_3) <= alpha.l:
+                                    sig3_alpha_cg = cg_table[(
+                                      alpha.l, alpha.m_j-sigma_3, 1/2, sigma_3,
+                                      alpha.j, alpha.m_j
+                                    )]
+                                  else:
+                                    sig3_alpha_cg = 0
                                                                         
-                                                                    # \sigma_3 l_\beta CG
-                                                                    if abs(beta.m_j-sigma_3) <= beta.l:
-                                                                        sig3_beta_cg = cg_table[(
-                                                                            beta.l, beta.m_j-sigma_3, 1/2,
-                                                                            sigma_3, beta.j, beta.m_j
-                                                                        )]
-                                                                    else:
-                                                                        sig3_beta_cg = 0
+                                  # \sigma_3 l_\beta CG
+                                  if abs(beta.m_j-sigma_3) <= beta.l:
+                                    sig3_beta_cg = cg_table[(
+                                      beta.l, beta.m_j-sigma_3, 1/2, sigma_3,
+                                      beta.j, beta.m_j
+                                    )]
+                                  else:
+                                    sig3_beta_cg = 0
+                                  
+                                  # Single-particle spin projection \sigma_4    
+                                  for sigma_4 in spins:
                                                                         
-                                                                    for sigma_4 in spins:
+                                    # \sigma_4 l_\alpha CG
+                                    if abs(alpha.m_j-sigma_4) <= alpha.l:
+                                      sig4_alpha_cg = cg_table[(
+                                        alpha.l, alpha.m_j-sigma_4, 1/2,
+                                        sigma_4, alpha.j, alpha.m_j
+                                      )]
+                                    else:
+                                      sig4_alpha_cg = 0
                                                                         
-                                                                        # \sigma_4 l_\alpha CG
-                                                                        if abs(alpha.m_j-sigma_4) <= alpha.l:
-                                                                            sig4_alpha_cg = cg_table[(
-                                                                                alpha.l, alpha.m_j-sigma_4, 1/2,
-                                                                                sigma_4, alpha.j, alpha.m_j
-                                                                            )]
-                                                                        else:
-                                                                            sig4_alpha_cg = 0
+                                    # \sigma_4 l_\beta CG
+                                    if abs(beta.m_j-sigma_4) <= beta.l:
+                                      sig4_beta_cg = cg_table[(
+                                        beta.l, beta.m_j-sigma_4, 1/2, sigma_4,
+                                        beta.j, beta.m_j
+                                      )]
+                                    else:
+                                      sig4_beta_cg = 0
                                                                         
-                                                                        # \sigma_4 l_\beta CG
-                                                                        if abs(beta.m_j-sigma_4) <= beta.l:
-                                                                            sig4_beta_cg = cg_table[(
-                                                                                beta.l, beta.m_j-sigma_4, 1/2,
-                                                                                sigma_4, beta.j, beta.m_j
-                                                                            )]
-                                                                        else:
-                                                                            sig4_beta_cg = 0
-                                                                        
-                                            
-                                                                        # \sigma_3 \sigma_4 S' M_S''' CG
-                                                                        if sigma_3 + sigma_4 == M_Sppp:
-                                                                            spin_34_cg = cg_table[(
-                                                                                1/2, sigma_3, 1/2,
-                                                                                sigma_4, Sp, M_Sppp
-                                                                                )]
-                                                                        else:
-                                                                            spin_34_cg = 0
-                                                                        
-                                                                        product = (
-                                                                            sig1_alpha_cg
-                                                                            * sig2_beta_cg
-                                                                            * spin_12_cg
-                                                                            * spin_34_cg
-                                                                            * isospin_ab_cg
-                                                                            * isospin_ttp_cg
-                                                                            * isospin_ttpp_cg
-                                                                            * isospin_abp_cg
-                                                                            * lsj_cg
-                                                                            * lpsj_cg
-                                                                            * lppsj_cg
-                                                                            * lpppsj_cg
-                                                                            * lst_factor
-                                                                            * lpst_factor
-                                                                            * lppstp_factor
-                                                                            * lpppstp_factor
-                                                                            * (
-                                                                                sig3_alpha_cg
-                                                                                * sig4_beta_cg
-                                                                                - (-1) ** (Tp-1)
-                                                                                * sig3_beta_cg
-                                                                                * sig4_alpha_cg
-                                                                            )
-                                                                        )
-                                                                        
-                                                                        if product != 0:
+                                    # \sigma_3 \sigma_4 S' M_S''' CG
+                                    if sigma_3 + sigma_4 == M_Sppp:
+                                      spin_34_cg = cg_table[(
+                                        1/2, sigma_3, 1/2, sigma_4, Sp, M_Sppp
+                                      )]
+                                    else:
+                                      spin_34_cg = 0
+                                    
+                                    # Product of CG's and factors  
+                                    product = (
+                                      sig1_alpha_cg * sig2_beta_cg * spin_12_cg
+                                      * spin_34_cg * isospin_ab_cg
+                                      * isospin_ttp_cg * isospin_ttpp_cg
+                                      * isospin_abp_cg * lsj_cg * lpsj_cg
+                                      * lppsj_cg * lpppsj_cg * lst_factor
+                                      * lpst_factor * lppstp_factor
+                                      * lpppstp_factor * (
+                                        sig3_alpha_cg * sig4_beta_cg
+                                        - (-1) ** (Tp-1) * sig3_beta_cg
+                                        * sig4_alpha_cg
+                                      )
+                                    )
+                                    
+                                    # Add this set of quantum numbers to the
+                                    # list if the product is nonzero
+                                    if product != 0:
                                                                             
-                                                                            d = {
-                                                                                'channel_1': channel_1,
-                                                                                'channel_2': channel_2,
-                                                                                'T': T, 'M_T': M_T,
-                                                                                'Tp': Tp, 'M_Tp': M_Tp,
-                                                                                'alpha': alpha,
-                                                                                'beta': beta,
-                                                                                'J': J, 'M_J': M_J,
-                                                                                'Jp': Jp, 'M_Jp': M_Jp,
-                                                                                'S': S, 'M_S': M_S,
-                                                                                'M_Sp': M_Sp, 'Sp': Sp,
-                                                                                'M_Spp': M_Spp, 'M_Sppp': M_Sppp,
-                                                                                'L': L, 'M_L': M_L,
-                                                                                'Lp': Lp, 'M_Lp': M_Lp,
-                                                                                'Lpp': Lpp, 'M_Lpp': M_Lpp,
-                                                                                'Lppp': Lppp, 'M_Lppp': M_Lppp,
-                                                                                'sigma_1': sigma_1,
-                                                                                'sigma_2': sigma_2,
-                                                                                'sigma_3': sigma_3,
-                                                                                'sigma_4': sigma_4,
-                                                                                'taup': taup
-                                                                            }
+                                      d = {
+                                        'channel_1': channel_1,
+                                        'channel_2': channel_2,
+                                        'T': T,
+                                        'M_T': M_T,
+                                        'Tp': Tp,
+                                        'M_Tp': M_Tp,
+                                        'alpha': alpha,
+                                        'beta': beta,
+                                        'J': J,
+                                        'M_J': M_J,
+                                        'Jp': Jp,
+                                        'M_Jp': M_Jp,
+                                        'S': S,
+                                        'M_S': M_S,
+                                        'M_Sp': M_Sp,
+                                        'Sp': Sp,
+                                        'M_Spp': M_Spp,
+                                        'M_Sppp': M_Sppp,
+                                        'L': L,
+                                        'M_L': M_L,
+                                        'Lp': Lp,
+                                        'M_Lp': M_Lp,
+                                        'Lpp': Lpp,
+                                        'M_Lpp': M_Lpp,
+                                        'Lppp': Lppp,
+                                        'M_Lppp': M_Lppp,
+                                        'sigma_1': sigma_1,
+                                        'sigma_2': sigma_2,
+                                        'sigma_3': sigma_3,
+                                        'sigma_4': sigma_4,
+                                        'taup': taup
+                                      }
                                                                                                 
-                                                                            quantum_number_combinations.append(d)
+                                      quantum_number_combinations.append(d)
                                                                         
-    return quantum_number_combinations
+  return quantum_number_combinations
 
 
 def delta_U2_term_integrand(
@@ -1381,17 +1379,30 @@ def delta_U2_term_integrand(
         # Unpack dictionary
         channel_1 = d['channel_1']
         channel_2 = d['channel_2']
-        T, M_T = d['T'], d['M_T']
-        Tp, M_Tp = d['Tp'], d['M_Tp']
-        alpha, beta = d['alpha'], d['beta']
-        J, M_J = d['J'], d['M_J']
-        Jp, M_Jp = d['Jp'], d['M_Jp']
-        S, M_S, M_Sp = d['S'], d['M_S'], d['M_Sp']
-        Sp, M_Spp, M_Sppp = d['Sp'], d['M_Spp'], d['M_Sppp']
-        L, M_L = d['L'], d['M_L']
-        Lp, M_Lp = d['Lp'], d['M_Lp']
-        Lpp, M_Lpp = d['Lpp'], d['M_Lpp']
-        Lppp, M_Lppp = d['Lppp'], d['M_Lppp']
+        T = d['T']
+        M_T = d['M_T']
+        Tp = d['Tp']
+        M_Tp = d['M_Tp']
+        alpha = d['alpha']
+        beta = d['beta']
+        J = d['J']
+        M_J = d['M_J']
+        Jp = d['Jp']
+        M_Jp = d['M_Jp']
+        S = d['S']
+        M_S = d['M_S']
+        M_Sp = d['M_Sp']
+        Sp = d['Sp']
+        M_Spp = d['M_Spp']
+        M_Sppp = d['M_Sppp']
+        L = d['L']
+        M_L = d['M_L']
+        Lp = d['Lp']
+        M_Lp = d['M_Lp']
+        Lpp = d['Lpp']
+        M_Lpp = d['M_Lpp']
+        Lppp = d['Lppp']
+        M_Lppp = d['M_Lppp']
         sigma_1 = d['sigma_1']
         sigma_2 = d['sigma_2']
         sigma_3 = d['sigma_3']
