@@ -15,7 +15,7 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: July 28, 2022
+Last update: March 29, 2023
 
 """
 
@@ -31,7 +31,7 @@ from .integration import (
     unattach_weights_from_matrix, unattach_weights_from_vector
 )
 from .potentials import Potential
-from .srg import get_transformation
+from .srg import compute_srg_transformation
 from .tools import channel_L_value, coupled_channel, replace_periods
 from .wave_function import wave_function
 
@@ -129,7 +129,7 @@ class MomentumDistribution:
                 H_hard_evolved = potential_hard.load_hamiltonian(
                     'srg', generator, lambda_m)
             # Get SRG transformation for inverse transformation
-            U_hard = get_transformation(H_hard_initial, H_hard_evolved)
+            U_hard = compute_srg_transformation(H_hard_initial, H_hard_evolved)
             # Do inverse transformation on initial Hamiltonian
             H_initial = U_hard.T @ H_initial @ U_hard
 
@@ -256,7 +256,7 @@ class MomentumDistribution:
                 channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
             # Get SRG transformation U(k, k') [unitless]
-            U_matrix_unitless = get_transformation(H_initial, H_evolved)
+            U_matrix_unitless = compute_srg_transformation(H_initial, H_evolved)
 
             # Coupled-channel?
             cc_bool = coupled_channel(channel)
@@ -351,7 +351,7 @@ class MomentumDistribution:
             channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
         # Get SRG transformation U(k, k') [unitless]
-        U_matrix_unitless = get_transformation(H_initial, H_evolved)
+        U_matrix_unitless = compute_srg_transformation(H_initial, H_evolved)
 
         # Need the deuteron wave function to get kF values for calculation
         psi_k_unitless = wave_function(H_initial, U_matrix=U_matrix_unitless)

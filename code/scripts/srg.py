@@ -20,7 +20,7 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: March 7, 2023
+Last update: March 29, 2023
 
 """
 
@@ -335,13 +335,6 @@ class SRG(Potential):
             Step-size in terms of \lambda [fm^-1].
 
         """
-
-        if solver_lambda >= 6.0:
-            dlamb = 1.0
-        elif 2.5 <= solver_lambda < 6.0:
-            dlamb = 0.5
-        else:
-            dlamb = 0.1
             
         if solver_lambda >= 6.0:
             dlamb = 1.0
@@ -384,8 +377,6 @@ class SRG(Potential):
 
         # Following the example in Hergert:2016iju with modifications to
         # nsteps and error tolerances
-        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-6,
-        #                       rtol=1e-6, nsteps=5000000)
         solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
                               rtol=1e-10, nsteps=5000000)
 
@@ -393,7 +384,7 @@ class SRG(Potential):
 
     def srg_evolve(
             self, lambda_array, lambda_bd_array=None, lambda_initial=20.0,
-            save=False, method='hamiltonian'):
+            method='hamiltonian', save=False):
         """
         Evolve the Hamiltonian at each value of \lambda, and possibly
         \Lambda_BD for block-diagonal decoupling.
@@ -408,7 +399,7 @@ class SRG(Potential):
             Initial value of lambda [fm^-1]. Technically this should be
             infinity but a large value (~20 fm^-1) is sufficient.
         save : bool, optional
-            If true, saves the evolved potentials.
+            If true, saves data files.
         method : str, optional
             The default method is to solve the flow equation
                 dH(s)/ds = [\eta(s), H(s)],
@@ -423,10 +414,6 @@ class SRG(Potential):
             with keys (floats) corresponding to each \lambda value (and
             possibly an additional key for \Lambda_BD). E.g., d[1.5] returns
             the evolved Hamiltonian at \lambda = 1.5 fm^-1.
-            
-        Notes
-        -----
-        Could implement the scipy.integrate.solve_ivp(...) ODE solver.
             
         """
 
@@ -460,7 +447,14 @@ class SRG(Potential):
                         solution_vector = solver.integrate(solver.t - dlamb)
 
                     # Store evolved Hamiltonian (or U) matrix in dictionary
-                    d[lambda_bd][lamb] = self.vector_to_matrix(solution_vector)
+                    if method == 'hamiltonian':
+                        d[lambda_bd][lamb] = self.vector_to_matrix(
+                            solution_vector
+                        )
+                    elif method == 'srg_transformation':
+                        d[lambda_bd][lamb] =  np.reshape(
+                            solution_vector, (self.Ntot, self.Ntot)
+                        )
 
         # Band-diagonal generators
         else:
@@ -479,7 +473,11 @@ class SRG(Potential):
                     solution_vector = solver.integrate(solver.t - dlamb)
 
                 # Store evolved Hamiltonian (or U) matrix in dictionary
-                d[lamb] = self.vector_to_matrix(solution_vector)
+                if method == 'hamiltonian':
+                    d[lamb] = self.vector_to_matrix(solution_vector)
+                elif method == 'srg_transformation':
+                    d[lamb] =  np.reshape(solution_vector,
+                                          (self.Ntot, self.Ntot))
 
         # End time
         t1 = time.time()
@@ -503,41 +501,146 @@ class SRG(Potential):
         # Save evolved potentials
         if save:
 
-            # Get relative kinetic energy and convert to [fm^-2]
-            T_matrix = self.load_kinetic_energy() / Potential.hbar_sq_over_m
-
             if self.generator == 'Block-diag':
 
                 # Additionally, loop over \Lambda_BD
                 for lambda_bd in lambda_bd_array:
                     for lamb in lambda_array:
-                        # Scattering units here [fm^-2]
-                        H_matrix = d[lambda_bd][lamb]
-
-                        # Subtract off kinetic energy [fm^-2]
-                        V_matrix = H_matrix - T_matrix
 
                         # Save evolved potential in units [fm]
-                        self.save_potential(V_matrix, 'srg', self.generator,
-                                            lamb, lambda_bd)
+                        if method == 'hamiltonian':
+                            self.save_srg_potential(d[lambda_bd][lamb], lamb,
+                                                    lambda_bd)
+                            
+                        # Save SRG transfomration [unitless]
+                        elif method == 'srg_transformation':
+                            self.save_srg_transformation(d[lambda_bd][lamb],
+                                                         lamb, lambda_bd)
 
             # Only need to loop over \lambda for band-diagonal generators
             else:
 
                 for lamb in lambda_array:
-                    # Scattering units here [fm^-2]
-                    H_matrix = d[lamb]
-
-                    # Subtract off kinetic energy [fm^-2]
-                    V_matrix = H_matrix - T_matrix
 
                     # Save evolved potential in units [fm]
-                    self.save_potential(V_matrix, 'srg', self.generator, lamb)
-
+                    if method == 'hamiltonian':
+                        self.save_srg_potential(d[lamb], lamb)
+                        
+                    # Save SRG transfomration [unitless]
+                    elif method == 'srg_transformation':
+                        self.save_srg_transformation(d[lamb], lamb)
+                    
         return d
+    
+    def save_srg_potential(self, H_matrix, lamb, lambda_bd=None):
+        """Saves the SRG-evolved potential."""
+        
+        # Get relative kinetic energy and convert to [fm^-2]
+        T_matrix = self.load_kinetic_energy() / Potential.hbar_sq_over_m
+        
+        # Subtract off kinetic energy [fm^-2]
+        V_matrix = H_matrix - T_matrix
+        
+        self.save_potential(V_matrix, 'srg', self.generator, lamb, lambda_bd)
+        
+    def srg_transformation_file_name(self, lamb, lambda_bd=None):
+        """Get file name for SRG transformation."""
+        
+        file_name = (f'u_{self.channel}_kvnn_{self.kvnn_string}'
+                     f'_{self.generator}')
+
+        # Get \lambda with correct number of decimals
+        if lamb == round(lamb, 1):
+            lamb_str = str(round(lamb, 1))
+        else:
+            lamb_str = str(round(lamb, 2))
+
+        # Add \Lambda_BD to name for block-diagonal generator
+        if self.generator == 'Block-diag':
+            file_name += f'{lambda_bd:.2f}_lambda{lamb_str}'
+        else:
+            file_name += f'_lambda{lamb_str}'
+
+        file_name += '.out'
+        
+        return file_name
+
+    def save_srg_transformation(self, U_matrix, lamb, lambda_bd=None):
+        
+        # Get file name for the SRG transformation matrix elements
+        file_name = self.srg_transformation_file_name(lamb, lambda_bd)
+
+        # Get momenta and weights
+        k_array, k_weights = self.load_mesh()
+
+        f = open(self.potential_directory + file_name, 'w')
+
+        # Write each sub-block as a column for coupled-channel potentials
+        if self.coupled_channel_bool:
+
+            header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format(
+                'k', 'kp', 'U11', 'U12', 'U21', 'U22'
+            )
+            f.write('#' + header + '\n')
+
+            for i, ik in enumerate(k_array):
+                for j, jk in enumerate(k_array):
+
+                    u11 = U_matrix[i, j]
+                    u12 = U_matrix[i, j+self.ntot]
+                    u21 = U_matrix[i+self.ntot, j]
+                    u22 = U_matrix[i+self.ntot, j+self.ntot]
+
+                    line = ('{:^15.6f}{:^15.6f}'.format(ik, jk)
+                            + '{:^23e}{:^23e}'.format(u11, u12)
+                            + '{:^23e}{:^23e}'.format(u21, u22))
+
+                    f.write(line + '\n')
+
+        else:
+
+            header = '{:^15s}{:^15s}{:^23s}'.format('k', 'kp', 'U')
+            f.write('#' + header + '\n')
+
+            for i, ik in enumerate(k_array):
+                for j, jk in enumerate(k_array):
+
+                    u = U_matrix[i, j]
+
+                    line = '{:^15.6f}{:^15.6f}{:^23e}'.format(ik, jk, u)
+
+                    f.write(line + '\n')
+
+        f.close()
+        
+    def load_srg_transformation(self, lamb, lambda_bd=None):
+        """Loads SRG unitary transformation from data file generated from
+        solving dU/d\lambda =  -4/\lambda^5 \eta(\lambda) U(\lambda).
+        """
+
+        # Get file name for the SRG transformation matrix elements
+        file_name = self.srg_transformation_file_name(lamb, lambda_bd)
+
+        # Load output file
+        data = np.loadtxt(self.potential_directory + file_name)
+
+        # Coupled-channel potential?
+        if self.coupled_channel_bool:
+
+            u11 = np.reshape(data[:, 2], (self.ntot, self.ntot))
+            u12 = np.reshape(data[:, 3], (self.ntot, self.ntot))
+            u21 = np.reshape(data[:, 4], (self.ntot, self.ntot))
+            u22 = np.reshape(data[:, 5], (self.ntot, self.ntot))
+            U_matrix = build_coupled_channel_matrix(u11, u12, u21, u22)
+
+        else:
+
+            U_matrix = np.reshape(data[:, 2], (self.ntot, self.ntot))
+
+        return U_matrix
 
 
-def get_transformation(H_initial, H_evolved):
+def compute_srg_transformation(H_initial, H_evolved):
     """
     SRG unitary transformation built out of eigenvectors of the initial and 
     evolved Hamiltonians.
