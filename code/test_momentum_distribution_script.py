@@ -31,6 +31,7 @@ import vegas
 
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
+from scripts.srg import SRG
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 # GET RID OF REPLACE PERIODS LATER
 from scripts.woodsaxon import ws
@@ -109,7 +110,7 @@ class SingleParticleState:
 class SingleParticleBasis:
     """
     Single-particle basis class. Handles the wave functions associated with the
-    Wood-Saxon potential from the subroutine in woodsaxon.f90. Outputs wave
+    Woods-Saxon potential from the subroutine in woodsaxon.f90. Outputs wave
     functions in coordinate and momentum space.
     
     Parameters
@@ -438,43 +439,45 @@ def psi(sp_state, q_vector, sigma, cg_table, phi_functions):
     return phi_sp_wf * cg * Y_lm
 
 
-# Testing: Load SRG transformation directly with ode + BDF solver
-def load_H_evolved(
-        kvnn, channel, generator, lamb, kmax=15.0, kmid=3.0, ntot=120,
-        solver='U', method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
-):
-    """Load evolved Hamiltonian."""
+# # Testing: Load SRG transformation directly with ode + BDF solver
+# def load_H_evolved(
+#         kvnn, channel, generator, lamb, kmax=15.0, kmid=3.0, ntot=120,
+#         solver='U', method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
+# ):
+#     """Load evolved Hamiltonian."""
     
-    if solver == 'U':
+#     if solver == 'U':
         
-        H_file_name = (
-            f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
-            f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
-        )
+#         H_file_name = (
+#             f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
+#             f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+#         )
             
-        H_evolved = np.loadtxt("./test_srg/" + replace_periods(H_file_name)
-                               + ".txt")
+#         H_evolved = np.loadtxt("./test_srg/" + replace_periods(H_file_name)
+#                                + ".txt")
                 
-        U_file_name = (
-            f"U_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax_{kmax}"
-            f"_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
-        )
+#         U_file_name = (
+#             f"U_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax_{kmax}"
+#             f"_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+#         )
             
-        U_evolved = np.loadtxt("./test_srg/" + replace_periods(U_file_name)
-                               + ".txt")
+#         U_evolved = np.loadtxt("./test_srg/" + replace_periods(U_file_name)
+#                                + ".txt")
         
-        return H_evolved, U_evolved
+#         return H_evolved, U_evolved
         
-    else:
+#     else:
         
-        file_name = (
-            f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
-            f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
-        )
-        H_evolved = np.loadtxt("./test_srg/" + replace_periods(file_name)
-                               + ".txt")
+#         file_name = (
+#             f"H_evolved_kvnn_{kvnn}_{channel}_{generator}_lamb_{lamb}_kmax"
+#             f"_{kmax}_kmid_{kmid}_ntot_{ntot}_{solver}_{method}_wrt_{wrt}"
+#         )
+#         H_evolved = np.loadtxt("./test_srg/" + replace_periods(file_name)
+#                                + ".txt")
     
-        return H_evolved
+#         return H_evolved
+
+# TESTING: Check that the new function from srg.py works first
 
 
 def interpolate_delta_U(
@@ -495,6 +498,9 @@ def interpolate_delta_U(
 
     # Get momentum mesh
     k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
+    
+    srg = SRG(kvnn, channel_arg, kmax, kmid, ntot, generator)
+    U_matrix_weights = 
 
     # scipy.integrate.ode with BDF solving for U(\lambda)
     _, U_matrix_weights = load_H_evolved(
