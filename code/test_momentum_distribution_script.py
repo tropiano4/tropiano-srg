@@ -19,6 +19,7 @@ Last update: March 28, 2023
 
 # Python imports
 import functools
+#from numba import jit
 import numpy as np
 import numpy.linalg as la
 from scipy.interpolate import interp1d, RectBivariateSpline
@@ -891,6 +892,7 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
   return quantum_number_combinations
 
 
+#@jit(nopython=True)
 def delta_U_term_integrand(
         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
         delta_U_dagger_functions, momenta_array
@@ -1336,6 +1338,7 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
   return quantum_number_combinations
 
 
+#@jit(nopython=True)
 def delta_U2_term_integrand(
         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
         delta_U_dagger_functions, momenta_array
@@ -1698,10 +1701,17 @@ if __name__ == '__main__':
     # lamb = 3.0
     # lamb = 6.0
 
+    # # He4
+    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+    #     nucleus_name, Z, N, tau, channels, kvnn, generator=generator, lamb=lamb,
+    #     print_normalization=True, save=True
+    # )
+    
+    # TESTING SPEED
     # He4
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, generator=generator, lamb=lamb,
-        print_normalization=True, save=True
+        print_normalization=True, save=False
     )
     
     # # O16
