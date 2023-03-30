@@ -10,10 +10,9 @@ This script serves as a testbed for calculating momentum distributions using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator. This differs from the previous momentum
 distribution calculations by directly utilizing single-particle wave functions
-instead of a local density approximation. In this version, we test the
-sums over quantum numbers and sensitivity to D-wave channels.
+instead of a local density approximation.
 
-Last update: March 28, 2023
+Last update: March 30, 2023
 
 """
 
@@ -32,8 +31,7 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.srg import SRG
-from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
-# GET RID OF REPLACE PERIODS LATER
+from scripts.tools import convert_l_to_string, coupled_channel
 from scripts.woodsaxon import ws
 
 
@@ -122,7 +120,7 @@ class SingleParticleBasis:
     N : int
         Neutron number of the nucleus.
     run_woodsaxon : bool, optional
-        Option to run the Wood-Saxon subroutine to generate orbital files.
+        Option to run the Woods-Saxon subroutine to generate orbital files.
     n_max : int, optional
         Maximum principal quantum number where n = 1, 2, ..., n_max.
     l_max : int, optional
@@ -141,20 +139,20 @@ class SingleParticleBasis:
     ):
         
         # Set instance attributes
-        self.wood_saxon_directory = f"../data/wood_saxon/{nucleus_name}/"
+        self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.dr = rmax / ntab
         self.r_array = np.arange(self.dr, rmax + self.dr, self.dr)
 
         # Generate orbitals?
         if run_woodsaxon:
             
-            self.run_wood_saxon_code(nucleus_name, Z, N, n_max, l_max, rmax,
-                                     ntab)
+            self.run_woods_saxon_code(nucleus_name, Z, N, n_max, l_max, rmax,
+                                      ntab)
 
             # Move output files to relevant directory
-            shutil.move("ws_log", self.wood_saxon_directory + "ws_log")
-            shutil.move("ws_pot", self.wood_saxon_directory + "ws_pot")
-            shutil.move("ws_rho", self.wood_saxon_directory + "ws_rho")
+            shutil.move("ws_log", self.woods_saxon_directory + "ws_log")
+            shutil.move("ws_pot", self.woods_saxon_directory + "ws_pot")
+            shutil.move("ws_rho", self.woods_saxon_directory + "ws_rho")
                 
         # Order single-particle states with lowest energy first
         self.order_sp_states(Z, N)
@@ -167,14 +165,14 @@ class SingleParticleBasis:
                 file_name = get_orbital_file_name(sp_state)
                 if run_woodsaxon:
                     shutil.move(file_name,
-                                self.wood_saxon_directory + file_name)
-                data = np.loadtxt(self.wood_saxon_directory + file_name)
+                                self.woods_saxon_directory + file_name)
+                data = np.loadtxt(self.woods_saxon_directory + file_name)
                 # Use file name as the key
                 self.sp_wfs[file_name] = data[:, 1]
 
             
-    def run_wood_saxon_code(self, nucleus_name, Z, N, n_max, l_max, rmax, ntab):
-        """Run Wood-Saxon code to generate data."""
+    def run_woods_saxon_code(self, nucleus_name, Z, N, n_max, l_max, rmax, ntab):
+        """Run Woods-Saxon code to generate data."""
         
         # Total number of nucleons
         A = Z + N
@@ -201,7 +199,7 @@ class SingleParticleBasis:
         rdiv = False
         dens = True
     
-        # Set parameters of the Wood-Saxon potential
+        # Set parameters of the Woods-Saxon potential
         prm = np.zeros(shape=(2,9), order='F')
     
         # Starting with vws (p & n)
@@ -243,7 +241,7 @@ class SingleParticleBasis:
         neutron_count = 0
         
         # File with details of the orbitals
-        ws_file = self.wood_saxon_directory + "ws_log"
+        ws_file = self.woods_saxon_directory + "ws_log"
     
         # Order single-particle states using the ws_log file
         with open(ws_file, 'r') as f:
@@ -478,8 +476,6 @@ def psi(sp_state, q_vector, sigma, cg_table, phi_functions):
 #         return H_evolved
 
 # TESTING: Check that the new function from srg.py works first
-
-
 def interpolate_delta_U(
         kvnn, channel, kmax, kmid, ntot, generator, lamb,
         hermitian_conjugate=False
@@ -500,13 +496,13 @@ def interpolate_delta_U(
     k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
     srg = SRG(kvnn, channel_arg, kmax, kmid, ntot, generator)
-    U_matrix_weights = 
+    U_matrix_weights = srg.load_srg_transformation(lamb)
 
-    # scipy.integrate.ode with BDF solving for U(\lambda)
-    _, U_matrix_weights = load_H_evolved(
-        kvnn, channel_arg, generator, lamb, kmax, kmid, ntot, solver='U',
-        method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
-    )
+    # # scipy.integrate.ode with BDF solving for U(\lambda)
+    # _, U_matrix_weights = load_H_evolved(
+    #     kvnn, channel_arg, generator, lamb, kmax, kmid, ntot, solver='U',
+    #     method='BDF', atol=1e-10, rtol=1e-10, wrt='lambda'
+    # )
 
     # Calculate \delta U = U - I
     I_matrix_weights = np.eye(len(U_matrix_weights))
@@ -539,10 +535,7 @@ def interpolate_delta_U(
     return delU_func
 
 
-def get_delta_U_functions(
-        channels, kvnn, kmax=15.0, kmid=3.0, ntot=120, generator='Wegner',
-        lamb=1.35
-):
+def get_delta_U_functions(channels, kvnn, kmax, kmid, ntot, generator, lamb):
     """Get \delta U and \delta U^\dagger functions."""
 
     delta_U_functions = {}
@@ -1023,7 +1016,7 @@ def delta_U_term_integrand(
 
 
 def compute_delta_U_term(
-        q_array, tau, occ_states, cg_table, channels, phi_functions,
+        q_array, tau, k_min, k_max, occ_states, cg_table, channels, phi_functions,
         delta_U_functions, delta_U_dagger_functions
 ):
     """Compute the sum of the \delta U * n(q) * I term and the 
@@ -1037,12 +1030,13 @@ def compute_delta_U_term(
     quantum_numbers = delta_U_quantum_numbers(tau, occ_states, cg_table,
                                               channels)
         
-    # Set-up integration with vegas
-    k_array, _ = momentum_mesh(15.0, 3.0, 120)
-    k_max, k_min = max(k_array), min(k_array)
-    k_limits = [k_min, k_max]  # Relative momenta up to 15^-1
-    K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    # Relative momenta from 0 to maximum of momentum mesh of the potential
+    k_limits = [k_min, k_max]
+    # C.o.M. momenta up to 3 fm^-1
+    K_limits = [0, 3]
+    # Polar angle
     theta_limits = [0, np.pi]
+    # Azimuthal angle
     phi_limits = [0, 2*np.pi]
 
     # Set-up integrator with multiple processors
@@ -1492,8 +1486,8 @@ def delta_U2_term_integrand(
 
 
 def compute_delta_U2_term(
-        q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions
+        q_array, tau, k_min, k_max, occ_states, cg_table, channels,
+        phi_functions, delta_U_functions, delta_U_dagger_functions
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
         
@@ -1504,12 +1498,13 @@ def compute_delta_U2_term(
     quantum_numbers = delta_U2_quantum_numbers(tau, occ_states, cg_table,
                                                channels)
         
-    # Set-up integration with vegas
-    k_array, _ = momentum_mesh(15.0, 3.0, 120)
-    k_max, k_min = max(k_array), min(k_array)
-    k_limits = [k_min, k_max]  # Relative momenta up to 15^-1
-    K_limits = [0, 3]  # C.o.M. momenta up to 3 fm^-1
+    # Relative momenta from 0 to maximum of momentum mesh of the potential
+    k_limits = [k_min, k_max]
+    # C.o.M. momenta up to 3 fm^-1
+    K_limits = [0, 3]
+    # Polar angle
     theta_limits = [0, np.pi]
+    # Azimuthal angle
     phi_limits = [0, 2*np.pi]
 
     # Set-up integrator with multiple processors
@@ -1550,8 +1545,8 @@ def compute_delta_U2_term(
 
 
 def compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, generator='Wegner', lamb=1.35,
-        print_normalization=False, ipm_only=False, save=True
+        nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
+        generator='Wegner', print_normalization=False, ipm_only=False, save=True
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1565,7 +1560,7 @@ def compute_momentum_distribution(
     
     # Set-up \delta U and \delta U^\dagger functions
     delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
-        channels, kvnn, generator=generator, lamb=lamb
+        channels, kvnn, kmax, kmid, ntot, generator, lamb
     )
     
     # Set momentum mesh
@@ -1587,13 +1582,17 @@ def compute_momentum_distribution(
     # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
     else:
         
+        # Use same relative momentum mesh as the one for the SRG transformation
+        k_array, _ = momentum_mesh(kmax, kmid, ntot)
+        k_min, k_max = min(k_array), max(k_array)
+        
         t0 = time.time()
 
         # Compute \delta U + \delta U^\dagger term using vegas
         print("Beginning \delta U linear terms.\n")
         t1 = time.time()
         delta_U_array, delta_U_errors = compute_delta_U_term(
-            q_array, tau, sp_basis.occ_states, cg_table, channels,
+            q_array, tau, k_min, k_max, sp_basis.occ_states, cg_table, channels,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
         t2 = time.time()
@@ -1607,7 +1606,7 @@ def compute_momentum_distribution(
         print("Beginning \delta U \delta U^\dagger term.\n")
         t3 = time.time()
         delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-            q_array, tau, sp_basis.occ_states, cg_table, channels,
+            q_array, tau, k_min, k_max, sp_basis.occ_states, cg_table, channels,
             phi_functions, delta_U_functions, delta_U_dagger_functions
         )
         t4 = time.time()
@@ -1687,43 +1686,29 @@ def load_momentum_distribution(nucleus_name, nucleon):
             delta_U_errors, delta_U2_array, delta_U2_errors)
 
 
-
 if __name__ == '__main__':
     
-    # Set nucleus, nucleon, partial wave channels, and potential
+    # Nucleus
     nucleus_name, Z, N = 'He4', 2, 2
+    
+    # Nucleon
     tau = 1/2
+    
+    # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
-    # channels = ['3S1-3S1']
-    # channels = ['3D1-3D1']
-    # channels = ['1S0']
-    # channels = ('1S0', '3S1-3S1')
-    kvnn = 6  # AV18
-    # kvnn = 111  # SMS N4LO 450 MeV
-    generator = 'Wegner'
-    # generator = 'T'
+    
+    # NN potential and momentum mesh
+    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    
+    # SRG \lambda value
     lamb = 1.35
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0
 
-    # # He4
-    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, channels, kvnn, generator=generator, lamb=lamb,
-    #     print_normalization=True, save=True
-    # )
-    
-    # TESTING SPEED
-    # He4
+    # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, channels, kvnn, generator=generator, lamb=lamb,
-        print_normalization=True, save=False
+        nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
+        print_normalization=True, save=True
     )
-    
-    # # O16
-    # nucleus_name, Z, N = 'O16', 8, 8
-    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, channels, kvnn, lamb=lamb, 
-    #     print_normalization=True, save=True
-    # )
-    

@@ -32,7 +32,7 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
-from scripts.srg import get_transformation
+from scripts.srg import compute_srg_transformation
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 # GET RID OF REPLACE PERIODS LATER
 from scripts.woodsaxon import ws
@@ -556,7 +556,7 @@ def interpolate_delta_U(
     #     H_evolved = potential.load_hamiltonian('srg', generator, lamb)
     
     # # Get SRG transformation from Hamiltonians
-    # U_matrix_weights = get_transformation(H_initial, H_evolved)
+    # U_matrix_weights = compute_srg_transformation(H_initial, H_evolved)
     
     # Calculate \delta U = U - I
     I_matrix_weights = np.eye(len(U_matrix_weights))
