@@ -17,21 +17,17 @@ or the differential equation for U(s) directly,
 
     dU(s)/ds = \eta(s) U(s).
     
-Additionally, this script includes a function for the SRG unitary
+Additionally, this script includes a function for computing the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: March 29, 2023
+Last update: April 3, 2023
 
 """
-
-# Todo: Add print_info optional argument and save during first \lambda loop
-#  in srg_evolve (make Potential.save_potential() take H not V).
-# Todo: Is there a way to reshape matrices and vectors without looping?
 
 # Python imports
 import numpy as np
 import numpy.linalg as la
-from scipy.integrate import ode
+from scipy.integrate import ode, solve_ivp
 import time
 
 # Imports from A.T. codes
@@ -105,7 +101,7 @@ class SRG(Potential):
 
         Parameters
         ----------
-        lambda_bd : float, optional
+        lambda_bd : float
             SRG \Lambda_BD value for block-diagonal generator [fm^-1].
 
         """
@@ -377,8 +373,9 @@ class SRG(Potential):
 
         # Following the example in Hergert:2016iju with modifications to
         # nsteps and error tolerances
-        solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
-                              rtol=1e-10, nsteps=5000000)
+        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
+        #                       rtol=1e-10, nsteps=5000000)
+        solver.set_integrator('lsoda', atol=1e-10, rtol=1e-10, nsteps=5000000)
 
         return solver
 
@@ -416,6 +413,23 @@ class SRG(Potential):
             the evolved Hamiltonian at \lambda = 1.5 fm^-1.
             
         """
+        
+        # TESTING
+        # Limits of \lambda
+        lamb_limits = [lambda_initial, lambda_array[-1]]
+
+        # Initial Hamiltonian as a vector
+        if method == 'hamiltonian':
+            
+            H_initial_vector = self.matrix_to_vector(self.H_initial)
+            
+        # Initial SRG transformation as a matrix
+        elif method == 'srg_transformation':
+            
+            U_initial = np.eye(self.Ntot)
+
+            # Initial SRG transformation as a vector
+            U_initial_vector  = np.reshape(U_initial, -1)
 
         # Start time
         t0 = time.time()
@@ -433,51 +447,140 @@ class SRG(Potential):
                 # Set first key as \Lambda_BD
                 d[lambda_bd] = {}
 
-                # Set-up ODE solver
-                solver = self.get_ode_solver(lambda_initial, method)
-
-                for lamb in lambda_array:
-
-                    # Solve ODE up to lamb
-                    while solver.successful() and round(solver.t, 2) > lamb:
-                        # Get ODE solver step-size in \lambda
-                        dlamb = self.select_step_size(solver.t, lamb)
-
-                        # Integrate to next step in \lambda
-                        solution_vector = solver.integrate(solver.t - dlamb)
+                    # # Set-up ODE solver
+                    # solver = self.get_ode_solver(lambda_initial, method)
+    
+                    # for lamb in lambda_array:
+    
+                    #     # Solve ODE up to lamb
+                    #     while solver.successful() and round(solver.t, 2) > lamb:
+                            
+                    #         # Get ODE solver step-size in \lambda
+                    #         dlamb = self.select_step_size(solver.t, lamb)
+    
+                    #         # Integrate to next step in \lambda
+                    #         solution_vector = solver.integrate(solver.t - dlamb)
+                
+                
+                # TESTING
+                if method == 'hamiltonian':
+                    
+                    result = solve_ivp(
+                        self.H_deriv, lamb_limits, H_initial_vector,
+                        method='BDF', t_eval=lambda_array, atol=1e-10,
+                        rtol=1e-10
+                    )
+                    
+                elif method == 'srg_transformation':
+                    
+                    result = solve_ivp(
+                        self.U_deriv, lamb_limits, U_initial_vector,
+                        method='BDF', t_eval=lambda_array, atol=1e-10,
+                        rtol=1e-10
+                    )
+                
+                # for lamb in lambda_array:
+                for i, lamb in enumerate(lambda_array):
 
                     # Store evolved Hamiltonian (or U) matrix in dictionary
                     if method == 'hamiltonian':
+                        
+                        # d[lambda_bd][lamb] = self.vector_to_matrix(
+                        #     solution_vector
+                        # )
                         d[lambda_bd][lamb] = self.vector_to_matrix(
-                            solution_vector
+                            result.y[:, i]
                         )
+                        
+                        if save:  # Save evolved potential?
+                            
+                            self.save_srg_potential(d[lambda_bd][lamb], lamb,
+                                                    lambda_bd)
+                        
                     elif method == 'srg_transformation':
+                        
+                        # d[lambda_bd][lamb] =  np.reshape(
+                        #     solution_vector, (self.Ntot, self.Ntot)
+                        # )
                         d[lambda_bd][lamb] =  np.reshape(
-                            solution_vector, (self.Ntot, self.Ntot)
+                            result.y[:, i], (self.Ntot, self.Ntot)
                         )
-
+                        
+                        if save:  # Save SRG transformation?
+                        
+                            self.save_srg_transformation(d[lambda_bd][lamb],
+                                                         lamb, lambda_bd)
+                        
         # Band-diagonal generators
         else:
-
-            # Set-up ODE solver
-            solver = self.get_ode_solver(lambda_initial, method)
-
-            for lamb in lambda_array:
-
-                # Solve ODE up to lamb and store in dictionary
-                while solver.successful() and round(solver.t, 2) > lamb:
-                    # Get ODE solver step-size in \lambda
-                    dlamb = self.select_step_size(solver.t, lamb)
-
-                    # Integrate to next step in lambda
-                    solution_vector = solver.integrate(solver.t - dlamb)
+            
+            if method == 'hamiltonian':
+                    
+                result = solve_ivp(
+                    self.H_deriv, lamb_limits, H_initial_vector, method='BDF',
+                    t_eval=lambda_array, atol=1e-10, rtol=1e-10
+                )
+                    
+            elif method == 'srg_transformation':
+                    
+                result = solve_ivp(
+                    self.U_deriv, lamb_limits, U_initial_vector, method='BDF',
+                    t_eval=lambda_array, atol=1e-10, rtol=1e-10
+                )
+                
+            for i, lamb in enumerate(lambda_array):
 
                 # Store evolved Hamiltonian (or U) matrix in dictionary
                 if method == 'hamiltonian':
-                    d[lamb] = self.vector_to_matrix(solution_vector)
+                        
+                    d[lamb] = self.vector_to_matrix(result.y[:, i])
+                        
+                    if save:  # Save evolved potential?
+                            
+                        self.save_srg_potential(d[lamb], lamb)
+                        
                 elif method == 'srg_transformation':
-                    d[lamb] =  np.reshape(solution_vector,
-                                          (self.Ntot, self.Ntot))
+
+                    U_vector = result.y[:, i]
+                    d[lamb] = np.reshape(U_vector, (self.Ntot, self.Ntot))
+                    # d[lamb] = np.reshape(result.y[:, i],
+                    #                      (self.Ntot, self.Ntot))
+                        
+                    if save:  # Save SRG transformation?
+                        
+                        self.save_srg_transformation(d[lamb], lamb)
+
+            # # Set-up ODE solver
+            # solver = self.get_ode_solver(lambda_initial, method)
+
+            # for lamb in lambda_array:
+
+            #     # Solve ODE up to lamb and store in dictionary
+            #     while solver.successful() and round(solver.t, 2) > lamb:
+                    
+            #         # Get ODE solver step-size in \lambda
+            #         dlamb = self.select_step_size(solver.t, lamb)
+
+            #         # Integrate to next step in lambda
+            #         solution_vector = solver.integrate(solver.t - dlamb)
+
+            #     # Store evolved Hamiltonian (or U) matrix in dictionary
+            #     if method == 'hamiltonian':
+                    
+            #         d[lamb] = self.vector_to_matrix(solution_vector)
+                    
+            #         if save:  # Save evolved potential?
+                    
+            #             self.save_srg_potential(d[lamb], lamb)
+                    
+            #     elif method == 'srg_transformation':
+                    
+            #         d[lamb] =  np.reshape(solution_vector,
+            #                               (self.Ntot, self.Ntot))
+                    
+            #         if save:  # Save SRG transformation?
+                    
+            #             self.save_srg_transformation(d[lamb], lamb)
 
         # End time
         t1 = time.time()
@@ -498,38 +601,6 @@ class SRG(Potential):
             lambda_bd_str = convert_number_to_string(lambda_bd_array[-1])
             print(f"Final \Lambda_BD = {lambda_bd_str} fm^-1")
 
-        # Save evolved potentials
-        if save:
-
-            if self.generator == 'Block-diag':
-
-                # Additionally, loop over \Lambda_BD
-                for lambda_bd in lambda_bd_array:
-                    for lamb in lambda_array:
-
-                        # Save evolved potential in units [fm]
-                        if method == 'hamiltonian':
-                            self.save_srg_potential(d[lambda_bd][lamb], lamb,
-                                                    lambda_bd)
-                            
-                        # Save SRG transfomration [unitless]
-                        elif method == 'srg_transformation':
-                            self.save_srg_transformation(d[lambda_bd][lamb],
-                                                         lamb, lambda_bd)
-
-            # Only need to loop over \lambda for band-diagonal generators
-            else:
-
-                for lamb in lambda_array:
-
-                    # Save evolved potential in units [fm]
-                    if method == 'hamiltonian':
-                        self.save_srg_potential(d[lamb], lamb)
-                        
-                    # Save SRG transfomration [unitless]
-                    elif method == 'srg_transformation':
-                        self.save_srg_transformation(d[lamb], lamb)
-                    
         return d
     
     def save_srg_potential(self, H_matrix, lamb, lambda_bd=None):
@@ -566,6 +637,7 @@ class SRG(Potential):
         return file_name
 
     def save_srg_transformation(self, U_matrix, lamb, lambda_bd=None):
+        """Saves the SRG transformation."""
         
         # Get file name for the SRG transformation matrix elements
         file_name = self.srg_transformation_file_name(lamb, lambda_bd)
@@ -575,7 +647,7 @@ class SRG(Potential):
 
         f = open(self.potential_directory + file_name, 'w')
 
-        # Write each sub-block as a column for coupled-channel potentials
+        # Write each sub-block as a column for coupled-channel transformations
         if self.coupled_channel_bool:
 
             header = '{:^15s}{:^15s}{:^23s}{:^23s}{:^23s}{:^23s}'.format(
@@ -614,8 +686,23 @@ class SRG(Potential):
         f.close()
         
     def load_srg_transformation(self, lamb, lambda_bd=None):
-        """Loads SRG unitary transformation from data file generated from
+        """
+        Loads SRG unitary transformation from data file generated from
         solving dU/d\lambda =  -4/\lambda^5 \eta(\lambda) U(\lambda).
+        
+        Parameters
+        ----------
+        lamb : float
+            SRG evolution parameter \lambda [fm^-1].
+        lambda_bd : float, optional
+            SRG \Lambda_BD value for block-diagonal generator [fm^-1].
+            
+        Returns
+        -------
+        U_matrix : 2-D ndarray
+            SRG unitary transformation matrix with integration weights
+            [unitless].
+            
         """
 
         # Get file name for the SRG transformation matrix elements
@@ -655,7 +742,7 @@ def compute_srg_transformation(H_initial, H_evolved):
     Returns
     -------
     U_matrix : 2-D ndarray
-        SRG unitary transformation matrix.
+        SRG unitary transformation matrix with integration weights [unitless].
         
     """
 
