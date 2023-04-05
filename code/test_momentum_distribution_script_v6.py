@@ -10,8 +10,8 @@ This script serves as a testbed for calculating momentum distributions using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator. This differs from the previous momentum
 distribution calculations by directly utilizing single-particle wave functions
-instead of a local density approximation. Testing how to sum and use batch mode
-with vegas.
+instead of a local density approximation. Testing how to do batch mode with
+vegas.
 
 Last update: April 5, 2023
 
@@ -342,7 +342,7 @@ class SingleParticleBasis:
         else:
             return k_array, k_weights, phi_array
         
-        
+    
 def build_vector(k, theta, phi):
     """
     Build a vector from input spherical coordinates.
@@ -909,32 +909,23 @@ class delta_U_term_integrand:
         self.q = q
         self.tau = tau
         self.quantum_numbers = quantum_numbers
-        self.delta_U_Ntot = len(quantum_numbers)
         self.cg_table = cg_table
         self.phi_functions = phi_functions
         self.delta_U_functions = delta_U_functions
         self.delta_U_dagger_functions = delta_U_dagger_functions
-        
-    def get_quantum_numbers_batch(self, index_array):
-        """Return batch of quantum number sets."""
-        
-        quantum_numbers_batch = []
-        for index in index_array:
-            quantum_numbers_batch.append(self.quantum_numbers[index])
-        return quantum_numbers_batch
 
-    def __call__(self, x_array):
+    def __call__(self, momenta_array):
         """Evaluate the integrand at several points simultaneously."""
         
-        k = x_array[:,0]
-        theta_k = x_array[:,1]
-        phi_k = x_array[:,2]
+        k = momenta_array[:,0]
+        theta_k = momenta_array[:,1]
+        phi_k = momenta_array[:,2]
         k_vector = build_vector(k, theta_k, phi_k)
             
         # C.o.M. momenta K
-        K = x_array[:,3]
-        theta_K = x_array[:,4]
-        phi_K = x_array[:,5]
+        K = momenta_array[:,3]
+        theta_K = momenta_array[:,4]
+        phi_K = momenta_array[:,5]
         K_vector = build_vector(K, theta_K, phi_K)
         
         # Choose z-axis to be along q_vector
@@ -948,16 +939,9 @@ class delta_U_term_integrand:
         # Calculate the Jacobian determinant
         jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
         
-        # Index for quantum numbers
-        index_batch = np.floor(x_array[:, 6] * self.delta_U_Ntot).astype(int)
-        quantum_numbers_batch = self.get_quantum_numbers_batch(index_batch)
-        
+        # integrand = 0
         integrand = np.zeros_like(jacobian, dtype='complex')
-        # THIS IS INCORRECT
-        # Each element of the integrand array corresponds to a different sample
-        # You need to vectorize quantum_numbers_batch somehow and do the
-        # operations below with arrays of quantum numbers
-        for d in quantum_numbers_batch:
+        for d in self.quantum_numbers:
             
             # Unpack dictionary
             sigma_1 = d['sigma_1']
@@ -1045,7 +1029,7 @@ class delta_U_term_integrand:
             del_alpha = int(alpha.tau == self.tau)
             del_beta = int(beta.tau == self.tau)
             
-            integrand += self.delta_U_Ntot * 1/2 * (1/2 * 2/np.pi) * jacobian *(
+            integrand += 1/2 * (1/2 * 2/np.pi) * jacobian * (
                 isospin_cg ** 2 * lsj_cg * lpsj_cg * lst_factor * lpst_factor
                 * (
                     np.conj(psi_alpha_k1) * np.conj(psi_beta_k2)
@@ -1089,13 +1073,10 @@ def compute_delta_U_term(
     theta_limits = [0, np.pi]
     # Azimuthal angle
     phi_limits = [0, 2*np.pi]
-    # Sum over quantum numbers using vegas integration trick
-    qn_limits = [0, 1]
 
     # Set-up integrator with multiple processors
     integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
+                              K_limits, theta_limits, phi_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
@@ -1403,39 +1384,30 @@ class delta_U2_term_integrand:
         self.q = q
         self.tau = tau
         self.quantum_numbers = quantum_numbers
-        self.delta_U2_Ntot = len(quantum_numbers)
         self.cg_table = cg_table
         self.phi_functions = phi_functions
         self.delta_U_functions = delta_U_functions
         self.delta_U_dagger_functions = delta_U_dagger_functions
         
-    def get_quantum_numbers_batch(self, index_array):
-        """Return batch of quantum number sets."""
-        
-        quantum_numbers_batch = []
-        for index in index_array:
-            quantum_numbers_batch.append(self.quantum_numbers[index])
-        return quantum_numbers_batch
-        
-    def __call__(self, x_array):
+    def __call__(self, momenta_array):
         """Evaluate the integrand at several points simultaneously."""
         
         # Relative momenta k
-        k = x_array[:,0]
-        theta_k = x_array[:,1]
-        phi_k = x_array[:,2]
+        k = momenta_array[:,0]
+        theta_k = momenta_array[:,1]
+        phi_k = momenta_array[:,2]
         k_vector = build_vector(k, theta_k, phi_k)
             
         # Relative momenta k'
-        kp = x_array[:,3]
-        theta_kp = x_array[:,4]
-        phi_kp = x_array[:,5]
+        kp = momenta_array[:,3]
+        theta_kp = momenta_array[:,4]
+        phi_kp = momenta_array[:,5]
         kp_vector = build_vector(kp, theta_kp, phi_kp)
             
         # C.o.M. momenta K
-        K = x_array[:,6]
-        theta_K = x_array[:,7]
-        phi_K = x_array[:,8]
+        K = momenta_array[:,6]
+        theta_K = momenta_array[:,7]
+        phi_K = momenta_array[:,8]
         K_vector = build_vector(K, theta_K, phi_K)
         
         # Choose z-axis to be along q_vector
@@ -1450,17 +1422,9 @@ class delta_U2_term_integrand:
         jacobian = (k**2 * np.sin(theta_k) * kp**2 * np.sin(theta_kp) * K**2
                     * np.sin(theta_K))
         
-        # Index for quantum numbers
-        index_batch = np.floor(x_array[:, 9] * self.delta_U2_Ntot).astype(int)
-        quantum_numbers_batch = self.get_quantum_numbers_batch(index_batch)
-        
         # integrand = 0
         integrand = np.zeros_like(jacobian, dtype='complex')
-        # THIS IS INCORRECT
-        # Each element of the integrand array corresponds to a different sample
-        # You need to vectorize quantum_numbers_batch somehow and do the
-        # operations below with arrays of quantum numbers
-        for d in quantum_numbers_batch:
+        for d in self.quantum_numbers:
             
             # Unpack dictionary
             channel_1 = d['channel_1']
@@ -1557,8 +1521,7 @@ class delta_U2_term_integrand:
             psi_beta_k3 = psi(beta, K_vector/2+kp_vector, sigma_3,
                               self.cg_table, self.phi_functions)
         
-            integrand += (
-                self.delta_U2_Ntot * 1/4 * (1/2 * 2/np.pi) ** 2 * jacobian * (
+            integrand += 1/4 * (1/2 * 2/np.pi) ** 2 * jacobian * (
                 spin_12_cg * spin_34_cg * isospin_ab_cg * isospin_ttp_cg 
                 * isospin_ttpp_cg * isospin_abp_cg * lsj_cg * lpsj_cg * lppsj_cg
                 * lpppsj_cg * lst_factor * lpst_factor * lppst_factor
@@ -1569,7 +1532,7 @@ class delta_U2_term_integrand:
                     psi_alpha_k3 * psi_beta_k4
                     - (-1) ** (Tp-1) * psi_alpha_k4 * psi_beta_k3
                 )
-            ))
+            )
         
         return integrand.real
 
@@ -1595,14 +1558,11 @@ def compute_delta_U2_term(
     theta_limits = [0, np.pi]
     # Azimuthal angle
     phi_limits = [0, 2*np.pi]
-    # Sum over quantum numbers using vegas integration trick
-    qn_limits = [0, 1]
 
     # Set-up integrator with multiple processors
     integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
                               k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
+                              K_limits, theta_limits, phi_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
@@ -1700,7 +1660,7 @@ def compute_momentum_distribution(
         t4 = time.time()
         print(f"Done after {(t4-t3)/60:.3f} minutes.\n")
         
-        # # TESTING
+        # # # TESTING
         # delta_U2_array = np.zeros_like(I_array)
         # delta_U2_errors = np.zeros_like(I_array)
         
@@ -1777,7 +1737,8 @@ def load_momentum_distribution(nucleus_name, nucleon):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'O16', 8, 8
     
     # Nucleon
     tau = 1/2
@@ -1787,7 +1748,8 @@ if __name__ == '__main__':
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
-    kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
     lamb = 1.35
