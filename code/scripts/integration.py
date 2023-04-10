@@ -9,7 +9,7 @@ Date: March 26, 2021
 Functions for creating integration points and weights under Gaussian
 quadrature.
 
-Last update: May 2, 2022
+Last update: April 10, 2023
 
 """
 
@@ -37,8 +37,7 @@ def gaussian_quadrature_mesh(
     xmid : float, optional
         Mid-point value in the mesh.
     nmod : int, optional
-        Number of points in the interval [xmin, xmid]. If nmod=0, the
-        function will not split up the mesh into two pieces.
+        Number of points in the interval [xmin, xmid].
     method : str, optional
         Method to compute sample points and weights. Default is 'legendre' for
         Gauss-Legendre quadrature. Specify 'chebyshev' for Gauss-Chebyshev
@@ -94,7 +93,7 @@ def gaussian_quadrature_mesh(
     return x_array, x_weights
 
 
-def momentum_mesh(kmax, kmid, ntot):
+def momentum_mesh(kmax, kmid, ntot, nmod=None):
     """
     Generate a momentum mesh like the ones in data/potentials.
     
@@ -106,6 +105,8 @@ def momentum_mesh(kmax, kmid, ntot):
         Mid-point value in the momentum mesh [fm^-1].
     ntot : int
         Number of momentum points in mesh.
+    nmod : int, optional
+        Number of points in the interval [xmin, xmid].
     
     Returns
     -------
@@ -116,7 +117,8 @@ def momentum_mesh(kmax, kmid, ntot):
     
     """
 
-    k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot, xmid=kmid)
+    k_array, k_weights = gaussian_quadrature_mesh(kmax, ntot, xmid=kmid,
+                                                  nmod=None)
 
     return k_array, k_weights
 
