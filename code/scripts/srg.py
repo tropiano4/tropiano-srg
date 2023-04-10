@@ -514,73 +514,73 @@ class SRG(Potential):
         # Band-diagonal generators
         else:
             
-            if method == 'hamiltonian':
+            # if method == 'hamiltonian':
                     
-                result = solve_ivp(
-                    self.H_deriv, lamb_limits, H_initial_vector, method='BDF',
-                    t_eval=lambda_array, atol=1e-10, rtol=1e-10
-                )
+            #     result = solve_ivp(
+            #         self.H_deriv, lamb_limits, H_initial_vector, method='BDF',
+            #         t_eval=lambda_array, atol=1e-10, rtol=1e-10
+            #     )
                     
-            elif method == 'srg_transformation':
+            # elif method == 'srg_transformation':
                     
-                result = solve_ivp(
-                    self.U_deriv, lamb_limits, U_initial_vector, method='BDF',
-                    t_eval=lambda_array, atol=1e-10, rtol=1e-10
-                )
+            #     result = solve_ivp(
+            #         self.U_deriv, lamb_limits, U_initial_vector, method='BDF',
+            #         t_eval=lambda_array, atol=1e-10, rtol=1e-10
+            #     )
                 
-            for i, lamb in enumerate(lambda_array):
-
-                # Store evolved Hamiltonian (or U) matrix in dictionary
-                if method == 'hamiltonian':
-                        
-                    d[lamb] = self.vector_to_matrix(result.y[:, i])
-                        
-                    if save:  # Save evolved potential?
-                            
-                        self.save_srg_potential(d[lamb], lamb)
-                        
-                elif method == 'srg_transformation':
-
-                    U_vector = result.y[:, i]
-                    d[lamb] = np.reshape(U_vector, (self.Ntot, self.Ntot))
-                    # d[lamb] = np.reshape(result.y[:, i],
-                    #                      (self.Ntot, self.Ntot))
-                        
-                    if save:  # Save SRG transformation?
-                        
-                        self.save_srg_transformation(d[lamb], lamb)
-
-            # # Set-up ODE solver
-            # solver = self.get_ode_solver(lambda_initial, method)
-
-            # for lamb in lambda_array:
-
-            #     # Solve ODE up to lamb and store in dictionary
-            #     while solver.successful() and round(solver.t, 2) > lamb:
-                    
-            #         # Get ODE solver step-size in \lambda
-            #         dlamb = self.select_step_size(solver.t, lamb)
-
-            #         # Integrate to next step in lambda
-            #         solution_vector = solver.integrate(solver.t - dlamb)
+            # for i, lamb in enumerate(lambda_array):
 
             #     # Store evolved Hamiltonian (or U) matrix in dictionary
             #     if method == 'hamiltonian':
-                    
-            #         d[lamb] = self.vector_to_matrix(solution_vector)
-                    
+                        
+            #         d[lamb] = self.vector_to_matrix(result.y[:, i])
+                        
             #         if save:  # Save evolved potential?
-                    
+                            
             #             self.save_srg_potential(d[lamb], lamb)
-                    
+                        
             #     elif method == 'srg_transformation':
-                    
-            #         d[lamb] =  np.reshape(solution_vector,
-            #                               (self.Ntot, self.Ntot))
-                    
+
+            #         U_vector = result.y[:, i]
+            #         d[lamb] = np.reshape(U_vector, (self.Ntot, self.Ntot))
+            #         # d[lamb] = np.reshape(result.y[:, i],
+            #         #                      (self.Ntot, self.Ntot))
+                        
             #         if save:  # Save SRG transformation?
-                    
+                        
             #             self.save_srg_transformation(d[lamb], lamb)
+
+            # Set-up ODE solver
+            solver = self.get_ode_solver(lambda_initial, method)
+
+            for lamb in lambda_array:
+
+                # Solve ODE up to lamb and store in dictionary
+                while solver.successful() and round(solver.t, 2) > lamb:
+                    
+                    # Get ODE solver step-size in \lambda
+                    dlamb = self.select_step_size(solver.t, lamb)
+
+                    # Integrate to next step in lambda
+                    solution_vector = solver.integrate(solver.t - dlamb)
+
+                # Store evolved Hamiltonian (or U) matrix in dictionary
+                if method == 'hamiltonian':
+                    
+                    d[lamb] = self.vector_to_matrix(solution_vector)
+                    
+                    if save:  # Save evolved potential?
+                    
+                        self.save_srg_potential(d[lamb], lamb)
+                    
+                elif method == 'srg_transformation':
+                    
+                    d[lamb] =  np.reshape(solution_vector,
+                                          (self.Ntot, self.Ntot))
+                    
+                    if save:  # Save SRG transformation?
+                    
+                        self.save_srg_transformation(d[lamb], lamb)
 
         # End time
         t1 = time.time()
