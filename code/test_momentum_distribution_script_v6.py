@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. Testing how to do batch mode with
 vegas.
 
-Last update: April 5, 2023
+Last update: April 10, 2023
 
 """
 
@@ -485,7 +485,7 @@ def psi(sp_state, q_vector, sigma, cg_table, phi_functions):
         
     # Spherical harmonic
     Y_lm = sph_harm(m_l, sp_state.l, phi, theta)
-
+    
     return phi_sp_wf * cg * Y_lm
 
 
@@ -621,51 +621,6 @@ def get_total_isospin(L, S):
         
     return T
     
-    
-def get_channel_str(Lp, L, S, J):
-    """Gets the partial wave channel string given quantum numbers."""
-    
-    # Total orbital angular momentum L' = 0, 1, 2, ...
-    if Lp == 0:
-        Lp_str = 'S'
-    elif Lp == 1:
-        Lp_str = 'P'
-    elif Lp == 2:
-        Lp_str = 'D'
-    elif Lp == 3:
-        Lp_str = 'F'
-    elif Lp == 4:
-        Lp_str = 'G'
-    elif Lp == 5:
-        Lp_str = 'H'
-    else:
-        raise RuntimeError("Channel L' exceeds the range of the function.")
-        
-    channel = f"{2*S+1}{Lp_str}{J}"
-    
-    # Total orbital angular momentum L = 0, 1, 2, ...
-    # L = L' if the channel is not coupled
-    if channel in ['3S1', '3D1', '3P2', '3F2', '3D3', '3G3']:
-        
-        if L == 0:
-            L_str = 'S'
-        elif L == 1:
-            L_str = 'P'
-        elif L == 2:
-            L_str = 'D'
-        elif L == 3:
-            L_str = 'F'
-        elif L == 4:
-            L_str = 'G'
-        elif L == 5:
-            L_str = 'H'
-        else:
-            raise RuntimeError("Channel L exceeds the range of the function.")
-            
-        channel += f"-{2*S+1}{L_str}{J}"
-
-    return channel
-
 
 def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
     """Compute the I * n(q) * I term."""
@@ -683,6 +638,9 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
                 
             # Check that \tau_\alpha = \tau and |m_l| <= l:
             if alpha.tau == tau and abs(m_l_alpha) <= alpha.l:
+            # # TESTING
+            # # if alpha.tau == tau and abs(m_l_alpha) <= alpha.l and alpha.l == 0:
+            # if alpha.tau == tau and abs(m_l_alpha) <= alpha.l and alpha.l == 1 and alpha.j == 3/2:
                     
                 # Loop over q
                 psi_alpha_array = np.zeros_like(q_array, dtype='complex')
@@ -727,12 +685,20 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                 
         # Kronecker \delta function \delta_{\tau_\alpha \tau}
         del_alpha = int(alpha.tau == tau)
+        
+        # TESTING
+        # del_swave_alpha = int(alpha.l == 0)
+        # del_swave_alpha = int(alpha.l == 1 and alpha.j == 3/2)
 
         # Occupied single-particle state \beta
         for beta in occ_states:
                     
           # Kronecker \delta function \delta_{\tau_\beta \tau}
           del_beta = int(beta.tau == tau)
+          
+          # TESTING
+          # del_swave_beta = int(beta.l == 0)
+          # del_swave_beta = int(beta.l == 1 and beta.j == 3/2)
                     
           # \tau_\alpha \tau_\beta T M_T CG
           if alpha.tau + beta.tau == M_T:
@@ -742,7 +708,7 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
           
           # Channel angular momentum projection M_J
           for M_J in np.arange(-J, J+1):
-            
+
             # Channel spin projection M_S
             for M_S in np.arange(-S, S+1):
                  
@@ -866,7 +832,8 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                             spin_12_cg * spin_sspp_cg + spin_12p_cg
                             * spin_ssp_cg
                           )
-                        )
+                        ) # * del_swave_alpha * del_swave_beta
+                        # TESTING
                         
                         # Add this set of quantum numbers to the list if the
                         # product is nonzero
@@ -939,7 +906,6 @@ class delta_U_term_integrand:
         # Calculate the Jacobian determinant
         jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
         
-        # integrand = 0
         integrand = np.zeros_like(jacobian, dtype='complex')
         for d in self.quantum_numbers:
             
@@ -1096,7 +1062,7 @@ def compute_delta_U_term(
         # # Train the integrator
         # integ(integrand, nitn=5, neval=1e3)
         # # Final result
-        # result = integ(integrand, nitn=10, neval=3e3)
+        # result = integ(integrand, nitn=10, neval=1e4)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
@@ -1148,8 +1114,17 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
           for M_Tp in np.arange(-Tp, Tp+1):
             # Occupied single-particle state \alpha
             for alpha in occ_states:
+                
+              # TESTING
+              # del_swave_alpha = int(alpha.l == 0)
+              # del_swave_alpha = int(alpha.l == 1 and alpha.j == 3/2)
+                
               # Occupied single-particle state \beta
               for beta in occ_states:
+                  
+                # TESTING
+                # del_swave_beta = int(beta.l == 0)
+                # del_swave_beta = int(beta.l == 1 and beta.j == 3/2)
                                 
                 # \tau_\alpha \tau_\beta T M_T CG
                 if alpha.tau + beta.tau == M_T:
@@ -1328,7 +1303,8 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                                         - (-1) ** (Tp-1) * sig3_beta_cg
                                         * sig4_alpha_cg
                                       )
-                                    )
+                                    ) # * del_swave_alpha * del_swave_beta
+                                    # TESTING
                                     
                                     # Add this set of quantum numbers to the
                                     # list if the product is nonzero
@@ -1422,7 +1398,6 @@ class delta_U2_term_integrand:
         jacobian = (k**2 * np.sin(theta_k) * kp**2 * np.sin(theta_kp) * K**2
                     * np.sin(theta_K))
         
-        # integrand = 0
         integrand = np.zeros_like(jacobian, dtype='complex')
         for d in self.quantum_numbers:
             
@@ -1582,7 +1557,7 @@ def compute_delta_U2_term(
         # # Train the integrator
         # integ(integrand, nitn=5, neval=1e3)
         # # Final result
-        # result = integ(integrand, nitn=10, neval=3e3)
+        # result = integ(integrand, nitn=10, neval=1e4)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
@@ -1616,8 +1591,9 @@ def compute_momentum_distribution(
     )
     
     # Set momentum mesh
-    q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
-    # q_array, q_weights = momentum_mesh(8.0, 2.0, 60)
+    # q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
+    # q_array, q_weights = momentum_mesh(10.0, 2.0, 100)
+    q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, sp_basis.occ_states, cg_table,
