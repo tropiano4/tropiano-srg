@@ -30,7 +30,7 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.srg import SRG
-from scripts.tools import convert_l_to_string, coupled_channel
+from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 from scripts.woodsaxon import ws
 
 
@@ -1653,7 +1653,7 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
+            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
             delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
         )
     
@@ -1667,7 +1667,7 @@ def compute_normalization(q_array, q_weights, n_array):
 
 
 def save_momentum_distribution(
-        nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
+        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
         delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
@@ -1685,16 +1685,23 @@ def save_momentum_distribution(
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
 
-    np.savetxt(f"{nucleus_name}_{nucleon}_momentum_distribution.txt",
-               data, header=hdr)
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}.txt"
+    )
+    
+    np.savetxt(file_name, data, header=hdr)
 
 
-def load_momentum_distribution(nucleus_name, nucleon):
+def load_momentum_distribution(nucleus_name, nucleon, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
-    data = np.loadtxt(f"{nucleus_name}_{nucleon}_momentum_distribution.txt")
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}.txt"
+    )
+    
+    data = np.loadtxt(file_name)
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
