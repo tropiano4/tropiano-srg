@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. Testing how to sum and use batch mode
 with vegas.
 
-Last update: April 12, 2023
+Last update: April 13, 2023
 
 """
 
@@ -30,11 +30,12 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.srg import SRG
-from scripts.tools import convert_l_to_string, coupled_channel
+from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 from scripts.woodsaxon import ws
 
 
-# To-do: Classes could be organized better
+# To-do: Classes could be organized better, but for now work with the current
+# outline of code.
 
 
 class SingleParticleState:
@@ -107,9 +108,9 @@ class SingleParticleState:
         return fr"${self.n}{l_str}_{{{numerator}/{denominator}}}$"
     
     
-class SingleParticleBasis:
+class WoodsSaxon:
     """
-    Single-particle basis class. Handles the wave functions associated with the
+    Woods-Saxon class. Handles the wave functions associated with the
     Woods-Saxon potential from the subroutine in woodsaxon.f90. Outputs wave
     functions in coordinate and momentum space.
     
@@ -565,44 +566,44 @@ def get_delta_U_functions(channels, kvnn, kmax, kmid, ntot, generator, lamb):
 def get_channel_quantum_numbers(channel):
     """Gets the quantum numbers of a partial wave channel."""
     
-    # Total orbital angular momentum L' = 0, 1, 2, ...
-    if channel[1] == 'S':
-        Lp = 0
-    elif channel[1] == 'P':
-        Lp = 1
-    elif channel[1] == 'D':
-        Lp = 2
-    elif channel[1] == 'F':
-        Lp = 3
-    elif channel[1] == 'G':
-        Lp = 4
-    elif channel[1] == 'H':
-        Lp = 5
-    else:
-        raise RuntimeError("Channel L' exceeds the range of the function.")
-    
     # Total orbital angular momentum L = 0, 1, 2, ...
+    if channel[1] == 'S':
+        L = 0
+    elif channel[1] == 'P':
+        L = 1
+    elif channel[1] == 'D':
+        L = 2
+    elif channel[1] == 'F':
+        L = 3
+    elif channel[1] == 'G':
+        L = 4
+    elif channel[1] == 'H':
+        L = 5
+    else:
+        raise RuntimeError("Channel L exceeds the range of the function.")
+    
+    # Total orbital angular momentum L' = 0, 1, 2, ...
     if coupled_channel(channel[:3]):
         
         if channel[5] == 'S':
-            L = 0
+            Lp = 0
         elif channel[5] == 'P':
-            L = 1
+            Lp = 1
         elif channel[5] == 'D':
-            L = 2
+            Lp = 2
         elif channel[5] == 'F':
-            L = 3
+            Lp = 3
         elif channel[5] == 'G':
-            L = 4
+            Lp = 4
         elif channel[5] == 'H':
-            L = 5
+            Lp = 5
         else:
-            raise RuntimeError("Channel L exceeds the range of the function.")
+            raise RuntimeError("Channel L' exceeds the range of the function.")
         
-    # L = L' if the channel is not coupled
+    # L' = L if the channel is not coupled
     else:
         
-        L = Lp
+        Lp = L
         
     # Total spin S = 0 or 1
     S = int((int(channel[0])-1)/2)
@@ -610,7 +611,7 @@ def get_channel_quantum_numbers(channel):
     # Total angular momentum J = 0, 1, 2, ...
     J = int(channel[2])
             
-    return Lp, L, S, J
+    return L, Lp, S, J
 
 
 def get_total_isospin(L, S):
@@ -659,98 +660,579 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
 
 
 class DeltaUMatrixElement:
+    """Plane-wave matrix element of \delta U or \delta U^\dagger."""
     
-    def __init__(self):
-        # Get everything that should be called once here (e.g., \delta U
-        # interpolation)
-        pass
+    
+    def __init__(self, cg_table, channels, kvnn, kmax, kmid, ntot, generator,
+                 lamb):
+        
+        # Set instance attributes
+        self.cg_table = cg_table
+        self.channels = channels
+        
+        # Set-up \delta U and \delta U^\dagger functions
+        self.delta_U_functions, self.delta_U_dagger_functions = (
+            get_delta_U_functions(channels, kvnn, kmax, kmid, ntot, generator,
+                                  lamb)
+        )
+        
     
     def __call__(
             self, k, theta_k, phi_k, sigma_1, tau_1, sigma_2, tau_2, kp,
             theta_kp, phi_kp, sigma_3, tau_3, sigma_4, tau_4,
             hermitian_conjugate=False
     ):
-        return None
-
-
-class DeltaUIntegrand(DeltaUMatrixElement):
+        
+        # Check that total isospin projection is conserved
+        if tau_1 + tau_2 != tau_3 + tau_4:
+            return 0
+        M_T = tau_1 + tau_2
     
-    def __init__(self):
-        # Inherit DeltaUMatrixElement class
-        # Initialize Woods-Saxon class
-        pass
+        # Total spin projections
+        M_S = sigma_1 + sigma_2
+        M_Sp = sigma_3 + sigma_4
+        
+        matrix_element = 0+0j
+        
+        # Loop over partial wave channels
+        for channel in self.channels:
+            
+            L, Lp, S, J = get_channel_quantum_numbers(channel)
+            T = get_total_isospin(L, S)
+            
+            # Check |M_S| <= S conditions
+            if abs(M_S) <= S and abs(M_Sp) <= S and abs(M_T) <= T:
+                
+                # Spin CG's
+                spin_12_cg = self.cg_table[(1/2, sigma_1, 1/2, sigma_2, S, M_S)]
+                spin_34_cg = self.cg_table[(1/2, sigma_3, 1/2, sigma_4, S,
+                                            M_Sp)]
+                
+                # Isospin CG's
+                isospin_12_cg = self.cg_table[(1/2, tau_1, 1/2, tau_2, T, M_T)]
+                isospin_34_cg = self.cg_table[(1/2, tau_3, 1/2, tau_4, T, M_T)]
+                
+                # 1-(-1)^(L+S+T) factors
+                lst_factor = 1-(-1)**(L+S+T)
+                lpst_factor = 1-(-1)**(Lp+S+T)
+                
+                # ( k J (L S) T | \delta U | k' J (L' S) T )
+                if hermitian_conjugate:
+                    delta_U_partial_wave = (
+                        self.delta_U_dagger_functions[channel].ev(k, kp)
+                    )
+                else:
+                    delta_U_partial_wave = self.delta_U_functions[channel].ev(
+                        k, kp)
+                    
+                # Loop over M_J
+                for M_J in np.arange(-J, J+1):
+                    
+                    # Total orbital angular momentum projections are fixed
+                    M_L = M_J - M_S
+                    M_Lp = M_J - M_Sp
+                    
+                    # Check |M_L| <= L conditions
+                    if abs(M_L) <= L and abs(M_Lp) <= Lp:
+                        
+                        # L-S coupling CG's
+                        lsj_cg = self.cg_table[(L, M_L, S, M_S, J, M_J)]
+                        lpsj_cg = self.cg_table[(Lp, M_Lp, S, M_Sp, J, M_J)]
+                    
+                        # Calculate spherical harmonics
+                        Y_k = sph_harm(M_L, L, phi_k, theta_k)
+                        Y_kp = sph_harm(M_Lp, Lp, phi_kp, theta_kp)
+                    
+                        # Add to matrix element
+                        matrix_element += (
+                            1/2 * 2/np.pi * spin_12_cg * spin_34_cg
+                            * isospin_12_cg * isospin_34_cg * lst_factor
+                            * lpst_factor * delta_U_partial_wave * lsj_cg
+                            * lpsj_cg * Y_k * np.conj(Y_kp)
+                        )
+                    
+        return matrix_element
+                    
+
+class DeltaUIntegrand:
+    """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
     
-    def __call__(self):
-        # Call get_spin_configuration (four spin projections)
-        # Call get_sp_state for \alpha and \beta
-        # Get momenta and angles
-        # Calculate the vector q-K/2, and get its magnitude and angles
-        # Call delta_U_matrix_element and/or hermitian conjugate of it
-        # Call psi function several times
+    def __init__(
+        self, q, tau, sp_quantum_numbers, cg_table, phi_functions,
+        DeltaUMatrixElement
+    ):
+        
+        # Set instance attributes
+        self.q = q
+        self.tau = tau
+        self.sp_quantum_numbers = sp_quantum_numbers
+        self.N_sp = len(sp_quantum_numbers)
+        self.cg_table = cg_table
+        self.phi_functions = phi_functions
+        self.delta_U = DeltaUMatrixElement
+
+    def __call__(self, x_array):
+
+        # Get s.p. quantum numbers
+        sigma_1, sigma_2, sigma, sigmap, alpha, beta = (
+            self.get_sp_quantum_numbers(x_array[0])
+        )
+
+        # Choose z-axis to be along q_vector
+        q_vector = np.array([0, 0, self.q])
+
+        # Relative momenta k
+        k, theta_k, phi_k = x_array[1:4]
+        k_vector = build_vector(k, theta_k, phi_k)
+        
+        # C.o.M. momenta K
+        K, theta_K, phi_K = x_array[4:7]
+        K_vector = build_vector(K, theta_K, phi_K)
+    
+        # Calculate vector q-K/2
+        qK_vector = q_vector - K_vector/2
+        qK, theta_qK, phi_qK = get_vector_components(qK_vector)
+        
+        # Calculate the Jacobian determinant
+        jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
+
+        # Calculate plane-wave matrix elements of \delta U and \delta U^\dagger
+        delta_U_plane_wave_abab = self.delta_U(
+            k, theta_k, phi_k, sigma_1, alpha.tau, sigma_2, beta.tau, qK,
+            theta_qK, phi_qK, sigma, alpha.tau, sigmap, beta.tau
+        )
+        delta_U_plane_wave_abba = self.delta_U(
+            k, theta_k, phi_k, sigma_1, alpha.tau, sigma_2, beta.tau, qK,
+            theta_qK, phi_qK, sigma, beta.tau, sigmap, alpha.tau
+        )
+        delta_U_dag_plane_wave_abab = self.delta_U(
+            qK, theta_qK, phi_qK, sigma, alpha.tau, sigmap, beta.tau, k,
+            theta_k, phi_k, sigma_1, alpha.tau, sigma_2, beta.tau,
+            hermitian_conjugate=True
+        )
+        delta_U_dag_plane_wave_baab = self.delta_U(
+            qK, theta_qK, phi_qK, sigma, beta.tau, sigmap, alpha.tau, k,
+            theta_k, phi_k, sigma_1, alpha.tau, sigma_2, beta.tau,
+            hermitian_conjugate=True
+        )
+        
+        # Get s.p. wave functions
+        psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, self.cg_table,
+                           self.phi_functions)
+        psi_beta_k2 = psi(beta, K_vector/2-k_vector, sigma_2, self.cg_table,
+                          self.phi_functions)
+        psi_alpha_q = psi(alpha, q_vector, sigma, self.cg_table,
+                          self.phi_functions)
+        psi_beta_Kq = psi(beta, K_vector-q_vector, sigmap, self.cg_table,
+                          self.phi_functions)
+        psi_alpha_Kq = psi(alpha, K_vector-q_vector, sigmap, self.cg_table,
+                           self.phi_functions)
+        psi_beta_q = psi(beta, q_vector, sigma, self.cg_table,
+                         self.phi_functions)
+        
+        # Isospin Kronecker \delta's
+        del_alpha = int(alpha.tau == self.tau)
+        del_beta = int(beta.tau == self.tau)
+        
         # Return integrand in plane-wave basis
-        pass
-    
-    def get_spin_configuration(self):
-        # Given a number between 0 and 1, return a set of four spin projections
-        return None
+        integrand = 1/2 * self.N_sp * jacobian * (
+            np.conj(psi_alpha_k1) * np.conj(psi_beta_k2)
+            * (
+                del_alpha * psi_alpha_q * psi_beta_Kq * delta_U_plane_wave_abab
+                - del_beta * psi_beta_q * psi_alpha_Kq * delta_U_plane_wave_abba
+            )
+            + psi_alpha_k1 * psi_beta_k2
+            * (
+                del_alpha * np.conj(psi_alpha_q) * np.conj(psi_beta_Kq)
+                * delta_U_dag_plane_wave_abab
+                - del_beta * np.conj(psi_beta_q) * np.conj(psi_alpha_Kq)
+                * delta_U_dag_plane_wave_baab
+            )
+        )
+        
+        return integrand.real
+
+    def get_sp_quantum_numbers(self, x):
+        """Given a number between 0 and 1, return a set of four spin projections
+        and two orbitals \alpha and \beta.
+        """
+        
+        index = np.floor(x * self.N_sp).astype(int)
+        return self.sp_quantum_numbers[index]
     
 
-def get_sp_state():
-    # Given a number between 0 and 1, return a single-particle state
-    return None
+def compute_delta_U_term(
+        q_array, tau, occ_states, cg_table, phi_functions, DeltaUMatrixElement
+):
+    """Compute the sum of the \delta U * n(q) * I term and the
+    I * n(q) * \delta U^\dagger term.
+    """
+    
+    delta_U_array = np.zeros_like(q_array)
+    delta_U_errors = np.zeros_like(q_array)
+    
+    # Create a list of all possible combinations of s.p. quantum numbers
+    sp_quantum_numbers = []
+    for s1 in [1/2, -1/2]:
+        for s2 in [1/2, -1/2]:
+            for s3 in [1/2, -1/2]:
+                for s4 in [1/2, -1/2]:
+                    for alpha in occ_states:
+                        for beta in occ_states:
+                            sp_quantum_numbers.append((s1, s2, s3, s4, alpha,
+                                                       beta))
+       
+    # Integration limits for spin projections and s.p. states
+    quantum_number_limits = [0, 1]
+    # Integration limits for relative momenta
+    k_limits = [0, 10]
+    # Integration limits for C.o.M. momenta
+    K_limits = [0, 3]
+    # Integration limits for polar angle
+    theta_limits = [0, np.pi]
+    # Integration limits for azimuthal angle
+    phi_limits = [0, 2*np.pi]
+
+    # Set-up integrator with multiple processors
+    integ = vegas.Integrator([quantum_number_limits, k_limits, theta_limits,
+                              phi_limits, K_limits, theta_limits, phi_limits],
+                             nproc=8)
+    
+    # Loop over q_vector
+    for i, q in enumerate(q_array):
+        
+        t0 = time.time()
+        
+        integrand = DeltaUIntegrand(q, tau, sp_quantum_numbers, cg_table,
+                                    phi_functions, DeltaUMatrixElement)
+
+        # Train the integrator
+        integ(integrand, nitn=5, neval=1e4)
+        # Final result
+        result = integ(integrand, nitn=10, neval=1e4)
+        # result = integ(integrand, nitn=10, neval=1e5)
+        
+        delta_U_array[i] = result.mean
+        delta_U_errors[i] = result.sdev
+    
+        t1 = time.time()
+
+        percent = (i+1)/len(q_array)*100
+        mins = (t1-t0)/60
+        print(f"{percent:.2f}% done after {mins:.3f} minutes.")
+                    
+    return delta_U_array, delta_U_errors
+
+
+class DeltaU2Integrand:
+    """Evaluate the integrand of the \delta U \delta U^\dagger term."""
+    
+    def __init__(
+        self, q, tau, sp_quantum_numbers, cg_table, phi_functions,
+        DeltaUMatrixElement
+    ):
+        
+        # Set instance attributes
+        self.q = q
+        self.tau = tau
+        self.sp_quantum_numbers = sp_quantum_numbers
+        self.N_sp = len(sp_quantum_numbers)
+        self.cg_table = cg_table
+        self.phi_functions = phi_functions
+        self.delta_U = DeltaUMatrixElement
+    
+    def __call__(self, x_array):
+
+        # Get s.p. quantum numbers
+        sigma_1, sigma_2, sigma_3, sigma_4, sigma, sigmap, alpha, beta = (
+            self.get_sp_quantum_numbers(x_array[0])
+        )
+        
+        # Choose z-axis to be along q_vector
+        q_vector = np.array([0, 0, self.q])
+
+        # Relative momenta k
+        k, theta_k, phi_k = x_array[1:4]
+        k_vector = build_vector(k, theta_k, phi_k)
+        
+        # Relative momenta k'
+        kp, theta_kp, phi_kp = x_array[4:7]
+        kp_vector = build_vector(kp, theta_kp, phi_kp)
+        
+        # C.o.M. momenta K
+        K, theta_K, phi_K = x_array[7:10]
+        K_vector = build_vector(K, theta_K, phi_K)
+    
+        # Calculate vector q-K/2
+        qK_vector = q_vector - K_vector/2
+        qK, theta_qK, phi_qK = get_vector_components(qK_vector)
+        
+        # Calculate the Jacobian determinant
+        jacobian = (k**2 * np.sin(theta_k) * kp**2 * np.sin(theta_kp) * K**2
+                    * np.sin(theta_K))
+        
+        # Get s.p. wave functions
+        psi_alpha_k1 = psi(alpha, K_vector/2+k_vector, sigma_1, self.cg_table,
+                           self.phi_functions)
+        psi_beta_k2 = psi(beta, K_vector/2-k_vector, sigma_2, self.cg_table,
+                          self.phi_functions)
+        psi_alpha_k3 = psi(alpha, K_vector/2+kp_vector, sigma_3, self.cg_table,
+                           self.phi_functions)
+        psi_beta_k4 = psi(beta, K_vector/2-kp_vector, sigma_4, self.cg_table,
+                          self.phi_functions)
+        psi_alpha_k4 = psi(alpha, K_vector/2-kp_vector, sigma_4, self.cg_table,
+                           self.phi_functions)
+        psi_beta_k3 = psi(beta, K_vector/2+kp_vector, sigma_3, self.cg_table,
+                          self.phi_functions)
+        
+        integrand = 0+0j
+        for taup in [1/2, -1/2]:
+            
+            # Calculate plane-wave matrix elements of \delta U and
+            # \delta U^\dagger
+            delta_U_plane_wave = self.delta_U(
+                k, theta_k, phi_k, sigma_1, alpha.tau, sigma_2, beta.tau,
+                qK, theta_qK, phi_qK, sigma, self.tau, sigmap, taup
+            )
+            delta_U_dag_plane_wave_ab = self.delta_U(
+                qK, theta_qK, phi_qK, sigma, self.tau, sigmap, taup,
+                kp, theta_kp, phi_kp, sigma_3, alpha.tau, sigma_4, beta.tau,
+                hermitian_conjugate=True
+            )
+            delta_U_dag_plane_wave_ba = self.delta_U(
+                qK, theta_qK, phi_qK, sigma, self.tau, sigmap, taup,
+                kp, theta_kp, phi_kp, sigma_3, beta.tau, sigma_4, alpha.tau,
+                hermitian_conjugate=True
+            )
+
+            integrand += (
+                1/4 * self.N_sp * jacobian * np.conj(psi_alpha_k1)
+                * np.conj(psi_beta_k2) * delta_U_plane_wave * (
+                    psi_alpha_k3 * psi_beta_k4 * delta_U_dag_plane_wave_ab
+                    - psi_beta_k3 * psi_alpha_k4 * delta_U_dag_plane_wave_ba
+                )
+            )
+
+        return integrand.real
+
+    def get_sp_quantum_numbers(self, x):
+        """Given a number between 0 and 1, return a set of six spin projections
+        and two orbitals \alpha and \beta.
+        """
+        
+        index = np.floor(x * self.N_sp).astype(int)
+        return self.sp_quantum_numbers[index]
     
 
-def compute_delta_U_term():
-    # Sampling a 9-D space
-    # spin_limits = [0, 1]
-    # sp_state_limits = [0, 1]
-    # Set momenta limits
-    # The rest should be similar to previous version of this function
-    return None
+def compute_delta_U2_term(
+        q_array, tau, occ_states, cg_table, phi_functions, DeltaUMatrixElement
+):
+    """Compute the \delta U * n(q) * \delta U^\dagger term."""
+    
+    delta_U2_array = np.zeros_like(q_array)
+    delta_U2_errors = np.zeros_like(q_array)
+    
+    # Create a list of all possible combinations of s.p. quantum numbers
+    sp_quantum_numbers = []
+    for s1 in [1/2, -1/2]:
+        for s2 in [1/2, -1/2]:
+            for s3 in [1/2, -1/2]:
+                for s4 in [1/2, -1/2]:
+                    for s5 in [1/2, -1/2]:
+                        for s6 in [1/2, -1/2]:
+                            for alpha in occ_states:
+                                for beta in occ_states:
+                                    sp_quantum_numbers.append(
+                                        (s1, s2, s3, s4, s5, s6, alpha, beta)
+                                    )
+                    
+    # Integration limits for spin projections and s.p. states
+    quantum_number_limits = [0, 1]
+    # Integration limits for relative momenta
+    k_limits = [0, 10]
+    # Integration limits for C.o.M. momenta
+    K_limits = [0, 3]
+    # Integration limits for polar angle
+    theta_limits = [0, np.pi]
+    # Integration limits for azimuthal angle
+    phi_limits = [0, 2*np.pi]
+    
+    # Set-up integrator with multiple processors
+    integ = vegas.Integrator([quantum_number_limits, k_limits, theta_limits,
+                              phi_limits, k_limits, theta_limits, phi_limits,
+                              K_limits, theta_limits, phi_limits], nproc=8)
+    
+    # Loop over q_vector
+    for i, q in enumerate(q_array):
+        
+        t0 = time.time()
+        
+        integrand = DeltaU2Integrand(q, tau, sp_quantum_numbers, cg_table,
+                                     phi_functions, DeltaUMatrixElement)
+        
+        # Train the integrator
+        integ(integrand, nitn=5, neval=1e4)
+        # Final result
+        result = integ(integrand, nitn=10, neval=1e4)
+        # result = integ(integrand, nitn=10, neval=1e5)
+        
+        delta_U2_array[i] = result.mean
+        delta_U2_errors[i] = result.sdev
+    
+        t1 = time.time()
 
+        percent = (i+1)/len(q_array)*100
+        mins = (t1-t0)/60
+        print(f"{percent:.2f}% done after {mins:.3f} minutes.")
+                    
+    return delta_U2_array, delta_U2_errors
+    
+    
+def compute_momentum_distribution(
+        nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
+        generator='Wegner', print_normalization=False, ipm_only=False,
+        save=False
+):
+    """Compute the single-nucleon momentum distribution."""
+    
+    # Compute table of Clebsch-Gordan coefficients
+    cg_table = compute_clebsch_gordan_table(4)
+    print("Done calculating Clebsch-Gordan table.\n")
+    
+    # Woods-Saxon class
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=False)
+    phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
+    
+    # \delta U matrix element class
+    delta_U = DeltaUMatrixElement(cg_table, channels, kvnn, kmax, kmid, ntot,
+                                  generator, lamb)
+    
+    # Set momentum mesh
+    # q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
+    # q_array, q_weights = momentum_mesh(10.0, 2.0, 100)
+    q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
+    
+    # Compute the I term
+    I_array = compute_I_term(q_array, tau, woods_saxon.occ_states, cg_table,
+                             phi_functions)
+    
+    # Independent particle model has no \delta U contributions
+    if ipm_only:
+        
+        delta_U_array = np.zeros_like(I_array)
+        delta_U_errors = np.zeros_like(I_array)
+        delta_U2_array = np.zeros_like(I_array)
+        delta_U2_errors = np.zeros_like(I_array)
+    
+    # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
+    else:
+        
+        t0 = time.time()
 
-class DeltaU2Integrand(DeltaUMatrixElement):
+        # Compute \delta U + \delta U^\dagger term
+        print("Beginning \delta U linear terms.\n")
+        t1 = time.time()
+        delta_U_array, delta_U_errors = compute_delta_U_term(
+            q_array, tau, woods_saxon.occ_states, cg_table, phi_functions,
+            delta_U
+        )
+        t2 = time.time()
+        print(f"Done after {(t2-t1)/3600:.3f} hours.\n")
+
+        # # TESTING
+        # delta_U_array = np.zeros_like(I_array)
+        # delta_U_errors = np.zeros_like(I_array)
+
+        # Compute \delta U \delta U^\dagger term using vegas
+        print("Beginning \delta U \delta U^\dagger term.\n")
+        t3 = time.time()
+        delta_U2_array, delta_U2_errors = compute_delta_U2_term(
+            q_array, tau, woods_saxon.occ_states, cg_table, phi_functions,
+            delta_U
+        )
+        t4 = time.time()
+        print(f"Done after {(t4-t3)/3600:.3f} hours.\n")
+
+        # # # TESTING
+        # delta_U2_array = np.zeros_like(I_array)
+        # delta_U2_errors = np.zeros_like(I_array)
+
+        t5 = time.time()
+        print(f"Total time elapsed: {(t5-t0)/3600:.3f} hours.\n")
     
-    def __init__(self):
-        # Inherit DeltaUMatrixElement class
-        # Initialize Woods-Saxon class
-        pass
+    # Combine each term for the total momentum distribution [fm^3]
+    n_array = I_array + delta_U_array + delta_U2_array
+    n_errors = np.sqrt(delta_U_errors**2 + delta_U2_errors**2)
+
+    if print_normalization:
+        normalization = compute_normalization(q_array, q_weights, n_array)
+        print(f"Normalization = {normalization:.5f}.")
+        
+    if save and not(ipm_only):  # Do not save IPM-only data
+        save_momentum_distribution(
+            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors,
+            I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            delta_U2_errors
+        )
     
-    def __call__(self):
-        # Call get_spin_configuration (six spin projections)
-        # Call get_sp_state for \alpha and \beta
-        # Get momenta and angles
-        # Calculate the vector q-K/2, and get its magnitude and angles
-        # Call delta_U_matrix_element and hermitian conjugate of it
-        # Call psi function several times
-        # Return integrand in plane-wave basis
-        pass
+    return q_array, q_weights, n_array, n_errors
     
-    def get_spin_configuration(self):
-        # Given a number between 0 and 1, return a set of six spin projections
-        return None
+
+def save_momentum_distribution(
+        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
+        delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+):
+    """Save the momentum distribution along with the isolated contributions."""
     
+    data = np.vstack(
+        (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+         delta_U_errors, delta_U2_array, delta_U2_errors)
+    ).T
+            
+    if tau == 1/2:
+        nucleon = 'proton'
+    elif tau == -1/2:
+        nucleon = 'neutron'
+                
+    hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
+           " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
+
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
+    )
     
-class SingleNucleonMomentumDistribution:
+    np.savetxt(file_name + '.txt', data, header=hdr)
+
     
-    def __init__(self, calculate=True):
-        pass
+def load_momentum_distribution(nucleus_name, nucleon, lamb):
+    """Load and return the momentum distribution along with the isolated
+    contributions.
+    """
     
-    def compute_momentum_distribution(self):
-        return None
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
+    )
     
-    def save_momentum_distribution(self):
-        pass
+    data = np.loadtxt(file_name + '.txt')
     
-    def load_momentum_distribution(self):
-        return None
+    q_array = data[:, 0]
+    q_weights = data[:, 1]
+    n_array = data[:, 2]
+    n_errors = data[:, 3]
+    I_array = data[:, 4]
+    delta_U_array = data[:, 5]
+    delta_U_errors = data[:, 6]
+    delta_U2_array = data[:, 7]
+    delta_U2_errors = data[:, 8]
     
-    def __call__(self):
-        # Either compute or load based on argument calculate
-        return None
+    return (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+            delta_U_errors, delta_U2_array, delta_U2_errors)
     
-    def normalization(self):
-        return None
+
+def compute_normalization(q_array, q_weights, n_array):
+    """Compute the normalization of the momentum distribution."""
+
+    return 4*np.pi * np.sum(q_weights * q_array**2 * n_array)
 
 
 if __name__ == '__main__':
@@ -766,7 +1248,8 @@ if __name__ == '__main__':
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
-    kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
     lamb = 1.35
