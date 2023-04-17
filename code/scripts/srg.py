@@ -20,7 +20,7 @@ or the differential equation for U(s) directly,
 Additionally, this script includes a function for computing the SRG unitary
 transformation itself, given the initial and SRG-evolved Hamiltonians.
 
-Last update: April 3, 2023
+Last update: April 17, 2023
 
 """
 
@@ -373,9 +373,9 @@ class SRG(Potential):
 
         # Following the example in Hergert:2016iju with modifications to
         # nsteps and error tolerances
-        # solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
-        #                       rtol=1e-10, nsteps=5000000)
-        solver.set_integrator('lsoda', atol=1e-10, rtol=1e-10, nsteps=5000000)
+        solver.set_integrator('vode', method='bdf', order=5, atol=1e-10,
+                              rtol=1e-10, nsteps=5000000)
+        # solver.set_integrator('lsoda', atol=1e-10, rtol=1e-10, nsteps=5000000)
 
         return solver
 
