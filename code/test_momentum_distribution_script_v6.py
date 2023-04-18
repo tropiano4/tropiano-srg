@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. Testing how to do batch mode with
 vegas.
 
-Last update: April 10, 2023
+Last update: April 17, 2023
 
 """
 
@@ -1592,8 +1592,8 @@ def compute_momentum_distribution(
     
     # Set momentum mesh
     # q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
-    # q_array, q_weights = momentum_mesh(10.0, 2.0, 100)
-    q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
+    q_array, q_weights = momentum_mesh(10.0, 4.0, 70, nmod=40)
+    # q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, sp_basis.occ_states, cg_table,
@@ -1653,8 +1653,9 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
-            delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors,
+            I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            delta_U2_errors
         )
     
     return q_array, q_weights, n_array, n_errors
@@ -1686,10 +1687,10 @@ def save_momentum_distribution(
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
 
     file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}.txt"
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
     )
     
-    np.savetxt(file_name, data, header=hdr)
+    np.savetxt(file_name + '.txt', data, header=hdr)
 
 
 def load_momentum_distribution(nucleus_name, nucleon, lamb):
@@ -1698,10 +1699,10 @@ def load_momentum_distribution(nucleus_name, nucleon, lamb):
     """
     
     file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}.txt"
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
     )
     
-    data = np.loadtxt(file_name)
+    data = np.loadtxt(file_name + '.txt')
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -1735,10 +1736,9 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
-    lamb = 1.35
-    # lamb = 2.0
-    # lamb = 3.0
-    # lamb = 6.0
+    # lamb = 1.35
+    # lamb = 1.5
+    lamb = 1.7
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
