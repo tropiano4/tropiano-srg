@@ -1054,15 +1054,15 @@ def compute_delta_U_term(
             delta_U_dagger_functions
         )
 
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=200)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=1e3)
+        
         # Train the integrator
-        integ(integrand, nitn=5, neval=200)
+        integ(integrand, nitn=5, neval=1e3)
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
-        
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=1e3)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e4)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
@@ -1549,15 +1549,15 @@ def compute_delta_U2_term(
             delta_U_dagger_functions
         )
 
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=200)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=1e3)
+        
         # Train the integrator
-        integ(integrand, nitn=5, neval=200)
+        integ(integrand, nitn=5, neval=1e3)
         # Final result
         result = integ(integrand, nitn=10, neval=1e3)
-        
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=1e3)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e4)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
@@ -1592,8 +1592,7 @@ def compute_momentum_distribution(
     
     # Set momentum mesh
     # q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
-    q_array, q_weights = momentum_mesh(10.0, 4.0, 70, nmod=40)
-    # q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
+    q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, sp_basis.occ_states, cg_table,
@@ -1721,8 +1720,8 @@ def load_momentum_distribution(nucleus_name, nucleon, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'O16', 8, 8
     
     # Nucleon
     tau = 1/2
