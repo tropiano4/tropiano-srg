@@ -11,7 +11,7 @@ mean field approximations for initial and final states and applying SRG
 transformations to the operator. This differs from the previous momentum
 distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. Testing how to sum and use batch mode
-with vegas.
+with vegas (this does NOT use batch mode yet!)
 
 Last update: April 13, 2023
 
@@ -770,6 +770,7 @@ class DeltaUIntegrand:
         self.cg_table = cg_table
         self.phi_functions = phi_functions
         self.delta_U = DeltaUMatrixElement
+        
 
     def __call__(self, x_array):
 
