@@ -12,7 +12,7 @@ transformations to the operator. This differs from the previous momentum
 distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. Testing how to sum with vegas.
 
-Last update: April 11, 2023
+Last update: April 19, 2023
 
 """
 
@@ -31,7 +31,7 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.srg import SRG
-from scripts.tools import convert_l_to_string, coupled_channel
+from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 from scripts.woodsaxon import ws
 
 
@@ -476,24 +476,24 @@ def psi(sp_state, q_vector, sigma, cg_table, phi_functions):
     # Calculate \phi_\alpha(q)
     phi_sp_wf = phi_functions[get_orbital_file_name(sp_state)](q)
     
-    # # m_l is determined by m_j and \sigma
-    # m_l = sp_state.m_j - sigma
+    # m_l is determined by m_j and \sigma
+    m_l = sp_state.m_j - sigma
         
-    # # Check that m_l is allowed
-    # if abs(m_l) > sp_state.l:
-    #     return 0
-        
-    # # Clebsch-Gordan coefficient
-    # cg = cg_table[(sp_state.l, m_l, 1/2, sigma, sp_state.j, sp_state.m_j)]
-        
-    # # Spherical harmonic
-    # Y_lm = sph_harm(m_l, sp_state.l, phi, theta)
-    
-    # TESTING
-    # m_l is fixed to zero and m_j must equal \sigma
-    m_l = 0
-    if sp_state.m_j != sigma:
+    # Check that m_l is allowed
+    if abs(m_l) > sp_state.l:
         return 0
+        
+    # Clebsch-Gordan coefficient
+    cg = cg_table[(sp_state.l, m_l, 1/2, sigma, sp_state.j, sp_state.m_j)]
+        
+    # Spherical harmonic
+    Y_lm = sph_harm(m_l, sp_state.l, phi, theta)
+    
+    # # TESTING
+    # # m_l is fixed to zero and m_j must equal \sigma
+    # m_l = 0
+    # if sp_state.m_j != sigma:
+    #     return 0
         
     # Clebsch-Gordan coefficient
     cg = cg_table[(sp_state.l, m_l, 1/2, sigma, sp_state.j, sp_state.m_j)]
@@ -740,24 +740,24 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                 # Single-particle spin projection \sigma_1   
                 for sigma_1 in spins:
                                     
-                  # # \sigma_1 l_\alpha CG
-                  # if abs(alpha.m_j-sigma_1) <= alpha.l:
+                  # \sigma_1 l_\alpha CG
+                  if abs(alpha.m_j-sigma_1) <= alpha.l:
                   #TESTING
-                  if alpha.m_j == sigma_1:
-                     sig1_alpha_cg = cg_table[(alpha.l, alpha.m_j-sigma_1, 1/2,
-                                               sigma_1, alpha.j, alpha.m_j)]
+                  # if alpha.m_j == sigma_1:
+                    sig1_alpha_cg = cg_table[(alpha.l, alpha.m_j-sigma_1, 1/2,
+                                                sigma_1, alpha.j, alpha.m_j)]
                   else:
-                     sig1_alpha_cg = 0
+                    sig1_alpha_cg = 0
                    
                   # Single-particle spin projection \sigma_2   
                   for sigma_2 in spins:
                                         
                     # \sigma_2 l_\beta CG
-                    # if abs(beta.m_j-sigma_2) <= beta.l:
-                    # TESTING
-                    if beta.m_j == sigma_2:
+                    if abs(beta.m_j-sigma_2) <= beta.l:
+                    # # TESTING
+                    # if beta.m_j == sigma_2:
                       sig2_beta_cg = cg_table[(beta.l, beta.m_j-sigma_2, 1/2,
-                                               sigma_2, beta.j, beta.m_j)]
+                                                sigma_2, beta.j, beta.m_j)]
                     else:
                       sig2_beta_cg = 0
                                         
@@ -779,9 +779,9 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                     for sigma in spins:
                                             
                       # \sigma l_\alpha CG
-                      # if abs(alpha.m_j-sigma) <= alpha.l:
-                      # TESTING
-                      if alpha.m_j == sigma:
+                      if abs(alpha.m_j-sigma) <= alpha.l:
+                      # # TESTING
+                      # if alpha.m_j == sigma:
                         sig_alpha_cg = cg_table[(
                           alpha.l, alpha.m_j-sigma, 1/2, sigma, alpha.j,
                           alpha.m_j
@@ -790,9 +790,9 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                         sig_alpha_cg = 0
                                         
                       # \sigma l_\beta CG
-                      # if abs(beta.m_j-sigma) <= beta.l:
-                      # TESTING
-                      if beta.m_j == sigma:
+                      if abs(beta.m_j-sigma) <= beta.l:
+                      # # TESTING
+                      # if beta.m_j == sigma:
                         sig_beta_cg = cg_table[(beta.l, beta.m_j-sigma, 1/2,
                                                 sigma, beta.j, beta.m_j)]
                       else:
@@ -802,9 +802,9 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                       for sigmap in spins:
                                                 
                         # \sigma' l_\alpha CG
-                        # if abs(alpha.m_j-sigmap) <= alpha.l:
-                        # TESTING
-                        if alpha.m_j == sigmap:
+                        if abs(alpha.m_j-sigmap) <= alpha.l:
+                        # # TESTING
+                        # if alpha.m_j == sigmap:
                           sigp_alpha_cg = cg_table[(
                             alpha.l, alpha.m_j-sigmap, 1/2, sigmap, alpha.j,
                             alpha.m_j
@@ -813,9 +813,9 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
                           sigp_alpha_cg = 0
                                             
                         # \sigma' l_\beta CG
-                        # if abs(beta.m_j-sigmap) <= beta.l:
-                        # TESTING
-                        if beta.m_j == sigmap:
+                        if abs(beta.m_j-sigmap) <= beta.l:
+                        # # TESTING
+                        # if beta.m_j == sigmap:
                           sigp_beta_cg = cg_table[(
                             beta.l, beta.m_j-sigmap, 1/2, sigmap, beta.j,
                             beta.m_j
@@ -880,15 +880,15 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
   return quantum_number_combinations
 
 
-def delta_U_term_integrand(
-        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-        delta_U_dagger_functions, delU_Ntot, x_array
-):
-# # TESTING
 # def delta_U_term_integrand(
 #         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-#         delta_U_dagger_functions, delU_Ntot, real, x_array
+#         delta_U_dagger_functions, delU_Ntot, x_array
 # ):
+# TESTING
+def delta_U_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delU_Ntot, real, x_array
+):
     """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
 
     # Choose z-axis to be along q_vector
@@ -1010,12 +1010,12 @@ def delta_U_term_integrand(
         )  
     )
 
-    return integrand.real
-    # # TESTING
-    # if real:
-    #     return integrand.real
-    # else:
-    #     return integrand.imag
+    # return integrand.real
+    # TESTING
+    if real:
+        return integrand.real
+    else:
+        return integrand.imag
 
 
 def compute_delta_U_term(
@@ -1026,11 +1026,11 @@ def compute_delta_U_term(
     I * n(q) * \delta U^\dagger term.
     """
         
-    delta_U_array = np.zeros_like(q_array)
-    delta_U_errors = np.zeros_like(q_array)
-    # # TESTING
-    # delta_U_array = np.zeros_like(q_array, dtype='complex')
-    # delta_U_errors = np.zeros_like(q_array, dtype='complex')
+    # delta_U_array = np.zeros_like(q_array)
+    # delta_U_errors = np.zeros_like(q_array)
+    # TESTING
+    delta_U_array = np.zeros_like(q_array, dtype='complex')
+    delta_U_errors = np.zeros_like(q_array, dtype='complex')
     
     # Get an organized list of quantum numbers to sum over
     quantum_numbers = delta_U_quantum_numbers(tau, occ_states, cg_table,
@@ -1048,28 +1048,28 @@ def compute_delta_U_term(
     # Sum over quantum numbers using vegas integration trick
     qn_limits = [0, 1]
 
-    # Set-up integrator with multiple processors
-    integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
-    # # TESTING
-    # integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                K_limits, theta_limits, phi_limits,
-    #                                qn_limits], nproc=8)
-    # integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                K_limits, theta_limits, phi_limits,
-    #                                qn_limits], nproc=8)
+    # # Set-up integrator with multiple processors
+    # integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
+    #                           K_limits, theta_limits, phi_limits,
+    #                           qn_limits], nproc=8)
+    # TESTING
+    integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
+    integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
             
         t0 = time.time()
         
-        integrand = functools.partial(
-            delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
-            phi_functions, delta_U_functions, delta_U_dagger_functions,
-            delU_Ntot
-        )
+        # integrand = functools.partial(
+        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
+        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
+        #     delU_Ntot
+        # )
             
         # # Train the integrator
         # integ(integrand, nitn=5, neval=200)
@@ -1081,40 +1081,40 @@ def compute_delta_U_term(
         # # Final result
         # result = integ(integrand, nitn=10, neval=1e4)
         
-        # Train the integrator
-        integ(integrand, nitn=5, neval=1e4)
-        # Final result
-        result = integ(integrand, nitn=10, neval=1e5)
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e4)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=1e5)
 
-        delta_U_array[i] = result.mean
-        delta_U_errors[i] = result.sdev
+        # delta_U_array[i] = result.mean
+        # delta_U_errors[i] = result.sdev
         
-        # # TESTING
-        # integrand_real = functools.partial(
-        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU_Ntot, True
-        # )
+        # TESTING
+        integrand_real = functools.partial(
+            delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions,
+            delU_Ntot, True
+        )
         
-        # # Train the integrator
-        # integ_real(integrand_real, nitn=5, neval=1e3)
-        # # Final result
-        # result_real = integ_real(integrand_real, nitn=10, neval=1e4)
+        # Train the integrator
+        integ_real(integrand_real, nitn=5, neval=1e4)
+        # Final result
+        result_real = integ_real(integrand_real, nitn=10, neval=1e4)
         
-        # integrand_imag = functools.partial(
-        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU_Ntot, False
-        # )
+        integrand_imag = functools.partial(
+            delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions,
+            delU_Ntot, False
+        )
         
-        # # Train the integrator
-        # integ_imag(integrand_real, nitn=5, neval=1e3)
-        # # Final result
-        # result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
+        # Train the integrator
+        integ_imag(integrand_real, nitn=5, neval=1e4)
+        # Final result
+        result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
         
-        # delta_U_array[i] = result_real.mean + 1j * result_imag.mean
-        # delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
-        #                             + result_imag.sdev ** 2)
+        delta_U_array[i] = result_real.mean + 1j * result_imag.mean
+        delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
+                                    + result_imag.sdev ** 2)
         
         t1 = time.time()
 
@@ -1253,9 +1253,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                             for sigma_1 in spins:
                                                             
                               # \sigma_1 l_\alpha CG
-                              # if abs(alpha.m_j-sigma_1) <= alpha.l:
-                              # TESTING
-                              if alpha.m_j == sigma_1:
+                              if abs(alpha.m_j-sigma_1) <= alpha.l:
+                              # # TESTING
+                              # if alpha.m_j == sigma_1:
                                 sig1_alpha_cg = cg_table[(
                                   alpha.l, alpha.m_j-sigma_1, 1/2, sigma_1,
                                   alpha.j, alpha.m_j
@@ -1267,9 +1267,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                               for sigma_2 in spins:
                                                                 
                                 # \sigma_2 l_\beta CG
-                                # if abs(beta.m_j-sigma_2) <= beta.l:
-                                # TESTING
-                                if beta.m_j == sigma_2:
+                                if abs(beta.m_j-sigma_2) <= beta.l:
+                                # # TESTING
+                                # if beta.m_j == sigma_2:
                                   sig2_beta_cg = cg_table[(
                                     beta.l, beta.m_j-sigma_2, 1/2, sigma_2,
                                     beta.j, beta.m_j
@@ -1288,9 +1288,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                                 for sigma_3 in spins:
                                                                     
                                   # \sigma_3 l_\alpha CG
-                                  # if abs(alpha.m_j-sigma_3) <= alpha.l:
-                                  # TESTING
-                                  if alpha.m_j == sigma_3:
+                                  if abs(alpha.m_j-sigma_3) <= alpha.l:
+                                  #  # TESTING
+                                  # if alpha.m_j == sigma_3:
                                     sig3_alpha_cg = cg_table[(
                                       alpha.l, alpha.m_j-sigma_3, 1/2, sigma_3,
                                       alpha.j, alpha.m_j
@@ -1299,9 +1299,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                                     sig3_alpha_cg = 0
                                                                         
                                   # \sigma_3 l_\beta CG
-                                  # if abs(beta.m_j-sigma_3) <= beta.l:
-                                  # TESTING
-                                  if beta.m_j == sigma_3:
+                                  if abs(beta.m_j-sigma_3) <= beta.l:
+                                  # # TESTING
+                                  # if beta.m_j == sigma_3:
                                     sig3_beta_cg = cg_table[(
                                       beta.l, beta.m_j-sigma_3, 1/2, sigma_3,
                                       beta.j, beta.m_j
@@ -1313,9 +1313,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                                   for sigma_4 in spins:
                                                                         
                                     # \sigma_4 l_\alpha CG
-                                    # if abs(alpha.m_j-sigma_4) <= alpha.l:
-                                    # TESTING
-                                    if alpha.m_j == sigma_4:
+                                    if abs(alpha.m_j-sigma_4) <= alpha.l:
+                                    # # TESTING
+                                    # if alpha.m_j == sigma_4:
                                       sig4_alpha_cg = cg_table[(
                                         alpha.l, alpha.m_j-sigma_4, 1/2,
                                         sigma_4, alpha.j, alpha.m_j
@@ -1324,9 +1324,9 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
                                       sig4_alpha_cg = 0
                                                                         
                                     # \sigma_4 l_\beta CG
-                                    # if abs(beta.m_j-sigma_4) <= beta.l:
-                                    # TESTING
-                                    if beta.m_j == sigma_4:
+                                    if abs(beta.m_j-sigma_4) <= beta.l:
+                                    # # TESTING
+                                    # if beta.m_j == sigma_4:
                                       sig4_beta_cg = cg_table[(
                                         beta.l, beta.m_j-sigma_4, 1/2, sigma_4,
                                         beta.j, beta.m_j
@@ -1400,15 +1400,15 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
   return quantum_number_combinations
 
 
-def delta_U2_term_integrand(
-        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-        delta_U_dagger_functions, delU2_Ntot, x_array
-):
-# # TESTING
 # def delta_U2_term_integrand(
 #         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-#         delta_U_dagger_functions, delU2_Ntot, real, x_array
+#         delta_U_dagger_functions, delU2_Ntot, x_array
 # ):
+# TESTING
+def delta_U2_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delU2_Ntot, real, x_array
+):
     """Evaluate the integrand of the \delta U \delta U^\dagger term."""
 
     # Choose z-axis to be along q_vector
@@ -1540,12 +1540,12 @@ def delta_U2_term_integrand(
         )
     )
     
-    return integrand.real
-    # # TESTING
-    # if real:
-    #     return integrand.real
-    # else:
-    #     return integrand.imag
+    # return integrand.real
+    # TESTING
+    if real:
+        return integrand.real
+    else:
+        return integrand.imag
 
 
 def compute_delta_U2_term(
@@ -1554,11 +1554,11 @@ def compute_delta_U2_term(
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
         
-    delta_U2_array = np.zeros_like(q_array)
-    delta_U2_errors = np.zeros_like(q_array)
-    # # TESTING
-    # delta_U2_array = np.zeros_like(q_array, dtype='complex')
-    # delta_U2_errors = np.zeros_like(q_array, dtype='complex')
+    # delta_U2_array = np.zeros_like(q_array)
+    # delta_U2_errors = np.zeros_like(q_array)
+    # TESTING
+    delta_U2_array = np.zeros_like(q_array, dtype='complex')
+    delta_U2_errors = np.zeros_like(q_array, dtype='complex')
     
     # Get an organized list of quantum numbers to sum over
     quantum_numbers = delta_U2_quantum_numbers(tau, occ_states, cg_table,
@@ -1576,76 +1576,76 @@ def compute_delta_U2_term(
     # Sum over quantum numbers using vegas integration trick
     qn_limits = [0, 1]
 
-    # Set-up integrator with multiple processors
-    integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
-                              k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
-    # # TESTING
-    # integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                k_limits, theta_limits, phi_limits,
-    #                                K_limits, theta_limits, phi_limits,
-    #                                qn_limits], nproc=8)
-    # integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                k_limits, theta_limits, phi_limits,
-    #                                K_limits, theta_limits, phi_limits,
-    #                                qn_limits], nproc=8)
+    # # Set-up integrator with multiple processors
+    # integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
+    #                           k_limits, theta_limits, phi_limits,
+    #                           K_limits, theta_limits, phi_limits,
+    #                           qn_limits], nproc=8)
+    # TESTING
+    integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
+    integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
             
         t0 = time.time()
         
-        integrand = functools.partial(
+        # integrand = functools.partial(
+        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
+        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
+        #     delU2_Ntot
+        # )
+            
+        # # # Train the integrator
+        # # integ(integrand, nitn=5, neval=200)
+        # # # Final result
+        # # result = integ(integrand, nitn=10, neval=1e3)
+        
+        # # # Train the integrator
+        # # integ(integrand, nitn=5, neval=1e3)
+        # # # Final result
+        # # result = integ(integrand, nitn=10, neval=1e4)
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=1e4)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=1e5)
+
+        # delta_U2_array[i] = result.mean
+        # delta_U2_errors[i] = result.sdev
+        
+        # TESTING
+        integrand_real = functools.partial(
             delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
             phi_functions, delta_U_functions, delta_U_dagger_functions,
-            delU2_Ntot
+            delU2_Ntot, True
         )
-            
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=200)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e3)
-        
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=1e3)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e4)
         
         # Train the integrator
-        integ(integrand, nitn=5, neval=1e4)
+        integ_real(integrand_real, nitn=5, neval=1e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=1e5)
-
-        delta_U2_array[i] = result.mean
-        delta_U2_errors[i] = result.sdev
+        result_real = integ_real(integrand_real, nitn=10, neval=1e4)
         
-        # # TESTING
-        # integrand_real = functools.partial(
-        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU2_Ntot, True
-        # )
+        integrand_imag = functools.partial(
+            delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions,
+            delU2_Ntot, False
+        )
         
-        # # Train the integrator
-        # integ_real(integrand_real, nitn=5, neval=1e3)
-        # # Final result
-        # result_real = integ_real(integrand_real, nitn=10, neval=1e4)
+        # Train the integrator
+        integ_imag(integrand_imag, nitn=5, neval=1e4)
+        # Final result
+        result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
         
-        # integrand_imag = functools.partial(
-        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU2_Ntot, False
-        # )
-        
-        # # Train the integrator
-        # integ_imag(integrand_imag, nitn=5, neval=1e3)
-        # # Final result
-        # result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
-        
-        # delta_U2_array[i] = result_real.mean + 1j * result_imag.mean
-        # delta_U2_errors[i] = np.sqrt(result_real.sdev ** 2
-        #                              + result_imag.sdev ** 2)
+        delta_U2_array[i] = result_real.mean + 1j * result_imag.mean
+        delta_U2_errors[i] = np.sqrt(result_real.sdev ** 2
+                                      + result_imag.sdev ** 2)
 
         t1 = time.time()
 
@@ -1676,9 +1676,9 @@ def compute_momentum_distribution(
     )
     
     # Set momentum mesh
-    q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
+    # q_array, q_weights = momentum_mesh(8.0, 2.0, 40)
     # q_array, q_weights = momentum_mesh(10.0, 2.0, 100)
-    # q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
+    q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=60)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, sp_basis.occ_states, cg_table,
@@ -1729,9 +1729,9 @@ def compute_momentum_distribution(
         print(f"Total time elapsed: {(t5-t0)/3600:.3f} hours.\n")
     
     # Combine each term for the total momentum distribution [fm^3]
-    n_array = I_array + delta_U_array + delta_U2_array
-    # # TESTING
-    # n_array = abs(I_array + delta_U_array + delta_U2_array)
+    # n_array = I_array + delta_U_array + delta_U2_array
+    # TESTING
+    n_array = abs(I_array + delta_U_array + delta_U2_array)
     n_errors = np.sqrt(delta_U_errors**2 + delta_U2_errors**2)
 
     if print_normalization:
@@ -1740,7 +1740,7 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
+            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
             delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
         )
     
@@ -1754,14 +1754,14 @@ def compute_normalization(q_array, q_weights, n_array):
 
 
 def save_momentum_distribution(
-        nucleus_name, tau, q_array, q_weights, n_array, n_errors, I_array,
+        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
         delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
     data = np.vstack(
         (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
-          delta_U_errors, delta_U2_array, delta_U2_errors)
+         delta_U_errors, delta_U2_array, delta_U2_errors)
     ).T
             
     if tau == 1/2:
@@ -1772,16 +1772,23 @@ def save_momentum_distribution(
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
 
-    np.savetxt(f"{nucleus_name}_{nucleon}_momentum_distribution.txt",
-               data, header=hdr)
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
+    )
+    
+    np.savetxt(file_name + '.txt', data, header=hdr)
 
-
-def load_momentum_distribution(nucleus_name, nucleon):
+    
+def load_momentum_distribution(nucleus_name, nucleon, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
-    data = np.loadtxt(f"{nucleus_name}_{nucleon}_momentum_distribution.txt")
+    file_name = replace_periods(
+        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
+    )
+    
+    data = np.loadtxt(file_name + '.txt')
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
