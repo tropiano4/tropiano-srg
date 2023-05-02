@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version implements
 batch mode in vegas and directly sums over all non-zero combinations of partial
 wave channels and single-particle quantum numbers.
 
-Last update: April 28, 2023
+Last update: May 1, 2023
 
 """
 
@@ -1305,11 +1305,6 @@ def compute_delta_U_term(
             delta_U_dagger_functions
         )
 
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=200)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e3)
-        
         # Train the integrator
         integ(integrand, nitn=5, neval=1e3)
         # Final result
@@ -2105,11 +2100,6 @@ def compute_delta_U2_term(
             q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
             delta_U_dagger_functions
         )
-
-        # # Train the integrator
-        # integ(integrand, nitn=5, neval=200)
-        # # Final result
-        # result = integ(integrand, nitn=10, neval=1e3)
         
         # Train the integrator
         integ(integrand, nitn=5, neval=1e3)
