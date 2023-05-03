@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version evaluates the
 sum over all non-zero combinations of partial wave channels and single-particle
 quantum numbers as an additional integral.
 
-Last update: May 1, 2023
+Last update: May 3, 2023
 
 """
 
@@ -890,15 +890,15 @@ def delta_U_quantum_numbers(tau, occ_states, cg_table, channels):
     return combinations
 
 
-def delta_U_term_integrand(
-        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-        delta_U_dagger_functions, delU_Ntot, x_array
-):
-# # TESTING
 # def delta_U_term_integrand(
 #         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-#         delta_U_dagger_functions, delU_Ntot, real, x_array
+#         delta_U_dagger_functions, delU_Ntot, x_array
 # ):
+# # TESTING
+def delta_U_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delU_Ntot, real, x_array
+):
     """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
 
     # Choose z-axis to be along q_vector
@@ -986,6 +986,8 @@ def delta_U_term_integrand(
     # Spherical harmonics
     Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
     Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
+    Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
+    Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
     
     # < k (L S) J T | \delta U | |q-K/2| (L' S) J T >
     delta_U_partial_wave = delta_U_functions[channel].ev(k, qK)
@@ -1029,7 +1031,7 @@ def delta_U_term_integrand(
     delta_U_dag_term = (
         spin_ssp_cg * spin_12_cg * isospin_ttp_cg * isospin_12_cg
         * lpsj_cg * lsj_cg * lst_factor * lpst_factor
-        * Y_Lp_qK * np.conj(Y_L_k) * delta_U_dag_partial_wave
+        * Y_L_qK * np.conj(Y_Lp_k) * delta_U_dag_partial_wave
         * psi_alpha_1 * psi_beta_2 * (
             np.conj(psi_beta_Kq) * np.conj(psi_alpha_q)
             - np.conj(psi_alpha_Kq) * np.conj(psi_beta_q)
@@ -1041,12 +1043,12 @@ def delta_U_term_integrand(
         delta_U_term + delta_U_dag_term
     )
 
-    return integrand.real
+    # return integrand.real
     # # TESTING
-    # if real:
-    #     return integrand.real
-    # else:
-    #     return integrand.imag
+    if real:
+        return integrand.real
+    else:
+        return integrand.imag
 
 
 def compute_delta_U_term(
@@ -1057,11 +1059,11 @@ def compute_delta_U_term(
     I * n(q) * \delta U^\dagger term.
     """
         
-    delta_U_array = np.zeros_like(q_array)
-    delta_U_errors = np.zeros_like(q_array)
-    # # TESTING
-    # delta_U_array = np.zeros_like(q_array, dtype='complex')
-    # delta_U_errors = np.zeros_like(q_array, dtype='complex')
+    # delta_U_array = np.zeros_like(q_array)
+    # delta_U_errors = np.zeros_like(q_array)
+    # TESTING
+    delta_U_array = np.zeros_like(q_array, dtype='complex')
+    delta_U_errors = np.zeros_like(q_array, dtype='complex')
     
     # Get an organized list of quantum numbers to sum over
     quantum_numbers = delta_U_quantum_numbers(tau, occ_states, cg_table,
@@ -1081,62 +1083,62 @@ def compute_delta_U_term(
     qn_limits = [0, 1]
 
     # Set-up integrator with multiple processors
-    integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
-    # # TESTING
-    # integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                 K_limits, theta_limits, phi_limits,
-    #                                 qn_limits], nproc=8)
-    # integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                 K_limits, theta_limits, phi_limits,
-    #                                 qn_limits], nproc=8)
+    # integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
+    #                           K_limits, theta_limits, phi_limits,
+    #                           qn_limits], nproc=8)
+    # TESTING
+    integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
+    integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
             
         t0 = time.time()
         
-        integrand = functools.partial(
+        # integrand = functools.partial(
+        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
+        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
+        #     delU_Ntot
+        # )
+
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=5e4)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=5e4)
+
+        # delta_U_array[i] = result.mean
+        # delta_U_errors[i] = result.sdev
+        
+        # TESTING
+        integrand_real = functools.partial(
             delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
             phi_functions, delta_U_functions, delta_U_dagger_functions,
-            delU_Ntot
+            delU_Ntot, True
         )
-
+        
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ_real(integrand_real, nitn=5, neval=5e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
-
-        delta_U_array[i] = result.mean
-        delta_U_errors[i] = result.sdev
+        result_real = integ_real(integrand_real, nitn=10, neval=5e4)
         
-        # # TESTING
-        # integrand_real = functools.partial(
-        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU_Ntot, True
-        # )
+        integrand_imag = functools.partial(
+            delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions,
+            delU_Ntot, False
+        )
         
-        # # Train the integrator
-        # integ_real(integrand_real, nitn=5, neval=5e4)
-        # # Final result
-        # result_real = integ_real(integrand_real, nitn=10, neval=5e4)
+        # Train the integrator
+        integ_imag(integrand_imag, nitn=5, neval=1e4)
+        # Final result
+        result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
         
-        # integrand_imag = functools.partial(
-        #     delta_U_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU_Ntot, False
-        # )
-        
-        # # Train the integrator
-        # integ_imag(integrand_imag, nitn=5, neval=1e4)
-        # # Final result
-        # result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
-        
-        # delta_U_array[i] = result_real.mean + 1j * result_imag.mean
-        # delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
-        #                             + result_imag.sdev ** 2)
+        delta_U_array[i] = result_real.mean + 1j * result_imag.mean
+        delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
+                                    + result_imag.sdev ** 2)
         
         t1 = time.time()
 
@@ -1407,15 +1409,15 @@ def delta_U2_quantum_numbers(tau, occ_states, cg_table, channels):
     return combinations
 
 
-def delta_U2_term_integrand(
-        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-        delta_U_dagger_functions, delU2_Ntot, x_array
-):
-# # TESTING
 # def delta_U2_term_integrand(
 #         q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
-#         delta_U_dagger_functions, delU2_Ntot, real, x_array
+#         delta_U_dagger_functions, delU2_Ntot, x_array
 # ):
+# # TESTING
+def delta_U2_term_integrand(
+        q, tau, quantum_numbers, cg_table, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delU2_Ntot, real, x_array
+):
     """Evaluate the integrand of the \delta U \delta U^\dagger term."""
 
     # Choose z-axis to be along q_vector
@@ -1589,12 +1591,12 @@ def delta_U2_term_integrand(
         )
     )
 
-    return integrand.real
-    # # TESTING
-    # if real:
-    #     return integrand.real
-    # else:
-    #     return integrand.imag
+    # return integrand.real
+    # TESTING
+    if real:
+        return integrand.real
+    else:
+        return integrand.imag
 
 
 def compute_delta_U2_term(
@@ -1603,11 +1605,11 @@ def compute_delta_U2_term(
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
         
-    delta_U2_array = np.zeros_like(q_array)
-    delta_U2_errors = np.zeros_like(q_array)
-    # # TESTING
-    # delta_U2_array = np.zeros_like(q_array, dtype='complex')
-    # delta_U2_errors = np.zeros_like(q_array, dtype='complex')
+    # delta_U2_array = np.zeros_like(q_array)
+    # delta_U2_errors = np.zeros_like(q_array)
+    # TESTING
+    delta_U2_array = np.zeros_like(q_array, dtype='complex')
+    delta_U2_errors = np.zeros_like(q_array, dtype='complex')
     
     # Get an organized list of quantum numbers to sum over
     quantum_numbers = delta_U2_quantum_numbers(tau, occ_states, cg_table,
@@ -1627,65 +1629,65 @@ def compute_delta_U2_term(
     qn_limits = [0, 1]
 
     # Set-up integrator with multiple processors
-    integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
-                              k_limits, theta_limits, phi_limits,
-                              K_limits, theta_limits, phi_limits,
-                              qn_limits], nproc=8)
-    # # TESTING
-    # integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                 k_limits, theta_limits, phi_limits,
-    #                                 K_limits, theta_limits, phi_limits,
-    #                                 qn_limits], nproc=8)
-    # integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
-    #                                 k_limits, theta_limits, phi_limits,
-    #                                 K_limits, theta_limits, phi_limits,
-    #                                 qn_limits], nproc=8)
+    # integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
+    #                           k_limits, theta_limits, phi_limits,
+    #                           K_limits, theta_limits, phi_limits,
+    #                           qn_limits], nproc=8)
+    # TESTING
+    integ_real = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
+    integ_imag = vegas.Integrator([k_limits, theta_limits, phi_limits,
+                                    k_limits, theta_limits, phi_limits,
+                                    K_limits, theta_limits, phi_limits,
+                                    qn_limits], nproc=8)
 
     # Loop over q_vector
     for i, q in enumerate(q_array):
             
         t0 = time.time()
         
-        integrand = functools.partial(
+        # integrand = functools.partial(
+        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
+        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
+        #     delU2_Ntot
+        # )
+        
+        # # Train the integrator
+        # integ(integrand, nitn=5, neval=5e4)
+        # # Final result
+        # result = integ(integrand, nitn=10, neval=5e4)
+
+        # delta_U2_array[i] = result.mean
+        # delta_U2_errors[i] = result.sdev
+        
+        # TESTING
+        integrand_real = functools.partial(
             delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
             phi_functions, delta_U_functions, delta_U_dagger_functions,
-            delU2_Ntot
+            delU2_Ntot, True
         )
         
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ_real(integrand_real, nitn=5, neval=5e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
-
-        delta_U2_array[i] = result.mean
-        delta_U2_errors[i] = result.sdev
+        result_real = integ_real(integrand_real, nitn=10, neval=5e4)
         
-        # # TESTING
-        # integrand_real = functools.partial(
-        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU2_Ntot, True
-        # )
+        integrand_imag = functools.partial(
+            delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions,
+            delU2_Ntot, False
+        )
         
-        # # Train the integrator
-        # integ_real(integrand_real, nitn=5, neval=5e4)
-        # # Final result
-        # result_real = integ_real(integrand_real, nitn=10, neval=5e4)
+        # Train the integrator
+        integ_imag(integrand_imag, nitn=5, neval=1e4)
+        # Final result
+        result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
         
-        # integrand_imag = functools.partial(
-        #     delta_U2_term_integrand, q, tau, quantum_numbers, cg_table,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions,
-        #     delU2_Ntot, False
-        # )
-        
-        # # Train the integrator
-        # integ_imag(integrand_imag, nitn=5, neval=1e4)
-        # # Final result
-        # result_imag = integ_imag(integrand_imag, nitn=10, neval=1e4)
-        
-        # delta_U2_array[i] = result_real.mean + 1j * result_imag.mean
-        # delta_U2_errors[i] = np.sqrt(result_real.sdev ** 2
-        #                               + result_imag.sdev ** 2)
+        delta_U2_array[i] = result_real.mean + 1j * result_imag.mean
+        delta_U2_errors[i] = np.sqrt(result_real.sdev ** 2
+                                      + result_imag.sdev ** 2)
 
         t1 = time.time()
 
