@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version implements
 batch mode in vegas and directly sums over all non-zero combinations of partial
 wave channels and single-particle quantum numbers.
 
-Last update: May 1, 2023
+Last update: May 3, 2023
 
 """
 
@@ -1204,6 +1204,8 @@ class delta_U_term_integrand:
             # Spherical harmonics
             Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
             Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
+            Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
+            Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
             
             # < k (L S) J T | \delta U | |q-K/2| (L' S) J T >
             delta_U_partial_wave = self.delta_U_functions[channel].ev(k, qK)
@@ -1251,7 +1253,7 @@ class delta_U_term_integrand:
             delta_U_dag_term = (
                 spin_ssp_cg * spin_12_cg * isospin_ttp_cg * isospin_12_cg
                 * lpsj_cg * lsj_cg * lst_factor * lpst_factor
-                * Y_Lp_qK * np.conj(Y_L_k) * delta_U_dag_partial_wave
+                * Y_L_qK * np.conj(Y_Lp_k) * delta_U_dag_partial_wave
                 * psi_alpha_1 * psi_beta_2 * (
                     np.conj(psi_beta_Kq) * np.conj(psi_alpha_q)
                     - np.conj(psi_alpha_Kq) * np.conj(psi_beta_q)
