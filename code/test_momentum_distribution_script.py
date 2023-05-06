@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version evaluates the
 sum over all non-zero combinations of partial wave channels and single-particle
 quantum numbers as an additional integral and uses batch mode in vegas.
 
-Last update: May 2, 2023
+Last update: May 5, 2023
 
 """
 
@@ -1981,6 +1981,8 @@ def compute_momentum_distribution(
     
     # Set-up single-particle states
     woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=False)
+    # woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=True, n_max=2,
+    #                          l_max=4)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
     
     # Set-up \delta U and \delta U^\dagger functions
@@ -2124,7 +2126,9 @@ if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N, = 'Ca48', 20, 28
     
     # Nucleon
     tau = 1/2
@@ -2138,7 +2142,8 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
-    lamb = 1.35
+    # lamb = 1.35
+    lamb = 1.5
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0
