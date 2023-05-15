@@ -48,7 +48,7 @@ from .tools import build_coupled_channel_matrix, coupled_channel
 
 class Potential:
     """
-    Handles potentials from data/potentials directory.
+    NN potential projected onto a partial wave channel in relative momentum space.
     
     Parameters
     ----------
