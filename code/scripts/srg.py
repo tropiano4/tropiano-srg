@@ -47,15 +47,14 @@ class SRG:
             
     """
 
-    
     def __init__(self, potential, generator):
         """Loads the initial Hamiltonian and other relevant operators depending
         on the potential and the SRG generator.
         """
-        
+
         # Set potential as instance attribute
         self.potential = potential
-        
+
         # Get initial Hamiltonian associated with the potential
         H_initial_MeV = potential.load_hamiltonian()  # [MeV]
 
@@ -72,15 +71,13 @@ class SRG:
         # Need relative momenta for construction of projection operators for
         # the block-diagonal generator
         if generator == 'Block-diag':
-
             # Get momentum array (don't worry about weights) in [fm^-1]
             self.k_array, _ = potential.load_mesh()
             self.ntot = len(self.k_array)
 
         # Set generator for evaluation of \eta
         self.generator = generator
-        
-        
+
     def __call__(
             self, lambda_array, lambda_bd_array=None, lambda_initial=20.0,
             method='hamiltonian', save=False):
@@ -115,20 +112,20 @@ class SRG:
             the evolved Hamiltonian at \lambda = 1.5 fm^-1.
             
         """
-        
+
         # Start time
         t0 = time.time()
 
         # Evolve the Hamiltonian (or U) to each value of \lambda and store in
         # a dictionary (loop over \Lambda_BD as well for block-diagonal)
         d = {}
-        
+
         # Set-up ODE solver
         solver = self.get_ode_solver(lambda_initial, method)
-        
+
         # Block-diagonal generator
         if self.generator == 'Block-diag':
-            
+
             for lambda_bd in lambda_bd_array:
 
                 # Set the projection operators P and Q
@@ -141,7 +138,6 @@ class SRG:
 
                     # Solve ODE up to lamb and store in dictionary
                     while solver.successful() and round(solver.t, 2) > lamb:
-                    
                         # Get ODE solver step-size in \lambda
                         dlamb = self.select_step_size(solver.t, lamb)
 
@@ -150,33 +146,33 @@ class SRG:
 
                     # Store evolved Hamiltonian (or U) matrix in dictionary
                     if method == 'hamiltonian':
-                    
+
                         d[lambda_bd][lamb] = self.vector_to_matrix(
                             solution_vector)
-                    
+
                         if save:  # Save evolved potential?
-                    
+
                             V_evolved = d[lambda_bd][lamb] - self.T_rel  # fm^-2
                             self.potential.save_potential(
                                 V_evolved, 'srg', self.generator, lamb,
                                 lambda_bd
                             )
-                    
+
                     elif method == 'srg_transformation':
-                    
-                        d[lambda_bd][lamb] =  np.reshape(solution_vector,
-                                                         (self.Ntot, self.Ntot))
-                    
+
+                        d[lambda_bd][lamb] = np.reshape(solution_vector,
+                                                        (self.Ntot, self.Ntot))
+
                         if save:  # Save SRG transformation?
 
                             save_srg_transformation(
                                 d[lambda_bd][lamb], self.potential,
                                 self.generator, lamb, lambda_bd
                             )
-     
+
         # Band-diagonal generators
         else:
-            
+
             # Set-up ODE solver
             solver = self.get_ode_solver(lambda_initial, method)
 
@@ -184,7 +180,6 @@ class SRG:
 
                 # Solve ODE up to lamb and store in dictionary
                 while solver.successful() and round(solver.t, 2) > lamb:
-                    
                     # Get ODE solver step-size in \lambda
                     dlamb = self.select_step_size(solver.t, lamb)
 
@@ -193,22 +188,22 @@ class SRG:
 
                 # Store evolved Hamiltonian (or U) matrix in dictionary
                 if method == 'hamiltonian':
-                    
+
                     d[lamb] = self.vector_to_matrix(solution_vector)
-                    
+
                     if save:  # Save evolved potential?
-                    
+
                         V_evolved = d[lamb] - self.T_rel  # fm^-2
                         self.potential.save_potential(V_evolved, 'srg',
                                                       self.generator, lamb)
-                    
+
                 elif method == 'srg_transformation':
-                    
-                    d[lamb] =  np.reshape(solution_vector,
-                                          (self.Ntot, self.Ntot))
-                    
+
+                    d[lamb] = np.reshape(solution_vector,
+                                         (self.Ntot, self.Ntot))
+
                     if save:  # Save SRG transformation?
-                    
+
                         save_srg_transformation(d[lamb], self.potential,
                                                 self.generator, lamb)
 
@@ -237,7 +232,6 @@ class SRG:
 
         return d
 
-    
     def set_projection_operators(self, lambda_bd):
         """
         Sets sub-block projection operators for block-diagonal generator where
@@ -272,7 +266,6 @@ class SRG:
         self.P_matrix = P_matrix
         self.Q_matrix = Q_matrix
 
-        
     def matrix_to_vector(self, M):
         """
         Takes the upper triangle of the matrix M (including the diagonal) 
@@ -308,7 +301,6 @@ class SRG:
 
         return v
 
-    
     def vector_to_matrix(self, v):
         """
         Takes the vector of an upper triangle matrix v and returns the full
@@ -346,13 +338,11 @@ class SRG:
         # M.T - np.diag(np.diag(M)) is the lower half of M excluding diagonal
         return M + (M.T - np.diag(np.diag(M)))
 
-    
     def commutator(self, A, B):
         """Commutator of square matrices A and B."""
 
         return A @ B - B @ A
 
-    
     def eta(self, H_matrix):
         """
         SRG generator \eta = [G, H] where G is specified by the decoupling
@@ -389,7 +379,6 @@ class SRG:
         # \eta = [G, H]
         return self.commutator(G_matrix, H_matrix)
 
-    
     def H_deriv(self, lamb, H_vector):
         """
         Right-hand side of the SRG flow equation.
@@ -423,7 +412,6 @@ class SRG:
 
         return dH_vector
 
-    
     def U_deriv(self, lamb, U_vector):
         """
         Right-hand side of differential equation for U(\lambda)
@@ -461,7 +449,6 @@ class SRG:
 
         return dU_vector
 
-    
     def select_step_size(self, solver_lambda, lambda_final):
         """
         Select ODE solver step-size depending on the extent of evolution.
@@ -480,7 +467,7 @@ class SRG:
             Step-size in terms of \lambda [fm^-1].
 
         """
-            
+
         if solver_lambda >= 6.0:
             dlamb = 1.0
         elif 2.5 <= solver_lambda < 6.0:
@@ -492,7 +479,6 @@ class SRG:
 
         return dlamb
 
-    
     def get_ode_solver(self, lambda_initial, method='hamiltonian'):
         """Sets up the ODE solver with SciPy's integrate.ode function."""
 
@@ -531,7 +517,7 @@ class SRG:
 
 def srg_transformation_file_name(potential, generator, lamb, lambda_bd=None):
     """File name for SRG transformation."""
-        
+
     file_name = (f"u_{potential.channel}_kvnn_{potential.kvnn_string}"
                  f"_{generator}")
 
@@ -548,7 +534,7 @@ def srg_transformation_file_name(potential, generator, lamb, lambda_bd=None):
         file_name += f'_lambda{lamb_str}'
 
     file_name += '.out'
-        
+
     return file_name
 
 
@@ -556,7 +542,7 @@ def save_srg_transformation(
         U_matrix, potential, generator, lamb, lambda_bd=None
 ):
     """Saves the SRG transformation."""
-        
+
     # Get file name for the SRG transformation matrix elements
     file_name = srg_transformation_file_name(potential, generator, lamb,
                                              lambda_bd)
@@ -576,11 +562,10 @@ def save_srg_transformation(
 
         for i, ik in enumerate(k_array):
             for j, jk in enumerate(k_array):
-
                 u11 = U_matrix[i, j]
-                u12 = U_matrix[i, j+potential.ntot]
-                u21 = U_matrix[i+potential.ntot, j]
-                u22 = U_matrix[i+potential.ntot, j+potential.ntot]
+                u12 = U_matrix[i, j + potential.ntot]
+                u21 = U_matrix[i + potential.ntot, j]
+                u22 = U_matrix[i + potential.ntot, j + potential.ntot]
 
                 line = ('{:^15.6f}{:^15.6f}'.format(ik, jk)
                         + '{:^23e}{:^23e}'.format(u11, u12)
@@ -595,7 +580,6 @@ def save_srg_transformation(
 
         for i, ik in enumerate(k_array):
             for j, jk in enumerate(k_array):
-
                 u = U_matrix[i, j]
 
                 line = '{:^15.6f}{:^15.6f}{:^23e}'.format(ik, jk, u)
@@ -603,8 +587,8 @@ def save_srg_transformation(
                 f.write(line + '\n')
 
     f.close()
-    
-    
+
+
 def load_srg_transformation(potential, generator, lamb, lambda_bd=None):
     """
     Loads SRG unitary transformation from data file generated from solving
