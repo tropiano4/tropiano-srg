@@ -19,7 +19,7 @@ Note, tried to solve with respect to \lambda similar to SRG codes but kept
 getting infinity errors in computing \Omega matrix. Thus, we evaluate with
 respect to the flow parameter s, which has worked before.
 
-Last update: June 2, 2022
+Last update: May 15, 2023
 
 """
 
@@ -36,7 +36,7 @@ import numpy.linalg as la
 from sympy import bernoulli
 import time
 
-# Imports from A.T. codes
+# Imports from scripts
 from .srg import SRG
 from .tools import convert_number_to_string
 
@@ -49,28 +49,22 @@ class Magnus(SRG):
     
     Parameters
     ----------
-    kvnn : int
-        This number specifies the potential.
-    channel : str
-        The partial wave channel (e.g. '1S0').
-    kmax : float
-        Maximum value in the momentum mesh [fm^-1].
-    kmid : float
-        Mid-point value in the momentum mesh [fm^-1].
-    ntot : int
-        Number of momentum points in mesh.
+    potential : Potential
+        NN potential projected onto a partial wave channel in relative momentum
+        space.
     generator : str
         SRG generator 'Wegner', 'T', or 'Block-diag'.
             
     """
 
-    def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
+
+    def __init__(self, potential, generator):
         """Loads the initial Hamiltonian and other relevant operators depending
         on the specifications of the potential and the SRG generator.
         """
 
         # Call SRG class given the potential specifications and SRG generator
-        super().__init__(kvnn, channel, kmax, kmid, ntot, generator)
+        super().__init__(potential, generator)
 
         # Initialize factorial and Bernoulli number arrays for summations up
         # to 30 terms
@@ -80,6 +74,7 @@ class Magnus(SRG):
             self.factorial_array[i] = factorial(i)
             bernoulli_array[i] = bernoulli(i)
         self.magnus_factors = bernoulli_array / self.factorial_array
+
 
     def bch(self, H_initial, O_matrix, k_max):
         """
@@ -113,6 +108,7 @@ class Magnus(SRG):
             H_matrix += ad_matrix / self.factorial_array[k]
 
         return H_matrix
+
 
     def O_deriv(self, O_matrix, return_eta_norm=False):
         """
@@ -164,6 +160,7 @@ class Magnus(SRG):
         else:
             return dO_matrix
 
+
     def euler_method(self, s_initial, s_final, ds, O_initial):
         """
         Solves the Magnus \Omega(s) equation using the first-order Euler
@@ -205,6 +202,7 @@ class Magnus(SRG):
         O_matrix += self.O_deriv(O_matrix) * ds_exact
 
         return O_matrix
+
 
     def magnus_evolve(
             self, lambda_array, lambda_bd_array=None, k_max=6, ds=1e-5,
@@ -397,6 +395,7 @@ class Magnus(SRG):
 
         return d
 
+
     def get_norms(self, s_array, k_max=6):
         """
         This function evolves over a linearly-spaced array keeping track of
@@ -486,16 +485,9 @@ class MagnusSplit(Magnus):
     
     Parameters
     ----------
-    kvnn : int
-        This number specifies the potential.
-    channel : str
-        The partial wave channel (e.g. '1S0').
-    kmax : float
-        Maximum value in the momentum mesh [fm^-1].
-    kmid : float
-        Mid-point value in the momentum mesh [fm^-1].
-    ntot : int
-        Number of momentum points in mesh.
+    potential : Potential
+        NN potential projected onto a partial wave channel in relative momentum
+        space.
     generator : str
         SRG generator 'Wegner', 'T', or 'Block-diag'.
 
@@ -508,19 +500,21 @@ class MagnusSplit(Magnus):
 
     """
 
-    def __init__(self, kvnn, channel, kmax, kmid, ntot, generator):
+
+    def __init__(self, potential, generator):
         """Loads the initial Hamiltonian and other relevant operators depending
         on the specifications of the potential and the SRG generator.
         """
 
         # Call Magnus class given the potential specifications and SRG 
         # generator
-        super().__init__(kvnn, channel, kmax, kmid, ntot, generator)
+        super().__init__(potential, generator)
 
         # This class will not work with this generator
         if self.generator == 'Block-diag':
             raise RuntimeError('Invalid generator. '
                                'Please specify a band-diagonal generator.')
+
 
     def delta_O_deriv(self, delta_O_matrix, H_matrix):
         """
@@ -557,6 +551,7 @@ class MagnusSplit(Magnus):
             dO_matrix += self.magnus_factors[k] * ad_matrix
 
         return dO_matrix
+
 
     def magnus_split_evolve(self, lambda_array, k_max=6, ds=1e-5):
         """
