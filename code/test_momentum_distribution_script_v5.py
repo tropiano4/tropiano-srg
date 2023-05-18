@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version evaluates the
 sum over all non-zero combinations of partial wave channels and single-particle
 quantum numbers as an additional integral.
 
-Last update: May 15, 2023
+Last update: May 17, 2023
 
 """
 
@@ -32,7 +32,8 @@ import vegas
 
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
-from scripts.srg import SRG
+from scripts.potentials import Potential
+from scripts.srg import load_srg_transformation
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 from scripts.woodsaxon import ws
 
@@ -552,8 +553,8 @@ def interpolate_delta_U(
     # Get momentum mesh
     k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
-    srg = SRG(kvnn, channel_arg, kmax, kmid, ntot, generator)
-    U_matrix_weights = srg.load_srg_transformation(lamb)
+    potential = Potential(kvnn, channel_arg, kmax, kmid, ntot)
+    U_matrix_weights = load_srg_transformation(potential, generator, lamb)
 
     # Calculate \delta U = U - I
     I_matrix_weights = np.eye(len(U_matrix_weights))
