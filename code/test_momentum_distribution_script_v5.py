@@ -1107,9 +1107,9 @@ def compute_delta_U_term(
         )
 
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ(integrand, nitn=5, neval=8e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
+        result = integ(integrand, nitn=10, neval=8e4)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
@@ -1656,9 +1656,9 @@ def compute_delta_U2_term(
         )
         
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ(integrand, nitn=5, neval=8e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
+        result = integ(integrand, nitn=10, neval=8e4)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
@@ -1859,11 +1859,13 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
     
     # SRG \lambda value
-    lamb = 1.35
+    # lamb = 1.35
+    lamb = 1.5
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0
