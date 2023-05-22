@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. This particular version implements
 several JAX speed-ups.
 
-Last update: May 16, 2023
+Last update: May 22, 2023
 
 """
 
@@ -533,8 +533,7 @@ class DeltaUIntegrand:
         jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
         
         # Samples of quantum number sets
-        quantum_number_array = get_quantum_numbers_vmap(
-            x_array[:,6], self.delta_U_quantum_numbers, self.delU_Ntot)
+        quantum_number_array = self.get_quantum_numbers(x_array[:,6])
 
         # Unpack quantum numbers
         sigma_1 = quantum_number_array[:, 0]
@@ -544,6 +543,7 @@ class DeltaUIntegrand:
         tau_1 = quantum_number_array[:, 4]
         tau_2 = quantum_number_array[:, 5]
         taup = quantum_number_array[:, 6]
+        
         s = np.repeat(1/2, sigma_1.size)
         t = s
         tau_array = np.repeat(self.tau, taup.size)
@@ -597,10 +597,12 @@ class DeltaUIntegrand:
                                                   self.cg_array, self.N_j)
             
         # 1 - (-1)^(L+S+T) factor
-        lst_factor = 1 - (-1) ** (L+S+T)
+        # lst_factor = 1 - (-1) ** (L+S+T)
+        lst_factor = 2
             
         # 1 - (-1)^(L'+S+T) factor
-        lpst_factor = 1 - (-1) ** (Lp+S+T)
+        # lpst_factor = 1 - (-1) ** (Lp+S+T)
+        lpst_factor = 2
             
         # Spherical harmonics
         Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
@@ -616,42 +618,42 @@ class DeltaUIntegrand:
 
         # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
         psi_alpha_1 = psi(
-            n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            n_alpha, l_alpha, s, j_alpha, m_j_alpha, m_t_alpha,
             k1, theta_k1, phi_k1, sigma_1, tau_1,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
             
         # \psi_\beta(K/2-k; \sigma_2, \tau_2)
         psi_beta_2 = psi(
-            n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            n_beta, l_beta, s, j_beta, m_j_beta, m_t_beta,
             k2, theta_k2, phi_k2, sigma_2, tau_2,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
             
         # \psi_\alpha(q; \sigma, \tau)
         psi_alpha_q = psi(
-            n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            n_alpha, l_alpha, s, j_alpha, m_j_alpha, m_t_alpha,
             q, theta_q, phi_q, sigma, tau_array,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
             
         # \psi_\beta(K-q; \sigma', \tau')
         psi_beta_Kq = psi(
-            n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            n_beta, l_beta, s, j_beta, m_j_beta, m_t_beta,
             Kq, theta_Kq, phi_Kq, sigmap, taup,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
             
         # \psi_\beta(q; \sigma, \tau)
         psi_beta_q = psi(
-            n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            n_beta, l_beta, s, j_beta, m_j_beta, m_t_beta,
             q, theta_q, phi_q, sigma, tau_array,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
             
         # \psi_\alpha(K-q; \sigma', \tau')
         psi_alpha_Kq = psi(
-            n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            n_alpha, l_alpha, s, j_alpha, m_j_alpha, m_t_alpha,
             Kq, theta_Kq, phi_Kq, sigmap, taup,
             self.cg_array, self.N_j, self.vectorized_phi, self.phi_functions
         )
@@ -683,6 +685,12 @@ class DeltaUIntegrand:
         )
 
         return integrand.real
+    
+    
+    def get_quantum_numbers(self, x):
+        
+        index = np.floor(x * self.delU_Ntot).astype(int)
+        return self.delta_U_quantum_numbers[index]
     
     
     def get_delta_U(self, k, kp, L, Lp, J, S, T):
@@ -868,15 +876,15 @@ def get_phi_function(n, l, j, m_t, k, phi_functions):
     return phi_functions[get_orbital_file_name(n, l, j, m_t)](k)
 
 
-def psi(n, l, j, m_j, m_t, k, theta, phi, sigma, tau, cg_array, N_j, phi_vect,
-        phi_functions):
+def psi(n, l, s, j, m_j, m_t, k, theta, phi, sigma, tau, cg_array, N_j,
+        phi_vect, phi_functions):
     """Single-particle wave function."""
     
     # Calculate \phi_\alpha(q)
     phi_sp_wf = phi_vect(n, l, j, m_t, k, phi_functions)
     
     # Calculate spinor spherical harmonic
-    Y_jml = spinor_sph_harm(theta, phi, l, j, m_j, sigma, cg_array, N_j)
+    Y_jml = spinor_sph_harm(theta, phi, l, s, j, m_j, sigma, cg_array, N_j)
     
     # Isospinor indexed by \tau \chi_{m_t}(\tau)
     chi_tau = kronecker_delta_vmap(tau, m_t).block_until_ready()
@@ -884,9 +892,8 @@ def psi(n, l, j, m_j, m_t, k, theta, phi, sigma, tau, cg_array, N_j, phi_vect,
     return phi_sp_wf * Y_jml * chi_tau
 
 
-def spinor_sph_harm(theta, phi, l, j, m_j, sigma, cg_array, N_j):
+def spinor_sph_harm(theta, phi, l, s, j, m_j, sigma, cg_array, N_j):
     
-    s = jnp.repeat(1/2, sigma.size)
     m_s = sigma
     
     m_l = m_j - m_s
@@ -896,10 +903,11 @@ def spinor_sph_harm(theta, phi, l, j, m_j, sigma, cg_array, N_j):
                                          N_j).block_until_ready()
     
     # Calls sph_harm (which is already vectorized)
-    Y_jml = jnp.where(jnp.abs(m_l) <= l, cg * sph_harm(m_l, l, phi, theta),
-                      0+0j)
+    # Y_jml = jnp.where(jnp.abs(m_l) <= l, cg * sph_harm(m_l, l, phi, theta),
+    #                   0+0j)
+    Y_lm = np.where(np.abs(m_l) <= l, sph_harm(m_l, l, phi, theta), 0+0j)
 
-    return Y_jml
+    return cg * Y_lm
 
 
 def interpolate_delta_U(channel, potential, generator, lamb,
@@ -907,6 +915,7 @@ def interpolate_delta_U(channel, potential, generator, lamb,
     """Interpolate \delta U(k, k') for the given channel."""
 
     # Get momentum mesh
+    kmax, kmid, ntot = potential.kmax, potential.kmid, potential.ntot
     k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
     U_matrix_weights = load_srg_transformation(potential, generator, lamb)
@@ -970,18 +979,6 @@ def get_delta_U_functions(channels, kvnn, kmax, kmid, ntot, generator, lamb):
         )
         
     return delta_U_functions, delta_U_dagger_functions
-
-
-def get_quantum_numbers(x, quantum_numbers, n):
-    
-    index = jnp.floor(x * n).astype(int)
-    return quantum_numbers[index]
-
-
-@partial(jit, static_argnames=['n'])
-def get_quantum_numbers_vmap(x_array, quantum_numbers, n):
-    return vmap(get_quantum_numbers, in_axes=(0, None, None), out_axes=(0))(
-        x_array, quantum_numbers, n)
 
     
 def compute_I_term(q_array, tau, occ_states, cg_array, N_j):
@@ -1145,7 +1142,8 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
 
     # NN potential and momentum mesh
-    kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
 
     # SRG \lambda value
@@ -1168,8 +1166,8 @@ if __name__ == '__main__':
     ipm_only = False
     
     # Option to save the data
-    save = True
-    # save = False
+    # save = True
+    save = False
     
     # Set momentum mesh
     q_array, q_weights = momentum_mesh(10.0, 4.0, 100, nmod=70)
@@ -1192,9 +1190,10 @@ if __name__ == '__main__':
         t0 = time.time()
         
         # Get an organized list of quantum numbers to sum over
-        delta_U_quantum_numbers = jnp.array(
-            np.loadtxt('O16_quantum_numbers.txt')
-        )
+        # delta_U_quantum_numbers = jnp.array(
+        #     np.loadtxt('O16_quantum_numbers.txt')
+        # )
+        delta_U_quantum_numbers = np.loadtxt('O16_quantum_numbers.txt')
 
         # Set-up \delta U and \delta U^\dagger functions
         delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
