@@ -8,7 +8,7 @@ Date: May 23, 2023
 
 This script contains functions that compute Clebsch-Gordan coefficients.
 
-Last update: May 23, 2023
+Last update: May 25, 2023
 
 """
 
@@ -128,9 +128,11 @@ def compute_clebsch_gordan_array(j_max):
                                     CG(j_1,m_1,j_2,m_2,j_3,m_3).doit()
                                 )
     
-    return jnp.array(cg_array, dtype=jnp.float64), N_j
+    # return jnp.array(cg_array, dtype=jnp.float64), N_j
+    return cg_array, N_j
 
 
+@partial(jit, static_argnames=['N_j'])
 def cg_mapping(j, m, N_j):
     """Return the indices of the input angular momentum and projection for the
     array of Clebsch-Gordan coefficients.
@@ -143,6 +145,7 @@ def cg_mapping(j, m, N_j):
     return j_index, m_index
 
 
+@partial(jit, static_argnames=['N_j'])
 def clebsch_gordan_coefficient(j1, m1, j2, m2, j3, m3, cg_array, N_j):
     """Clebsch-Gordan coefficient < j1 m1 j2 m2 | j3 m3 >."""
     

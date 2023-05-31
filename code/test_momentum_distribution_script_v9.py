@@ -667,8 +667,8 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors,
-            I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
+            n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
             delta_U2_errors
         )
     
@@ -682,8 +682,8 @@ def compute_normalization(q_array, q_weights, n_array):
 
 
 def save_momentum_distribution(
-        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
-        delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+        nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
+        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
@@ -699,24 +699,26 @@ def save_momentum_distribution(
                 
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
-
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
     
-    np.savetxt(file_name + '.txt', data, header=hdr)
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    
+    np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
     
-def load_momentum_distribution(nucleus_name, nucleon, lamb):
+def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
     
-    data = np.loadtxt(file_name + '.txt')
+    data = np.loadtxt(directory + file_name + '.txt')
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -735,8 +737,8 @@ def load_momentum_distribution(nucleus_name, nucleon, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     

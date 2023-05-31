@@ -42,7 +42,8 @@ from momentum_distribution_quantum_numbers import (
 )
 from single_particle_states import WoodsSaxon
         
-        
+    
+@njit
 def kronecker_delta(x, y):
     """Kronecker \delta function: \delta_{x,y}."""
     
@@ -71,8 +72,8 @@ def build_vector(k, theta, phi):
     """
 
     k_vector = np.array([k * np.sin(theta) * np.cos(phi),
-                         k * np.sin(theta) * np.sin(phi),
-                         k * np.cos(theta)])
+                          k * np.sin(theta) * np.sin(phi),
+                          k * np.cos(theta)])
 
     return k_vector
 
@@ -368,7 +369,7 @@ def delta_U_term_integrand(
     
     # < |q-K/2| (L' S) J T | \delta U^\dagger | k (L S) J T >
     delta_U_dag_partial_wave = delta_U_dagger_functions[(Lp, L, J, S, T)].ev(qK,
-                                                                             k)
+                                                                              k)
     
     # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
     psi_alpha_1 = psi(
@@ -468,11 +469,10 @@ def compute_delta_U_term(
     except OSError:
         
         print("Starting \delta U quantum numbers...")
-        cg_table = compute_clebsch_gordan_table(4)
         quantum_numbers = get_delta_U_quantum_numbers(tau, occ_states, channels,
                                                       cg_table)
         delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                    file_name)
+                                                       file_name)
         print("Finished with \delta U quantum numbers.\n")
         
     delU_Ntot = len(delta_U_quantum_numbers)
@@ -505,9 +505,9 @@ def compute_delta_U_term(
         )
 
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ(integrand, nitn=5, neval=8e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
+        result = integ(integrand, nitn=10, neval=8e4)
 
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
@@ -754,7 +754,6 @@ def compute_delta_U2_term(
     except OSError:
         
         print("Starting \delta U \delta U^\dagger quantum numbers...")
-        cg_table = compute_clebsch_gordan_table(4)
         quantum_numbers = get_delta_U2_quantum_numbers(tau, occ_states,
                                                        channels, cg_table)
         delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
@@ -792,9 +791,9 @@ def compute_delta_U2_term(
         )
         
         # Train the integrator
-        integ(integrand, nitn=5, neval=5e4)
+        integ(integrand, nitn=5, neval=8e4)
         # Final result
-        result = integ(integrand, nitn=10, neval=5e4)
+        result = integ(integrand, nitn=10, neval=8e4)
 
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
@@ -832,7 +831,7 @@ def compute_momentum_distribution(
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, woods_saxon.occ_states, cg_table,
-                             phi_functions)
+                              phi_functions)
     
     # Independent particle model has no \delta U contributions
     if ipm_only:
@@ -888,8 +887,8 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors,
-            I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
+            n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
             delta_U2_errors
         )
     
@@ -903,8 +902,8 @@ def compute_normalization(q_array, q_weights, n_array):
 
 
 def save_momentum_distribution(
-        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
-        delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+        nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
+        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
@@ -920,24 +919,26 @@ def save_momentum_distribution(
                 
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
-
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
     
-    np.savetxt(file_name + '.txt', data, header=hdr)
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    
+    np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
     
-def load_momentum_distribution(nucleus_name, nucleon, lamb):
+def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
     
-    data = np.loadtxt(file_name + '.txt')
+    data = np.loadtxt(directory + file_name + '.txt')
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -956,8 +957,8 @@ def load_momentum_distribution(nucleus_name, nucleon, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     
@@ -968,13 +969,18 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
-    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
-    # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
+    # kvnn, kmax, kmid, ntot = 5, 15.0, 3.0, 120  # Nijmegen II
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
+    # kvnn, kmax, kmid, ntot = 79, 10.0, 2.0, 120  # EMN N4LO 500 MeV
+    # kvnn, kmax, kmid, ntot = 111, 10.0, 2.0, 120  # SMS N4LO 450 MeV
+    # kvnn, kmax, kmid, ntot = 222, 10.0, 2.0, 120  # GT+ N2LO 1 fm
+    
     
     # SRG \lambda value
     # lamb = 1.35
     lamb = 1.5
+    # lamb = 1.7
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0

@@ -39,9 +39,6 @@ from momentum_distribution_quantum_numbers import (
     get_delta_U2_quantum_numbers, quantum_number_array
 )
 from single_particle_states import WoodsSaxon
-
-
-# TO-DO: VECTORIZE LOOP OVER QUANTUM NUMBERS USING NP.SUM
         
         
 def kronecker_delta(x, y):
@@ -71,8 +68,8 @@ def build_vector(k, theta, phi):
     """
 
     k_vector = np.array([k * np.sin(theta) * np.cos(phi),
-                         k * np.sin(theta) * np.sin(phi),
-                         k * np.cos(theta)])
+                          k * np.sin(theta) * np.sin(phi),
+                          k * np.cos(theta)])
 
     return k_vector
 
@@ -350,7 +347,7 @@ class delta_U_term_integrand:
             
             # < \sigma_1 \sigma_2 | S M_S >
             spin_12_cg = cg_func(1/2, sigma_1, 1/2, sigma_2, S, M_S,
-                                 self.cg_table)
+                                  self.cg_table)
             
             # < S M_S' | \sigma \sigma' >
             spin_ssp_cg = cg_func(1/2, sigma, 1/2, sigmap, S, M_Sp,
@@ -362,7 +359,7 @@ class delta_U_term_integrand:
             
             # < T M_T | \tau \tau' >
             isospin_ttp_cg = cg_func(1/2, self.tau, 1/2, taup, T, M_T,
-                                     self.cg_table)
+                                      self.cg_table)
             
             # < L M_L S M_S | J M_J >
             lsj_cg = cg_func(L, M_L, S, M_S, J, M_J, self.cg_table)
@@ -499,6 +496,7 @@ def compute_delta_U_term(
     k_limits = [0, 10]
     # C.o.M. momenta up to 3 fm^-1
     K_limits = [0, 3]
+    
     # Polar angle
     theta_limits = [0, np.pi]
     # Azimuthal angle
@@ -807,6 +805,7 @@ def compute_delta_U2_term(
     k_limits = [0, 10]
     # C.o.M. momenta up to 3 fm^-1
     K_limits = [0, 3]
+    
     # Polar angle
     theta_limits = [0, np.pi]
     # Azimuthal angle
@@ -924,8 +923,8 @@ def compute_momentum_distribution(
         
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
-            nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors,
-            I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
+            n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
             delta_U2_errors
         )
     
@@ -939,8 +938,8 @@ def compute_normalization(q_array, q_weights, n_array):
 
 
 def save_momentum_distribution(
-        nucleus_name, tau, lamb, q_array, q_weights, n_array, n_errors, I_array,
-        delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+        nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
+        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
@@ -956,24 +955,26 @@ def save_momentum_distribution(
                 
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
-
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
     
-    np.savetxt(file_name + '.txt', data, header=hdr)
+    directory = 'momentum_distributions/'
 
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    
+    np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
-def load_momentum_distribution(nucleus_name, nucleon, lamb):
+    
+def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
-    file_name = replace_periods(
-        f"{nucleus_name}_{nucleon}_momentum_distribution_{lamb}"
-    )
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
     
-    data = np.loadtxt(file_name + '.txt')
+    data = np.loadtxt(directory + file_name + '.txt')
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -992,8 +993,8 @@ def load_momentum_distribution(nucleus_name, nucleon, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     
@@ -1004,8 +1005,8 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18
-    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
+    # kvnn, kmax, kmid, ntot = 6, 30.0, 4.0, 120  # AV18 kmax=30
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18 kmax=15
     # kvnn, kmax, kmid, ntot = 111, 15.0, 3.0, 120  # SMS N4LO 450 MeV
     
     # SRG \lambda value

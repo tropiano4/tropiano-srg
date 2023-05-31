@@ -17,7 +17,7 @@ Last update: May 23, 2023
 
 # Python imports
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, UnivariateSpline  # TESTING
 from scipy.special import spherical_jn
 import shutil
 
@@ -352,6 +352,8 @@ class WoodsSaxon:
         if interpolate:
             phi_func = interp1d(k_array, phi_array, kind='linear',
                                 bounds_error=False, fill_value='extrapolate')
+            # # TESTING
+            # phi_func = UnivariateSpline(k_array, phi_array, k=1)
             return phi_func
         
         # Otherwise return momentum, weights, and \phi(k)

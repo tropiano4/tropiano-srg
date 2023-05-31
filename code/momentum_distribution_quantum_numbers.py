@@ -647,7 +647,8 @@ def quantum_number_array(quantum_numbers, file_name=None):
             
     if file_name is not None:
         
-        np.savetxt('quantum_numbers/' + file_name, quantum_number_array)
+        np.savetxt('quantum_numbers/' + file_name, quantum_number_array,
+                   fmt='%.1f')
         
     return quantum_number_array
             
