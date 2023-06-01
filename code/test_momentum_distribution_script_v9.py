@@ -378,15 +378,21 @@ def get_sp_wave_functions(woods_saxon, kmax, kmid, ntot):
 def get_phi_function(n, l, j, m_t, k, phi_functions):
     
     key = (n, l, j, m_t)
+    
+    # Calculate \phi_\alpha(k)
+    phi_sp_wf = phi_functions[key](k)
 
-    return phi_functions[key](k)
+    if l % 2 == 0:  # Even l has i^-l = 1
+        return 
+    else:  # Odd l needs factor of i^-l
+        return 1j ** (-l) * phi_sp_wf
 
 
 def psi(n, l, s, j, m_j, m_t, k, theta, phi, sigma, tau, cg_array, N_j,
         phi_vect, phi_functions):
     """Single-particle wave function."""
     
-    # Calculate \phi_\alpha(q)
+    # Calculate \phi_\alpha(k)
     phi_sp_wf = phi_vect(n, l, j, m_t, k, phi_functions)
     
     # Calculate spinor spherical harmonic

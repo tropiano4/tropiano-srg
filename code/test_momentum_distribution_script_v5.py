@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version evaluates the
 sum over all non-zero combinations of partial wave channels and single-particle
 quantum numbers as an additional integral.
 
-Last update: May 23, 2023
+Last update: June 1, 2023
 
 """
 
@@ -72,8 +72,8 @@ def build_vector(k, theta, phi):
     """
 
     k_vector = np.array([k * np.sin(theta) * np.cos(phi),
-                          k * np.sin(theta) * np.sin(phi),
-                          k * np.cos(theta)])
+                         k * np.sin(theta) * np.sin(phi),
+                         k * np.cos(theta)])
 
     return k_vector
 
@@ -124,7 +124,10 @@ def psi(n, l, j, m_j, m_t, k, theta, phi, sigma, tau, cg_table, phi_functions):
     """Single-particle wave function."""
 
     # Calculate \phi_\alpha(k)
-    phi_sp_wf = phi_functions[(n, l, j, m_t)](k)
+    if l % 2 == 0:  # Even l
+        phi_sp_wf = phi_functions[(n, l, j, m_t)](k)
+    else:  # Odd l needs factor of i^-l
+        phi_sp_wf = 1j ** (-l) * phi_functions[(n, l, j, m_t)](k)
     
     # Calculate spinor spherical harmonic
     Y_jml = spinor_spherical_harmonic(l, j, m_j, theta, phi, sigma, cg_table)
