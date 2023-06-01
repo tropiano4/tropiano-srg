@@ -11,13 +11,13 @@ quantum numbers n, l, s=1/2, j, m_j, t=1/2, and m_t referring to the principal
 quantum number, orbital angular momentum, spin-1/2, total angular momentum,
 total angular momentum projection, isospin-1/2, and isospin projection.
 
-Last update: May 23, 2023
+Last update: June 1, 2023
 
 """
 
 # Python imports
 import numpy as np
-from scipy.interpolate import interp1d, UnivariateSpline  # TESTING
+from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.special import spherical_jn
 import shutil
 
@@ -350,10 +350,15 @@ class WoodsSaxon:
             
         # Interpolate and return function?
         if interpolate:
-            phi_func = interp1d(k_array, phi_array, kind='linear',
-                                bounds_error=False, fill_value='extrapolate')
-            # # TESTING
-            # phi_func = UnivariateSpline(k_array, phi_array, k=1)
+            
+            if sp_state.l % 2 == 0:  # Even l
+                
+                phi_func = InterpolatedUnivariateSpline(k_array, phi_array.real)
+                
+            else:  # Odd l
+            
+                phi_func = InterpolatedUnivariateSpline(k_array, phi_array.imag)
+                
             return phi_func
         
         # Otherwise return momentum, weights, and \phi(k)
