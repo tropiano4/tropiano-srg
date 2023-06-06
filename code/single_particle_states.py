@@ -11,7 +11,7 @@ quantum numbers n, l, s=1/2, j, m_j, t=1/2, and m_t referring to the principal
 quantum number, orbital angular momentum, spin-1/2, total angular momentum,
 total angular momentum projection, isospin-1/2, and isospin projection.
 
-Last update: June 1, 2023
+Last update: June 6, 2023
 
 """
 
@@ -111,7 +111,7 @@ class WoodsSaxon:
         Proton number of the nucleus.
     N : int
         Neutron number of the nucleus.
-    run_woodsaxon : bool, optional
+    run_woods_saxon : bool, optional
         Option to run the Woods-Saxon subroutine to generate orbital files.
     n_max : int, optional
         Maximum principal quantum number where n = 1, 2, ..., n_max.
@@ -125,8 +125,8 @@ class WoodsSaxon:
     """
     
     
-    def __init__(self, nucleus_name, Z, N, run_woodsaxon=True, n_max=0, l_max=0,
-                 rmax=40, ntab=2000):
+    def __init__(self, nucleus_name, Z, N, run_woods_saxon=True, n_max=0,
+                 l_max=0, rmax=40, ntab=2000):
         
         # Set instance attributes
         self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
@@ -134,7 +134,7 @@ class WoodsSaxon:
         self.r_array = np.arange(self.dr, rmax + self.dr, self.dr)
 
         # Generate orbitals?
-        if run_woodsaxon:
+        if run_woods_saxon:
             
             self.run_woods_saxon_code(nucleus_name, Z, N, n_max, l_max, rmax,
                                       ntab)
@@ -157,7 +157,7 @@ class WoodsSaxon:
                 
                 file_name = self.get_orbital_file_name(sp_state)
                 
-                if run_woodsaxon:
+                if run_woods_saxon:
                     
                     shutil.move(file_name,
                                 self.woods_saxon_directory + file_name)
@@ -204,6 +204,10 @@ class WoodsSaxon:
         # Starting with vws (p & n)
         if nucleus_name == 'He4':
             prm[:,0] = 76.8412
+        elif nucleus_name == 'Be9':
+            prm[:,0] = 66.6397
+        elif nucleus_name == 'C12':
+            prm[:,0] = 60.1478
         elif nucleus_name == 'O16':
             prm[:,0] = 58.0611
         elif nucleus_name == 'Ca40':
@@ -211,6 +215,12 @@ class WoodsSaxon:
         elif nucleus_name == 'Ca48':
             prm[0,0] = 59.4522
             prm[1,0] = 46.9322
+        elif nucleus_name == 'Fe56':
+            prm[0,0] = 55.9744
+            prm[1,0] = 50.0125
+        elif nucleus_name == 'Pb208':
+            prm[0,0] = 59.3452
+            prm[1,0] = 44.899
     
         # Other parameters of the Woods-Saxon
         prm[:,1] = 1.275
