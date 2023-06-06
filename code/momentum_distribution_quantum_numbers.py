@@ -10,7 +10,7 @@ Functions that return the set of all possible combinations of s.p. and partial
 wave channel quantum numbers in each term of the nuclear momentum distribution
 using SRG transformations.
 
-Last update: May 23, 2023
+Last update: June 6, 2023
 
 """
 
@@ -21,6 +21,9 @@ import numpy as np
 from scripts.tools import coupled_channel
 
 from clebsch_gordan import clebsch_gordan_coefficient_v1 as cg_func
+
+
+# TO-DO: Figure out a better way of doing this.
 
 
 class PartialWaveChannel:
@@ -647,11 +650,7 @@ def quantum_number_array(quantum_numbers, file_name=None):
             
     if file_name is not None:
         
-        np.savetxt('quantum_numbers/' + file_name, quantum_number_array,
-                   fmt='%.1f')
+        np.savetxt('../../../quantum_numbers/' + file_name,
+                   quantum_number_array, fmt='%.1f')
         
     return quantum_number_array
-            
-        
-        
-    
