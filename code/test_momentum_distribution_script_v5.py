@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version evaluates the
 sum over all non-zero combinations of partial wave channels and single-particle
 quantum numbers as an additional integral.
 
-Last update: June 1, 2023
+Last update: June 6, 2023
 
 """
 
@@ -248,17 +248,15 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
         # Loop over occupied s.p. states
         for alpha in occ_states:
 
-            # Loop over q
-            psi_alpha_array = np.zeros_like(q_array, dtype='complex')
-            for i, q in enumerate(q_array):
-
-                # Single-particle wave function with z-axis along q_vector
-                psi_alpha_array[i] = psi(
-                    alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t, q, 0, 0,
-                    sigma, tau, cg_table, phi_functions
-                )
+            # Single-particle wave function with z-axis along q_vector
+            theta_q = np.zeros_like(q_array)
+            phi_q = np.zeros_like(q_array)
+            psi_alpha_array = psi(
+                alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t, q_array,
+                theta_q, phi_q, sigma, tau, cg_table, phi_functions
+            )
                     
-            I_array += abs(psi_alpha_array)**2
+            I_array += np.abs(psi_alpha_array) ** 2
                     
     return I_array
 
@@ -466,7 +464,8 @@ def compute_delta_U_term(
     # Try loading the file first
     try:
         
-        delta_U_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -751,7 +750,8 @@ def compute_delta_U2_term(
     # Try loading the file first
     try:
         
-        delta_U2_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -816,13 +816,18 @@ def compute_momentum_distribution(
 ):
     """Compute the single-nucleon momentum distribution."""
     
-    # Compute table of Clebsch-Gordan coefficients
-    cg_table = compute_clebsch_gordan_table(4)
-    print("Done calculating Clebsch-Gordan table.\n")
-    
     # Set-up single-particle states
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=False)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=False)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
+    
+    # Compute table of Clebsch-Gordan coefficients
+    j = 0
+    for sp_state in woods_saxon.occ_states:
+        if sp_state.j > j:
+            j = sp_state.j
+    jmax = max(2, j)
+    cg_table = compute_clebsch_gordan_table(jmax)
+    print("Done calculating Clebsch-Gordan table.")
     
     # Set-up \delta U and \delta U^\dagger functions
     delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(

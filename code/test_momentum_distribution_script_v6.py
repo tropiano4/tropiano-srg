@@ -14,7 +14,7 @@ instead of a local density approximation. This particular version implements
 batch mode in vegas and directly sums over all non-zero combinations of partial
 wave channels and single-particle quantum numbers.
 
-Last update: June 1, 2023
+Last update: June 6, 2023
 
 """
 
@@ -243,17 +243,15 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
         # Loop over occupied s.p. states
         for alpha in occ_states:
 
-            # Loop over q
-            psi_alpha_array = np.zeros_like(q_array, dtype='complex')
-            for i, q in enumerate(q_array):
-
-                # Single-particle wave function with z-axis along q_vector
-                psi_alpha_array[i] = psi(
-                    alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t, q, 0, 0,
-                    sigma, tau, cg_table, phi_functions
-                )
+            # Single-particle wave function with z-axis along q_vector
+            theta_q = np.zeros_like(q_array)
+            phi_q = np.zeros_like(q_array)
+            psi_alpha_array = psi(
+                alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t, q_array,
+                theta_q, phi_q, sigma, tau, cg_table, phi_functions
+            )
                     
-            I_array += abs(psi_alpha_array)**2
+            I_array += np.abs(psi_alpha_array) ** 2
                     
     return I_array
 
@@ -262,11 +260,18 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
 class delta_U_term_integrand:
     """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
     
+    # def __init__(
+    #         self, q, tau, delta_U_quantum_numbers, cg_table, phi_functions,
+    #         delta_U_functions, delta_U_dagger_functions
+    # ):
+    # TESTING
     def __init__(
-            self, q, tau, delta_U_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions
+            self, q_array, tau, delta_U_quantum_numbers, cg_table,
+            phi_functions, delta_U_functions, delta_U_dagger_functions
     ):
-        self.q = q
+        # self.q = q
+        # TESTING
+        self.q_array = q_array
         self.tau = tau
         self.delta_U_quantum_numbers = delta_U_quantum_numbers
         self.delU_Ntot = delta_U_quantum_numbers.shape[0]
@@ -278,39 +283,92 @@ class delta_U_term_integrand:
     def __call__(self, momenta_array):
         """Evaluate the integrand at several points simultaneously."""
         
+        # # Relative momenta k
+        # k = momenta_array[:,0]
+        # theta_k = momenta_array[:,1]
+        # phi_k = momenta_array[:,2]
+        # k_vector = build_vector(k, theta_k, phi_k)
+            
+        # # C.o.M. momenta K
+        # K = momenta_array[:,3]
+        # theta_K = momenta_array[:,4]
+        # phi_K = momenta_array[:,5]
+        # K_vector = build_vector(K, theta_K, phi_K)
+        
+        # # Choose z-axis to be along q_vector
+        # q_vector = np.zeros_like(k_vector)
+        # q_vector[-1, :] = self.q
+        
+        # # Calculate vector q-K/2
+        # qK_vector = q_vector - K_vector/2
+        # qK, theta_qK, phi_qK = get_vector_components(qK_vector)
+
+        # # Calculate vector K/2+k
+        # k1_vector = K_vector/2 + k_vector
+        # k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
+        
+        # # Calculate vector K/2-k
+        # k2_vector = K_vector/2 - k_vector
+        # k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
+        
+        # # Calculate vector K-q
+        # Kq_vector = K_vector-q_vector
+        # Kq, theta_Kq, phi_Kq = get_vector_components(Kq_vector)
+        
+        # TESTING
+        
+        zeros = np.zeros_like(self.q_array)
+        
+        # Relative momenta k
         k = momenta_array[:,0]
         theta_k = momenta_array[:,1]
         phi_k = momenta_array[:,2]
-        k_vector = build_vector(k, theta_k, phi_k)
-            
+        
+        k_grid, q_grid = np.meshgrid(k, self.q_array, indexing='ij')
+        theta_k_grid, theta_q_grid = np.meshgrid(theta_k, zeros, indexing='ij')
+        phi_k_grid, phi_q_grid = np.meshgrid(phi_k, zeros, indexing='ij')
+        
+        k_vector_grid = build_vector(k_grid, theta_k_grid, phi_k_grid)
+        
         # C.o.M. momenta K
         K = momenta_array[:,3]
         theta_K = momenta_array[:,4]
         phi_K = momenta_array[:,5]
-        K_vector = build_vector(K, theta_K, phi_K)
         
-        # Choose z-axis to be along q_vector
-        q_vector = np.zeros_like(k_vector)
-        q_vector[-1, :] = self.q
+        K_grid, _ = np.meshgrid(K, self.q_array, indexing='ij')
+        theta_K_grid, _ = np.meshgrid(theta_K, zeros, indexing='ij')
+        phi_K_grid, _ = np.meshgrid(phi_K, zeros, indexing='ij')
+        
+        K_vector_grid = build_vector(K_grid, theta_K_grid, phi_K_grid)
+        
+        q_vector_grid = build_vector(q_grid, theta_q_grid, phi_q_grid)
         
         # Calculate vector q-K/2
-        qK_vector = q_vector - K_vector/2
-        qK, theta_qK, phi_qK = get_vector_components(qK_vector)
+        qK_vector_grid = q_vector_grid - K_vector_grid/2
+        qK_grid, theta_qK_grid, phi_qK_grid = get_vector_components(
+            qK_vector_grid)
         
         # Calculate vector K/2+k
-        k1_vector = K_vector/2 + k_vector
-        k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
+        k1_vector_grid = K_vector_grid/2 + k_vector_grid
+        k1_grid, theta_k1_grid, phi_k1_grid = get_vector_components(
+            k1_vector_grid)
         
         # Calculate vector K/2-k
-        k2_vector = K_vector/2 - k_vector
-        k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
+        k2_vector_grid = K_vector_grid/2 - k_vector_grid
+        k2_grid, theta_k2_grid, phi_k2_grid = get_vector_components(
+            k2_vector_grid)
         
         # Calculate vector K-q
-        Kq_vector = K_vector-q_vector
-        Kq, theta_Kq, phi_Kq = get_vector_components(Kq_vector)
+        Kq_vector_grid = K_vector_grid-q_vector_grid
+        Kq_grid, theta_Kq_grid, phi_Kq_grid = get_vector_components(
+            Kq_vector_grid)
+        
             
         # Calculate the Jacobian determinant
-        jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
+        # jacobian = k**2 * np.sin(theta_k) * K**2 * np.sin(theta_K)
+        # TESTING
+        jacobian = (k_grid ** 2 * np.sin(theta_k_grid) * K_grid ** 2
+                    * np.sin(theta_K_grid))
         
         integrand = np.zeros_like(jacobian, dtype='complex')
         for i in range(self.delU_Ntot):
@@ -377,58 +435,114 @@ class delta_U_term_integrand:
             lpst_factor = 1 - (-1) ** (Lp+S+T)
             
             # Spherical harmonics
-            Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
-            Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
-            Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
-            Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
+            # Y_L_k = sph_harm(M_L, L, phi_k, theta_k)
+            # Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK, theta_qK)
+            # Y_L_qK = sph_harm(M_L, L, phi_qK, theta_qK)
+            # Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
+            # TESTING
+            Y_L_k = sph_harm(M_L, L, phi_k_grid, theta_k_grid)
+            Y_Lp_qK = sph_harm(M_Lp, Lp, phi_qK_grid, theta_qK_grid)
+            Y_L_qK = sph_harm(M_L, L, phi_qK_grid, theta_qK_grid)
+            Y_Lp_k = sph_harm(M_Lp, Lp, phi_k_grid, theta_k_grid)
             
             # < k (L S) J T | \delta U | |q-K/2| (L' S) J T >
+            # delta_U_partial_wave = (
+            #     self.delta_U_functions[(L, Lp, J, S, T)].ev(k, qK))
+            # TESTING
             delta_U_partial_wave = (
-                self.delta_U_functions[(L, Lp, J, S, T)].ev(k, qK))
+                self.delta_U_functions[(L, Lp, J, S, T)].ev(k_grid, qK_grid))
     
             # < |q-K/2| (L' S) J T | \delta U^\dagger | k (L S) J T >
+            # delta_U_dag_partial_wave = (
+            #     self.delta_U_dagger_functions[(Lp, L, J, S, T)].ev(qK, k))
+            # TESTING
             delta_U_dag_partial_wave = (
-                self.delta_U_dagger_functions[(Lp, L, J, S, T)].ev(qK, k))
+                self.delta_U_dagger_functions[(Lp, L, J, S, T)].ev(qK_grid,
+                                                                   k_grid)
+            )
             
+            # # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
+            # psi_alpha_1 = psi(
+            #     n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            #     k1, theta_k1, phi_k1, sigma_1, tau_1,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # # \psi_\beta(K/2-k; \sigma_2, \tau_2)
+            # psi_beta_2 = psi(
+            #     n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            #     k2, theta_k2, phi_k2, sigma_2, tau_2,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # # \psi_\alpha(q; \sigma, \tau)
+            # psi_alpha_q = psi(
+            #     n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            #     self.q, 0, 0, sigma, self.tau,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # # \psi_\beta(K-q; \sigma', \tau')
+            # psi_beta_Kq = psi(
+            #     n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            #     Kq, theta_Kq, phi_Kq, sigmap, taup,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # # \psi_\beta(q; \sigma, \tau)
+            # psi_beta_q = psi(
+            #     n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
+            #     self.q, 0, 0, sigma, self.tau,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # # \psi_\alpha(K-q; \sigma', \tau')
+            # psi_alpha_Kq = psi(
+            #     n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
+            #     Kq, theta_Kq, phi_Kq, sigmap, taup,
+            #     self.cg_table, self.phi_functions
+            # )
+            
+            # TESTING
             # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
             psi_alpha_1 = psi(
                 n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-                k1, theta_k1, phi_k1, sigma_1, tau_1,
+                k1_grid, theta_k1_grid, phi_k1_grid, sigma_1, tau_1,
                 self.cg_table, self.phi_functions
             )
             
             # \psi_\beta(K/2-k; \sigma_2, \tau_2)
             psi_beta_2 = psi(
                 n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-                k2, theta_k2, phi_k2, sigma_2, tau_2,
+                k2_grid, theta_k2_grid, phi_k2_grid, sigma_2, tau_2,
                 self.cg_table, self.phi_functions
             )
             
             # \psi_\alpha(q; \sigma, \tau)
             psi_alpha_q = psi(
                 n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-                self.q, 0, 0, sigma, self.tau,
+                q_grid, theta_q_grid, phi_q_grid, sigma, self.tau,
                 self.cg_table, self.phi_functions
             )
             
             # \psi_\beta(K-q; \sigma', \tau')
             psi_beta_Kq = psi(
                 n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-                Kq, theta_Kq, phi_Kq, sigmap, taup,
+                Kq_grid, theta_Kq_grid, phi_Kq_grid, sigmap, taup,
                 self.cg_table, self.phi_functions
             )
             
             # \psi_\beta(q; \sigma, \tau)
             psi_beta_q = psi(
                 n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-                self.q, 0, 0, sigma, self.tau,
+                q_grid, theta_q_grid, phi_q_grid, sigma, self.tau,
                 self.cg_table, self.phi_functions
             )
             
             # \psi_\alpha(K-q; \sigma', \tau')
             psi_alpha_Kq = psi(
                 n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-                Kq, theta_Kq, phi_Kq, sigmap, taup,
+                Kq_grid, theta_Kq_grid, phi_Kq_grid, sigmap, taup,
                 self.cg_table, self.phi_functions
             )
             
@@ -468,9 +582,10 @@ def compute_delta_U_term(
     """Compute the sum of the \delta U * n(q) * I term and the 
     I * n(q) * \delta U^\dagger term.
     """
-        
-    delta_U_array = np.zeros_like(q_array)
-    delta_U_errors = np.zeros_like(q_array)
+     
+    # TESTING
+    # delta_U_array = np.zeros_like(q_array)
+    # delta_U_errors = np.zeros_like(q_array)
     
     # Get an organized list of quantum numbers to sum over
     if tau == 1/2:
@@ -482,7 +597,8 @@ def compute_delta_U_term(
     # Try loading the file first
     try:
         
-        delta_U_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -509,29 +625,49 @@ def compute_delta_U_term(
     integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
                               K_limits, theta_limits, phi_limits], nproc=8)
 
-    # Loop over q_vector
-    for i, q in enumerate(q_array):
+    # # Loop over q_vector
+    # for i, q in enumerate(q_array):
             
-        t0 = time.time()
+    #     t0 = time.time()
         
-        integrand = delta_U_term_integrand(
-            q, tau, delta_U_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions
-        )
+    #     integrand = delta_U_term_integrand(
+    #         q, tau, delta_U_quantum_numbers, cg_table, phi_functions,
+    #         delta_U_functions, delta_U_dagger_functions
+    #     )
 
-        # Train the integrator
-        integ(integrand, nitn=5, neval=1e3)
-        # Final result
-        result = integ(integrand, nitn=10, neval=1e3)
+    #     # Train the integrator
+    #     integ(integrand, nitn=5, neval=1e3)
+    #     # Final result
+    #     result = integ(integrand, nitn=10, neval=1e3)
 
-        delta_U_array[i] = result.mean
-        delta_U_errors[i] = result.sdev
+    #     delta_U_array[i] = result.mean
+    #     delta_U_errors[i] = result.sdev
 
-        t1 = time.time()
+    #     t1 = time.time()
 
-        percent = (i+1)/len(q_array)*100
-        mins = (t1-t0)/60
-        print(f"{percent:.2f}% done after {mins:.3f} minutes.")
+    #     percent = (i+1)/len(q_array)*100
+    #     mins = (t1-t0)/60
+    #     print(f"{percent:.2f}% done after {mins:.3f} minutes.")
+    
+    # TESTING
+    # Set the integrand function
+    integrand = delta_U_term_integrand(
+        q_array, tau, delta_U_quantum_numbers, cg_table, phi_functions,
+        delta_U_functions, delta_U_dagger_functions
+    )
+    
+    # Train the integrator
+    integ(integrand, nitn=5, neval=1e3)
+    # Final result
+    result = integ(integrand, nitn=10, neval=1e3)
+    
+    # Loop over q_array and fill-in \delta U array
+    delta_U_array = np.zeros_like(q_array)
+    delta_U_errors = np.zeros_like(q_array)
+    for i, q in enumerate(q_array):
+
+        delta_U_array[i] = result[i].mean
+        delta_U_errors[i] = result[i].sdev
                     
     return delta_U_array, delta_U_errors
 
@@ -791,7 +927,8 @@ def compute_delta_U2_term(
     # Try loading the file first
     try:
         
-        delta_U2_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -852,13 +989,18 @@ def compute_momentum_distribution(
 ):
     """Compute the single-nucleon momentum distribution."""
     
-    # Compute table of Clebsch-Gordan coefficients
-    cg_table = compute_clebsch_gordan_table(4)
-    print("Done calculating Clebsch-Gordan table.\n")
-    
     # Set-up single-particle states
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=False)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=False)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
+    
+    # Compute table of Clebsch-Gordan coefficients
+    j = 0
+    for sp_state in woods_saxon.occ_states:
+        if sp_state.j > j:
+            j = sp_state.j
+    jmax = max(2, j)
+    cg_table = compute_clebsch_gordan_table(jmax)
+    print("Done calculating Clebsch-Gordan table.")
     
     # Set-up \delta U and \delta U^\dagger functions
     delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
@@ -996,8 +1138,8 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     

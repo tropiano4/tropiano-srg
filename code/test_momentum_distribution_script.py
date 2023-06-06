@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. This particular version builds on V5
 but with vectorized q as a parameter of the integrand as opposed to scalar q.
 
-Last update: June 1, 2023
+Last update: June 6, 2023
 
 """
 
@@ -451,7 +451,7 @@ def delta_U_term_integrand(
 
 def compute_delta_U_term(
         q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions,
+        delta_U_functions, delta_U_dagger_functions, delU_neval
 ):
     """Compute the sum of the \delta U * n(q) * I term and the 
     I * n(q) * \delta U^\dagger term.
@@ -467,7 +467,8 @@ def compute_delta_U_term(
     # Try loading the file first
     try:
         
-        delta_U_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -504,11 +505,10 @@ def compute_delta_U_term(
     )
 
     # Train the integrator
-    # integ(integrand, nitn=5, neval=5e4)
-    integ(integrand, nitn=10, neval=5e4)
+    integ(integrand, nitn=5, neval=delU_neval)
     
     # Final result
-    result = integ(integrand, nitn=10, neval=5e4)
+    result = integ(integrand, nitn=10, neval=delU_neval)
         
     # Loop over q_array and fill-in \delta U array
     delta_U_array = np.zeros_like(q_array)
@@ -732,7 +732,7 @@ def delta_U2_term_integrand(
 
 def compute_delta_U2_term(
         q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions
+        delta_U_functions, delta_U_dagger_functions, delU2_neval
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
     
@@ -746,7 +746,8 @@ def compute_delta_U2_term(
     # Try loading the file first
     try:
         
-        delta_U2_quantum_numbers = np.loadtxt('quantum_numbers/' + file_name)
+        directory = '../../../quantum_numbers/'
+        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
     except OSError:
@@ -785,11 +786,10 @@ def compute_delta_U2_term(
     )
     
     # Train the integrator
-    # integ(integrand, nitn=5, neval=5e4)
-    integ(integrand, nitn=10, neval=5e4)
+    integ(integrand, nitn=5, neval=delU2_neval)
     
     # Final result
-    result = integ(integrand, nitn=10, neval=5e4)
+    result = integ(integrand, nitn=10, neval=delU2_neval)
         
     # Loop over q_array and fill-in \delta U array
     delta_U2_array = np.zeros_like(q_array)
@@ -804,17 +804,23 @@ def compute_delta_U2_term(
 
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
-        generator='Wegner', print_normalization=False, ipm_only=False, save=True
+        generator='Wegner', number_of_partitions=20, delU_neval=1e4,
+        delU2_neval=1e4, print_normalization=False, ipm_only=False, save=True
 ):
     """Compute the single-nucleon momentum distribution."""
     
-    # Compute table of Clebsch-Gordan coefficients
-    cg_table = compute_clebsch_gordan_table(4)
-    print("Done calculating Clebsch-Gordan table.")
-    
     # Set-up single-particle states
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woodsaxon=False)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=False)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
+    
+    # Compute table of Clebsch-Gordan coefficients
+    j = 0
+    for sp_state in woods_saxon.occ_states:
+        if sp_state.j > j:
+            j = sp_state.j
+    jmax = max(2, j)
+    cg_table = compute_clebsch_gordan_table(jmax)
+    print("Done calculating Clebsch-Gordan table.")
     
     # Set-up \delta U and \delta U^\dagger functions
     delta_U_functions, delta_U_dagger_functions = get_delta_U_functions(
@@ -823,8 +829,6 @@ def compute_momentum_distribution(
     
     # Set momentum mesh
     q_array, q_weights = momentum_mesh(10.0, 2.0, 100, nmod=50)
-    # TESTING
-    q_low_array, q_high_array = q_array[:50], q_array[50:]
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, woods_saxon.occ_states, cg_table,
@@ -849,17 +853,28 @@ def compute_momentum_distribution(
         #     q_array, tau, woods_saxon.occ_states, cg_table, channels,
         #     phi_functions, delta_U_functions, delta_U_dagger_functions
         # )
-        delta_U_low_array, delta_U_low_errors = compute_delta_U_term(
-            q_low_array, tau, woods_saxon.occ_states, cg_table, channels,
-            phi_functions, delta_U_functions, delta_U_dagger_functions
-        )
-        delta_U_high_array, delta_U_high_errors = compute_delta_U_term(
-            q_high_array, tau, woods_saxon.occ_states, cg_table, channels,
-            phi_functions, delta_U_functions, delta_U_dagger_functions
-        )
-        delta_U_array = np.concatenate((delta_U_low_array, delta_U_high_array))
-        delta_U_errors = np.concatenate((delta_U_low_errors,
-                                         delta_U_high_errors))
+        
+        # TESTING
+        delta_U_array = np.zeros_like(I_array)
+        delta_U_errors = np.zeros_like(I_array)
+        
+        i = 0
+        for n in range(number_of_partitions):
+            
+            j = int(100/number_of_partitions * (n+1))
+            
+            q_array_temp = q_array[i:j]
+            
+            delta_U_array_temp, delta_U_errors_temp = compute_delta_U_term(
+                q_array_temp, tau, woods_saxon.occ_states, cg_table, channels,
+                phi_functions, delta_U_functions, delta_U_dagger_functions,
+                delU_neval
+            )
+            delta_U_array[i:j] = delta_U_array_temp
+            delta_U_errors[i:j] = delta_U_errors_temp
+            
+            i = j
+
         t2 = time.time()
         print("Done with \delta U linear terms after"
               f" {(t2-t1)/60:.3f} minutes.\n")
@@ -874,18 +889,27 @@ def compute_momentum_distribution(
         #     q_array, tau, woods_saxon.occ_states, cg_table, channels,
         #     phi_functions, delta_U_functions, delta_U_dagger_functions
         # )
-        delta_U2_low_array, delta_U2_low_errors = compute_delta_U2_term(
-            q_low_array, tau, woods_saxon.occ_states, cg_table, channels,
-            phi_functions, delta_U_functions, delta_U_dagger_functions
-        )
-        delta_U2_high_array, delta_U2_high_errors = compute_delta_U2_term(
-            q_high_array, tau, woods_saxon.occ_states, cg_table, channels,
-            phi_functions, delta_U_functions, delta_U_dagger_functions
-        )
-        delta_U2_array = np.concatenate((delta_U2_low_array,
-                                         delta_U2_high_array))
-        delta_U2_errors = np.concatenate((delta_U2_low_errors,
-                                          delta_U2_high_errors))
+
+        delta_U2_array = np.zeros_like(I_array)
+        delta_U2_errors = np.zeros_like(I_array)
+        
+        i = 0
+        for n in range(number_of_partitions):
+            
+            j = int(100/number_of_partitions * (n+1))
+            
+            q_array_temp = q_array[i:j]
+            
+            delta_U2_array_temp, delta_U2_errors_temp = compute_delta_U2_term(
+                q_array_temp, tau, woods_saxon.occ_states, cg_table, channels,
+                phi_functions, delta_U_functions, delta_U_dagger_functions,
+                delU2_neval
+            )
+            delta_U2_array[i:j] = delta_U2_array_temp
+            delta_U2_errors[i:j] = delta_U2_errors_temp
+            
+            i = j
+
         t4 = time.time()
         print(f"Done with \delta U \delta U^\dagger term after"
               f" {(t4-t3)/60:.3f} minutes.\n")
@@ -899,7 +923,7 @@ def compute_momentum_distribution(
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
-    n_errors = np.sqrt(delta_U_errors**2 + delta_U2_errors**2)
+    n_errors = np.sqrt(delta_U_errors ** 2 + delta_U2_errors ** 2)
 
     if print_normalization:
         normalization = compute_normalization(q_array, q_weights, n_array)
@@ -978,12 +1002,13 @@ if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
-    # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N = 'Ca48', 20, 28
     
     # Nucleon
-    tau = 1/2
+    # tau = 1/2
+    tau = -1/2
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1004,9 +1029,15 @@ if __name__ == '__main__':
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0
+    
+    # Max evaluations of the integrand
+    # delU_neval, delU2_neval = 1e4, 5e4
+    # delU_neval, delU2_neval = 5e4, 1e5
+    delU_neval, delU2_neval = 1e5, 5e5
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
+        delU_neval=delU_neval, delU2_neval=delU2_neval,
         print_normalization=True, save=True
     )
