@@ -1004,7 +1004,8 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
-    nucleus_name, Z, N = 'Ca48', 20, 28
+    # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon
     # tau = 1/2
