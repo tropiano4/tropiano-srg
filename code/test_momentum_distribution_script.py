@@ -863,12 +863,12 @@ def compute_momentum_distribution(
             
             j = int(100/number_of_partitions * (n+1))
             
-            q_array_temp = q_array[i:j]
+            q_array_partition = q_array[i:j]
             
             delta_U_array_temp, delta_U_errors_temp = compute_delta_U_term(
-                q_array_temp, tau, woods_saxon.occ_states, cg_table, channels,
-                phi_functions, delta_U_functions, delta_U_dagger_functions,
-                delU_neval
+                q_array_partition, tau, woods_saxon.occ_states, cg_table,
+                channels, phi_functions, delta_U_functions,
+                delta_U_dagger_functions, delU_neval
             )
             delta_U_array[i:j] = delta_U_array_temp
             delta_U_errors[i:j] = delta_U_errors_temp
@@ -898,12 +898,12 @@ def compute_momentum_distribution(
             
             j = int(100/number_of_partitions * (n+1))
             
-            q_array_temp = q_array[i:j]
+            q_array_partition = q_array[i:j]
             
             delta_U2_array_temp, delta_U2_errors_temp = compute_delta_U2_term(
-                q_array_temp, tau, woods_saxon.occ_states, cg_table, channels,
-                phi_functions, delta_U_functions, delta_U_dagger_functions,
-                delU2_neval
+                q_array_partition, tau, woods_saxon.occ_states, cg_table,
+                channels, phi_functions, delta_U_functions,
+                delta_U_dagger_functions, delU2_neval
             )
             delta_U2_array[i:j] = delta_U2_array_temp
             delta_U2_errors[i:j] = delta_U2_errors_temp
@@ -1001,15 +1001,15 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
-    nucleus_name, Z, N, = 'Pb208', 82, 126
+    # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon
-    # tau = 1/2
-    tau = -1/2
+    tau = 1/2
+    # tau = -1/2
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1032,13 +1032,13 @@ if __name__ == '__main__':
     # lamb = 6.0
     
     # Max evaluations of the integrand
-    # delU_neval, delU2_neval = 1e4, 5e4
+    delU_neval, delU2_neval = 1e4, 5e4
     # delU_neval, delU2_neval = 5e4, 1e5
-    delU_neval, delU2_neval = 1e5, 5e5
+    # delU_neval, delU2_neval = 1e5, 5e5
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
-        delU_neval=delU_neval, delU2_neval=delU2_neval,
+        number_of_partitions=20, delU_neval=delU_neval, delU2_neval=delU2_neval,
         print_normalization=True, save=True
     )
