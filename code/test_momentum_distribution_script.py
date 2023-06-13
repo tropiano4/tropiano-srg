@@ -244,6 +244,8 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
     """Compute the I * n(q) * I term."""
         
     I_array = np.zeros_like(q_array)
+    theta_q = np.zeros_like(q_array)
+    phi_q = np.zeros_like(q_array)
         
     # Loop over spin projections
     for sigma in np.array([1/2, -1/2]):
@@ -252,8 +254,6 @@ def compute_I_term(q_array, tau, occ_states, cg_table, phi_functions):
         for alpha in occ_states:
 
             # Single-particle wave function with z-axis along q_vector
-            theta_q = np.zeros_like(q_array)
-            phi_q = np.zeros_like(q_array)
             psi_alpha_array = psi(
                 alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t, q_array,
                 theta_q, phi_q, sigma, tau, cg_table, phi_functions
