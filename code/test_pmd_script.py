@@ -10,7 +10,7 @@ This script serves as a testbed for calculating pair momentum distributions
 using mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: June 13, 2023
+Last update: June 14, 2023
 
 """
 
@@ -540,7 +540,7 @@ def compute_delta_U_term(
         quantum_numbers = get_pmd_delta_U_quantum_numbers(tau, taup, occ_states,
                                                           channels, cg_table)
         delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                       file_name)
+                                                        file_name)
         print("Finished with \delta U quantum numbers.")
         
     delU_Ntot = len(delta_U_quantum_numbers)
@@ -831,7 +831,7 @@ def compute_delta_U2_term(
         delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
                                                         file_name)
         print("Finished with \delta U \delta U^\dagger quantum numbers.")
-        
+    
     delU2_Ntot = len(delta_U2_quantum_numbers)
         
     # Relative momenta from 0 to maximum of momentum mesh
@@ -1128,16 +1128,22 @@ def save_pmd(
 
     f.close()
 
-    
-def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=100, ntot_Q=50):
+
+# def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30):
+def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30, test=False):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
     directory = 'momentum_distributions/'
 
-    file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution_"
-                                f"kvnn_{kvnn}_lamb_{lamb}")
+    # TESTING
+    if test:
+        file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution"
+                                    f"_kvnn_{kvnn}_lamb_{lamb}_PWAVE_TEST")
+    else:
+        file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution_"
+                                    f"kvnn_{kvnn}_lamb_{lamb}")
     
     q_array = np.zeros(ntot_q)
     q_weights = np.zeros(ntot_q)
@@ -1189,11 +1195,14 @@ if __name__ == '__main__':
     # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon pair
-    # tau, taup = 1/2, 1/2  # pp
-    tau, taup = 1/2, -1/2  # pn
+    tau, taup = 1/2, 1/2  # pp
+    # tau, taup = 1/2, -1/2  # pn
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
-    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
+    #             '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
+    channels = ('1P1', '3P0', '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 5, 15.0, 3.0, 120  # Nijmegen II
@@ -1205,8 +1214,8 @@ if __name__ == '__main__':
     
     
     # SRG \lambda value
-    # lamb = 1.35
-    lamb = 1.5
+    lamb = 1.35
+    # lamb = 1.5
     # lamb = 1.7
     # lamb = 2.0
     # lamb = 3.0
