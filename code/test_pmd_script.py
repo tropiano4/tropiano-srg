@@ -316,7 +316,7 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
                             psi_alpha_1_grid * psi_beta_2_grid
                             - psi_beta_1_grid * psi_alpha_2_grid
                         )
-                    )  # 4-D grid
+                    ).real  # 4-D grid
                     
                     # Integrate over \theta_q and \phi_q leaving q, Q dependence
                     I_grid += 1/2 * np.sum(
@@ -324,7 +324,7 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
                         axis=-1
                     )
 
-    return I_grid
+    return I_grid.real
 
 
 def delta_U_term_integrand(
@@ -941,9 +941,9 @@ def compute_pmd(
     if ipm_only:
         
         delta_U_grid = np.zeros_like(I_grid)
-        delta_U_errors = np.zeros_like(I_grid, dtype='float')
+        delta_U_errors = np.zeros_like(I_grid)
         delta_U2_grid = np.zeros_like(I_grid)
-        delta_U2_errors = np.zeros_like(I_grid, dtype='float')
+        delta_U2_errors = np.zeros_like(I_grid)
     
     # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
     else:
@@ -1118,9 +1118,9 @@ def save_pmd(
             
             line = (
                 f"{iq:^15.6f}{iw:^15.6f}{jQ:^15.6f}{jw:^15.6f}"
-                f"{np.abs(n_grid[i, j]):^23e}{n_errors[i, j]:^23e}"
-                f"{np.abs(I_grid[i, j]):^23e}{np.abs(delta_U_grid[i, j]):^23e}"
-                f"{delta_U_errors[i, j]:^23e}{np.abs(delta_U2_grid[i, j]):^23e}"
+                f"{n_grid[i, j]:^23e}{n_errors[i, j]:^23e}"
+                f"{I_grid[i, j]:^23e}{delta_U_grid[i, j]:^23e}"
+                f"{delta_U_errors[i, j]:^23e}{delta_U2_grid[i, j]:^23e}"
                 f"{delta_U2_errors[i, j]:^23e}"
             )
 
@@ -1129,21 +1129,15 @@ def save_pmd(
     f.close()
 
 
-# def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30):
-def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30, test=False):
+def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
     directory = 'momentum_distributions/'
 
-    # TESTING
-    if test:
-        file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution"
-                                    f"_kvnn_{kvnn}_lamb_{lamb}_PWAVE_TEST")
-    else:
-        file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution_"
-                                    f"kvnn_{kvnn}_lamb_{lamb}")
+    file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution_"
+                                f"kvnn_{kvnn}_lamb_{lamb}")
     
     q_array = np.zeros(ntot_q)
     q_weights = np.zeros(ntot_q)
@@ -1188,21 +1182,21 @@ def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30, test=False):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon pair
-    tau, taup = 1/2, 1/2  # pp
-    # tau, taup = 1/2, -1/2  # pn
+    # tau, taup = 1/2, 1/2  # pp
+    tau, taup = 1/2, -1/2  # pn
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
-    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
-    #             '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
-    channels = ('1P1', '3P0', '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
+    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
+                '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
+    # channels = ('1P1', '3P0', '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 5, 15.0, 3.0, 120  # Nijmegen II
@@ -1212,18 +1206,17 @@ if __name__ == '__main__':
     # kvnn, kmax, kmid, ntot = 111, 10.0, 2.0, 120  # SMS N4LO 450 MeV
     # kvnn, kmax, kmid, ntot = 222, 10.0, 2.0, 120  # GT+ N2LO 1 fm
     
-    
     # SRG \lambda value
-    lamb = 1.35
-    # lamb = 1.5
+    # lamb = 1.35
+    lamb = 1.5
     # lamb = 1.7
     # lamb = 2.0
     # lamb = 3.0
     # lamb = 6.0
     
     # Max evaluations of the integrand
-    delU_neval, delU2_neval = 1e3, 5e3
-    # delU_neval, delU2_neval = 1e4, 5e4
+    # delU_neval, delU2_neval = 1e3, 5e3
+    delU_neval, delU2_neval = 1e4, 5e4
     # delU_neval, delU2_neval = 5e4, 1e5
     # delU_neval, delU2_neval = 1e5, 5e5
 
