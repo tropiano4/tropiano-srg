@@ -11,7 +11,7 @@ quantum numbers n, l, s=1/2, j, m_j, t=1/2, and m_t referring to the principal
 quantum number, orbital angular momentum, spin-1/2, total angular momentum,
 total angular momentum projection, isospin-1/2, and isospin projection.
 
-Last update: June 6, 2023
+Last update: June 27, 2023
 
 """
 
@@ -380,10 +380,11 @@ if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
-    nucleus_name, Z, N = 'Pb208', 82, 126
+    # nucleus_name, Z, N = 'Pb208', 82, 126
     
     woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=True, n_max=4,
                              l_max=10)
