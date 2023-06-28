@@ -8,10 +8,9 @@ Date: June 13, 2023
 
 This script serves as a testbed for calculating pair momentum distributions
 using mean field approximations for initial and final states and applying SRG
-transformations to the operator. This particular version builds on V1 but with
-vectorized q as a parameter of the integrand as opposed to scalar q.
+transformations to the operator.
 
-Last update: June 27, 2023
+Last update: June 14, 2023
 
 """
 
@@ -94,9 +93,17 @@ def get_vector_components(k_vector):
 
     """
     
-    k = norm(k_vector, axis=0)
-    theta = np.arccos(k_vector[2]/k)
-    phi = np.arctan2(k_vector[1], k_vector[0])
+    if k_vector.ndim > 1:
+        
+        k = norm(k_vector, axis=-1)
+        theta = np.arccos(k_vector[:, 2]/k)
+        phi = np.arctan2(k_vector[:, 1], k_vector[:, 0])
+        
+    else:
+        
+        k = norm(k_vector)
+        theta = np.arccos(k_vector[2]/k)
+        phi = np.arctan2(k_vector[1], k_vector[0])
 
     return k, theta, phi
 
@@ -321,10 +328,15 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
 
 
 def delta_U_term_integrand(
-        q_array, Q, tau, taup, delta_U_quantum_numbers, cg_table, phi_functions,
+        q, Q, tau, taup, delta_U_quantum_numbers, cg_table, phi_functions,
         delta_U_functions, delta_U_dagger_functions, delU_Ntot, x_array
 ):
     """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
+
+    # Choose z-axis to be along Q_vector
+    # Q_vector = np.zeros((Q.size, 3))
+    # Q_vector[:, -1] = Q
+    Q_vector = np.array([0, 0, Q])
 
     # Relative momenta k
     k, theta_k, phi_k = x_array[:3]
@@ -332,27 +344,22 @@ def delta_U_term_integrand(
     
     # Integrate over angles of q
     theta_q, phi_q = x_array[3:5]
-    q_vector = build_vector(q_array, theta_q, phi_q)
-    
-    # Choose z-axis to be along Q_vector
-    Q_vector_1d = np.array([0, 0, Q])
-    Q_vector_2d = np.zeros_like(q_vector)
-    Q_vector_2d[-1,:] = Q
+    q_vector = build_vector(q, theta_q, phi_q)
 
     # Calculate vector Q/2+k
-    k1_vector = Q_vector_1d/2 + k_vector
+    k1_vector = Q_vector/2 + k_vector
     k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
     
     # Calculate vector Q/2-k
-    k2_vector = Q_vector_1d/2 - k_vector
+    k2_vector = Q_vector/2 - k_vector
     k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
     
     # Calculate vector Q/2+q
-    q1_vector = Q_vector_2d/2 + q_vector
+    q1_vector = Q_vector/2 + q_vector
     q1, theta_q1, phi_q1 = get_vector_components(q1_vector)
     
     # Calculate vector Q/2-q
-    q2_vector = Q_vector_2d/2 - q_vector
+    q2_vector = Q_vector/2 - q_vector
     q2, theta_q2, phi_q2 = get_vector_components(q2_vector)
         
     # Calculate the Jacobian determinant
@@ -426,11 +433,11 @@ def delta_U_term_integrand(
     Y_Lp_k = sph_harm(M_Lp, Lp, phi_k, theta_k)
     
     # < k (L S) J T | \delta U | |q-K/2| (L' S) J T >
-    delta_U_partial_wave = delta_U_functions[(L, Lp, J, S, T)].ev(k, q_array)
+    delta_U_partial_wave = delta_U_functions[(L, Lp, J, S, T)].ev(k, q)
     
     # < |q-K/2| (L' S) J T | \delta U^\dagger | k (L S) J T >
     delta_U_dag_partial_wave = (
-        delta_U_dagger_functions[(Lp, L, J, S, T)].ev(q_array, k))
+        delta_U_dagger_functions[(Lp, L, J, S, T)].ev(q, k))
     
     # \psi_\alpha(Q/2+k; \sigma_1, \tau_1)
     psi_alpha_k1 = psi(
@@ -552,48 +559,71 @@ def compute_delta_U_term(
                               theta_limits, phi_limits, qn_limits], nproc=8)
     
     # Loop over q and Q
-    ntot_q, ntot_Q = len(q_array), len(Q_array)
-    delta_U_grid = np.zeros((ntot_q, ntot_Q))
+    M, N = len(q_array), len(Q_array)
+    delta_U_grid = np.zeros((M, N))
     delta_U_errors = np.zeros_like(delta_U_grid)
-    
-    for j, Q in enumerate(Q_array):
-        
-        # t0 = time.time()
-        
-        # Set the integrand function
-        integrand = functools.partial(
-            delta_U_term_integrand, q_array, Q, tau, taup,
-            delta_U_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions, delU_Ntot
-        )
+    for i, q in enumerate(q_array):
+        t0 = time.time()
+        for j, Q in enumerate(Q_array):
+            
+            # Set the integrand function
+            integrand = functools.partial(
+                delta_U_term_integrand, q, Q, tau, taup,
+                delta_U_quantum_numbers, cg_table, phi_functions,
+                delta_U_functions, delta_U_dagger_functions, delU_Ntot
+            )
 
-        # Train the integrator
-        integ(integrand, nitn=5, neval=delU_neval)
+            # Train the integrator
+            integ(integrand, nitn=5, neval=delU_neval)
     
-        # Final result
-        result = integ(integrand, nitn=10, neval=delU_neval)
+            # Final result
+            result = integ(integrand, nitn=10, neval=delU_neval)
+
+            delta_U_grid[i, j] = result.mean
+            delta_U_errors[i, j] = result.sdev
+            
+        t1 = time.time()
+        mins = (t1-t0)/60
+        percent = (i+1) / M * 100
+        print(f"{percent:.2f}% done with {mins:.3f} minutes per q.")
+    
+    # # Loop over q
+    # ntot_q = len(q_array)
+    # ntot_Q = len(Q_array)
+    # delta_U_grid = np.zeros((ntot_q, ntot_Q))
+    # delta_U_errors = np.zeros((ntot_q, ntot_Q))
+    # for i, q in enumerate(q_array):
         
-        # t1 = time.time()
-        # mins = (t1-t0)/60
-        # percent = (j+1) / ntot_Q * 100
-        # print(f"{percent:.2f}% done with {mins:.3f} minutes per Q.")
+    #     # Set the integrand function
+    #     integrand = functools.partial(
+    #         delta_U_term_integrand, q, Q_array, tau, taup,
+    #         delta_U_quantum_numbers, cg_table, phi_functions,
+    #         delta_U_functions, delta_U_dagger_functions, delU_Ntot
+    #     )
+
+    #     # Train the integrator
+    #     integ(integrand, nitn=5, neval=delU_neval)
         
-        # Loop over partition of q and fill-in grid
-        for i in range(ntot_q):
-            delta_U_grid[i, j] = result[i].mean
-            delta_U_errors[i, j] = result[i].sdev
+    #     # Final result
+    #     result = integ(integrand, nitn=10, neval=delU_neval)
+
+    #     for j in range(ntot_Q):
+            
+    #         delta_U_grid[i, j] = result[j].mean
+    #         delta_U_errors[i, j] = result[j].sdev
 
     return delta_U_grid, delta_U_errors
 
 
 def delta_U2_term_integrand(
-        q_array, Q, tau, taup, delta_U2_quantum_numbers, cg_table,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU2_Ntot,
-        x_array
+        q, Q, tau, taup, delta_U2_quantum_numbers, cg_table, phi_functions,
+        delta_U_functions, delta_U_dagger_functions, delU2_Ntot, x_array
 ):
     """Evaluate the integrand of the \delta U \delta U^\dagger term."""
 
     # Choose z-axis to be along Q_vector
+    # Q_vector = np.zeros((Q.size, 3))
+    # Q_vector[:, -1] = Q
     Q_vector = np.array([0, 0, Q])
 
     # Relative momenta k
@@ -707,11 +737,11 @@ def delta_U2_term_integrand(
     Y_Lppp_kp = sph_harm(M_Lppp, Lppp, phi_kp, theta_kp)
     
     # < k (L S) J T | \delta U | |q-K/2| (L' S) J T >
-    delta_U_partial_wave = delta_U_functions[(L, Lp, J, S, T)].ev(k, q_array)
+    delta_U_partial_wave = delta_U_functions[(L, Lp, J, S, T)].ev(k, q)
     
     # < |q-K/2| (L'' S) J' T' | \delta U^\dagger | k' (L''' S) J' T' >
     delta_U_dag_partial_wave = (
-        delta_U_dagger_functions[(Lp, Lppp, J, S, Tp)].ev(q_array, kp))
+        delta_U_dagger_functions[(Lp, Lppp, J, S, Tp)].ev(q, kp))
     
     # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
     psi_alpha_1 = psi(
@@ -817,46 +847,65 @@ def compute_delta_U2_term(
     integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
                               k_limits, theta_limits, phi_limits,
                               qn_limits], nproc=8)
+    
+    # # Set the integrand function
+    # integrand = functools.partial(
+    #     delta_U2_term_integrand, q_array, tau, delta_U2_quantum_numbers,
+    #     cg_table, phi_functions, delta_U_functions, delta_U_dagger_functions,
+    #     delU2_Ntot
+    # )
+    
+    # # Train the integrator
+    # integ(integrand, nitn=5, neval=delU2_neval)
+    
+    # # Final result
+    # result = integ(integrand, nitn=10, neval=delU2_neval)
+        
+    # # Loop over q_array and fill-in \delta U array
+    # delta_U2_array = np.zeros_like(q_array)
+    # delta_U2_errors = np.zeros_like(q_array)
+    # for i, q in enumerate(q_array):
 
+    #     delta_U2_array[i] = result[i].mean
+    #     delta_U2_errors[i] = result[i].sdev
+    
     # Loop over q and Q
-    ntot_q, ntot_Q = len(q_array), len(Q_array)
-    delta_U2_grid = np.zeros((ntot_q, ntot_Q))
+    M, N = len(q_array), len(Q_array)
+    delta_U2_grid = np.zeros((M, N))
     delta_U2_errors = np.zeros_like(delta_U2_grid)
-    
-    for j, Q in enumerate(Q_array):
-        
-        # t0 = time.time()
-        
-        # Set the integrand function
-        integrand = functools.partial(
-            delta_U2_term_integrand, q_array, Q, tau, taup,
-            delta_U2_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions, delU2_Ntot
-        )
+    for i, q in enumerate(q_array):
+        t0 = time.time()
+        for j, Q in enumerate(Q_array):
+            
+            # Set the integrand function
+            integrand = functools.partial(
+                delta_U2_term_integrand, q, Q, tau, taup,
+                delta_U2_quantum_numbers, cg_table, phi_functions,
+                delta_U_functions, delta_U_dagger_functions, delU2_Ntot
+            )
 
-        # Train the integrator
-        integ(integrand, nitn=5, neval=delU2_neval)
+            # Train the integrator
+            integ(integrand, nitn=5, neval=delU2_neval)
     
-        # Final result
-        result = integ(integrand, nitn=10, neval=delU2_neval)
-        
-        # t1 = time.time()
-        # mins = (t1-t0)/60
-        # percent = (j+1) / ntot_Q * 100
-        # print(f"{percent:.2f}% done with {mins:.3f} minutes per Q.")
-        
-        # Loop over partition of q and fill-in grid
-        for i in range(ntot_q):
-            delta_U2_grid[i, j] = result[i].mean
-            delta_U2_errors[i, j] = result[i].sdev
+            # Final result
+            result = integ(integrand, nitn=10, neval=delU2_neval)
+
+            delta_U2_grid[i, j] = result.mean
+            delta_U2_errors[i, j] = result.sdev
+            
+        t1 = time.time()
+        mins = (t1-t0)/60
+        percent = (i+1) / M * 100
+        print(f"{percent:.2f}% done with {mins:.3f} minutes per q.")
 
     return delta_U2_grid, delta_U2_errors
 
 
 def compute_pmd(
         nucleus_name, Z, N, tau, taup, channels, kvnn, kmax, kmid, ntot, lamb,
-        generator='Wegner', number_of_q_partitions=20, delU_neval=1e4,
-        delU2_neval=1e4, print_normalization=False, ipm_only=False, save=True
+        generator='Wegner', number_of_q_partitions=10,
+        number_of_Q_partitions=10, delU_neval=1e4, delU2_neval=1e4,
+        print_normalization=False, ipm_only=False, save=True
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -880,13 +929,13 @@ def compute_pmd(
     
     # Set momentum meshes
     # q_array, q_weights = momentum_mesh(10.0, 2.0, 100, nmod=50)
-    ntot_q, ntot_Q = 80, 50
-    q_array, q_weights = momentum_mesh(10.0, 2.0, ntot_q, nmod=40)
+    ntot_q, ntot_Q = 60, 30
+    q_array, q_weights = momentum_mesh(10.0, 2.0, ntot_q, nmod=30)
     Q_array, Q_weights = gaussian_quadrature_mesh(5.0, ntot_Q)
     
     # Compute the I term
     I_grid = compute_I_term(q_array, Q_array, tau, taup,
-                            woods_saxon.occ_states, cg_table, phi_functions)
+                             woods_saxon.occ_states, cg_table, phi_functions)
     
     # Independent particle model has no \delta U contributions
     if ipm_only:
@@ -903,31 +952,61 @@ def compute_pmd(
 
         # Compute \delta U + \delta U^\dagger term using vegas
         t1 = time.time()
-        delta_U_grid = np.zeros_like(I_grid)
-        delta_U_errors = np.zeros_like(I_grid)
+        delta_U_grid, delta_U_errors = compute_delta_U_term(
+            q_array, Q_array, tau, taup, woods_saxon.occ_states, cg_table,
+            channels, phi_functions, delta_U_functions,
+            delta_U_dagger_functions, delU_neval
+        )
         
-        i = 0
-        for n in range(number_of_q_partitions):
+        # # TESTING
+        # delta_U_grid = np.zeros_like(I_grid)
+        # delta_U_errors = np.zeros_like(I_grid, dtype='float')
+        
+        # iq, iQ = 0, 0
+        # for m in range(number_of_q_partitions):
             
-            t1_0 = time.time()
+        #     jq = int(ntot_q/number_of_q_partitions * (m+1))
+        #     q_array_partition = q_array[iq:jq]
             
-            j = int(ntot_q/number_of_q_partitions * (n+1))
+        #     for n in range(number_of_Q_partitions):
+
+        #         jQ = int(ntot_Q/number_of_Q_partitions * (n+1))
+        #         Q_array_partition = Q_array[iQ:jQ]
             
-            q_array_partition = q_array[i:j]
+        #         delta_U_grid_temp, delta_U_errors_temp = compute_delta_U_term(
+        #             q_array_partition, Q_array_partition, tau, taup,
+        #             woods_saxon.occ_states, cg_table, channels, phi_functions,
+        #             delta_U_functions, delta_U_dagger_functions, delU_neval
+        #         )
+        #         delta_U_grid[iq:jq, iQ:jQ] = delta_U_grid_temp
+        #         delta_U_errors[iq:jq, iQ:jQ] = delta_U_errors_temp
             
-            delta_U_grid_temp, delta_U_errors_temp = compute_delta_U_term(
-                q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
-                cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU_neval
-            )
-            delta_U_grid[i:j, :] = delta_U_grid_temp
-            delta_U_errors[i:j, :] = delta_U_errors_temp
+        #         iQ = jQ
+        #     iq = jq
+        
+        # i = 0
+        # for n in range(number_of_Q_partitions):
             
-            i = j
+        #     t0_Q = time.time()
             
-            t1_1 = time.time()
-            mins = (t1_1-t1_0)/60
-            print(f"Done with partition {n+1} after {mins:.3f} minutes.")
+        #     j = int(ntot_Q/number_of_Q_partitions * (n+1))
+            
+        #     Q_array_partition = Q_array[i:j]
+            
+        #     delta_U_grid_temp, delta_U_errors_temp = compute_delta_U_term(
+        #         q_array, Q_array_partition, tau, taup, woods_saxon.occ_states,
+        #         cg_table, channels, phi_functions, delta_U_functions,
+        #         delta_U_dagger_functions, delU_neval
+        #     )
+        #     delta_U_grid[:, i:j] = delta_U_grid_temp
+        #     delta_U_errors[:, i:j] = delta_U_errors_temp
+            
+        #     i = j
+            
+        #     t1_Q = time.time()
+        #     mins = (t1_Q-t0_Q)/60
+        #     percent = n / len(number_of_Q_partitions) * 100
+        #     print(f"{percent:.2f}% done with {mins:.3f} minutes per Q_array.")
 
         t2 = time.time()
         print("Done with \delta U linear terms after"
@@ -935,35 +1014,35 @@ def compute_pmd(
         
         # # TESTING
         # delta_U_grid = np.zeros_like(I_grid)
-        # delta_U_errors = np.zeros_like(I_grid)
+        # delta_U_errors = np.zeros_like(I_grid, dtype='float')
 
         # Compute \delta U \delta U^\dagger term using vegas
         t3 = time.time()
-        delta_U2_grid = np.zeros_like(I_grid)
-        delta_U2_errors = np.zeros_like(I_grid)
+        delta_U2_grid, delta_U2_errors = compute_delta_U2_term(
+            q_array, Q_array, tau, taup, woods_saxon.occ_states, cg_table,
+            channels, phi_functions, delta_U_functions,
+            delta_U_dagger_functions, delU2_neval
+        )
+
+        # delta_U2_grid = np.zeros_like(I_grid)
+        # delta_U2_errors = np.zeros_like(I_grid, dtype='float')
         
-        i = 0
-        for n in range(number_of_q_partitions):
+        # i = 0
+        # for n in range(number_of_partitions):
             
-            t3_0 = time.time()
+        #     j = int(100/number_of_partitions * (n+1))
             
-            j = int(ntot_q/number_of_q_partitions * (n+1))
+        #     q_array_partition = q_array[i:j]
             
-            q_array_partition = q_array[i:j]
+        #     delta_U2_grid_temp, delta_U2_errors_temp = compute_delta_U2_term(
+        #         q_array_partition, tau, woods_saxon.occ_states, cg_table,
+        #         channels, phi_functions, delta_U_functions,
+        #         delta_U_dagger_functions, delU2_neval
+        #     )
+        #     delta_U2_grid[i:j] = delta_U2_grid_temp
+        #     delta_U2_errors[i:j] = delta_U2_errors_temp
             
-            delta_U2_grid_temp, delta_U2_errors_temp = compute_delta_U2_term(
-                q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
-                cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU2_neval
-            )
-            delta_U2_grid[i:j, :] = delta_U2_grid_temp
-            delta_U2_errors[i:j, :] = delta_U2_errors_temp
-            
-            i = j
-            
-            t3_1 = time.time()
-            mins = (t3_1-t3_0)/60
-            print(f"Done with partition {n+1} after {mins:.3f} minutes.")
+        #     i = j
 
         t4 = time.time()
         print(f"Done with \delta U \delta U^\dagger term after"
@@ -971,7 +1050,7 @@ def compute_pmd(
         
         # # TESTING
         # delta_U2_grid = np.zeros_like(I_grid)
-        # delta_U2_errors = np.zeros_like(I_grid)
+        # delta_U2_errors = np.zeros_like(I_grid, dtype='float')
         
         t5 = time.time()
         print(f"Total time elapsed: {(t5-t0)/60:.3f} minutes.\n")
@@ -1050,7 +1129,7 @@ def save_pmd(
     f.close()
 
 
-def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=80, ntot_Q=50):
+def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=60, ntot_Q=30):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
@@ -1104,11 +1183,10 @@ if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
-    # nucleus_name, Z, N, = 'Pb208', #82, 126
+    # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon pair
     # tau, taup = 1/2, 1/2  # pp
@@ -1145,6 +1223,7 @@ if __name__ == '__main__':
     # Compute and save the momentum distribution
     q_array, q_weights, Q_array, Q_weights, n_grid, n_errors = compute_pmd(
         nucleus_name, Z, N, tau, taup, channels, kvnn, kmax, kmid, ntot, lamb,
-        number_of_q_partitions=20, delU_neval=delU_neval,
-        delU2_neval=delU2_neval, print_normalization=True, save=True
+        number_of_q_partitions=10, number_of_Q_partitions=5,
+        delU_neval=delU_neval, delU2_neval=delU2_neval,
+        print_normalization=True, save=True
     )
