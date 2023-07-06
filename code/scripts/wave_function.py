@@ -8,7 +8,7 @@ Date: May 3, 2019
 
 Function for calculation of wave functions given a Hamiltonian.
 
-Last update: March 17, 2022
+Last update: July 6, 2023
 
 """
 
@@ -21,7 +21,7 @@ from .tools import find_index
 
 
 def wave_function(
-        H_matrix, eps=-2.22, U_matrix=None, print_normalization=False):
+        H_matrix, eps=-2.22, eps_index=None, U_matrix=None, print_normalization=False):
     """
     Diagonalizes the Hamiltonian and returns the wave function of the state
     nearest energy = eps. The wave function is unitless, that is, the momenta 
@@ -34,6 +34,8 @@ def wave_function(
         Hamiltonian matrix [MeV].
     eps : float, optional
         Energy of the desired state [MeV]. Default is deuteron.
+    eps_index : int, optional
+        Index of the eigenstate. This will override the argument eps.
     U_matrix : 2-D ndarray, optional
         SRG transformation matrix [unitless]. If no transformation is provided,
         the function will not evolve the operator.
@@ -56,13 +58,14 @@ def wave_function(
     """
 
     # Diagonalize Hamiltonian
-    eigenvalues, eigenvectors = la.eig(H_matrix)
+    eigenvalues, eigenvectors = la.eigh(H_matrix)
 
     # Index of the wave function
-    eps_index = find_index(eps, eigenvalues)
-
-    # Full wave function (unitless)
-    psi = eigenvectors[:, eps_index]
+    if eps_index is not None:
+        psi = eigenvectors[:, eps_index]
+    else:
+        eps_index = find_index(eps, eigenvalues)  # Closest eigenenergy to eps
+        psi = eigenvectors[:, eps_index]
 
     # Evolve wave function?
     if U_matrix is not None:
