@@ -832,6 +832,7 @@ def compute_momentum_distribution(
             delta_U_errors[i:j] = delta_U_errors_temp
             
             i = j
+            print(f"Done with partition {n}.")
 
         # Print time calculating \delta U term
         t2 = time.time()
@@ -868,6 +869,7 @@ def compute_momentum_distribution(
             delta_U2_errors[i:j] = delta_U2_errors_temp
             
             i = j
+            print(f"Done with partition {n}.")
 
         # Print time calculating \delta U^2 term
         t4 = time.time()
