@@ -13,7 +13,7 @@ distribution calculations by directly utilizing single-particle wave functions
 instead of a local density approximation. This particular version builds on V5
 but with vectorized q as a parameter of the integrand as opposed to scalar q.
 
-Last update: June 6, 2023
+Last update: July 11, 2023
 
 """
 
@@ -450,36 +450,12 @@ def delta_U_term_integrand(
 
 
 def compute_delta_U_term(
-        q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions, delU_neval
+        q_array, tau, cg_table, channels, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delta_U_quantum_numbers, delU_neval
 ):
     """Compute the sum of the \delta U * n(q) * I term and the 
     I * n(q) * \delta U^\dagger term.
     """
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2:
-        nucleon = 'proton'
-    elif tau == -1/2:
-        nucleon = 'neutron'
-    file_name = f"{nucleus_name}_{nucleon}_delta_U_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except (OSError, FileNotFoundError) as error:
-        
-        print("Starting \delta U quantum numbers...")
-        quantum_numbers = get_delta_U_quantum_numbers(tau, occ_states, channels,
-                                                      cg_table)
-        # delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-        #                                                file_name)
-        delta_U_quantum_numbers = quantum_number_array(quantum_numbers)
-        print("Finished with \delta U quantum numbers.")
         
     delU_Ntot = len(delta_U_quantum_numbers)
         
@@ -732,34 +708,10 @@ def delta_U2_term_integrand(
 
 
 def compute_delta_U2_term(
-        q_array, tau, occ_states, cg_table, channels, phi_functions,
-        delta_U_functions, delta_U_dagger_functions, delU2_neval
+        q_array, tau, cg_table, channels, phi_functions, delta_U_functions,
+        delta_U_dagger_functions, delta_U2_quantum_numbers, delU2_neval
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2:
-        nucleon = 'proton'
-    elif tau == -1/2:
-        nucleon = 'neutron'
-    file_name = f"{nucleus_name}_{nucleon}_delta_U2_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except (OSError, FileNotFoundError) as error:
-        
-        print("Starting \delta U \delta U^\dagger quantum numbers...")
-        quantum_numbers = get_delta_U2_quantum_numbers(tau, occ_states,
-                                                       channels, cg_table)
-        # delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
-        #                                                 file_name)
-        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers)
-        print("Finished with \delta U \delta U^\dagger quantum numbers.")
         
     delU2_Ntot = len(delta_U2_quantum_numbers)
         
@@ -830,9 +782,11 @@ def compute_momentum_distribution(
     )
     
     # Set momentum mesh
-    q_array, q_weights = momentum_mesh(10.0, 2.0, 100, nmod=50)
+    qmax, qmid, ntot_q, nmod_q = 10.0, 2.0, 100, 50
+    q_array, q_weights = momentum_mesh(qmax, qmid, ntot_q, nmod=nmod_q)
     
     # Compute the I term
+    t0 = time.time()  # Start time
     I_array = compute_I_term(q_array, tau, woods_saxon.occ_states, cg_table,
                               phi_functions)
     
@@ -847,90 +801,93 @@ def compute_momentum_distribution(
     # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
     else:
 
-        t0 = time.time()
-
         # Compute \delta U + \delta U^\dagger term using vegas
         t1 = time.time()
-        # delta_U_array, delta_U_errors = compute_delta_U_term(
-        #     q_array, tau, woods_saxon.occ_states, cg_table, channels,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions
-        # )
         
-        # TESTING
+        # Initialize \delta U term array
         delta_U_array = np.zeros_like(I_array)
         delta_U_errors = np.zeros_like(I_array)
+
+        # \delta U term quantum numbers
+        print("Starting \delta U quantum numbers...")
+        quantum_numbers = get_delta_U_quantum_numbers(
+            tau, woods_saxon.occ_states, channels, cg_table)
+        delta_U_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U quantum numbers.")
         
+        # Loop over partitions of q_array
         i = 0
         for n in range(number_of_partitions):
             
-            j = int(100/number_of_partitions * (n+1))
+            j = int(ntot_q/number_of_partitions * (n+1))
             
             q_array_partition = q_array[i:j]
             
             delta_U_array_temp, delta_U_errors_temp = compute_delta_U_term(
-                q_array_partition, tau, woods_saxon.occ_states, cg_table,
-                channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU_neval
+                q_array_partition, tau, cg_table, channels, phi_functions,
+                delta_U_functions, delta_U_dagger_functions,
+                delta_U_quantum_numbers, delU_neval
             )
             delta_U_array[i:j] = delta_U_array_temp
             delta_U_errors[i:j] = delta_U_errors_temp
             
             i = j
 
+        # Print time calculating \delta U term
         t2 = time.time()
         print("Done with \delta U linear terms after"
               f" {(t2-t1)/60:.3f} minutes.\n")
-        
-        # # TESTING
-        # delta_U_array = np.zeros_like(I_array)
-        # delta_U_errors = np.zeros_like(I_array)
 
         # Compute \delta U \delta U^\dagger term using vegas
         t3 = time.time()
-        # delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-        #     q_array, tau, woods_saxon.occ_states, cg_table, channels,
-        #     phi_functions, delta_U_functions, delta_U_dagger_functions
-        # )
 
+        # Initialize \delta U^2 term array
         delta_U2_array = np.zeros_like(I_array)
         delta_U2_errors = np.zeros_like(I_array)
         
+        # \delta U^2 term quantum numbers
+        quantum_numbers = get_delta_U2_quantum_numbers(
+            tau, woods_saxon.occ_states, channels, cg_table)
+        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U \delta U^\dagger quantum numbers.")
+        
+        # Loop over partitions of q_array
         i = 0
         for n in range(number_of_partitions):
             
-            j = int(100/number_of_partitions * (n+1))
+            j = int(ntot_q/number_of_partitions * (n+1))
             
             q_array_partition = q_array[i:j]
             
             delta_U2_array_temp, delta_U2_errors_temp = compute_delta_U2_term(
-                q_array_partition, tau, woods_saxon.occ_states, cg_table,
-                channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU2_neval
+                q_array_partition, tau, cg_table, channels, phi_functions,
+                delta_U_functions, delta_U_dagger_functions,
+                delta_U2_quantum_numbers, delU2_neval
             )
             delta_U2_array[i:j] = delta_U2_array_temp
             delta_U2_errors[i:j] = delta_U2_errors_temp
             
             i = j
 
+        # Print time calculating \delta U^2 term
         t4 = time.time()
         print(f"Done with \delta U \delta U^\dagger term after"
               f" {(t4-t3)/60:.3f} minutes.\n")
-        
-        # # # TESTING
-        # delta_U2_array = np.zeros_like(I_array)
-        # delta_U2_errors = np.zeros_like(I_array)
-        
-        t5 = time.time()
-        print(f"Total time elapsed: {(t5-t0)/60:.3f} minutes.\n")
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
     n_errors = np.sqrt(delta_U_errors ** 2 + delta_U2_errors ** 2)
+    
+    # Print time calculating full momentum distribution
+    t5 = time.time()
+    print(f"Total time elapsed: {(t5-t0)/60:.3f} minutes.\n")
 
+    # Option to print normalization of the total momentum distribution
     if print_normalization:
         normalization = compute_normalization(q_array, q_weights, n_array)
         print(f"Normalization = {normalization:.5f}.")
-        
+    
+    # Option to save the momentum distribution as a .txt file
     if save and not(ipm_only):  # Do not save IPM-only data
         save_momentum_distribution(
             nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
@@ -1003,11 +960,11 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
-    # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon
@@ -1035,13 +992,13 @@ if __name__ == '__main__':
     # lamb = 6.0
     
     # Max evaluations of the integrand
-    delU_neval, delU2_neval = 1e4, 5e4
+    # delU_neval, delU2_neval = 1e4, 5e4
     # delU_neval, delU2_neval = 5e4, 1e5
-    # delU_neval, delU2_neval = 1e5, 5e5
+    delU_neval, delU2_neval = 1e5, 5e5
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
-        number_of_partitions=20, delU_neval=delU_neval, delU2_neval=delU2_neval,
-        print_normalization=True, save=True
+        number_of_partitions=25, delU_neval=delU_neval, delU2_neval=delU2_neval,
+        print_normalization=True, save=False
     )
