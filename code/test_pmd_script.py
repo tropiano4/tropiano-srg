@@ -861,7 +861,7 @@ def compute_pmd(
     """Compute the single-nucleon momentum distribution."""
     
     # Set-up single-particle states
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=False)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
     
     # Compute table of Clebsch-Gordan coefficients

@@ -11,7 +11,7 @@ quantum numbers n, l, s=1/2, j, m_j, t=1/2, and m_t referring to the principal
 quantum number, orbital angular momentum, spin-1/2, total angular momentum,
 total angular momentum projection, isospin-1/2, and isospin projection.
 
-Last update: June 27, 2023
+Last update: July 11, 2023
 
 """
 
@@ -19,12 +19,10 @@ Last update: June 27, 2023
 import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.special import spherical_jn
-import shutil
 
 # Imports from scripts
 from scripts.integration import momentum_mesh
 from scripts.tools import convert_l_to_string
-from scripts.woodsaxon import ws
 
 
 class SingleParticleState:
@@ -125,25 +123,14 @@ class WoodsSaxon:
     """
     
     
-    def __init__(self, nucleus_name, Z, N, run_woods_saxon=True, n_max=0,
-                 l_max=0, rmax=40, ntab=2000):
+    def __init__(self, nucleus_name, Z, N, n_max=0, l_max=0, rmax=40,
+                 ntab=2000):
         
         # Set instance attributes
         self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.dr = rmax / ntab
         self.r_array = np.arange(self.dr, rmax + self.dr, self.dr)
 
-        # Generate orbitals?
-        if run_woods_saxon:
-            
-            self.run_woods_saxon_code(nucleus_name, Z, N, n_max, l_max, rmax,
-                                      ntab)
-
-            # Move output files to relevant directory
-            shutil.move("ws_log", self.woods_saxon_directory + "ws_log")
-            shutil.move("ws_pot", self.woods_saxon_directory + "ws_pot")
-            shutil.move("ws_rho", self.woods_saxon_directory + "ws_rho")
-                
         # Order single-particle states with lowest energy first
         self.order_sp_states(Z, N)
         
@@ -156,89 +143,12 @@ class WoodsSaxon:
             if sp_state.m_j == sp_state.j:
                 
                 file_name = self.get_orbital_file_name(sp_state)
-                
-                if run_woods_saxon:
-                    
-                    shutil.move(file_name,
-                                self.woods_saxon_directory + file_name)
-                    
+ 
                 data = np.loadtxt(self.woods_saxon_directory + file_name)
                 
                 # Use n, l, j, m_t as the key
                 key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t)
                 self.sp_wfs[key] = data[:, 1]
-
-            
-    def run_woods_saxon_code(self, nucleus_name, Z, N, n_max, l_max, rmax,
-                             ntab):
-        """Run Woods-Saxon code to generate data."""
-        
-        # Total number of nucleons
-        A = Z + N
-        
-        # Type of orbitals: 1 - nucleons with no Coulomb
-        #                   2 - distinguish protons and neutrons
-        ntau = 2
-        
-        # Orbitals to consider (note, we track 2*j not j)
-        norb, lorb, jorb = [], [], []
-        for n in range(1, n_max+1):
-            for l in range(0, l_max+1):
-                norb.append(n)
-                lorb.append(l)
-                jorb.append(int(2*(l+1/2)))
-                if int(2*(l-1/2)) > 0:  # Don't append negative j
-                    norb.append(n)
-                    lorb.append(l)
-                    jorb.append(int(2*(l-1/2)))
-        nrad = len(jorb)
-        orbws = np.zeros(shape=(2,nrad,ntab), order='F')
-    
-        # Divide orbital by r? -> get R(r); false: get u(r)=r R(r)
-        rdiv = False
-        dens = True
-    
-        # Set parameters of the Woods-Saxon potential
-        prm = np.zeros(shape=(2,9), order='F')
-    
-        # Starting with vws (p & n)
-        if nucleus_name == 'He4':
-            prm[:,0] = 76.8412
-        elif nucleus_name == 'Be9':
-            prm[:,0] = 66.6397
-        elif nucleus_name == 'C12':
-            prm[:,0] = 60.1478
-        elif nucleus_name == 'O16':
-            prm[:,0] = 58.0611
-        elif nucleus_name == 'Ca40':
-            prm[:,0] = 54.3051
-        elif nucleus_name == 'Ca48':
-            prm[0,0] = 59.4522
-            prm[1,0] = 46.9322
-        elif nucleus_name == 'Fe56':
-            prm[0,0] = 55.9744
-            prm[1,0] = 50.0125
-        elif nucleus_name == 'Pb208':
-            prm[0,0] = 59.3452
-            prm[1,0] = 44.899
-    
-        # Other parameters of the Woods-Saxon
-        prm[:,1] = 1.275
-        prm[:,2] = 0.7
-        prm[:,3] = 0.
-        prm[:,4] = 1.
-        prm[:,5] = 36
-        prm[:,6] = 1.32
-        prm[:,7] = 0.7
-        prm[:,8] = 1.275
-        
-        # Print summary, potentials, and densities
-        prnt = True
-        prntorb = True
-
-        # Run Fortran subroutine
-        ws(ntau, A, Z, rmax, orbws, norb, lorb, jorb, prm, rdiv, prnt, prntorb,
-           dens)
         
         
     def get_orbital_file_name(self, sp_state):

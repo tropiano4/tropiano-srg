@@ -810,7 +810,7 @@ def compute_momentum_distribution(
     """Compute the single-nucleon momentum distribution."""
     
     # Set-up single-particle states
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, run_woods_saxon=False)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N)
     phi_functions = get_sp_wave_functions(woods_saxon, 10.0, 2.0, 120)
     
     # Compute table of Clebsch-Gordan coefficients
@@ -1041,5 +1041,5 @@ if __name__ == '__main__':
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
         number_of_partitions=20, delU_neval=delU_neval, delU2_neval=delU2_neval,
-        print_normalization=True, save=True
+        print_normalization=True, save=False
     )
