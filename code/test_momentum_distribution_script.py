@@ -1000,5 +1000,5 @@ if __name__ == '__main__':
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
         number_of_partitions=25, delU_neval=delU_neval, delU2_neval=delU2_neval,
-        print_normalization=True, save=False
+        print_normalization=True, save=True
     )
