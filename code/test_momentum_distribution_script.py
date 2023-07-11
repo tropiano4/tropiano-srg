@@ -471,13 +471,14 @@ def compute_delta_U_term(
         delta_U_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
-    except OSError:
+    except (OSError, FileNotFoundError) as error:
         
         print("Starting \delta U quantum numbers...")
         quantum_numbers = get_delta_U_quantum_numbers(tau, occ_states, channels,
                                                       cg_table)
-        delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                       file_name)
+        # delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
+        #                                                file_name)
+        delta_U_quantum_numbers = quantum_number_array(quantum_numbers)
         print("Finished with \delta U quantum numbers.")
         
     delU_Ntot = len(delta_U_quantum_numbers)
@@ -750,13 +751,14 @@ def compute_delta_U2_term(
         delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
     
     # Find all possible combinations and save file
-    except OSError:
+    except (OSError, FileNotFoundError) as error:
         
         print("Starting \delta U \delta U^\dagger quantum numbers...")
         quantum_numbers = get_delta_U2_quantum_numbers(tau, occ_states,
                                                        channels, cg_table)
-        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                        file_name)
+        # delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
+        #                                                 file_name)
+        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers)
         print("Finished with \delta U \delta U^\dagger quantum numbers.")
         
     delU2_Ntot = len(delta_U2_quantum_numbers)
@@ -1041,5 +1043,5 @@ if __name__ == '__main__':
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
         number_of_partitions=20, delU_neval=delU_neval, delU2_neval=delU2_neval,
-        print_normalization=True, save=False
+        print_normalization=True, save=True
     )
