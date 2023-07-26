@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+File: single_particle_states.py
+
+Author: A. J. Tropiano (atropiano@anl.gov)
+Date: July 26, 2023
+
 Run the Woods-Saxon Fortran code for some nucleus.
 
-WORK IN PROGRESS!
+Last update: July 26, 2023
+
 """
 
 # Python imports
@@ -12,9 +18,10 @@ import shutil
 
 # Imports from scripts
 from scripts.woodsaxon import ws
+from single_particle_states import SingleParticleState
 
 
-def main(nucleus_name, Z, N, n_max, l_max, rmax, ntab):
+def main(nucleus_name, Z, N, n_max=4, l_max=10, rmax=40, ntab=2000):
     """Run Woods-Saxon code to generate data."""
         
     # Total number of nucleons
@@ -85,37 +92,109 @@ def main(nucleus_name, Z, N, n_max, l_max, rmax, ntab):
        dens)
     
     
+def order_sp_states(directory, Z, N):
+    """Keep track of all s.p. states and occupied s.p. states"""
+
+    sp_states = []
+    occ_states = []
+    proton_count = 0
+    neutron_count = 0
+        
+    # File with details of the orbitals
+    ws_file = directory + "ws_log"
+    
+    # Order single-particle states using the ws_log file
+    with open(ws_file, 'r') as f:
+        for line in f:
+            unit = line.strip().split()
+                
+            # Protons
+            if len(unit) > 0 and unit[0] == '1':
+
+                j = int(unit[3])/2
+                for m_j in np.arange(-j, j+1, 1):
+                    sp_state = SingleParticleState(
+                        int(unit[1])+1, int(unit[2]), j, m_j, 1/2
+                    )  # n, l, j, m_j, m_t
+                    
+                    sp_states.append(sp_state)
+                
+                    if proton_count < Z:
+                        occ_states.append(sp_state)
+                        # Add up filled proton states
+                        proton_count += 1
+                    
+                
+            # Neutrons
+            elif len(unit) > 0 and unit[0] == '2':
+
+                j = int(unit[3])/2
+                for m_j in np.arange(-j, j+1, 1):
+                    sp_state = SingleParticleState(
+                        int(unit[1])+1, int(unit[2]), j, m_j, -1/2
+                    )  # n, l, j, m_j, m_t
+                    
+                    sp_states.append(sp_state)
+                
+                    if neutron_count < N:
+                        occ_states.append(sp_state)
+                        # Add up filled neutron states
+                        neutron_count += 1
+                        
+    return sp_states, occ_states
+
+
+def get_orbital_file_name(sp_state):
+    """Returns the file name of the orbital."""
+            
+    # Proton
+    if sp_state.m_t == 1/2:
+        file_name = (f"p.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
+                     f".j{int(2*sp_state.j)}.orb")
+    # Neutron
+    elif sp_state.m_t == -1/2:
+        file_name = (f"n.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
+                     f".j{int(2*sp_state.j)}.orb")
+            
+    return file_name
+    
+    
 if __name__ == '__main__':
     
     # He4
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'Be9', 4, 5
+    # nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'O12', 8, 8
+    # nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N = 'Fe56', 26, 30
+    # nucleus_name, Z, N = 'Pb208', 82, 126
+    
+    
+    # Generate orbital files
+    main(nucleus_name, Z, N)
     
     # Woods-Saxon directory
     woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+    
+    # Move output files to relevant directory
+    shutil.move("ws_log", woods_saxon_directory + "ws_log")
+    shutil.move("ws_pot", woods_saxon_directory + "ws_pot")
+    shutil.move("ws_rho", woods_saxon_directory + "ws_rho")
                 
     # Order single-particle states with lowest energy first
-    self.order_sp_states(Z, N)
+    sp_states, occ_states = order_sp_states(woods_saxon_directory, Z, N)
         
     # Organize wave functions in dictionary with the file name as the key
-    self.sp_wfs = {}
+    sp_wfs = {}
         
-    for sp_state in self.sp_states:
+    for sp_state in sp_states:
             
         # Wave functions are independent of m_j, so fix m_j=j
         if sp_state.m_j == sp_state.j:
                 
-            file_name = self.get_orbital_file_name(sp_state)
-                
-            if run_woods_saxon:
-                    
-                shutil.move(file_name, self.woods_saxon_directory + file_name)
-                    
-                data = np.loadtxt(self.woods_saxon_directory + file_name)
-
-    
-    main()
-    
-    # Move output files to relevant directory
-    shutil.move("ws_log", self.woods_saxon_directory + "ws_log")
-    shutil.move("ws_pot", self.woods_saxon_directory + "ws_pot")
-    shutil.move("ws_rho", self.woods_saxon_directory + "ws_rho")
+            file_name = get_orbital_file_name(sp_state)
+             
+            # Move orbital files to Woods-Saxon directory
+            shutil.move(file_name, woods_saxon_directory + file_name)
