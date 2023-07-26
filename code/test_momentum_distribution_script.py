@@ -964,14 +964,14 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ca40', 20, 20
+    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon
-    tau = 1/2
-    # tau = -1/2
+    # tau = 1/2
+    tau = -1/2
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -997,10 +997,15 @@ if __name__ == '__main__':
     # delU_neval, delU2_neval = 1e4, 5e4
     delU_neval, delU2_neval = 5e4, 1e5
     # delU_neval, delU2_neval = 1e5, 5e5
+    # delU_neval, delU2_neval = 3e5, 1e6
+
+    # Number of partitions of q_array
+    n_partitions = 25
+    # n_partitions = 50
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, channels, kvnn, kmax, kmid, ntot, lamb,
-        number_of_partitions=50, delU_neval=delU_neval, delU2_neval=delU2_neval,
-        print_normalization=True, save=True
+        number_of_partitions=n_partitions, delU_neval=delU_neval,
+        delU2_neval=delU2_neval, print_normalization=True, save=True
     )
