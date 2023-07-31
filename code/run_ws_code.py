@@ -69,6 +69,9 @@ def main(nucleus_name, Z, N, n_max=4, l_max=10, rmax=40, ntab=2000):
     elif nucleus_name == 'Fe56':
         prm[0,0] = 55.9744
         prm[1,0] = 50.0125
+    elif nucleus_name == 'Sn118':
+        prm[0,0] = 57.7428
+        prm[1,0] = 46.9911
     elif nucleus_name == 'Pb208':
         prm[0,0] = 59.3452
         prm[1,0] = 44.899
@@ -168,7 +171,8 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'O12', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
-    nucleus_name, Z, N = 'Fe56', 26, 30
+    # nucleus_name, Z, N = 'Fe56', 26, 30
+    nucleus_name, Z, N = 'Sn118', 50, 68
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
     
