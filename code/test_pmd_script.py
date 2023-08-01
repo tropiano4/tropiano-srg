@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-File: test_momentum_distribution_script.py
+File: test_pmd_script.py
 
 Author: A. J. Tropiano (atropiano@anl.gov)
 Date: June 13, 2023
