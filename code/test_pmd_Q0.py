@@ -939,8 +939,8 @@ def load_Q0_pmd(nucleus_name, pair, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     
     # Nucleon pair
@@ -956,7 +956,8 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     
     # SRG \lambda value
-    lamb = 1.5
+    # lamb = 1.5
+    lamb = 2.0
     
     # Max evaluations of the integrand
     # delU_neval, delU2_neval = 1e3, 5e3
