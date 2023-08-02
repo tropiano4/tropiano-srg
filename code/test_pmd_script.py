@@ -976,7 +976,7 @@ def compute_pmd(
         t5 = time.time()
         print(f"Total time elapsed: {(t5-t0)/60:.3f} minutes.\n")
     
-    # Combine each term for the total momentum distribution [fm^3]
+    # Combine each term for the total momentum distribution [fm^6]
     n_grid = I_grid + delta_U_grid + delta_U2_grid
     n_errors = np.sqrt(delta_U_errors ** 2 + delta_U2_errors ** 2)
 
