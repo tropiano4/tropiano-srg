@@ -11,7 +11,7 @@ using mean field approximations for initial and final states and applying SRG
 transformations to the operator. This particular version is specific to zero
 C.o.M. momentum Q -> n(q, Q=0).
 
-Last update: August 1, 2023
+Last update: August 2, 2023
 
 """
 
@@ -235,11 +235,8 @@ def get_delta_U_functions(channels, kvnn, kmax, kmid, ntot, generator, lamb):
     return delta_U_functions, delta_U_dagger_functions
     
 
-# NOTE: This needs updating to Q=0 case. Double check norms and stuff.
-# TEST THIS BEFORE GOING FORWARD!
-def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
-                   phi_functions):
-    """Compute the I * n(q, Q) * I term."""
+def compute_I_term(q_array, tau, taup, occ_states, cg_table, phi_functions):
+    """Compute the I * n(q, 0) * I term."""
         
     spins = np.array([1/2, -1/2])
     
@@ -247,37 +244,16 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
     theta_q_array, theta_q_weights = gaussian_quadrature_mesh(np.pi, 9)
     phi_q_array, phi_q_weights = gaussian_quadrature_mesh(2*np.pi, 15)
     
-    # Get 4-D meshgrids to evaluate \psi on
-    q_grid, Q_grid, theta_q_grid, phi_q_grid = np.meshgrid(
-        q_array, Q_array, theta_q_array, phi_q_array, indexing='ij'
+    # Get 3-D meshgrids to evaluate \psi on
+    q_grid, theta_q_grid, phi_q_grid = np.meshgrid(q_array, theta_q_array,
+                                                   phi_q_array, indexing='ij')
+    _, dtheta_q_grid, dphi_grid = np.meshgrid(
+        q_array, np.sin(theta_q_array) * theta_q_weights, phi_q_weights,
+        indexing='ij'
     )
-    _, _, dtheta_q_grid, dphi_grid = np.meshgrid(
-        q_array, Q_array, np.sin(theta_q_array) * theta_q_weights,
-        phi_q_weights, indexing='ij'
-    )
-    
-    # Single-particle wave function with z-axis along Q_vector
-    Q_vector = np.zeros((3, q_array.size, Q_array.size, theta_q_array.size,
-                         phi_q_array.size))
-    Q_vector[-1] = Q_grid
-    
-    # Make q a vector and calculate Q/2+q and Q/2-q
-    q_vector = build_vector(q_grid, theta_q_grid, phi_q_grid)
-    
-    q1_vector = Q_vector/2 + q_vector
-    q1 = norm(q1_vector, axis=0)
-    theta_q1 = np.arccos(q1_vector[2]/q1)
-    phi_q1 = np.arctan2(q1_vector[1], q1_vector[0])
-    # q1, theta_q1, phi_q1 = get_vector_components(q1_vector)  # 4-D grids
-    
-    q2_vector = Q_vector/2 - q_vector
-    q2 = norm(q2_vector, axis=0)
-    theta_q2 = np.arccos(q2_vector[2]/q2)
-    phi_q2 = np.arctan2(q2_vector[1], q2_vector[0])
-    # q2, theta_q2, phi_q2 = get_vector_components(q2_vector)  # 4-D grids
     
     # Loop over spin projections
-    I_grid = np.zeros((q_array.size, Q_array.size), dtype='complex')
+    I_array = np.zeros(q_array.size, dtype='complex')
     for sigma in spins:
         for sigmap in spins:
             
@@ -286,12 +262,12 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
                 
                 psi_alpha_1_grid = psi(
                     alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t,
-                    q1, theta_q1, phi_q1, sigma, tau, cg_table,
+                    q_grid, theta_q_grid, phi_q_grid, sigma, tau, cg_table,
                     phi_functions
                 )
                 psi_alpha_2_grid = psi(
                     alpha.n, alpha.l, alpha.j, alpha.m_j, alpha.m_t,
-                    q2, theta_q2, phi_q2, sigmap, taup, cg_table,
+                    q_grid, theta_q_grid, phi_q_grid, sigmap, taup, cg_table,
                     phi_functions
                 )
                 
@@ -299,68 +275,44 @@ def compute_I_term(q_array, Q_array, tau, taup, occ_states, cg_table,
 
                     psi_beta_1_grid = psi(
                         beta.n, beta.l, beta.j, beta.m_j, beta.m_t,
-                        q1, theta_q1, phi_q1, sigma, tau, cg_table,
+                        q_grid, theta_q_grid, phi_q_grid, sigma, tau, cg_table,
                         phi_functions
                     )
                     psi_beta_2_grid = psi(
                         beta.n, beta.l, beta.j, beta.m_j, beta.m_t,
-                        q2, theta_q2, phi_q2, sigmap, taup, cg_table,
-                        phi_functions
+                        q_grid, theta_q_grid, phi_q_grid, sigmap, taup,
+                        cg_table, phi_functions
                     )
                     
-                    integrand = (
-                        np.conj(psi_alpha_1_grid) * np.conj(psi_beta_2_grid)
-                        * (
-                            psi_alpha_1_grid * psi_beta_2_grid
-                            - psi_beta_1_grid * psi_alpha_2_grid
-                        )
-                    ).real  # 4-D grid
+                    integrand = 1/2 * (
+                        np.abs(psi_alpha_1_grid) ** 2
+                        * np.abs(psi_beta_2_grid) ** 2
+                        - (-1) ** (alpha.l + beta.l) * np.conj(psi_alpha_1_grid)
+                        * np.conj(psi_beta_2_grid) * psi_alpha_2_grid
+                        * psi_beta_1_grid
+                    )  # 3-D grid
                     
-                    # Integrate over \theta_q and \phi_q leaving q, Q dependence
-                    I_grid += 1/2 * np.sum(
+                    # Integrate over \theta_q and \phi_q leaving q dependence
+                    I_array += np.sum(
                         np.sum(integrand * dtheta_q_grid * dphi_grid, axis=-1),
                         axis=-1
                     )
 
-    return I_grid.real
+    return I_array.real
 
 
-# NOTE: This needs updating. Remove argument Q. We will still sample angles of q.
 def delta_U_term_integrand(
-        q_array, Q, tau, taup, delta_U_quantum_numbers, cg_table, phi_functions,
+        q_array, tau, taup, delta_U_quantum_numbers, cg_table, phi_functions,
         delta_U_functions, delta_U_dagger_functions, delU_Ntot, x_array
 ):
     """Evaluate the integrand of the \delta U + \delta U^\dagger terms."""
 
     # Relative momenta k
     k, theta_k, phi_k = x_array[:3]
-    k_vector = build_vector(k, theta_k, phi_k)
     
     # Integrate over angles of q
     theta_q, phi_q = x_array[3:5]
-    q_vector = build_vector(q_array, theta_q, phi_q)
-    
-    # Choose z-axis to be along Q_vector
-    Q_vector_1d = np.array([0, 0, Q])
-    Q_vector_2d = np.zeros_like(q_vector)
-    Q_vector_2d[-1,:] = Q
 
-    # Calculate vector Q/2+k
-    k1_vector = Q_vector_1d/2 + k_vector
-    k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
-    
-    # Calculate vector Q/2-k
-    k2_vector = Q_vector_1d/2 - k_vector
-    k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
-    
-    # Calculate vector Q/2+q
-    q1_vector = Q_vector_2d/2 + q_vector
-    q1, theta_q1, phi_q1 = get_vector_components(q1_vector)
-    
-    # Calculate vector Q/2-q
-    q2_vector = Q_vector_2d/2 - q_vector
-    q2, theta_q2, phi_q2 = get_vector_components(q2_vector)
-        
     # Calculate the Jacobian determinant
     jacobian = k ** 2 * np.sin(theta_k) * np.sin(theta_q)
     
@@ -438,45 +390,45 @@ def delta_U_term_integrand(
     delta_U_dag_partial_wave = (
         delta_U_dagger_functions[(Lp, L, J, S, T)].ev(q_array, k))
     
-    # \psi_\alpha(Q/2+k; \sigma_1, \tau_1)
+    # \psi_\alpha(k; \sigma_1, \tau_1)
     psi_alpha_k1 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        k1, theta_k1, phi_k1, sigma_1, tau_1,
+        k, theta_k, phi_k, sigma_1, tau_1,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(Q/2-k; \sigma_2, \tau_2)
+    # \psi_\beta(k; \sigma_2, \tau_2)
     psi_beta_k2 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        k2, theta_k2, phi_k2, sigma_2, tau_2,
+        k, theta_k, phi_k, sigma_2, tau_2,
         cg_table, phi_functions
     )
     
-    # \psi_\alpha(Q/2+q; \sigma, \tau)
+    # \psi_\alpha(q; \sigma, \tau)
     psi_alpha_q1 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        q1, theta_q1, phi_q1, sigma, tau,
+        q_array, theta_q, phi_q, sigma, tau,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(Q/2-q; \sigma', \tau')
+    # \psi_\beta(q; \sigma', \tau')
     psi_beta_q2 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        q2, theta_q2, phi_q2, sigmap, taup,
+        q_array, theta_q, phi_q, sigmap, taup,
         cg_table, phi_functions
     )
     
-    # \psi_\alpha(Q/2-q; \sigma', \tau')
+    # \psi_\alpha(q; \sigma', \tau')
     psi_alpha_q2 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        q2, theta_q2, phi_q2, sigmap, taup,
+        q_array, theta_q, phi_q, sigmap, taup,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(Q/2+q; \sigma, \tau)
+    # \psi_\beta(q; \sigma, \tau)
     psi_beta_q1 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        q1, theta_q1, phi_q1, sigma, tau,
+        q_array, theta_q, phi_q, sigma, tau,
         cg_table, phi_functions
     )
     
@@ -486,7 +438,8 @@ def delta_U_term_integrand(
         * lsj_cg * lpsj_cg * lst_factor * lpst_factor
         * Y_L_k * np.conj(Y_Lp_q) * delta_U_partial_wave
         * np.conj(psi_alpha_k1) * np.conj(psi_beta_k2) * (
-            psi_alpha_q1 * psi_beta_q2 - psi_beta_q1 * psi_alpha_q2
+            psi_alpha_q1 * psi_beta_q2
+            - (-1) ** (l_alpha+l_beta) * psi_beta_q1 * psi_alpha_q2
         )
     )
     
@@ -497,7 +450,8 @@ def delta_U_term_integrand(
         * Y_L_q * np.conj(Y_Lp_k) * delta_U_dag_partial_wave
         * psi_alpha_k1 * psi_beta_k2 * (
             np.conj(psi_alpha_q1) * np.conj(psi_beta_q2)
-            - np.conj(psi_beta_q1) * np.conj(psi_alpha_q2)
+            - (-1) ** (l_alpha+l_beta) * np.conj(psi_beta_q1)
+            * np.conj(psi_alpha_q2)
         )
     )
 
@@ -509,40 +463,14 @@ def delta_U_term_integrand(
     return integrand.real
 
 
-# NOTE: This needs updating. Remove Q_array. Integration variables should be the same.
-# No loop over Q.
 def compute_delta_U_term(
-        q_array, Q_array, tau, taup, occ_states, cg_table, channels,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU_neval
+        q_array, tau, taup, occ_states, cg_table, channels,
+        phi_functions, delta_U_functions, delta_U_dagger_functions, delU_neval,
+        delta_U_quantum_numbers
 ):
-    """Compute the sum of the \delta U * n(q, Q) * I term and the 
-    I * n(q, Q) * \delta U^\dagger term.
+    """Compute the sum of the \delta U * n(q, Q=0) * I term and the 
+    I * n(q, Q=0) * \delta U^\dagger term.
     """
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2 and taup == 1/2:
-        pair = 'pp'
-    elif tau == -1/2 and taup == -1/2:
-        pair = 'nn'
-    else:
-        pair = 'pn'
-    file_name = f"{nucleus_name}_{pair}_delta_U_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except OSError:
-        
-        print("Starting \delta U quantum numbers...")
-        quantum_numbers = get_pmd_delta_U_quantum_numbers(tau, taup, occ_states,
-                                                          channels, cg_table)
-        delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                        file_name)
-        print("Finished with \delta U quantum numbers.")
         
     delU_Ntot = len(delta_U_quantum_numbers)
         
@@ -559,75 +487,42 @@ def compute_delta_U_term(
     integ = vegas.Integrator([k_limits, theta_limits, phi_limits,
                               theta_limits, phi_limits, qn_limits], nproc=8)
     
-    # Loop over q and Q
-    ntot_q, ntot_Q = len(q_array), len(Q_array)
-    delta_U_grid = np.zeros((ntot_q, ntot_Q))
-    delta_U_errors = np.zeros_like(delta_U_grid)
-    
-    for j, Q in enumerate(Q_array):
-        
-        # t0 = time.time()
-        
-        # Set the integrand function
-        integrand = functools.partial(
-            delta_U_term_integrand, q_array, Q, tau, taup,
-            delta_U_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions, delU_Ntot
-        )
+    # Set the integrand function
+    integrand = functools.partial(
+        delta_U_term_integrand, q_array, tau, taup, delta_U_quantum_numbers,
+        cg_table, phi_functions, delta_U_functions, delta_U_dagger_functions,
+        delU_Ntot
+    )
 
-        # Train the integrator
-        integ(integrand, nitn=5, neval=delU_neval)
+    # Train the integrator
+    integ(integrand, nitn=5, neval=delU_neval)
     
-        # Final result
-        result = integ(integrand, nitn=10, neval=delU_neval)
-        
-        # t1 = time.time()
-        # mins = (t1-t0)/60
-        # percent = (j+1) / ntot_Q * 100
-        # print(f"{percent:.2f}% done with {mins:.3f} minutes per Q.")
-        
-        # Loop over partition of q and fill-in grid
-        for i in range(ntot_q):
-            delta_U_grid[i, j] = result[i].mean
-            delta_U_errors[i, j] = result[i].sdev
+    # Final result
+    result = integ(integrand, nitn=10, neval=delU_neval)
 
-    return delta_U_grid, delta_U_errors
+    # Loop over q_array and fill-in \delta U array
+    delta_U_array = np.zeros_like(q_array)
+    delta_U_errors = np.zeros_like(q_array)
+    for i, q in enumerate(q_array):
+
+        delta_U_array[i] = result[i].mean
+        delta_U_errors[i] = result[i].sdev
+                    
+    return delta_U_array, delta_U_errors
 
 
 # NOTE: Update to remove Q. Double-check analytic simplification for integration over angles of q.
 def delta_U2_term_integrand(
-        q_array, Q, tau, taup, delta_U2_quantum_numbers, cg_table,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU2_Ntot,
-        x_array
+        q_array, tau, taup, delta_U2_quantum_numbers, cg_table, phi_functions,
+        delta_U_functions, delta_U_dagger_functions, delU2_Ntot, x_array
 ):
     """Evaluate the integrand of the \delta U \delta U^\dagger term."""
 
-    # Choose z-axis to be along Q_vector
-    Q_vector = np.array([0, 0, Q])
-
     # Relative momenta k
     k, theta_k, phi_k = x_array[:3]
-    k_vector = build_vector(k, theta_k, phi_k)
         
     # Relative momenta k'
     kp, theta_kp, phi_kp = x_array[3:6]
-    kp_vector = build_vector(kp, theta_kp, phi_kp)
-
-    # Calculate vector Q/2+k
-    k1_vector = Q_vector/2 + k_vector
-    k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
-    
-    # Calculate vector Q/2-k
-    k2_vector = Q_vector/2 - k_vector
-    k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
-    
-    # Calculate vector Q/2+k'
-    k3_vector = Q_vector/2 + kp_vector
-    k3, theta_k3, phi_k3 = get_vector_components(k3_vector)
-    
-    # Calculate vector Q/2-k'
-    k4_vector = Q_vector/2 - kp_vector
-    k4, theta_k4, phi_k4 = get_vector_components(k4_vector)
         
     # Calculate the Jacobian determinant
     jacobian = k ** 2 * np.sin(theta_k) * kp ** 2 * np.sin(theta_kp)
@@ -722,45 +617,45 @@ def delta_U2_term_integrand(
     delta_U_dag_partial_wave = (
         delta_U_dagger_functions[(Lp, Lppp, J, S, Tp)].ev(q_array, kp))
     
-    # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
+    # \psi_\alpha(k; \sigma_1, \tau_1)
     psi_alpha_1 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        k1, theta_k1, phi_k1, sigma_1, tau_1,
+        k, theta_k, phi_k, sigma_1, tau_1,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(K/2-k; \sigma_2, \tau_2)
+    # \psi_\beta(k; \sigma_2, \tau_2)
     psi_beta_2 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        k2, theta_k2, phi_k2, sigma_2, tau_2,
+        k, theta_k, phi_k, sigma_2, tau_2,
         cg_table, phi_functions
     )
     
-    # \psi_\alpha(K/2+k'; \sigma_3, \tau_3)
+    # \psi_\alpha(k'; \sigma_3, \tau_3)
     psi_alpha_3 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        k3, theta_k3, phi_k3, sigma_3, tau_3,
+        kp, theta_kp, phi_kp, sigma_3, tau_3,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(K/2-k'; \sigma_4, \tau_4)
+    # \psi_\beta(k'; \sigma_4, \tau_4)
     psi_beta_4 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        k4, theta_k4, phi_k4, sigma_4, tau_4,
+        kp, theta_kp, phi_kp, sigma_4, tau_4,
         cg_table, phi_functions
     )
     
-    # \psi_\beta(K/2+k'; \sigma_3, \tau_3)
+    # \psi_\beta(k'; \sigma_3, \tau_3)
     psi_beta_3 = psi(
         n_beta, l_beta, j_beta, m_j_beta, m_t_beta,
-        k3, theta_k3, phi_k3, sigma_3, tau_3,
+        kp, theta_kp, phi_kp, sigma_3, tau_3,
         cg_table, phi_functions
     )
     
-    # \psi_\alpha(K/2-k'; \sigma_4, \tau_4)
+    # \psi_\alpha(k'; \sigma_4, \tau_4)
     psi_alpha_4 = psi(
         n_alpha, l_alpha, j_alpha, m_j_alpha, m_t_alpha,
-        k4, theta_k4, phi_k4, sigma_4, tau_4,
+        kp, theta_kp, phi_kp, sigma_4, tau_4,
         cg_table, phi_functions
     )
 
@@ -773,44 +668,20 @@ def delta_U2_term_integrand(
         * Y_L_k * np.conj(Y_Lppp_kp)
         * delta_U_partial_wave * delta_U_dag_partial_wave
         * np.conj(psi_alpha_1) * np.conj(psi_beta_2) * (
-            psi_alpha_3 * psi_beta_4 - psi_beta_3 * psi_alpha_4
+            psi_alpha_3 * psi_beta_4
+            - (-1) ** (l_alpha+l_beta) * psi_beta_3 * psi_alpha_4
         )
     )
 
     return integrand.real
 
 
-# NOTE: Update to remove Q_array. No loop over Q.
 def compute_delta_U2_term(
-        q_array, Q_array, tau, taup, occ_states, cg_table, channels,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU2_neval
+        q_array, tau, taup, occ_states, cg_table, channels, phi_functions,
+        delta_U_functions, delta_U_dagger_functions, delU2_neval,
+        delta_U2_quantum_numbers
 ):
-    """Compute the \delta U * n(q) * \delta U^\dagger term."""
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2 and taup == 1/2:
-        pair = 'pp'
-    elif tau == -1/2 and taup == -1/2:
-        pair = 'nn'
-    else:
-        pair = 'pn'
-    file_name = f"{nucleus_name}_{pair}_delta_U2_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except OSError:
-        
-        print("Starting \delta U \delta U^\dagger quantum numbers...")
-        quantum_numbers = get_pmd_delta_U2_quantum_numbers(
-            tau, taup, occ_states, channels, cg_table)
-        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                        file_name)
-        print("Finished with \delta U \delta U^\dagger quantum numbers.")
+    """Compute the \delta U * n(q, Q=0) * \delta U^\dagger term."""
     
     delU2_Ntot = len(delta_U2_quantum_numbers)
         
@@ -828,42 +699,30 @@ def compute_delta_U2_term(
                               k_limits, theta_limits, phi_limits,
                               qn_limits], nproc=8)
 
-    # Loop over q and Q
-    ntot_q, ntot_Q = len(q_array), len(Q_array)
-    delta_U2_grid = np.zeros((ntot_q, ntot_Q))
-    delta_U2_errors = np.zeros_like(delta_U2_grid)
+    # Set the integrand function
+    integrand = functools.partial(
+        delta_U2_term_integrand, q_array, tau, taup, delta_U2_quantum_numbers,
+        cg_table, phi_functions, delta_U_functions, delta_U_dagger_functions,
+        delU2_Ntot
+    )
+
+    # Train the integrator
+    integ(integrand, nitn=5, neval=delU2_neval)
     
-    for j, Q in enumerate(Q_array):
-        
-        # t0 = time.time()
-        
-        # Set the integrand function
-        integrand = functools.partial(
-            delta_U2_term_integrand, q_array, Q, tau, taup,
-            delta_U2_quantum_numbers, cg_table, phi_functions,
-            delta_U_functions, delta_U_dagger_functions, delU2_Ntot
-        )
+    # Final result
+    result = integ(integrand, nitn=10, neval=delU2_neval)
 
-        # Train the integrator
-        integ(integrand, nitn=5, neval=delU2_neval)
-    
-        # Final result
-        result = integ(integrand, nitn=10, neval=delU2_neval)
-        
-        # t1 = time.time()
-        # mins = (t1-t0)/60
-        # percent = (j+1) / ntot_Q * 100
-        # print(f"{percent:.2f}% done with {mins:.3f} minutes per Q.")
-        
-        # Loop over partition of q and fill-in grid
-        for i in range(ntot_q):
-            delta_U2_grid[i, j] = result[i].mean
-            delta_U2_errors[i, j] = result[i].sdev
+    # Loop over q_array and fill-in \delta U^2 array
+    delta_U2_array = np.zeros_like(q_array)
+    delta_U2_errors = np.zeros_like(q_array)
+    for i, q in enumerate(q_array):
 
-    return delta_U2_grid, delta_U2_errors
+        delta_U2_array[i] = result[i].mean
+        delta_U2_errors[i] = result[i].sdev
+
+    return delta_U2_array, delta_U2_errors
 
 
-# NOTE: Update this function after changing everything else.
 def compute_pmd(
         nucleus_name, Z, N, tau, taup, channels, kvnn, kmax, kmid, ntot, lamb,
         generator='Wegner', number_of_q_partitions=20, delU_neval=1e4,
@@ -890,22 +749,23 @@ def compute_pmd(
     )
     
     # Set momentum meshes
-    # q_array, q_weights = momentum_mesh(10.0, 2.0, 100, nmod=50)
-    ntot_q, ntot_Q = 80, 50
-    q_array, q_weights = momentum_mesh(10.0, 2.0, ntot_q, nmod=40)
-    Q_array, Q_weights = gaussian_quadrature_mesh(5.0, ntot_Q)
+    ntot_q = 100
+    q_array, q_weights = momentum_mesh(10.0, 2.0, ntot_q, nmod=50)
+    # ntot_q, ntot_Q = 80, 50
+    # q_array, q_weights = momentum_mesh(10.0, 2.0, ntot_q, nmod=40)
+    # Q_array, Q_weights = gaussian_quadrature_mesh(5.0, ntot_Q)
     
     # Compute the I term
-    I_grid = compute_I_term(q_array, Q_array, tau, taup,
-                            woods_saxon.occ_states, cg_table, phi_functions)
+    I_array = compute_I_term(q_array, tau, taup, woods_saxon.occ_states,
+                             cg_table, phi_functions)
     
     # Independent particle model has no \delta U contributions
     if ipm_only:
         
-        delta_U_grid = np.zeros_like(I_grid)
-        delta_U_errors = np.zeros_like(I_grid)
-        delta_U2_grid = np.zeros_like(I_grid)
-        delta_U2_errors = np.zeros_like(I_grid)
+        delta_U_array = np.zeros_like(I_array)
+        delta_U_errors = np.zeros_like(I_array)
+        delta_U2_array = np.zeros_like(I_array)
+        delta_U2_errors = np.zeros_like(I_array)
     
     # Include \delta U, \delta U^\dagger, and \delta U \delta U^\dagger
     else:
@@ -914,117 +774,120 @@ def compute_pmd(
 
         # Compute \delta U + \delta U^\dagger term using vegas
         t1 = time.time()
-        delta_U_grid = np.zeros_like(I_grid)
-        delta_U_errors = np.zeros_like(I_grid)
+        delta_U_array = np.zeros_like(I_array)
+        delta_U_errors = np.zeros_like(I_array)
+        
+        # Find all possible combinations and save file
+        print("Starting \delta U quantum numbers...")
+        quantum_numbers = get_pmd_delta_U_quantum_numbers(
+            tau, taup, woods_saxon.occ_states, channels, cg_table)
+        delta_U_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U quantum numbers.")
         
         i = 0
         for n in range(number_of_q_partitions):
-            
-            t1_0 = time.time()
-            
+
             j = int(ntot_q/number_of_q_partitions * (n+1))
             
             q_array_partition = q_array[i:j]
             
-            delta_U_grid_temp, delta_U_errors_temp = compute_delta_U_term(
-                q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
-                cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU_neval
+            delta_U_array_temp, delta_U_errors_temp = compute_delta_U_term(
+                q_array_partition, tau, taup, woods_saxon.occ_states, cg_table,
+                channels, phi_functions, delta_U_functions,
+                delta_U_dagger_functions, delU_neval, delta_U_quantum_numbers
             )
-            delta_U_grid[i:j, :] = delta_U_grid_temp
-            delta_U_errors[i:j, :] = delta_U_errors_temp
+            delta_U_array[i:j] = delta_U_array_temp
+            delta_U_errors[i:j] = delta_U_errors_temp
             
             i = j
-            
-            t1_1 = time.time()
-            mins = (t1_1-t1_0)/60
-            print(f"Done with partition {n+1} after {mins:.3f} minutes.")
+            print(f"Done with partition {n+1}.")
 
         t2 = time.time()
         print("Done with \delta U linear terms after"
               f" {(t2-t1)/60:.3f} minutes.\n")
         
         # # TESTING
-        # delta_U_grid = np.zeros_like(I_grid)
-        # delta_U_errors = np.zeros_like(I_grid)
+        # delta_U_array = np.zeros_like(I_array)
+        # delta_U_errors = np.zeros_like(I_array)
 
         # Compute \delta U \delta U^\dagger term using vegas
         t3 = time.time()
-        delta_U2_grid = np.zeros_like(I_grid)
-        delta_U2_errors = np.zeros_like(I_grid)
+        delta_U2_array = np.zeros_like(I_array)
+        delta_U2_errors = np.zeros_like(I_array)
+        
+        # Find all possible combinations and save file
+        print("Starting \delta U \delta U^\dagger quantum numbers...")
+        quantum_numbers = get_pmd_delta_U2_quantum_numbers(
+            tau, taup, woods_saxon.occ_states, channels, cg_table)
+        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U \delta U^\dagger quantum numbers.")
         
         i = 0
         for n in range(number_of_q_partitions):
-            
-            t3_0 = time.time()
-            
+
             j = int(ntot_q/number_of_q_partitions * (n+1))
             
             q_array_partition = q_array[i:j]
             
-            delta_U2_grid_temp, delta_U2_errors_temp = compute_delta_U2_term(
-                q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
-                cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU2_neval
+            delta_U2_array_temp, delta_U2_errors_temp = compute_delta_U2_term(
+                q_array_partition, tau, taup, woods_saxon.occ_states, cg_table,
+                channels, phi_functions, delta_U_functions,
+                delta_U_dagger_functions, delU2_neval, delta_U2_quantum_numbers
             )
-            delta_U2_grid[i:j, :] = delta_U2_grid_temp
-            delta_U2_errors[i:j, :] = delta_U2_errors_temp
+            delta_U2_array[i:j] = delta_U2_array_temp
+            delta_U2_errors[i:j] = delta_U2_errors_temp
             
             i = j
-            
-            t3_1 = time.time()
-            mins = (t3_1-t3_0)/60
-            print(f"Done with partition {n+1} after {mins:.3f} minutes.")
+            print(f"Done with partition {n+1}.")
 
         t4 = time.time()
         print(f"Done with \delta U \delta U^\dagger term after"
               f" {(t4-t3)/60:.3f} minutes.\n")
         
         # # TESTING
-        # delta_U2_grid = np.zeros_like(I_grid)
-        # delta_U2_errors = np.zeros_like(I_grid)
+        # delta_U2_array = np.zeros_like(I_array)
+        # delta_U2_errors = np.zeros_like(I_array)
         
         t5 = time.time()
         print(f"Total time elapsed: {(t5-t0)/60:.3f} minutes.\n")
     
-    # Combine each term for the total momentum distribution [fm^3]
-    n_grid = I_grid + delta_U_grid + delta_U2_grid
+    # Combine each term for the total momentum distribution [fm^6]
+    n_array = I_array + delta_U_array + delta_U2_array
     n_errors = np.sqrt(delta_U_errors ** 2 + delta_U2_errors ** 2)
 
     if print_normalization:
-        normalization = compute_normalization(q_array, q_weights, Q_array,
-                                              Q_weights, n_grid)
+        normalization = compute_normalization(q_array, q_weights, n_array)
         print(f"Normalization = {normalization:.5f}.")
         
     if save and not(ipm_only):  # Do not save IPM-only data
-        save_pmd(
-            nucleus_name, tau, taup, kvnn, lamb, q_array, q_weights, Q_array,
-            Q_weights, n_grid, n_errors, I_grid, delta_U_grid, delta_U_errors,
-            delta_U2_grid, delta_U2_errors
+        save_Q0_pmd(
+            nucleus_name, tau, taup, kvnn, lamb, q_array, q_weights, n_array,
+            n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            delta_U2_errors
         )
     
-    return q_array, q_weights, Q_array, Q_weights, n_grid, n_errors
+    return q_array, q_weights, n_array, n_errors
 
 
-# NOTE: Normalization probably won't make any sense.
-def compute_normalization(q_array, q_weights, Q_array, Q_weights, n_grid):
-    """Compute the normalization of the momentum distribution."""
-    
-    q_grid, Q_grid = np.meshgrid(q_array, Q_array, indexing='ij')
-    dq_grid, dQ_grid = np.meshgrid(q_weights, Q_weights, indexing='ij')
-    
-    jacobian = 4 * np.pi * q_grid ** 2 * dq_grid * Q_grid ** 2 * dQ_grid
+def compute_normalization(q_array, q_weights, n_array):
+    """Compute the normalization of the momentum distribution at Q=0."""
 
-    return np.sum(np.sum(jacobian * n_grid, axis=-1), axis=-1)
+    jacobian = q_array ** 2 * q_weights
+
+    return np.sum(jacobian * n_array)
 
 
-# NOTE: Update this to save a special Q_zero file.
-def save_pmd(
-        nucleus_name, tau, taup, kvnn, lamb, q_array, q_weights, Q_array,
-        Q_weights, n_grid, n_errors, I_grid, delta_U_grid, delta_U_errors,
-        delta_U2_grid, delta_U2_errors
+def save_Q0_pmd(
+        nucleus_name, tau, taup, kvnn, lamb, q_array, q_weights, n_array,
+        n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
+        delta_U2_errors
 ):
     """Save the momentum distribution along with the isolated contributions."""
+    
+    data = np.vstack(
+        (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+         delta_U_errors, delta_U2_array, delta_U2_errors)
+    ).T
    
     if tau == 1/2 and taup == 1/2:
         pair = 'pp'
@@ -1034,7 +897,7 @@ def save_pmd(
         pair = 'pn'
                 
     hdr = (
-        "q, q weight, Q, Q weight, n(q, Q), n(q, Q) error, I,"
+        "q, q weight, n(q, Q=0), n(q, Q=0) error, I,"
         " \delta U + \delta U^\dagger, \delta U + \delta U^\dagger error,"
         " \delta U^2, \delta U^2 error\n"
     )
@@ -1042,88 +905,43 @@ def save_pmd(
     directory = 'momentum_distributions/'
 
     file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution"
-                                f"_kvnn_{kvnn}_lamb_{lamb}")
+                                f"_Q_zero_kvnn_{kvnn}_lamb_{lamb}")
     
-    f = open(directory + file_name + '.txt', 'w')
-    f.write('# ' + hdr + '\n')
-    
-    for i, (iq, iw) in enumerate(zip(q_array, q_weights)):
-        for j, (jQ, jw) in enumerate(zip(Q_array, Q_weights)):
-            
-            line = (
-                f"{iq:^15.6f}{iw:^15.6f}{jQ:^15.6f}{jw:^15.6f}"
-                f"{n_grid[i, j]:^23e}{n_errors[i, j]:^23e}"
-                f"{I_grid[i, j]:^23e}{delta_U_grid[i, j]:^23e}"
-                f"{delta_U_errors[i, j]:^23e}{delta_U2_grid[i, j]:^23e}"
-                f"{delta_U2_errors[i, j]:^23e}"
-            )
-
-            f.write('\n' + line)
-
-    f.close()
+    np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
 
-# NOTE: Update this to load a special Q_zero file.
-def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=80, ntot_Q=50):
+def load_Q0_pmd(nucleus_name, pair, kvnn, lamb):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
     directory = 'momentum_distributions/'
 
-    file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution_"
-                                f"kvnn_{kvnn}_lamb_{lamb}")
+    file_name = replace_periods(f"{nucleus_name}_{pair}_momentum_distribution"
+                                f"_Q_zero_kvnn_{kvnn}_lamb_{lamb}")
     
-    q_array = np.zeros(ntot_q)
-    q_weights = np.zeros(ntot_q)
-    Q_array = np.zeros(ntot_Q)
-    Q_weights = np.zeros(ntot_Q)
-    n_grid = np.zeros((ntot_q, ntot_Q))
-    n_errors = np.zeros((ntot_q, ntot_Q))
-    I_grid = np.zeros((ntot_q, ntot_Q))
-    delta_U_grid = np.zeros((ntot_q, ntot_Q))
-    delta_U_errors = np.zeros((ntot_q, ntot_Q))
-    delta_U2_grid = np.zeros((ntot_q, ntot_Q))
-    delta_U2_errors = np.zeros((ntot_q, ntot_Q))
+    data = np.loadtxt(directory + file_name + '.txt')
     
-    f = open(directory + file_name + '.txt', 'r')
-    n = 0
-    for line in f:
+    q_array = data[:, 0]
+    q_weights = data[:, 1]
+    n_array = data[:, 2]
+    n_errors = data[:, 3]
+    I_array = data[:, 4]
+    delta_U_array = data[:, 5]
+    delta_U_errors = data[:, 6]
+    delta_U2_array = data[:, 7]
+    delta_U2_errors = data[:, 8]
     
-        unit = line.strip().split()
-        if len(unit) == 11:
-            
-            i = n // ntot_Q
-            j = n % ntot_Q
-            
-            q_array[i] = unit[0]
-            q_weights[i] = unit[1]
-            Q_array[j] = unit[2]
-            Q_weights[j] = unit[3]
-            n_grid[i, j] = unit[4]
-            n_errors[i, j] = unit[5]
-            I_grid[i, j] = unit[6]
-            delta_U_grid[i, j] = unit[7]
-            delta_U_errors[i, j] = unit[8]
-            delta_U2_grid[i, j] = unit[9]
-            delta_U2_errors[i, j] = unit[10]
-            
-            n += 1
-    
-    return (q_array, q_weights, Q_array, Q_weights, n_grid, n_errors, I_grid,
-            delta_U_grid, delta_U_errors, delta_U2_grid, delta_U2_errors)
+    return (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+            delta_U_errors, delta_U2_array, delta_U2_errors)
 
 
-# NOTE: Update Q_array business below
 if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
-    # nucleus_name, Z, N = 'Ca40', 20, 20
-    # nucleus_name, Z, N = 'Ca48', 20, 28
-    # nucleus_name, Z, N, = 'Pb208', #82, 126
     
     # Nucleon pair
     # tau, taup = 1/2, 1/2  # pp
@@ -1133,23 +951,12 @@ if __name__ == '__main__':
     # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
                 '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
-    # channels = ('1P1', '3P0', '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 5, 15.0, 3.0, 120  # Nijmegen II
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
-    # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
-    # kvnn, kmax, kmid, ntot = 79, 10.0, 2.0, 120  # EMN N4LO 500 MeV
-    # kvnn, kmax, kmid, ntot = 111, 10.0, 2.0, 120  # SMS N4LO 450 MeV
-    # kvnn, kmax, kmid, ntot = 222, 10.0, 2.0, 120  # GT+ N2LO 1 fm
     
     # SRG \lambda value
-    # lamb = 1.35
     lamb = 1.5
-    # lamb = 1.7
-    # lamb = 2.0
-    # lamb = 3.0
-    # lamb = 6.0
     
     # Max evaluations of the integrand
     # delU_neval, delU2_neval = 1e3, 5e3
@@ -1158,7 +965,7 @@ if __name__ == '__main__':
     # delU_neval, delU2_neval = 1e5, 5e5
 
     # Compute and save the momentum distribution
-    q_array, q_weights, Q_array, Q_weights, n_grid, n_errors = compute_pmd(
+    q_array, q_weights, n_array, n_errors = compute_pmd(
         nucleus_name, Z, N, tau, taup, channels, kvnn, kmax, kmid, ntot, lamb,
         number_of_q_partitions=20, delU_neval=delU_neval,
         delU2_neval=delU2_neval, print_normalization=True, save=True
