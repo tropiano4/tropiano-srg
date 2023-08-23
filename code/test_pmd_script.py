@@ -11,7 +11,7 @@ using mean field approximations for initial and final states and applying SRG
 transformations to the operator. This particular version builds on V1 but with
 vectorized q as a parameter of the integrand as opposed to scalar q.
 
-Last update: June 27, 2023
+Last update: August 23, 2023
 
 """
 
@@ -505,37 +505,13 @@ def delta_U_term_integrand(
 
 def compute_delta_U_term(
         q_array, Q_array, tau, taup, occ_states, cg_table, channels,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU_neval
+        phi_functions, delta_U_functions, delta_U_dagger_functions, delU_neval,
+        delta_U_quantum_numbers
 ):
     """Compute the sum of the \delta U * n(q, Q) * I term and the 
     I * n(q, Q) * \delta U^\dagger term.
     """
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2 and taup == 1/2:
-        pair = 'pp'
-    elif tau == -1/2 and taup == -1/2:
-        pair = 'nn'
-    else:
-        pair = 'pn'
-    file_name = f"{nucleus_name}_{pair}_delta_U_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except OSError:
-        
-        print("Starting \delta U quantum numbers...")
-        quantum_numbers = get_pmd_delta_U_quantum_numbers(tau, taup, occ_states,
-                                                          channels, cg_table)
-        delta_U_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                        file_name)
-        print("Finished with \delta U quantum numbers.")
-        
+
     delU_Ntot = len(delta_U_quantum_numbers)
         
     # Relative momenta from 0 to maximum of momentum mesh
@@ -773,34 +749,10 @@ def delta_U2_term_integrand(
 
 def compute_delta_U2_term(
         q_array, Q_array, tau, taup, occ_states, cg_table, channels,
-        phi_functions, delta_U_functions, delta_U_dagger_functions, delU2_neval
+        phi_functions, delta_U_functions, delta_U_dagger_functions, delU2_neval,
+        delta_U2_quantum_numbers
 ):
     """Compute the \delta U * n(q) * \delta U^\dagger term."""
-    
-    # Get an organized list of quantum numbers to sum over
-    if tau == 1/2 and taup == 1/2:
-        pair = 'pp'
-    elif tau == -1/2 and taup == -1/2:
-        pair = 'nn'
-    else:
-        pair = 'pn'
-    file_name = f"{nucleus_name}_{pair}_delta_U2_quantum_numbers.txt"
-    
-    # Try loading the file first
-    try:
-        
-        directory = '../../../quantum_numbers/'
-        delta_U2_quantum_numbers = np.loadtxt(directory + file_name)
-    
-    # Find all possible combinations and save file
-    except OSError:
-        
-        print("Starting \delta U \delta U^\dagger quantum numbers...")
-        quantum_numbers = get_pmd_delta_U2_quantum_numbers(
-            tau, taup, occ_states, channels, cg_table)
-        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers,
-                                                        file_name)
-        print("Finished with \delta U \delta U^\dagger quantum numbers.")
     
     delU2_Ntot = len(delta_U2_quantum_numbers)
         
@@ -906,6 +858,12 @@ def compute_pmd(
         delta_U_grid = np.zeros_like(I_grid)
         delta_U_errors = np.zeros_like(I_grid)
         
+        print("Starting \delta U + \delta U^\dagger quantum numbers...")
+        quantum_numbers = get_pmd_delta_U_quantum_numbers(
+            tau, taup, woods_saxon.occ_states, channels, cg_table)
+        delta_U_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U + \delta U^\dagger quantum numbers.")
+        
         i = 0
         for n in range(number_of_q_partitions):
             
@@ -918,7 +876,7 @@ def compute_pmd(
             delta_U_grid_temp, delta_U_errors_temp = compute_delta_U_term(
                 q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
                 cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU_neval
+                delta_U_dagger_functions, delU_neval, delta_U_quantum_numbers
             )
             delta_U_grid[i:j, :] = delta_U_grid_temp
             delta_U_errors[i:j, :] = delta_U_errors_temp
@@ -942,6 +900,12 @@ def compute_pmd(
         delta_U2_grid = np.zeros_like(I_grid)
         delta_U2_errors = np.zeros_like(I_grid)
         
+        print("Starting \delta U \delta U^\dagger quantum numbers...")
+        quantum_numbers = get_pmd_delta_U2_quantum_numbers(
+            tau, taup, woods_saxon.occ_states, channels, cg_table)
+        delta_U2_quantum_numbers = quantum_number_array(quantum_numbers)
+        print("Finished with \delta U \delta U^\dagger quantum numbers.")
+        
         i = 0
         for n in range(number_of_q_partitions):
             
@@ -954,7 +918,7 @@ def compute_pmd(
             delta_U2_grid_temp, delta_U2_errors_temp = compute_delta_U2_term(
                 q_array_partition, Q_array, tau, taup, woods_saxon.occ_states,
                 cg_table, channels, phi_functions, delta_U_functions,
-                delta_U_dagger_functions, delU2_neval
+                delta_U_dagger_functions, delU2_neval, delta_U2_quantum_numbers
             )
             delta_U2_grid[i:j, :] = delta_U2_grid_temp
             delta_U2_errors[i:j, :] = delta_U2_errors_temp
@@ -1103,8 +1067,8 @@ def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=80, ntot_Q=50):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
