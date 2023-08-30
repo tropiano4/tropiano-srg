@@ -11,7 +11,7 @@ using mean field approximations for initial and final states and applying SRG
 transformations to the operator. This particular version is specific to zero
 C.o.M. momentum Q -> n(q, Q=0).
 
-Last update: August 2, 2023
+Last update: August 30, 2023
 
 """
 
@@ -939,25 +939,26 @@ def load_Q0_pmd(nucleus_name, pair, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     
     # Nucleon pair
     # tau, taup = 1/2, 1/2  # pp
-    tau, taup = 1/2, -1/2  # pn
+    # tau, taup = 1/2, -1/2  # pn
+    tau, taup = -1/2, -1/2  # nn
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
-    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
-    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
-                '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
+    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
+    #             '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
     
     # NN potential and momentum mesh
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     
     # SRG \lambda value
-    # lamb = 1.5
-    lamb = 2.0
+    lamb = 1.5
+    # lamb = 2.0
     
     # Max evaluations of the integrand
     # delU_neval, delU2_neval = 1e3, 5e3
