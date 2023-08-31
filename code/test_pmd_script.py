@@ -1067,22 +1067,22 @@ def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=80, ntot_Q=50):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
-    # nucleus_name, Z, N, = 'Pb208', #82, 126
+    # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon pair
     # tau, taup = 1/2, 1/2  # pp
-    tau, taup = 1/2, -1/2  # pn
+    # tau, taup = 1/2, -1/2  # pn
+    tau, taup = -1/2, -1/2  # nn
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     # channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1', '1P1', '3P0',
                 '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
-    # channels = ('1P1', '3P0', '3P1', '3P2-3P2', '3P2-3F2', '3F2-3P2', '3F2-3F2')
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 5, 15.0, 3.0, 120  # Nijmegen II
