@@ -945,8 +945,8 @@ if __name__ == '__main__':
     
     # Nucleon pair
     # tau, taup = 1/2, 1/2  # pp
-    # tau, taup = 1/2, -1/2  # pn
-    tau, taup = -1/2, -1/2  # nn
+    tau, taup = 1/2, -1/2  # pn
+    # tau, taup = -1/2, -1/2  # nn
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
