@@ -250,8 +250,7 @@ class WoodsSaxon:
     
     def get_wf_kspace(
             self, sp_state, kmax, kmid, ntot, print_normalization=False,
-            interpolate=False,
-            
+            interpolate=False
     ):
         """Single-particle wave function in momentum space."""
     
