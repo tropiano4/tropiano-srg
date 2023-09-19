@@ -6,7 +6,8 @@ File: single_particle_states.py
 Author: A. J. Tropiano (atropiano@anl.gov)
 Date: July 26, 2023
 
-Run the Woods-Saxon Fortran code for some nucleus.
+Run the Woods-Saxon Fortran code for some nucleus. See
+https://nucracker.volya.net for information on nuclei.
 
 Last update: July 26, 2023
 
@@ -77,14 +78,22 @@ def main(nucleus_name, Z, N, n_max=4, l_max=10, rmax=40, ntab=2000):
         prm[1,0] = 44.899
     
     # Other parameters of the Woods-Saxon
-    prm[:,1] = 1.275
-    prm[:,2] = 0.7
-    prm[:,3] = 0.
-    prm[:,4] = 1.
-    prm[:,5] = 36
-    prm[:,6] = 1.32
-    prm[:,7] = 0.7
-    prm[:,8] = 1.275
+    # prm[:,1] = 1.275  # Central R_0
+    prm[:,2] = 0.7  # Central surface diffuseness a [fm]
+    prm[:,3] = 0.  # Wine-Bottle: kwb
+    prm[:,4] = 1.  # Wine-Bottle: awb
+    # prm[:,5] = 36
+    # prm[:,6] = 1.32  # Spin-orbit R_0
+    prm[:,7] = 0.7  # Spin-orbit surface diffuseness a [fm]
+    prm[:,8] = 1.275  # Coulomb R_0
+    
+    # TESTING
+    prm[0,1] = 1.275  # Central R_0 (proton)
+    prm[1,1] = 1.347  # Central R_0 (neutron)
+    prm[0,5] = 36  # Spin-orbit strength \lambda (proton)
+    prm[1,5] = 35  # Spin-orbit strength \lambda (neutron)
+    prm[0,6] = 1.32  # Spin-orbit R_0 (proton)
+    prm[1,6] = 1.31  # Spin-orbit R_0 (neutron)
         
     # Print summary, potentials, and densities
     prnt = True
@@ -172,8 +181,8 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Fe56', 26, 30
-    nucleus_name, Z, N = 'Sn118', 50, 68
-    # nucleus_name, Z, N = 'Pb208', 82, 126
+    # nucleus_name, Z, N = 'Sn118', 50, 68
+    nucleus_name, Z, N = 'Pb208', 82, 126
     
     
     # Generate orbital files
