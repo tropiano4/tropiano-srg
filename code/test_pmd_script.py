@@ -1059,6 +1059,8 @@ def load_pmd(nucleus_name, pair, kvnn, lamb, ntot_q=80, ntot_Q=50):
             delta_U2_errors[i, j] = unit[10]
             
             n += 1
+            
+    f.close()
     
     return (q_array, q_weights, Q_array, Q_weights, n_grid, n_errors, I_grid,
             delta_U_grid, delta_U_errors, delta_U2_grid, delta_U2_errors)
