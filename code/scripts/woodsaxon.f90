@@ -15,6 +15,7 @@
 !  7 - 2017-07-19 - Lonardoni - wine-bottle added
 !  8 - 2017-10-11 - Lonardoni - wine-bottle fixed
 !  9 - 2017-10-23 - Lonardoni - reduced output pot table
+! 10 - 2023-09-20 - Tropiano  - increased nmax and lmax for Pb208
 !-------------------------------------------------------------------------------
 ! The employed potential is given by:
 ! - Wood-Saxon + Wine-Bottle:
@@ -98,8 +99,8 @@ subroutine ws(ntau,A,Z,ntab,rmax,nrad,orbws,norb,lorb,jorb,prm,rdiv,prnt,prntorb
    integer(kind=i4), parameter :: nstep=12000
    integer(kind=i4), parameter :: nmatch=nstep/1000
    integer(kind=i4), parameter :: enstep=400
-   integer(kind=i4), parameter :: lmax=4  ! good up to Zr90
-   integer(kind=i4), parameter :: nmax=2  ! good up to Zr90
+   integer(kind=i4), parameter :: lmax=6  ! good up to Pb208
+   integer(kind=i4), parameter :: nmax=3  ! good up to Pb208
    real(kind=r8),    parameter :: emax=0.0_r8  ! Emax=0 if bound states only
    real(kind=r8),    parameter :: emin=-100.0_r8
    real(kind=r8),    parameter :: elim=0.00001_r8
