@@ -233,6 +233,10 @@ class WoodsSaxon:
                             self.occupied_states.append(sp_state)
                             # Add up filled neutron states
                             neutron_count += 1
+                            
+        # TESTING
+        print(f'Occupied protons: {proton_count}.')
+        print(f'Occupied neutrons: {neutron_count}.')
 
 
     def get_wf_rspace(self, sp_state, print_normalization=False):
@@ -685,20 +689,15 @@ class DeltaUIntegrand:
     """Evaluates the integrand of the \delta U + \delta U^\dagger term."""
     
     
-    def __init__(self, q, tau, woods_saxon, delta_U_matrix_element,
-                 spin_configurations, occupied_state_pairs):
+    def __init__(
+            self, q, tau, woods_saxon, delta_U_matrix_element,
+            spin_configurations, isospin_configurations, occupied_state_pairs
+    ):
         
         # Set momenta and isospin as instance attributes
         self.q = q
         self.tau = tau
-        self.isospin_configurations = []
-        for taup in [1/2, -1/2]:
-            for tau_1 in [1/2, -1/2]:
-                for tau_2 in [1/2, -1/2]:
-                    if tau + taup == tau_1 + tau_2:
-                        self.isospin_configurations.append(
-                            (taup, tau_1, tau_2)
-                        )
+        self.isospin_configurations = isospin_configurations
         
         # Set Woods-Saxon and \delta U matrix element classes as instance attributes
         self.woods_saxon = woods_saxon
@@ -846,22 +845,15 @@ class DeltaU2Integrand:
     """Evaluates the integrand of the \delta U \delta U^\dagger term."""
     
     
-    def __init__(self, q, tau, woods_saxon, delta_U_matrix_element,
-                 spin_configurations, occupied_state_pairs):
+    def __init__(
+            self, q, tau, woods_saxon, delta_U_matrix_element,
+            spin_configurations, isospin_configurations, occupied_state_pairs
+    ):
         
         # Set momenta and isospin as instance attributes
         self.q = q
         self.tau = tau
-        self.isospin_configurations = []
-        for taup in [1/2, -1/2]:
-            for tau_1 in [1/2, -1/2]:
-                for tau_2 in [1/2, -1/2]:
-                    for tau_3 in [1/2, -1/2]:
-                        for tau_4 in [1/2, -1/2]:
-                            if tau + taup == tau_1 + tau_2 == tau_3 + tau_4:
-                                self.isospin_configurations.append(
-                                    (taup, tau_1, tau_2, tau_3, tau_4)
-                                )
+        self.isospin_configurations = isospin_configurations
         
         # Set Woods-Saxon and \delta U matrix element classes as instance attributes
         self.woods_saxon = woods_saxon
@@ -988,7 +980,7 @@ class DeltaU2Integrand:
     
     
     def get_spin_configuration(self, x):
-        """Given a number between 0 and 1, return a set of four spin
+        """Given a number between 0 and 1, return a set of six spin
         projections.
         """
         
@@ -1150,6 +1142,42 @@ def set_delU2_spin_configurations():
     return spin_configurations
 
 
+def set_delU_isospin_configurations(tau):
+    """Isospin projection configurations for \delta U + \delta U^\dagger term.
+    """
+    
+    isospin_projections = [1/2, -1/2]
+    isospin_configurations = []
+    for taup in isospin_projections:
+        for tau_1 in isospin_projections:
+            for tau_2 in isospin_projections:
+                # Check that M_T is conserved
+                if tau + taup == tau_1 + tau_2:
+                    isospin_configurations.append((taup, tau_1, tau_2))
+    
+    return isospin_configurations
+
+
+def set_delU2_isospin_configurations(tau):
+    """Isospin projection configurations for \delta U + \delta U^\dagger term.
+    """
+    
+    isospin_projections = [1/2, -1/2]
+    isospin_configurations = []
+    for taup in isospin_projections:
+        for tau_1 in isospin_projections:
+            for tau_2 in isospin_projections:
+                for tau_3 in isospin_projections:
+                    for tau_4 in isospin_projections:
+                        # Check that M_T is conserved
+                        if tau + taup == tau_1 + tau_2 == tau_3 + tau_4:
+                            isospin_configurations.append(
+                                (taup, tau_1, tau_2, tau_3, tau_4)
+                            )
+                            
+    return isospin_configurations
+
+
 def compute_I_term(q_array, tau, woods_saxon):
     """Compute the I * n(q) * I term."""
         
@@ -1179,7 +1207,12 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
     """Compute the \delta U * n(q) * I + I * n(q) * \delta U^\dagger terms."""
     
     # Get sets of four spin projection configurations
+    # (\sigma_1, \sigma_2, \sigma, \sigma')
     spin_configurations = set_delU_spin_configurations()
+    
+    # Get sets of isospin projection configurations
+    # ( \tau', \tau_1, \tau_2) where \tau is fixed
+    isospin_configurations = set_delU_isospin_configurations(tau)
 
     # Relative momenta from 0 to 10 fm^-1
     k_limits = [0, 10]
@@ -1189,17 +1222,17 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
     theta_limits = [0, np.pi]
     # Azimuthal angle from 0 to 2\pi
     phi_limits = [0, 2*np.pi]
-    # Discrete variables for \alpha, \beta, and spin projections
-    dv_limits = [0, 1]
+    # Limits for sums over \alpha and \beta pairs and spin projections
+    sum_limits = [0, 1]
 
     # Set-up integrator with multiple processors
     integ = vegas.Integrator([
         k_limits, theta_limits, phi_limits,
         K_limits, theta_limits, phi_limits,
-        dv_limits, dv_limits
+        sum_limits, sum_limits
     ], nproc=8)
     
-    print("\nStarting \delta U + \delta U^\dagger term...")
+    print("Starting \delta U + \delta U^\dagger term...\n")
 
     # Evaluate the \delta U + \delta U^\dagger term for each q
     delta_U_array = np.zeros_like(q_array)
@@ -1211,7 +1244,7 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         integrand = DeltaUIntegrand(
             q, tau, woods_saxon, delta_U_matrix_element, spin_configurations,
-            occupied_state_pairs
+            isospin_configurations, occupied_state_pairs
         )
         
         # Train the integrator
@@ -1228,7 +1261,7 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         mins = (t1-t0)/60
         print(f"Done with q = {q:.4f} after {mins:.4f} minutes.")
         
-    print("Done with \delta U + \delta U^\dagger term.")
+    print("\nDone with \delta U + \delta U^\dagger term.")
 
     return delta_U_array, delta_U_errors
 
@@ -1238,7 +1271,12 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
     """Compute the \delta U * n(q) \delta U^\dagger term."""
     
     # Get sets of six spin projection configurations
+    # (\sigma_1, \sigma_2, \sigma, \sigma', \sigma_3, \sigma_4)
     spin_configurations = set_delU2_spin_configurations()
+    
+    # Get sets of isospin projection configurations
+    # (\tau', \tau_1, \tau_2, \tau_3, \tau_4)
+    isospin_configurations = set_delU2_isospin_configurations(tau)
 
     # Relative momenta from 0 to 10 fm^-1
     k_limits = [0, 10]
@@ -1248,18 +1286,18 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
     theta_limits = [0, np.pi]
     # Azimuthal angle from 0 to 2\pi
     phi_limits = [0, 2*np.pi]
-    # Discrete variables for \alpha, \beta, and spin projections
-    dv_limits = [0, 1]
+    # Limits for sums over \alpha and \beta pairs and spin projections
+    sum_limits = [0, 1]
 
     # Set-up integrator with multiple processors
     integ = vegas.Integrator([
         k_limits, theta_limits, phi_limits,
         k_limits, theta_limits, phi_limits,
         K_limits, theta_limits, phi_limits,
-        dv_limits, dv_limits
+        sum_limits, sum_limits
     ], nproc=8)
     
-    print("\nStarting \delta U \delta U^\dagger term...")
+    print("Starting \delta U \delta U^\dagger term...\n")
 
     # Evaluate the \delta U \delta U^\dagger term for each q
     delta_U2_array = np.zeros_like(q_array)
@@ -1271,7 +1309,7 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         integrand = DeltaU2Integrand(
             q, tau, woods_saxon, delta_U_matrix_element, spin_configurations,
-            occupied_state_pairs
+            isospin_configurations, occupied_state_pairs
         )
         
         # Train the integrator
@@ -1288,7 +1326,7 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         mins = (t1-t0)/60
         print(f"Done with q = {q:.4f} after {mins:.4f} minutes.")
         
-    print("Done with \delta U \delta U^\dagger term.")
+    print("\nDone with \delta U \delta U^\dagger term.")
 
     return delta_U2_array, delta_U2_errors
 
@@ -1296,7 +1334,7 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
 def compute_normalization(q_array, q_weights, n_array):
     """Compute the normalization of the momentum distribution."""
 
-    return 4*np.pi * np.sum(q_weights * q_array ** 2 * n_array)
+    return 4 * np.pi * np.sum(q_weights * q_array ** 2 * n_array)
 
 
 def compute_momentum_distribution(
@@ -1314,6 +1352,8 @@ def compute_momentum_distribution(
     woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
     # Get pairs of occupied states
     occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
+    print("Total number of pairs of occupied s.p. states = "
+          f"{len(occupied_state_pairs)}.")
 
     # Set points in q
     qmax, qmid, ntot_q, nmod_q = 10.0, 2.0, 100, 50
@@ -1361,9 +1401,10 @@ def compute_momentum_distribution(
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
+    nucleus_name, Z, N = 'Pb208', 82, 126
     
     # Nucleon
     tau = 1/2
@@ -1377,8 +1418,8 @@ if __name__ == '__main__':
     # SRG \lambda value
     lamb = 1.5
     
-    neval = 5e4
-    # neval = 1e5
+    # neval = 5e4
+    neval = 1e5
 
     # # Compute and save the momentum distribution
     # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
@@ -1391,7 +1432,7 @@ if __name__ == '__main__':
     
     # Compute and save the momentum distribution
     (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
-    delta_U_errors, delta_U2_array, delta_U2_errors) = (
+     delta_U_errors, delta_U2_array, delta_U2_errors) = (
         compute_momentum_distribution(
             nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
             print_normalization=True, save=False
@@ -1414,6 +1455,6 @@ if __name__ == '__main__':
     ax.set_xlabel(r'$q$ [fm$^{-1}$]')
     ax.set_ylabel(r'$n_p(q)/Z$ [fm$^3$]')
     ax.set_xlim(0,6)
-    ax.set_ylim(1e-4,1e0)
+    ax.set_ylim(1e-6,1e0)
     ax.legend(loc='upper right')
     plt.show()
