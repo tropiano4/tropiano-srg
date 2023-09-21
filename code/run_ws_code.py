@@ -22,7 +22,7 @@ from scripts.woodsaxon import ws
 from single_particle_states import SingleParticleState
 
 
-def main(nucleus_name, Z, N, n_max=4, l_max=10, rmax=40, ntab=2000):
+def main(nucleus_name, Z, N, n_max=3, l_max=6, rmax=40, ntab=2000):
     """Run Woods-Saxon code to generate data."""
         
     # Total number of nucleons
@@ -173,7 +173,6 @@ def get_orbital_file_name(sp_state):
     
 if __name__ == '__main__':
     
-    # He4
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'Be9', 4, 5
     # nucleus_name, Z, N = 'C12', 6, 6
@@ -183,7 +182,6 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'Fe56', 26, 30
     # nucleus_name, Z, N = 'Sn118', 50, 68
     nucleus_name, Z, N = 'Pb208', 82, 126
-    
     
     # Generate orbital files
     main(nucleus_name, Z, N)
