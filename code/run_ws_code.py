@@ -7,9 +7,10 @@ Author: A. J. Tropiano (atropiano@anl.gov)
 Date: July 26, 2023
 
 Run the Woods-Saxon Fortran code for some nucleus. See
-https://nucracker.volya.net for information on nuclei.
+https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
+to set parameters of nuclei.
 
-Last update: July 26, 2023
+Last update: September 22, 2023
 
 """
 
@@ -22,90 +23,88 @@ from scripts.woodsaxon import ws
 from single_particle_states import SingleParticleState
 
 
-def main(nucleus_name, Z, N, n_max=3, l_max=6, rmax=40, ntab=2000):
-    """Run Woods-Saxon code to generate data."""
-        
-    # Total number of nucleons
-    A = Z + N
-        
-    # Type of orbitals: 1 - nucleons with no Coulomb
-    #                   2 - distinguish protons and neutrons
-    ntau = 2
-        
-    # Orbitals to consider (note, we track 2*j not j)
+def get_orbitals():
+    """Return lists of orbitals."""
+
+    # Track 2*j not j
     norb, lorb, jorb = [], [], []
+    # These must match the nmax and lmax in woodsaxon.f90
+    nmax, lmax = 3, 6
     for n in range(1, n_max+1):
         for l in range(0, l_max+1):
             norb.append(n)
             lorb.append(l)
+            # j = l + 1/2
             jorb.append(int(2*(l+1/2)))
-            if int(2*(l-1/2)) > 0:  # Don't append negative j
+            # j = l - 1/2 (don't append negative j)
+            if int(2*(l-1/2)) > 0:
                 norb.append(n)
                 lorb.append(l)
                 jorb.append(int(2*(l-1/2)))
-    nrad = len(jorb)
-    orbws = np.zeros(shape=(2,nrad,ntab), order='F')
+
+    return norb, lorb, jorb
+
+
+def set_ws_parameters(nucleus_name):
+    """Set the Woods-Saxon parameters given the nucleus."""
+
+    prm = np.zeros(shape=(2, 9), order='F')
     
-    # Divide orbital by r? -> get R(r); false: get u(r)=r R(r)
-    rdiv = False
-    dens = True
-    
-    # Set parameters of the Woods-Saxon potential
-    prm = np.zeros(shape=(2,9), order='F')
-    
-    # Starting with vws (p & n)
+    # Central potential strength
     if nucleus_name == 'He4':
-        prm[:,0] = 76.8412
+        prm[:, 0] = 76.8412
     elif nucleus_name == 'Be9':
-        prm[:,0] = 66.6397
+        prm[:, 0] = 66.6397
     elif nucleus_name == 'C12':
-        prm[:,0] = 60.1478
+        prm[:, 0] = 60.1478
     elif nucleus_name == 'O16':
-        prm[:,0] = 58.0611
+        prm[:, 0] = 58.0611
     elif nucleus_name == 'Ca40':
-        prm[:,0] = 54.3051
+        prm[:, 0] = 54.3051
     elif nucleus_name == 'Ca48':
-        prm[0,0] = 59.4522
-        prm[1,0] = 46.9322
+        prm[0, 0] = 59.4522  # Proton
+        prm[1, 0] = 46.9322  # Neutron
     elif nucleus_name == 'Fe56':
-        prm[0,0] = 55.9744
-        prm[1,0] = 50.0125
+        prm[0, 0] = 55.9744  # Proton
+        prm[1, 0] = 50.0125  # Neutron
     elif nucleus_name == 'Sn118':
-        prm[0,0] = 57.7428
-        prm[1,0] = 46.9911
+        prm[0, 0] = 57.7428  # Proton
+        prm[1, 0] = 46.9911  # Neutron
     elif nucleus_name == 'Pb208':
-        prm[0,0] = 59.3452
-        prm[1,0] = 44.899
+        prm[0, 0] = 59.3452  # Proton
+        prm[1, 0] = 44.899  # Neutron
+    else:
+        raise RuntimeError("Don't have this nucleus yet.")
     
     # Other parameters of the Woods-Saxon
-    # prm[:,1] = 1.275  # Central R_0
-    prm[:,2] = 0.7  # Central surface diffuseness a [fm]
-    prm[:,3] = 0.  # Wine-Bottle: kwb
-    prm[:,4] = 1.  # Wine-Bottle: awb
+    # Central R_0
+    # prm[:,1] = 1.275
+    prm[0,1] = 1.275  # Proton
+    prm[1,1] = 1.347  # Neutron
+    # Central surface diffuseness a
+    prm[:,2] = 0.7
+    # Wine-Bottle: kwb
+    prm[:,3] = 0.
+    # Wine-Bottle: awb
+    prm[:,4] = 1.
+    # Spin-orbit strength \lambda
     # prm[:,5] = 36
-    # prm[:,6] = 1.32  # Spin-orbit R_0
-    prm[:,7] = 0.7  # Spin-orbit surface diffuseness a [fm]
-    prm[:,8] = 1.275  # Coulomb R_0
-    
-    # TESTING
-    prm[0,1] = 1.275  # Central R_0 (proton)
-    prm[1,1] = 1.347  # Central R_0 (neutron)
-    prm[0,5] = 36  # Spin-orbit strength \lambda (proton)
-    prm[1,5] = 35  # Spin-orbit strength \lambda (neutron)
-    prm[0,6] = 1.32  # Spin-orbit R_0 (proton)
-    prm[1,6] = 1.31  # Spin-orbit R_0 (neutron)
-        
-    # Print summary, potentials, and densities
-    prnt = True
-    prntorb = True
+    prm[0,5] = 36  # Proton
+    prm[1,5] = 35  # Neutron
+    # Spin-orbit R_0
+    # prm[:,6] = 1.32
+    prm[0,6] = 1.32  # Proton
+    prm[1,6] = 1.31  # Neutron
+    # Spin-orbit surface diffuseness a
+    prm[:,7] = 0.7
+    # Coulomb R_0
+    prm[:,8] = 1.275
 
-    # Run Fortran subroutine
-    ws(ntau, A, Z, rmax, orbws, norb, lorb, jorb, prm, rdiv, prnt, prntorb,
-       dens)
-    
-    
+    return prm
+
+
 def order_sp_states(directory, Z, N):
-    """Keep track of all s.p. states and occupied s.p. states"""
+    """Get organized lists of all s.p. states and occupied states."""
 
     sp_states = []
     occ_states = []
@@ -135,7 +134,6 @@ def order_sp_states(directory, Z, N):
                         occ_states.append(sp_state)
                         # Add up filled proton states
                         proton_count += 1
-                    
                 
             # Neutrons
             elif len(unit) > 0 and unit[0] == '2':
@@ -169,6 +167,57 @@ def get_orbital_file_name(sp_state):
                      f".j{int(2*sp_state.j)}.orb")
             
     return file_name
+
+
+def main(nucleus_name, Z, N, rmax=40, ntab=2000):
+    """Run Woods-Saxon code to generate orbital files."""
+        
+    # Total number of nucleons
+    A = Z + N
+        
+    # Type of orbitals: 1 - nucleons with no Coulomb
+    #                   2 - distinguish protons and neutrons
+    ntau = 2
+        
+    norb, lorb, jorb = get_orbitals()
+    nrad = len(jorb)
+    orbws = np.zeros(shape=(2, nrad, ntab), order='F')
+    
+    # Divide orbital by r? -> get R(r); false: get u(r)=r*R(r)
+    rdiv = False
+    dens = True
+    
+    # Get the Woods-Saxon parameters for the input nucleus
+    prm = set_ws_parameters(nucleus_name)
+  
+    # Print summary, potentials, and densities
+    prnt = True
+    prntorb = True
+
+    # Run Fortran subroutine
+    ws(ntau, A, Z, rmax, orbws, norb, lorb, jorb, prm, rdiv, prnt, prntorb,
+       dens)
+
+    # Woods-Saxon directory
+    woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+    
+    # Move output files to relevant directory
+    shutil.move("ws_log", woods_saxon_directory + "ws_log")
+    shutil.move("ws_pot", woods_saxon_directory + "ws_pot")
+    shutil.move("ws_rho", woods_saxon_directory + "ws_rho")
+                
+    # Get all s.p. states in order of lowest energy first
+    sp_states, _ = order_sp_states(woods_saxon_directory, Z, N)
+
+    # Move orbital files to Woods-Saxon directory
+    for sp_state in sp_states:
+            
+        # Wave functions are independent of m_j, so fix m_j=j
+        if sp_state.m_j == sp_state.j:
+                
+            file_name = get_orbital_file_name(sp_state)
+            shutil.move(file_name, woods_saxon_directory + file_name)
+    
     
     
 if __name__ == '__main__':
@@ -185,27 +234,3 @@ if __name__ == '__main__':
     
     # Generate orbital files
     main(nucleus_name, Z, N)
-    
-    # Woods-Saxon directory
-    woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
-    
-    # Move output files to relevant directory
-    shutil.move("ws_log", woods_saxon_directory + "ws_log")
-    shutil.move("ws_pot", woods_saxon_directory + "ws_pot")
-    shutil.move("ws_rho", woods_saxon_directory + "ws_rho")
-                
-    # Order single-particle states with lowest energy first
-    sp_states, occ_states = order_sp_states(woods_saxon_directory, Z, N)
-        
-    # Organize wave functions in dictionary with the file name as the key
-    sp_wfs = {}
-        
-    for sp_state in sp_states:
-            
-        # Wave functions are independent of m_j, so fix m_j=j
-        if sp_state.m_j == sp_state.j:
-                
-            file_name = get_orbital_file_name(sp_state)
-             
-            # Move orbital files to Woods-Saxon directory
-            shutil.move(file_name, woods_saxon_directory + file_name)
