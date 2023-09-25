@@ -233,10 +233,6 @@ class WoodsSaxon:
                             self.occupied_states.append(sp_state)
                             # Add up filled neutron states
                             neutron_count += 1
-                            
-        # TESTING
-        print(f'Occupied protons: {proton_count}.')
-        print(f'Occupied neutrons: {neutron_count}.')
 
 
     def get_wf_rspace(self, sp_state, print_normalization=False):
