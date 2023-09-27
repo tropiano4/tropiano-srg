@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: September 22, 2023
+Last update: September 26, 2023
 
 """
 
@@ -30,8 +30,8 @@ def get_orbitals():
     norb, lorb, jorb = [], [], []
     # These must match the nmax and lmax in woodsaxon.f90
     nmax, lmax = 3, 6
-    for n in range(1, n_max+1):
-        for l in range(0, l_max+1):
+    for n in range(1, nmax+1):
+        for l in range(0, lmax+1):
             norb.append(n)
             lorb.append(l)
             # j = l + 1/2
@@ -50,7 +50,7 @@ def set_ws_parameters(nucleus_name):
 
     prm = np.zeros(shape=(2, 9), order='F')
     
-    # Central potential strength
+    # Central strength
     if nucleus_name == 'He4':
         prm[:, 0] = 76.8412
     elif nucleus_name == 'Be9':
