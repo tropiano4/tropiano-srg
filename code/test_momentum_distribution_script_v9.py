@@ -16,7 +16,7 @@ elements and s.p. wavefunctions \psi. The MC package vegas is used to integrate
 over vector momenta and s.p. quantum numbers \alpha, \beta, and spin
 projections.
 
-Last update: September 15, 2023
+Last update: September 26, 2023
 
 """
 
@@ -36,7 +36,7 @@ import time
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
 from scripts.srg import load_srg_transformation
-from scripts.tools import convert_l_to_string, coupled_channel
+from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 
 
 class SingleParticleState:
@@ -138,11 +138,12 @@ class WoodsSaxon:
     
     
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120):
+                 kmax=10.0, kmid=2.0, ntot=120, com_correction=False):
         
         # Set instance attributes
         self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.cg_table = cg_table
+        self.A = int(Z + N)
 
         # Order single-particle states with lowest energy first
         self.order_sp_states(Z, N)
@@ -167,7 +168,7 @@ class WoodsSaxon:
         self.dr = max(self.r_array) / len(self.r_array)
         
         # Interpolate occupied s.p. wave functions w.r.t. momentum k
-        self.interpolate_wavefunctions(kmax, kmid, ntot)
+        self.interpolate_wavefunctions(kmax, kmid, ntot, com_correction)
         
         
     def get_orbital_file_name(self, sp_state):
@@ -235,7 +236,9 @@ class WoodsSaxon:
                             neutron_count += 1
 
 
-    def get_wf_rspace(self, sp_state, print_normalization=False):
+    def get_wf_rspace(
+            self, sp_state, print_normalization=False, com_correction=False
+    ):
         """Single-particle wave function in coordinate space."""
         
         # n, l, j, m_t
@@ -246,8 +249,21 @@ class WoodsSaxon:
         if print_normalization:
             normalization = np.sum(self.dr * u_array ** 2)
             print(f"Coordinate space normalization = {normalization}.")
+        
+        # Return r and [(A-1)/A]^(1/4) * u(\sqrt[(A-1)/A] * r)
+        if com_correction:
+            
+            u_func = InterpolatedUnivariateSpline(self.r_array, u_array)
+            A = self.A
+            u_com_array = (((A-1)/A) ** (1/4)
+                           * u_func(np.sqrt((A-1)/A) * self.r_array))
 
-        return self.r_array, u_array
+            return self.r_array, u_com_array
+        
+        # Return r and u(r)
+        else:
+
+            return self.r_array, u_array
     
     
     def fourier_transformation(self, l, r_array, k_array):
@@ -268,7 +284,7 @@ class WoodsSaxon:
     
     def get_wf_kspace(
             self, sp_state, kmax, kmid, ntot, print_normalization=False,
-            interpolate=False
+            interpolate=False, com_correction=False
     ):
         """Single-particle wave function in momentum space."""
     
@@ -276,7 +292,8 @@ class WoodsSaxon:
         k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
         # Get coordinate-space s.p. wave function
-        r_array, u_array = self.get_wf_rspace(sp_state)
+        r_array, u_array = self.get_wf_rspace(sp_state,
+                                              com_correction=com_correction)
 
         # Fourier-transform the wave function to momentum space
         phi_array = (self.fourier_transformation(sp_state.l, r_array, k_array)
@@ -306,7 +323,7 @@ class WoodsSaxon:
             return k_array, k_weights, phi_array
         
         
-    def interpolate_wavefunctions(self, kmax, kmid, ntot):
+    def interpolate_wavefunctions(self, kmax, kmid, ntot, com_correction=False):
         """Create dictionary of \phi(k) interpolated functions where the key
         is the single-particle state.
         """
@@ -318,8 +335,10 @@ class WoodsSaxon:
         for sp_state in self.occupied_states:
             
             key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t)
-            self.phi_functions[key] = self.get_wf_kspace(sp_state, kmax, kmid,
-                                                         ntot, interpolate=True)
+            self.phi_functions[key] = self.get_wf_kspace(
+                sp_state, kmax, kmid, ntot, interpolate=True,
+                com_correction=com_correction
+            )
             
     
     def psi(self, sp_state, k, theta, phi, sigma, tau):
@@ -1335,8 +1354,8 @@ def compute_normalization(q_array, q_weights, n_array):
 
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
-        ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
-        save=False
+        ntot=120, generator='Wegner', neval=5e4, com_correction=False,
+        print_normalization=False, save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1345,7 +1364,8 @@ def compute_momentum_distribution(
     cg_table = compute_clebsch_gordan_table(jmax)
     
     # Set single-particle basis
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
+                             com_correction=com_correction)
     # Get pairs of occupied states
     occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
     print("Total number of pairs of occupied s.p. states = "
@@ -1393,14 +1413,13 @@ def compute_momentum_distribution(
             delta_U_errors, delta_U2_array, delta_U2_errors)
 
 
-
 if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
-    nucleus_name, Z, N = 'Pb208', 82, 126
+    # nucleus_name, Z, N = 'Pb208', 82, 126
     
     # Nucleon
     tau = 1/2
@@ -1412,16 +1431,19 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
+    # lamb = 1.35
     lamb = 1.5
     
-    # neval = 5e4
-    neval = 1e5
+    neval = 5e4
+    # neval = 1e5
 
     # # Compute and save the momentum distribution
     # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
     #     nucleus_name, Z, N, tau, kvnn, lamb, channels, print_normalization=True,
     #     save=False
     # )
+    
+    com_correction = True
     
     # TESTING
     import matplotlib.pyplot as plt
@@ -1431,9 +1453,34 @@ if __name__ == '__main__':
      delta_U_errors, delta_U2_array, delta_U2_errors) = (
         compute_momentum_distribution(
             nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
-            print_normalization=True, save=False
+            com_correction=com_correction, print_normalization=True, save=False
         )
     )
+         
+    # SAVE COM CORRECTED VERSION
+    if com_correction:
+        
+        data = np.vstack(
+            (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+             delta_U_errors, delta_U2_array, delta_U2_errors)
+        ).T
+                
+        if tau == 1/2:
+            nucleon = 'proton'
+        elif tau == -1/2:
+            nucleon = 'neutron'
+                    
+        hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
+               " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
+        
+        directory = 'momentum_distributions/'
+
+        file_name = replace_periods(
+            f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+            f"_lamb_{lamb}_com_correction"
+        )
+        
+        np.savetxt(directory + file_name + '.txt', data, header=hdr)
     
     # Plot
     plt.close('all')
