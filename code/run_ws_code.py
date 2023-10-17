@@ -53,6 +53,7 @@ def set_ws_parameters(nucleus_name):
     # Central strength
     if nucleus_name == 'He4':
         prm[:, 0] = 76.8412
+        # prm[:, 0] = 60.0
     elif nucleus_name == 'Be9':
         prm[:, 0] = 66.6397
     elif nucleus_name == 'C12':
@@ -160,11 +161,11 @@ def get_orbital_file_name(sp_state):
     # Proton
     if sp_state.m_t == 1/2:
         file_name = (f"p.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                     f".j{int(2*sp_state.j)}.orb")
+                      f".j{int(2*sp_state.j)}.orb")
     # Neutron
     elif sp_state.m_t == -1/2:
         file_name = (f"n.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                     f".j{int(2*sp_state.j)}.orb")
+                      f".j{int(2*sp_state.j)}.orb")
             
     return file_name
 
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'Be9', 4, 5
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O12', 8, 8
+    # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Fe56', 26, 30
