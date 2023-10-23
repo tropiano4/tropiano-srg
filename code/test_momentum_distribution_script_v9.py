@@ -177,12 +177,12 @@ class WoodsSaxon:
         # Proton
         if sp_state.m_t == 1/2:
             file_name = (f"p.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                         f".j{int(2*sp_state.j)}.orb")
+                          f".j{int(2*sp_state.j)}.orb")
         # Neutron
         elif sp_state.m_t == -1/2:
             file_name = (f"n.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                         f".j{int(2*sp_state.j)}.orb")
-            
+                          f".j{int(2*sp_state.j)}.orb")
+
         return file_name
         
         
@@ -255,8 +255,13 @@ class WoodsSaxon:
             
             u_func = InterpolatedUnivariateSpline(self.r_array, u_array)
             A = self.A
-            u_com_array = (((A-1)/A) ** (1/4)
-                           * u_func(np.sqrt((A-1)/A) * self.r_array))
+            # u_com_array = (((A-1)/A) ** (1/4)
+            #                 * u_func(np.sqrt((A-1)/A) * self.r_array))
+            # # TESTING
+            # u_com_array = ((A/(A-1)) ** (1/4)
+            #                * u_func(np.sqrt(A/(A-1)) * self.r_array))
+            scaling = ((A-1)/A) ** (1/4)
+            u_com_array = np.sqrt(scaling) * u_func(scaling * self.r_array)
 
             return self.r_array, u_com_array
         
@@ -1372,7 +1377,7 @@ def compute_momentum_distribution(
           f"{len(occupied_state_pairs)}.")
 
     # Set points in q
-    qmax, qmid, ntot_q, nmod_q = 10.0, 2.0, 100, 50
+    qmax, qmid, ntot_q, nmod_q = 10.0, 2.0, 100, 60
     q_array, q_weights = momentum_mesh(qmax, qmid, ntot_q, nmod=nmod_q)
     
     # Compute the I term
@@ -1405,10 +1410,64 @@ def compute_momentum_distribution(
     
     # Option to save the momentum distribution as a .txt file
     if save:
-        pass
+        save_momentum_distribution(
+            nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
+            n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
+            delta_U2_errors
+        )
     
-    # return q_array, q_weights, n_array, n_errors
-    # TESTING
+    return q_array, q_weights, n_array, n_errors
+
+
+def save_momentum_distribution(
+        nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
+        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+):
+    """Save the momentum distribution along with the isolated contributions."""
+    
+    data = np.vstack(
+        (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+         delta_U_errors, delta_U2_array, delta_U2_errors)
+    ).T
+            
+    if tau == 1/2:
+        nucleon = 'proton'
+    elif tau == -1/2:
+        nucleon = 'neutron'
+                
+    hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
+           " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
+    
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    
+    np.savetxt(directory + file_name + '.txt', data, header=hdr)
+
+
+def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
+    """Load and return the momentum distribution along with the isolated
+    contributions.
+    """
+    
+    directory = 'momentum_distributions/'
+
+    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    
+    data = np.loadtxt(directory + file_name + '.txt')
+    
+    q_array = data[:, 0]
+    q_weights = data[:, 1]
+    n_array = data[:, 2]
+    n_errors = data[:, 3]
+    I_array = data[:, 4]
+    delta_U_array = data[:, 5]
+    delta_U_errors = data[:, 6]
+    delta_U2_array = data[:, 7]
+    delta_U2_errors = data[:, 8]
+    
     return (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
             delta_U_errors, delta_U2_array, delta_U2_errors)
 
@@ -1416,8 +1475,9 @@ def compute_momentum_distribution(
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
@@ -1431,73 +1491,112 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
-    # lamb = 1.35
-    lamb = 1.5
+    lamb = 1.35
+    # lamb = 1.5
     
-    neval = 5e4
+    neval = 1e4  # 4He
+    # neval = 5e4  # Try this for 12C and 16O
     # neval = 1e5
 
-    # # Compute and save the momentum distribution
-    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, kvnn, lamb, channels, print_normalization=True,
-    #     save=False
-    # )
-    
-    com_correction = True
-    
-    # TESTING
-    import matplotlib.pyplot as plt
-    
     # Compute and save the momentum distribution
-    (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
-     delta_U_errors, delta_U2_array, delta_U2_errors) = (
-        compute_momentum_distribution(
-            nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
-            com_correction=com_correction, print_normalization=True, save=False
-        )
+    q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+        nucleus_name, Z, N, tau, kvnn, lamb, channels, print_normalization=True,
+        save=True
     )
-         
-    # SAVE COM CORRECTED VERSION
-    if com_correction:
-        
-        data = np.vstack(
-            (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
-             delta_U_errors, delta_U2_array, delta_U2_errors)
-        ).T
-                
-        if tau == 1/2:
-            nucleon = 'proton'
-        elif tau == -1/2:
-            nucleon = 'neutron'
-                    
-        hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
-               " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
-        
-        directory = 'momentum_distributions/'
-
-        file_name = replace_periods(
-            f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
-            f"_lamb_{lamb}_com_correction"
-        )
-        
-        np.savetxt(directory + file_name + '.txt', data, header=hdr)
     
-    # Plot
-    plt.close('all')
-    f, ax = plt.subplots(figsize=(4, 4))
-    ax.set_yscale('log')
-    ax.errorbar(q_array, n_array/Z, yerr=n_errors/Z, label='Total',
-                linestyle='', marker='o', markersize=2.0)
-    ax.plot(q_array, I_array/Z, label='IPM', linestyle='dotted')
-    ax.errorbar(
-        q_array, np.abs(delta_U_array)/Z, yerr=delta_U_errors/Z,
-        label=r'$|\delta U|$', linestyle='', marker='o', markersize=2.0)
-    ax.errorbar(
-        q_array, delta_U2_array/Z, yerr=delta_U2_errors/Z,
-        label=r'$\delta U^2$', linestyle='', marker='o', markersize=2.0)
-    ax.set_xlabel(r'$q$ [fm$^{-1}$]')
-    ax.set_ylabel(r'$n_p(q)/Z$ [fm$^3$]')
-    ax.set_xlim(0,6)
-    ax.set_ylim(1e-6,1e0)
-    ax.legend(loc='upper right')
-    plt.show()
+    # com_correction = False
+    # # com_correction = True
+    
+    # # TESTING
+    # import matplotlib.pyplot as plt
+    
+    # # Compute and save the momentum distribution
+    # (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+    #  delta_U_errors, delta_U2_array, delta_U2_errors) = (
+    #     compute_momentum_distribution(
+    #         nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
+    #         com_correction=com_correction, print_normalization=True, save=False
+    #     )
+    # )
+         
+    # # SAVE COM CORRECTED VERSION
+    # if com_correction:
+        
+    #     data = np.vstack(
+    #         (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+    #          delta_U_errors, delta_U2_array, delta_U2_errors)
+    #     ).T
+                
+    #     if tau == 1/2:
+    #         nucleon = 'proton'
+    #     elif tau == -1/2:
+    #         nucleon = 'neutron'
+                    
+    #     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
+    #            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
+        
+    #     directory = 'momentum_distributions/'
+
+    #     # file_name = replace_periods(
+    #     #     f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+    #     #     f"_lamb_{lamb}_com_correction"
+    #     # )
+    #     # file_name = replace_periods(
+    #     #     f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+    #     #     f"_lamb_{lamb}_com_correction_updated_WS"
+    #     # )
+    #     file_name = replace_periods(
+    #         f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+    #         f"_lamb_{lamb}_com_correction_updated_scaling"
+    #     )
+    #     # file_name = replace_periods(
+    #     #     f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+    #     #     f"_lamb_{lamb}_com_correction_updated_scaling_WS"
+    #     # )
+        
+    #     np.savetxt(directory + file_name + '.txt', data, header=hdr)
+        
+    # else:
+        
+    #     data = np.vstack(
+    #         (q_array, q_weights, n_array, n_errors, I_array, delta_U_array,
+    #          delta_U_errors, delta_U2_array, delta_U2_errors)
+    #     ).T
+                
+    #     if tau == 1/2:
+    #         nucleon = 'proton'
+    #     elif tau == -1/2:
+    #         nucleon = 'neutron'
+                    
+    #     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
+    #            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
+        
+    #     directory = 'momentum_distributions/'
+
+    #     file_name = replace_periods(
+    #         f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}"
+    #         f"_lamb_{lamb}_updated_WS"
+    #     )
+        
+    #     np.savetxt(directory + file_name + '.txt', data, header=hdr)
+        
+    
+    # # Plot
+    # plt.close('all')
+    # f, ax = plt.subplots(figsize=(4, 4))
+    # ax.set_yscale('log')
+    # ax.errorbar(q_array, n_array/Z, yerr=n_errors/Z, label='Total',
+    #             linestyle='', marker='o', markersize=2.0)
+    # ax.plot(q_array, I_array/Z, label='IPM', linestyle='dotted')
+    # ax.errorbar(
+    #     q_array, np.abs(delta_U_array)/Z, yerr=delta_U_errors/Z,
+    #     label=r'$|\delta U|$', linestyle='', marker='o', markersize=2.0)
+    # ax.errorbar(
+    #     q_array, delta_U2_array/Z, yerr=delta_U2_errors/Z,
+    #     label=r'$\delta U^2$', linestyle='', marker='o', markersize=2.0)
+    # ax.set_xlabel(r'$q$ [fm$^{-1}$]')
+    # ax.set_ylabel(r'$n_p(q)/Z$ [fm$^3$]')
+    # ax.set_xlim(0,6)
+    # ax.set_ylim(1e-6,1e1)
+    # ax.legend(loc='upper right')
+    # plt.show()
