@@ -1491,8 +1491,8 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
-    lamb = 1.35
-    # lamb = 1.5
+    # lamb = 1.35
+    lamb = 1.5
     
     neval = 1e4  # 4He
     # neval = 5e4  # Try this for 12C and 16O
@@ -1501,7 +1501,7 @@ if __name__ == '__main__':
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, print_normalization=True,
-        save=True
+        neval=neval, save=True
     )
     
     # com_correction = False
