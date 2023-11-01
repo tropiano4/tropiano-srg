@@ -131,7 +131,7 @@ def psi(n, l, j, m_j, m_t, k, theta, phi, sigma, tau, cg_table, phi_functions):
         phi_sp_wf = phi_functions[(n, l, j, m_t)](k)
     else:  # Odd l needs factor of i^-l
         phi_sp_wf = 1j ** (-l) * phi_functions[(n, l, j, m_t)](k)
-    
+
     # Calculate spinor spherical harmonic
     Y_jml = spinor_spherical_harmonic(l, j, m_j, theta, phi, sigma, cg_table)
     
@@ -967,12 +967,13 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N = 'Fe54', 26, 28
     # nucleus_name, Z, N = 'Sn118', 50, 68
-    nucleus_name, Z, N, = 'Pb208', 82, 126
+    # nucleus_name, Z, N, = 'Pb208', 82, 126
     
     # Nucleon
-    tau = 1/2
-    # tau = -1/2
+    # tau = 1/2
+    tau = -1/2
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -997,8 +998,8 @@ if __name__ == '__main__':
     # Max evaluations of the integrand
     # delU_neval, delU2_neval = 1e4, 5e4
     # delU_neval, delU2_neval = 5e4, 1e5
-    # delU_neval, delU2_neval = 1e5, 5e5
-    delU_neval, delU2_neval = 3e5, 1e6
+    delU_neval, delU2_neval = 1e5, 5e5
+    # delU_neval, delU2_neval = 3e5, 1e6
 
     # Number of partitions of q_array
     # n_partitions = 25
