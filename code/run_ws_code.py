@@ -65,6 +65,9 @@ def set_ws_parameters(nucleus_name):
     elif nucleus_name == 'Ca48':
         prm[0, 0] = 59.4522  # Proton
         prm[1, 0] = 46.9322  # Neutron
+    elif nucleus_name == 'Fe54':
+        prm[0, 0] = 54.8925  # Proton
+        prm[1, 0] = 51.1828  # Neutron
     elif nucleus_name == 'Fe56':
         prm[0, 0] = 55.9744  # Proton
         prm[1, 0] = 50.0125  # Neutron
@@ -229,9 +232,10 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
+    nucleus_name, Z, N = 'Fe54', 26, 28
     # nucleus_name, Z, N = 'Fe56', 26, 30
     # nucleus_name, Z, N = 'Sn118', 50, 68
-    nucleus_name, Z, N = 'Pb208', 82, 126
+    # nucleus_name, Z, N = 'Pb208', 82, 126
     
     # Generate orbital files
     main(nucleus_name, Z, N)
