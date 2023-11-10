@@ -16,7 +16,7 @@ elements and s.p. wavefunctions \psi. The MC package vegas is used to integrate
 over vector momenta and s.p. quantum numbers \alpha, \beta, and spin
 projections.
 
-Last update: September 26, 2023
+Last update: November 10, 2023
 
 """
 
@@ -28,9 +28,6 @@ from scipy.interpolate import InterpolatedUnivariateSpline, RectBivariateSpline
 from scipy.special import sph_harm, spherical_jn
 from sympy.physics.quantum.cg import CG
 import vegas
-
-# TESTING
-import time
 
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
@@ -138,7 +135,7 @@ class WoodsSaxon:
     
     
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120, com_correction=False):
+                 kmax=10.0, kmid=2.0, ntot=120):
         
         # Set instance attributes
         self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
@@ -168,7 +165,7 @@ class WoodsSaxon:
         self.dr = max(self.r_array) / len(self.r_array)
         
         # Interpolate occupied s.p. wave functions w.r.t. momentum k
-        self.interpolate_wavefunctions(kmax, kmid, ntot, com_correction)
+        self.interpolate_wavefunctions(kmax, kmid, ntot)
         
         
     def get_orbital_file_name(self, sp_state):
@@ -236,9 +233,7 @@ class WoodsSaxon:
                             neutron_count += 1
 
 
-    def get_wf_rspace(
-            self, sp_state, print_normalization=False, com_correction=False
-    ):
+    def get_wf_rspace(self, sp_state, print_normalization=False):
         """Single-particle wave function in coordinate space."""
         
         # n, l, j, m_t
@@ -250,25 +245,8 @@ class WoodsSaxon:
             normalization = np.sum(self.dr * u_array ** 2)
             print(f"Coordinate space normalization = {normalization}.")
         
-        # Return r and [(A-1)/A]^(1/4) * u(\sqrt[(A-1)/A] * r)
-        if com_correction:
-            
-            u_func = InterpolatedUnivariateSpline(self.r_array, u_array)
-            A = self.A
-            # u_com_array = (((A-1)/A) ** (1/4)
-            #                 * u_func(np.sqrt((A-1)/A) * self.r_array))
-            # # TESTING
-            # u_com_array = ((A/(A-1)) ** (1/4)
-            #                * u_func(np.sqrt(A/(A-1)) * self.r_array))
-            scaling = ((A-1)/A) ** (1/4)
-            u_com_array = np.sqrt(scaling) * u_func(scaling * self.r_array)
-
-            return self.r_array, u_com_array
-        
         # Return r and u(r)
-        else:
-
-            return self.r_array, u_array
+        return self.r_array, u_array
     
     
     def fourier_transformation(self, l, r_array, k_array):
@@ -289,7 +267,7 @@ class WoodsSaxon:
     
     def get_wf_kspace(
             self, sp_state, kmax, kmid, ntot, print_normalization=False,
-            interpolate=False, com_correction=False
+            interpolate=False
     ):
         """Single-particle wave function in momentum space."""
     
@@ -297,8 +275,7 @@ class WoodsSaxon:
         k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
     
         # Get coordinate-space s.p. wave function
-        r_array, u_array = self.get_wf_rspace(sp_state,
-                                              com_correction=com_correction)
+        r_array, u_array = self.get_wf_rspace(sp_state)
 
         # Fourier-transform the wave function to momentum space
         phi_array = (self.fourier_transformation(sp_state.l, r_array, k_array)
@@ -328,7 +305,7 @@ class WoodsSaxon:
             return k_array, k_weights, phi_array
         
         
-    def interpolate_wavefunctions(self, kmax, kmid, ntot, com_correction=False):
+    def interpolate_wavefunctions(self, kmax, kmid, ntot):
         """Create dictionary of \phi(k) interpolated functions where the key
         is the single-particle state.
         """
@@ -341,8 +318,7 @@ class WoodsSaxon:
             
             key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t)
             self.phi_functions[key] = self.get_wf_kspace(
-                sp_state, kmax, kmid, ntot, interpolate=True,
-                com_correction=com_correction
+                sp_state, kmax, kmid, ntot, interpolate=True
             )
             
     
@@ -1251,17 +1227,12 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         K_limits, theta_limits, phi_limits,
         sum_limits, sum_limits
     ], nproc=8)
-    
-    print("Starting \delta U + \delta U^\dagger term...\n")
 
     # Evaluate the \delta U + \delta U^\dagger term for each q
     delta_U_array = np.zeros_like(q_array)
     delta_U_errors = np.zeros_like(q_array)
     for i, q in enumerate(q_array):
 
-        # TESTING
-        t0 = time.time()
-        
         integrand = DeltaUIntegrand(
             q, tau, woods_saxon, delta_U_matrix_element, spin_configurations,
             isospin_configurations, occupied_state_pairs
@@ -1275,13 +1246,6 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
-        
-        # TESTING
-        t1 = time.time()
-        mins = (t1-t0)/60
-        print(f"Done with q = {q:.4f} after {mins:.4f} minutes.")
-        
-    print("\nDone with \delta U + \delta U^\dagger term.")
 
     return delta_U_array, delta_U_errors
 
@@ -1316,17 +1280,12 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         K_limits, theta_limits, phi_limits,
         sum_limits, sum_limits
     ], nproc=8)
-    
-    print("Starting \delta U \delta U^\dagger term...\n")
 
     # Evaluate the \delta U \delta U^\dagger term for each q
     delta_U2_array = np.zeros_like(q_array)
     delta_U2_errors = np.zeros_like(q_array)
     for i, q in enumerate(q_array):
 
-        # TESTING
-        t0 = time.time()
-        
         integrand = DeltaU2Integrand(
             q, tau, woods_saxon, delta_U_matrix_element, spin_configurations,
             isospin_configurations, occupied_state_pairs
@@ -1340,13 +1299,6 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
-        
-        # TESTING
-        t1 = time.time()
-        mins = (t1-t0)/60
-        print(f"Done with q = {q:.4f} after {mins:.4f} minutes.")
-        
-    print("\nDone with \delta U \delta U^\dagger term.")
 
     return delta_U2_array, delta_U2_errors
 
@@ -1359,26 +1311,22 @@ def compute_normalization(q_array, q_weights, n_array):
 
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
-        ntot=120, generator='Wegner', neval=5e4, com_correction=False,
-        print_normalization=False, save=False
+        ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
+        save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
     # Set table of Clebsch-Gordan coefficients
-    jmax = 5  # This should cover nuclei as heavy as Pb208
+    jmax = 4  # This should cover nuclei as heavy as Ca48
     cg_table = compute_clebsch_gordan_table(jmax)
     
     # Set single-particle basis
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
-                             com_correction=com_correction)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
     # Get pairs of occupied states
     occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
-    print("Total number of pairs of occupied s.p. states = "
-          f"{len(occupied_state_pairs)}.")
 
     # Set points in q
-    qmax, qmid, ntot_q, nmod_q = 10.0, 3.0, 100, 60
-    q_array, q_weights = momentum_mesh(qmax, qmid, ntot_q, nmod=nmod_q)
+    q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
     
     # Compute the I term
     I_array = compute_I_term(q_array, tau, woods_saxon)
@@ -1394,10 +1342,13 @@ def compute_momentum_distribution(
     )
     
     # Compute the \delta U \delta U^\dagger term
-    delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-        q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
-        neval
-    )
+    # delta_U2_array, delta_U2_errors = compute_delta_U2_term(
+    #     q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
+    #     neval
+    # )
+    # TESTING
+    delta_U2_array = np.zeros_like(I_array)
+    delta_U2_errors = np.zeros_like(I_array)
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
@@ -1475,10 +1426,10 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
@@ -1498,10 +1449,14 @@ if __name__ == '__main__':
     # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
     # neval = 1e5  # 16O
-    neval = 5e5  # 40Ca and 48Ca
+    # neval = 5e5  # 40Ca and 48Ca
 
-    # Compute and save the momentum distribution
+    # # Compute and save the momentum distribution
+    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
+    #     nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval, save=True
+    # )
+    
+    # TEST RUN
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, kvnn, lamb, channels, print_normalization=True,
-        neval=neval, save=True
+        nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=1e3, save=False
     )
