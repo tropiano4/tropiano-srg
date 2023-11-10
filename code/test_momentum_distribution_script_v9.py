@@ -1246,6 +1246,9 @@ def compute_delta_U_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         delta_U_array[i] = result.mean
         delta_U_errors[i] = result.sdev
+        
+        percent = (i+1)/len(q_array)*100
+        print(f"{percent:.2f} percent done with \delta U + \delta U^\dagger.")
 
     return delta_U_array, delta_U_errors
 
@@ -1299,6 +1302,9 @@ def compute_delta_U2_term(q_array, tau, woods_saxon, delta_U_matrix_element,
         
         delta_U2_array[i] = result.mean
         delta_U2_errors[i] = result.sdev
+        
+        percent = (i+1)/len(q_array)*100
+        print(f"{percent:.2f} percent done with \delta U \delta U^\dagger.")
 
     return delta_U2_array, delta_U2_errors
 
