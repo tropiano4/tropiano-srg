@@ -1348,13 +1348,10 @@ def compute_momentum_distribution(
     )
     
     # Compute the \delta U \delta U^\dagger term
-    # delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-    #     q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
-    #     neval
-    # )
-    # TESTING
-    delta_U2_array = np.zeros_like(I_array)
-    delta_U2_errors = np.zeros_like(I_array)
+    delta_U2_array, delta_U2_errors = compute_delta_U2_term(
+        q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
+        neval
+    )
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
@@ -1452,17 +1449,12 @@ if __name__ == '__main__':
     # lamb = 1.35
     lamb = 1.5
     
-    # neval = 5e4  # 4He
+    neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
     # neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
 
-    # # Compute and save the momentum distribution
-    # q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-    #     nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval, save=True
-    # )
-    
-    # TEST RUN
+    # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=1e3, save=False
+        nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval, save=True
     )
