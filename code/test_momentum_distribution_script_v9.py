@@ -1389,7 +1389,7 @@ def save_momentum_distribution(
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
     
-    directory = 'momentum_distributions/'
+    directory = f"../data/momentum_distributions/{nucleus_name}/"
 
     file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
                                 f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
@@ -1402,7 +1402,7 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
     contributions.
     """
     
-    directory = 'momentum_distributions/'
+    directory = f"../data/momentum_distributions/{nucleus_name}/"
 
     file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
                                 f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
