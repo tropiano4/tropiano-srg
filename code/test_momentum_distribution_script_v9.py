@@ -32,7 +32,7 @@ import vegas
 # Imports from scripts
 from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
-from scripts.srg import load_srg_transformation
+from scripts.srg import compute_srg_transformation, load_srg_transformation
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 
 
@@ -484,7 +484,7 @@ class DeltaUMatrixElement:
     """DOCSTRING"""
     
     def __init__(self, cg_table, kvnn, kmax, kmid, ntot, generator, lamb,
-                 channels):
+                 channels, kvnn_hard=None, lambda_m=None):
         
         # Set instance attributes
         self.cg_table = cg_table
@@ -495,7 +495,8 @@ class DeltaUMatrixElement:
         self.spin_triplet_channels = self.get_triplet_channels()
         
         # Set \delta U and \delta U^\dagger functions
-        self.get_delta_U_functions(kvnn, kmax, kmid, ntot, generator, lamb)
+        self.get_delta_U_functions(kvnn, kmax, kmid, ntot, generator, lamb,
+                                   kvnn_hard, lambda_m)
     
     
     def __call__(
@@ -584,16 +585,40 @@ class DeltaUMatrixElement:
         return matrix_element
     
     
-    def interpolate_delta_U(self, channel, potential, generator, lamb,
-                            hc=False):
+    def interpolate_delta_U(
+            self, channel, potential, generator, lamb, hc=False,
+            potential_hard=None, lambda_m=None
+    ):
         """Interpolate \delta U(k, k') for the given channel."""
 
         # Get momentum mesh
         kmax, kmid, ntot = potential.kmax, potential.kmid, potential.ntot
         k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
-    
-        # Get SRG transformation with integration weights [unitless]
-        U_matrix_weights = load_srg_transformation(potential, generator, lamb)
+        
+        # Inverse-SRG-evolved Hamiltonian as starting point
+        if lambda_m is not None:
+            H_initial = potential.load_hamiltonian()
+            H_hard_initial = potential_hard.load_hamiltonian()
+            if generator == 'Block-diag':
+                H_evolved = potential.load_hamiltonian('srg', generator, 1.0,
+                                                       lambda_bd=lamb)
+                H_hard_evolved = potential_hard.load_hamiltonian(
+                    'srg', generator, 1.0, lambda_bd=lambda_m)
+            else:
+                H_evolved = potential.load_hamiltonian('srg', generator, lamb)
+                H_hard_evolved = potential_hard.load_hamiltonian(
+                    'srg', generator, lambda_m)
+            # Get SRG transformation for inverse transformation
+            U_hard = compute_srg_transformation(H_hard_initial, H_hard_evolved)
+            # Do inverse transformation on initial Hamiltonian
+            H_initial = U_hard.T @ H_initial @ U_hard
+            # Get SRG transformation with integration weights [unitless]
+            U_matrix_weights = compute_srg_transformation(H_initial, H_evolved)
+            
+        else:
+            # Get SRG transformation with integration weights [unitless]
+            U_matrix_weights = load_srg_transformation(potential, generator,
+                                                       lamb)
 
         # Calculate \delta U = U - I
         I_matrix_weights = np.eye(len(U_matrix_weights))
@@ -626,7 +651,10 @@ class DeltaUMatrixElement:
         return delU_func
         
         
-    def get_delta_U_functions(self, kvnn, kmax, kmid, ntot, generator, lamb):
+    def get_delta_U_functions(
+            self, kvnn, kmax, kmid, ntot, generator, lamb, kvnn_hard=None,
+            lambda_m=None
+    ):
         """Get \delta U and \delta U^\dagger functions."""
         
         self.delU_functions = {}
@@ -645,6 +673,11 @@ class DeltaUMatrixElement:
             
             # Potential in specified partial wave channel
             potential = Potential(kvnn, channel_arg, kmax, kmid, ntot)
+            if kvnn_hard is not None:
+                potential_hard = Potential(kvnn_hard, channel_arg, kmax, kmid,
+                                           ntot)
+            else:
+                potential_hard = None
             
             # Use partial wave channel as key
             pwc = PartialWaveChannel(channel)
@@ -652,9 +685,13 @@ class DeltaUMatrixElement:
         
             # Set \delta U and \delta U^\dagger functions
             self.delU_functions[key] = self.interpolate_delta_U(
-                channel, potential, generator, lamb)
+                channel, potential, generator, lamb,
+                potential_hard=potential_hard, lambda_m=lambda_m
+            )
             self.delUdag_functions[key] = self.interpolate_delta_U(
-                channel, potential, generator, lamb, hc=True)
+                channel, potential, generator, lamb, hc=True,
+                potential_hard=potential_hard, lambda_m=lambda_m
+            )
             
             
     def get_singlet_channels(self):
@@ -1318,7 +1355,7 @@ def compute_normalization(q_array, q_weights, n_array):
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
         ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
-        save=False
+        kvnn_hard=None, lambda_m=None, save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1339,7 +1376,9 @@ def compute_momentum_distribution(
     
     # Initialize \delta U matrix element class
     delta_U_matrix_element = DeltaUMatrixElement(
-        cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels)
+        cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels, kvnn_hard,
+        lambda_m
+    )
     
     # Compute the \delta U + \delta U^\dagger term
     delta_U_array, delta_U_errors = compute_delta_U_term(
@@ -1367,7 +1406,7 @@ def compute_momentum_distribution(
         save_momentum_distribution(
             nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array,
             n_errors, I_array, delta_U_array, delta_U_errors, delta_U2_array,
-            delta_U2_errors
+            delta_U2_errors, kvnn_hard, lambda_m
         )
     
     return q_array, q_weights, n_array, n_errors
@@ -1375,7 +1414,8 @@ def compute_momentum_distribution(
 
 def save_momentum_distribution(
         nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
-        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors
+        I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors,
+        kvnn_hard=None, lambda_m=None
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
@@ -1394,21 +1434,35 @@ def save_momentum_distribution(
     
     directory = f"../data/momentum_distributions/{nucleus_name}/"
 
-    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
-                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    if kvnn_hard is not None:
+        file_name = replace_periods(
+            f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
+            f"_{lamb}_kvnn_hard_{kvnn_hard}_lambda_m_{lambda_m}"
+        )
+    else:
+        file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                    f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
     
     np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
 
-def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
+def load_momentum_distribution(
+        nucleus_name, nucleon, kvnn, lamb, kvnn_hard=None, lambda_m=None
+):
     """Load and return the momentum distribution along with the isolated
     contributions.
     """
     
     directory = f"../data/momentum_distributions/{nucleus_name}/"
 
-    file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
-                                f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+    if kvnn_hard is not None:
+        file_name = replace_periods(
+            f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
+            f"_{lamb}_kvnn_hard_{kvnn_hard}_lambda_m_{lambda_m}"
+        )
+    else:
+        file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
+                                    f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
     
     data = np.loadtxt(directory + file_name + '.txt')
     
@@ -1443,19 +1497,29 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
+    # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
-    lamb = 1.35
-    # lamb = 1.5
+    # lamb = 1.35
+    lamb = 1.5
     # lamb = 2.5
     
     # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
     neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
+    
+    # Inverse-SRG evolution?
+    # kvnn_hard = None
+    # lambda_m = None
+    kvnn_hard = 6
+    lambda_m = 5.0
+    # lambda_m = 4.5
+    # lambda_m = 4.0
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
-        nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval, save=True
+        nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
+        kvnn_hard=kvnn_hard, lambda_m=lambda_m, save=True
     )
