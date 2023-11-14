@@ -1429,9 +1429,9 @@ def load_momentum_distribution(nucleus_name, nucleon, kvnn, lamb):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
@@ -1446,12 +1446,13 @@ if __name__ == '__main__':
     kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120
     
     # SRG \lambda value
-    # lamb = 1.35
-    lamb = 1.5
+    lamb = 1.35
+    # lamb = 1.5
+    # lamb = 2.5
     
-    neval = 5e4  # 4He
+    # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
-    # neval = 1e5  # 16O
+    neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
 
     # Compute and save the momentum distribution
