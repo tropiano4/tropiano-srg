@@ -1498,6 +1498,7 @@ if __name__ == '__main__':
     
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
     kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
@@ -1511,10 +1512,10 @@ if __name__ == '__main__':
     # neval = 5e5  # 40Ca and 48Ca
     
     # Inverse-SRG evolution?
-    # kvnn_hard = None
-    # lambda_m = None
-    kvnn_hard = 6
-    lambda_m = 5.0
+    kvnn_hard = None
+    lambda_m = None
+    # kvnn_hard = 6
+    # lambda_m = 5.0
     # lambda_m = 4.5
     # lambda_m = 4.0
 
