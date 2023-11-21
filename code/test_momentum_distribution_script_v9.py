@@ -1499,7 +1499,8 @@ if __name__ == '__main__':
     # NN potential and momentum mesh
     # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
-    kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
+    kvnn, kmax, kmid, ntot = 79, 15.0, 3.0, 120  # EMN N4LO 500 MeV
+    # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
     # lamb = 1.35
