@@ -1485,8 +1485,8 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    nucleus_name, Z, N = 'O16', 8, 8
-    # nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
@@ -1497,9 +1497,9 @@ if __name__ == '__main__':
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
-    kvnn, kmax, kmid, ntot = 79, 15.0, 3.0, 120  # EMN N4LO 500 MeV
+    # kvnn, kmax, kmid, ntot = 79, 15.0, 3.0, 120  # EMN N4LO 500 MeV
     # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
@@ -1509,8 +1509,8 @@ if __name__ == '__main__':
     
     # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
-    neval = 1e5  # 16O
-    # neval = 5e5  # 40Ca and 48Ca
+    # neval = 1e5  # 16O
+    neval = 5e5  # 40Ca and 48Ca
     
     # Inverse-SRG evolution?
     kvnn_hard = None
