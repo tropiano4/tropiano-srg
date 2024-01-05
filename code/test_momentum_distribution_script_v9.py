@@ -133,12 +133,19 @@ class WoodsSaxon:
         
     """
     
-    
+    ### TESTING
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120):
+                 kmax=10.0, kmid=2.0, ntot=120, test=False):
         
         # Set instance attributes
-        self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+        # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+        ### TESTING
+        if test:
+            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
+            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
+            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
+        else:
+            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.cg_table = cg_table
         self.A = int(Z + N)
 
@@ -1364,7 +1371,9 @@ def compute_momentum_distribution(
     cg_table = compute_clebsch_gordan_table(jmax)
     
     # Set single-particle basis
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
+    # woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
+    ### TESTING
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table, test=True)
     # Get pairs of occupied states
     occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
 
@@ -1442,6 +1451,11 @@ def save_momentum_distribution(
     else:
         file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
                                     f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
+        
+    ### TESTING
+    file_name += "_test"
+    # file_name += "_seminole"
+    # file_name += "_universal"
     
     np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
@@ -1504,8 +1518,8 @@ if __name__ == '__main__':
     
     # SRG \lambda value
     # lamb = 1.35
-    # lamb = 1.5
-    lamb = 2.0
+    lamb = 1.5
+    # lamb = 2.0
     # lamb = 2.5
     
     # neval = 5e4  # 4He
