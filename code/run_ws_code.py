@@ -53,7 +53,6 @@ def set_ws_parameters(nucleus_name):
     # Central strength
     if nucleus_name == 'He4':
         prm[:, 0] = 76.8412
-        # prm[:, 0] = 60.0
     elif nucleus_name == 'Be9':
         prm[:, 0] = 66.6397
     elif nucleus_name == 'C12':
@@ -104,16 +103,20 @@ def set_ws_parameters(nucleus_name):
     # # Coulomb R_0
     # prm[:,8] = 1.275
     
-    ### TESTING C12
-    # prm[:,0] = 67.0611
-    # prm[:,1] = 1.6
-    # prm[:,2] = 0.7
-    # prm[:,3] = 0.
-    # prm[:,4] = 1.
-    # prm[:,5] = 0.
-    # prm[:,6] = 1.32
-    # prm[:,7] = 0.7
-    # prm[:,8] = 1.275
+    # ### TESTING UNIVERSAL PARAMETRIZATION
+    # prm[:, 0] = 49.6
+    # prm[0, 1] = 1.275  # Proton
+    # prm[1, 1] = 1.347  # Neutron
+    # prm[:, 2] = 0.7
+    # prm[:, 3] = 0.0
+    # prm[:, 4] = 1.0
+    # prm[0, 5] = 36  # Proton
+    # prm[1, 5] = 35  # Neutron
+    # prm[0, 6] = 1.32  # Proton
+    # prm[1, 6] = 1.31  # Neutron
+    # prm[:, 7] = 0.7
+    # prm[0, 8] = 1.275  # Proton
+    # prm[1, 8] = 1.347  # Neutron
     
     # ### TESTING O16 SEMINOLE PARAMETRIZATION
     # # Central R_0
@@ -133,21 +136,6 @@ def set_ws_parameters(nucleus_name):
     # # Coulomb R_0
     # prm[:,8] = 3.175 / (16 ** (1/3))
     
-    # ### TESTING UNIVERSAL PARAMETRIZATION
-    # prm[:, 0] = 49.6
-    # prm[0, 1] = 1.275  # Proton
-    # prm[1, 1] = 1.347  # Neutron
-    # prm[:, 2] = 0.7
-    # prm[:, 3] = 0.0
-    # prm[:, 4] = 1.0
-    # prm[0, 5] = 36  # Proton
-    # prm[1, 5] = 35  # Neutron
-    # prm[0, 6] = 1.32  # Proton
-    # prm[1, 6] = 1.31  # Neutron
-    # prm[:, 7] = 0.7
-    # prm[0, 8] = 1.275  # Proton
-    # prm[1, 8] = 1.347  # Neutron
-    
     # ### TESTING O16 SEMINOLE WITH DIFFERENT V0
     # prm[:, 0] = 40.0
     # prm[:,1] = 3.175 / (16 ** (1/3))
@@ -166,9 +154,27 @@ def set_ws_parameters(nucleus_name):
     # # Coulomb R_0
     # prm[:,8] = 3.175 / (16 ** (1/3))
     
-    ### TESTING He4 SEMINOLE PARAMETRIZATION
+    # ### TESTING He4 SEMINOLE PARAMETRIZATION
+    # # Central R_0
+    # prm[:,1] = 2.00013 / (4 ** (1/3))
+    # # Central surface diffuseness a
+    # prm[:,2] = 0.644174
+    # # Wine-Bottle: kwb
+    # prm[:,3] = 0.0
+    # # Wine-Bottle: awb
+    # prm[:,4] = 1.0
+    # # Spin-orbit strength \lambda
+    # prm[:,5] = 51.8575
+    # # Spin-orbit R_0
+    # prm[:,6] = 1.90409 / (4 ** (1/3))
+    # # Spin-orbit surface diffuseness a
+    # prm[:,7] = 0.644174
+    # # Coulomb R_0
+    # prm[:,8] = 2.00013 / (4 ** (1/3))
+    
+    ### TESTING C12 SEMINOLE PARAMETRIZATION
     # Central R_0
-    prm[:,1] = 2.00013 / (4 ** (1/3))
+    prm[:,1] = 2.88468 / (12 ** (1/3))
     # Central surface diffuseness a
     prm[:,2] = 0.644174
     # Wine-Bottle: kwb
@@ -176,13 +182,14 @@ def set_ws_parameters(nucleus_name):
     # Wine-Bottle: awb
     prm[:,4] = 1.0
     # Spin-orbit strength \lambda
-    prm[:,5] = 51.8575
+    prm[0,5] = 34.6305
+    prm[1,5] = 34.5432
     # Spin-orbit R_0
-    prm[:,6] = 1.90409 / (4 ** (1/3))
+    prm[:,6] = 2.74617 / (12 ** (1/3))
     # Spin-orbit surface diffuseness a
     prm[:,7] = 0.644174
     # Coulomb R_0
-    prm[:,8] = 2.00013 / (4 ** (1/3))
+    prm[:,8] = 2.88468 / (12 ** (1/3))
 
     return prm
 
@@ -310,9 +317,9 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
     
 if __name__ == '__main__':
     
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'Be9', 4, 5
-    # nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
