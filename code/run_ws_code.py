@@ -45,22 +45,65 @@ def get_orbitals():
     return norb, lorb, jorb
 
 
-def set_ws_parameters(nucleus_name):
-    """Set the Woods-Saxon parameters given the nucleus."""
+def set_ws_parameters(nucleus_name, A):
+    """Set the Woods-Saxon parameters given the nucleus. The first index
+    of the parameters array 'prm' corresponds to proton (0) or neutron (1).
+    The second index corresponds to the following:
+        
+        0 : Central strength V_0 [MeV]
+        1 : Central radius R_0 [fm]
+        2 : Central surface diffuseness a [fm]
+        3 : Wine-Bottle kwb (set to 0 for no Wine-Bottle potential)
+        4 : Wine-Bottle awb
+        5 : Spin-orbit strength \lambda [MeV]
+        6 : Spin-orbit radius R_SO [fm]
+        7 : Spin-orbit surface diffuseness (same as a) [fm]
+        8 : Coulomb radius (same as R_0) [fm]
+    
+    """
 
     prm = np.zeros(shape=(2, 9), order='F')
     
-    # Central strength
+    # These parameters are the same for every nucleus
+    a = 0.644174
+    kwb = 0.0
+    awb = 1.0
+    prm[:, 2] = a
+    prm[:, 3] = kwb
+    prm[:, 4] = awb
+    prm[:, 7] = a
+    
+    # Seminole parametrization
     if nucleus_name == 'He4':
         prm[:, 0] = 76.8412
+        prm[:, 1] = 2.00013 / (A ** (1/3))
+        prm[0, 5] = 51.8575
+        prm[1, 5] = 51.7507
+        prm[:, 6] = 1.90409 / (A ** (1/3))
+        prm[:, 8] = 2.00013 / (A ** (1/3))
     elif nucleus_name == 'Be9':
         prm[:, 0] = 66.6397
     elif nucleus_name == 'C12':
         prm[:, 0] = 60.1478
+        prm[:, 1] = 2.88468 / (A ** (1/3))
+        prm[0, 5] = 34.6305
+        prm[1, 5] = 34.5432
+        prm[:, 6] = 2.74617 / (A ** (1/3))
+        prm[:, 8] = 2.88468 / (A ** (1/3))
     elif nucleus_name == 'O16':
         prm[:, 0] = 58.0611
+        prm[:, 1] = 3.175 / (A ** (1/3))
+        prm[0, 5] = 33.0985
+        prm[1, 5] = 33.0131
+        prm[:, 6] = 3.02255 / (A ** (1/3))
+        prm[:, 8] = 3.175 / (A ** (1/3))
     elif nucleus_name == 'Ca40':
         prm[:, 0] = 54.3051
+        prm[:, 1] = 4.30914 / (A ** (1/3))
+        prm[0, 5] = 30.5847
+        prm[1, 5] = 30.5027
+        prm[:, 6] = 4.10223 / (A ** (1/3))
+        prm[:, 8] = 4.30914 / (A ** (1/3))
     elif nucleus_name == 'Ca48':
         prm[0, 0] = 59.4522  # Proton
         prm[1, 0] = 46.9322  # Neutron
@@ -117,25 +160,7 @@ def set_ws_parameters(nucleus_name):
     # prm[:, 7] = 0.7
     # prm[0, 8] = 1.275  # Proton
     # prm[1, 8] = 1.347  # Neutron
-    
-    # ### TESTING O16 SEMINOLE PARAMETRIZATION
-    # # Central R_0
-    # prm[:,1] = 3.175 / (16 ** (1/3))
-    # # Central surface diffuseness a
-    # prm[:,2] = 0.644174
-    # # Wine-Bottle: kwb
-    # prm[:,3] = 0.0
-    # # Wine-Bottle: awb
-    # prm[:,4] = 1.0
-    # # Spin-orbit strength \lambda
-    # prm[:,5] = 33.0985
-    # # Spin-orbit R_0
-    # prm[:,6] = 3.02255 / (16 ** (1/3))
-    # # Spin-orbit surface diffuseness a
-    # prm[:,7] = 0.644174
-    # # Coulomb R_0
-    # prm[:,8] = 3.175 / (16 ** (1/3))
-    
+
     # ### TESTING O16 SEMINOLE WITH DIFFERENT V0
     # prm[:, 0] = 40.0
     # prm[:,1] = 3.175 / (16 ** (1/3))
@@ -153,43 +178,6 @@ def set_ws_parameters(nucleus_name):
     # prm[:,7] = 0.644174
     # # Coulomb R_0
     # prm[:,8] = 3.175 / (16 ** (1/3))
-    
-    # ### TESTING He4 SEMINOLE PARAMETRIZATION
-    # # Central R_0
-    # prm[:,1] = 2.00013 / (4 ** (1/3))
-    # # Central surface diffuseness a
-    # prm[:,2] = 0.644174
-    # # Wine-Bottle: kwb
-    # prm[:,3] = 0.0
-    # # Wine-Bottle: awb
-    # prm[:,4] = 1.0
-    # # Spin-orbit strength \lambda
-    # prm[:,5] = 51.8575
-    # # Spin-orbit R_0
-    # prm[:,6] = 1.90409 / (4 ** (1/3))
-    # # Spin-orbit surface diffuseness a
-    # prm[:,7] = 0.644174
-    # # Coulomb R_0
-    # prm[:,8] = 2.00013 / (4 ** (1/3))
-    
-    ### TESTING C12 SEMINOLE PARAMETRIZATION
-    # Central R_0
-    prm[:,1] = 2.88468 / (12 ** (1/3))
-    # Central surface diffuseness a
-    prm[:,2] = 0.644174
-    # Wine-Bottle: kwb
-    prm[:,3] = 0.0
-    # Wine-Bottle: awb
-    prm[:,4] = 1.0
-    # Spin-orbit strength \lambda
-    prm[0,5] = 34.6305
-    prm[1,5] = 34.5432
-    # Spin-orbit R_0
-    prm[:,6] = 2.74617 / (12 ** (1/3))
-    # Spin-orbit surface diffuseness a
-    prm[:,7] = 0.644174
-    # Coulomb R_0
-    prm[:,8] = 2.88468 / (12 ** (1/3))
 
     return prm
 
@@ -279,7 +267,7 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
     dens = True
     
     # Get the Woods-Saxon parameters for the input nucleus
-    prm = set_ws_parameters(nucleus_name)
+    prm = set_ws_parameters(nucleus_name, A)
   
     # Print summary, potentials, and densities
     prnt = True
@@ -319,9 +307,9 @@ if __name__ == '__main__':
     
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'Be9', 4, 5
-    nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
-    # nucleus_name, Z, N = 'Ca40', 20, 20
+    nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Fe54', 26, 28
     # nucleus_name, Z, N = 'Fe56', 26, 30
