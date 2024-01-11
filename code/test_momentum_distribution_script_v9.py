@@ -135,17 +135,20 @@ class WoodsSaxon:
     
     ### TESTING
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120, test=False):
+                 kmax=10.0, kmid=2.0, ntot=120, parametrization='Match'):
         
         # Set instance attributes
         # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         ### TESTING
-        if test:
-            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
-            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
-            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
-        else:
-            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+        self.woods_saxon_directory = (
+            f"../data/woods_saxon/{parametrization}/{nucleus_name}/"
+        )
+        # if test:
+        #     # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
+        #     # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
+        #     self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
+        # else:
+        #     self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.cg_table = cg_table
         self.A = int(Z + N)
 
@@ -1362,7 +1365,7 @@ def compute_normalization(q_array, q_weights, n_array):
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
         ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
-        kvnn_hard=None, lambda_m=None, save=False
+        kvnn_hard=None, lambda_m=None, parametrization='Match', save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1373,7 +1376,8 @@ def compute_momentum_distribution(
     # Set single-particle basis
     # woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table)
     ### TESTING
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table, test=True)
+    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
+                             parametrization=parametrization)
     # Get pairs of occupied states
     occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
 
@@ -1424,7 +1428,7 @@ def compute_momentum_distribution(
 def save_momentum_distribution(
         nucleus_name, tau, kvnn, lamb, q_array, q_weights, n_array, n_errors,
         I_array, delta_U_array, delta_U_errors, delta_U2_array, delta_U2_errors,
-        kvnn_hard=None, lambda_m=None
+        kvnn_hard=None, lambda_m=None, parametrization='Match'
 ):
     """Save the momentum distribution along with the isolated contributions."""
     
@@ -1443,19 +1447,18 @@ def save_momentum_distribution(
     
     directory = f"../data/momentum_distributions/{nucleus_name}/"
 
+    ### TESTING
     if kvnn_hard is not None:
         file_name = replace_periods(
             f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
             f"_{lamb}_kvnn_hard_{kvnn_hard}_lambda_m_{lambda_m}"
+            "_{parametrization}"
         )
     else:
-        file_name = replace_periods(f"{nucleus_name}_{nucleon}_momentum"
-                                    f"_distribution_kvnn_{kvnn}_lamb_{lamb}")
-        
-    ### TESTING
-    # file_name += "_test"
-    # file_name += "_seminole"
-    file_name += "_universal"
+        file_name = replace_periods(
+            f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
+            "_{lamb}_{parametrization}"
+        )
     
     np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
@@ -1499,8 +1502,8 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ca40', 20, 20
+    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
@@ -1524,8 +1527,8 @@ if __name__ == '__main__':
     
     # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
-    # neval = 1e5  # 16O
-    neval = 5e5  # 40Ca and 48Ca
+    neval = 1e5  # 16O
+    # neval = 5e5  # 40Ca and 48Ca
     
     # Inverse-SRG evolution?
     kvnn_hard = None
@@ -1535,9 +1538,14 @@ if __name__ == '__main__':
     # lambda_m = 5.0
     # lambda_m = 4.5
     # lambda_m = 4.0
+    
+    # Woods-Saxon parametrization TESTING
+    prm = 'Seminole'
+    # prm = 'Universal'
+    # prm = 'Match'
 
-    # Compute and save the momentum distribution
+    # Compute and save the momentum distribution TESTING
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
-        kvnn_hard=kvnn_hard, lambda_m=lambda_m, save=True
+        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm, save=True
     )
