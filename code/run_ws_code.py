@@ -152,8 +152,10 @@ def set_universal_parameters():
     return prm
 
 
-def set_test_parameters():
-    """Use this to test different Woods-Saxon parametrizations."""
+def set_match_parameters(nucleus_name):
+    """Use this to function to match to VMC and CVMC momentum distributions by
+    tuning the Woods-Saxon central potential strength and central radius.
+    """
     
     prm = np.zeros(shape=(2, 9), order='F')
 
@@ -260,8 +262,8 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000, parametrization='Seminole'):
         prm = set_seminole_parameters(nucleus_name, A)
     elif parametrization == 'Universal':
         prm = set_universal_parameters()
-    elif parametrization == 'Test':
-        prm = set_test_parameters()
+    elif parametrization == 'Match':
+        prm = set_match_parameters(nucleus_name)
   
     # Print summary, potentials, and densities
     prnt = True
@@ -299,13 +301,13 @@ if __name__ == '__main__':
     
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ca40', 20, 20
+    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'Ca40', 20, 20
     
     # Woods-Saxon parametrization
     # prm = 'Seminole'
-    prm = 'Universal'
-    # prm = 'Test'
+    # prm = 'Universal'
+    prm = 'Match'
     
     # Generate orbital files
     main(nucleus_name, Z, N, parametrization=prm)
