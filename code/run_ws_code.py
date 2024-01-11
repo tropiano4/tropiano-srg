@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: September 26, 2023
+Last update: January 11, 2024
 
 """
 
@@ -45,10 +45,10 @@ def get_orbitals():
     return norb, lorb, jorb
 
 
-def set_ws_parameters(nucleus_name, A):
-    """Set the Woods-Saxon parameters given the nucleus. The first index
-    of the parameters array 'prm' corresponds to proton (0) or neutron (1).
-    The second index corresponds to the following:
+def set_seminole_parameters(nucleus_name, A):
+    """Sets the Woods-Saxon parameters according to the 'Seminole'
+    parametrization. The first index of the parameters array 'prm' corresponds
+    to proton (0) or neutron (1). The second index corresponds to the following:
         
         0 : Central strength V_0 [MeV]
         1 : Central radius R_0 [fm]
@@ -64,120 +64,109 @@ def set_ws_parameters(nucleus_name, A):
 
     prm = np.zeros(shape=(2, 9), order='F')
     
-    # # These parameters are the same for every nucleus
-    # a = 0.644174
-    # kwb = 0.0
-    # awb = 1.0
-    # prm[:, 2] = a
-    # prm[:, 3] = kwb
-    # prm[:, 4] = awb
-    # prm[:, 7] = a
+    # These parameters are the same for every nucleus
+    a = 0.644174
+    kwb = 0.0
+    awb = 1.0
+    prm[:, 2] = a
+    prm[:, 3] = kwb
+    prm[:, 4] = awb
+    prm[:, 7] = a
     
-    # # Seminole parametrization
-    # if nucleus_name == 'He4':
-    #     prm[:, 0] = 76.8412
-    #     prm[:, 1] = 2.00013 / (A ** (1/3))
-    #     prm[0, 5] = 51.8575
-    #     prm[1, 5] = 51.7507
-    #     prm[:, 6] = 1.90409 / (A ** (1/3))
-    #     prm[:, 8] = 2.00013 / (A ** (1/3))
-    # elif nucleus_name == 'Be9':
-    #     prm[:, 0] = 66.6397
-    # elif nucleus_name == 'C12':
-    #     prm[:, 0] = 60.1478
-    #     prm[:, 1] = 2.88468 / (A ** (1/3))
-    #     prm[0, 5] = 34.6305
-    #     prm[1, 5] = 34.5432
-    #     prm[:, 6] = 2.74617 / (A ** (1/3))
-    #     prm[:, 8] = 2.88468 / (A ** (1/3))
-    # elif nucleus_name == 'O16':
-    #     prm[:, 0] = 58.0611
-    #     prm[:, 1] = 3.175 / (A ** (1/3))
-    #     prm[0, 5] = 33.0985
-    #     prm[1, 5] = 33.0131
-    #     prm[:, 6] = 3.02255 / (A ** (1/3))
-    #     prm[:, 8] = 3.175 / (A ** (1/3))
-    # elif nucleus_name == 'Ca40':
-    #     prm[:, 0] = 54.3051
-    #     prm[:, 1] = 4.30914 / (A ** (1/3))
-    #     prm[0, 5] = 30.5847
-    #     prm[1, 5] = 30.5027
-    #     prm[:, 6] = 4.10223 / (A ** (1/3))
-    #     prm[:, 8] = 4.30914 / (A ** (1/3))
-    # elif nucleus_name == 'Ca48':
-    #     prm[0, 0] = 59.4522  # Proton
-    #     prm[1, 0] = 46.9322  # Neutron
-    # elif nucleus_name == 'Fe54':
-    #     prm[0, 0] = 54.8925  # Proton
-    #     prm[1, 0] = 51.1828  # Neutron
-    # elif nucleus_name == 'Fe56':
-    #     prm[0, 0] = 55.9744  # Proton
-    #     prm[1, 0] = 50.0125  # Neutron
-    # elif nucleus_name == 'Sn118':
-    #     prm[0, 0] = 57.7428  # Proton
-    #     prm[1, 0] = 46.9911  # Neutron
-    # elif nucleus_name == 'Pb208':
-    #     prm[0, 0] = 59.3452  # Proton
-    #     prm[1, 0] = 44.899  # Neutron
-    # else:
-    #     raise RuntimeError("Don't have this nucleus yet.")
+    # Seminole parametrization
+    if nucleus_name == 'He4':
+        prm[:, 0] = 76.8412
+        prm[:, 1] = 2.00013 / (A ** (1/3))
+        prm[0, 5] = 51.8575
+        prm[1, 5] = 51.7507
+        prm[:, 6] = 1.90409 / (A ** (1/3))
+        prm[:, 8] = 2.00013 / (A ** (1/3))
+    elif nucleus_name == 'Be9':
+        pass
+    elif nucleus_name == 'C12':
+        prm[:, 0] = 60.1478
+        prm[:, 1] = 2.88468 / (A ** (1/3))
+        prm[0, 5] = 34.6305
+        prm[1, 5] = 34.5432
+        prm[:, 6] = 2.74617 / (A ** (1/3))
+        prm[:, 8] = 2.88468 / (A ** (1/3))
+    elif nucleus_name == 'O16':
+        prm[:, 0] = 58.0611
+        prm[:, 1] = 3.175 / (A ** (1/3))
+        prm[0, 5] = 33.0985
+        prm[1, 5] = 33.0131
+        prm[:, 6] = 3.02255 / (A ** (1/3))
+        prm[:, 8] = 3.175 / (A ** (1/3))
+    elif nucleus_name == 'Ca40':
+        prm[:, 0] = 54.3051
+        prm[:, 1] = 4.30914 / (A ** (1/3))
+        prm[0, 5] = 30.5847
+        prm[1, 5] = 30.5027
+        prm[:, 6] = 4.10223 / (A ** (1/3))
+        prm[:, 8] = 4.30914 / (A ** (1/3))
+    elif nucleus_name == 'Ca48':
+        pass
+    elif nucleus_name == 'Fe54':
+        pass
+    elif nucleus_name == 'Fe56':
+        pass
+    elif nucleus_name == 'Sn118':
+        pass
+    elif nucleus_name == 'Pb208':
+        pass
+    else:
+        raise RuntimeError("Don't have this nucleus yet.")
+        
+    return prm
+        
+        
+def set_universal_parameters():
+    """Sets the Woods-Saxon parameters according to the 'Universal'
+    parametrization."""
     
-    # # Other parameters of the Woods-Saxon
-    # # Central R_0
-    # # prm[:,1] = 1.275
-    # prm[0,1] = 1.275  # Proton
-    # prm[1,1] = 1.347  # Neutron
-    # # Central surface diffuseness a
-    # prm[:,2] = 0.7
-    # # Wine-Bottle: kwb
-    # prm[:,3] = 0.
-    # # Wine-Bottle: awb
-    # prm[:,4] = 1.
-    # # Spin-orbit strength \lambda
-    # # prm[:,5] = 36
-    # prm[0,5] = 36  # Proton
-    # prm[1,5] = 35  # Neutron
-    # # Spin-orbit R_0
-    # # prm[:,6] = 1.32
-    # prm[0,6] = 1.32  # Proton
-    # prm[1,6] = 1.31  # Neutron
-    # # Spin-orbit surface diffuseness a
-    # prm[:,7] = 0.7
-    # # Coulomb R_0
-    # prm[:,8] = 1.275
+    prm = np.zeros(shape=(2, 9), order='F')
     
-    ### TESTING UNIVERSAL PARAMETRIZATION
+    # Central potential strength V_0 [MeV]
     prm[:, 0] = 49.6
+    # Central radius R_0 [fm]
     prm[0, 1] = 1.275  # Proton
     prm[1, 1] = 1.347  # Neutron
+    # Central surface diffuseness a [fm]
     prm[:, 2] = 0.7
+    # Wine-Bottle kwb (set to 0 for no Wine-Bottle potential)
     prm[:, 3] = 0.0
+    # Wine-Bottle awb
     prm[:, 4] = 1.0
+    # Spin-orbit potential strength \lambda [MeV]
     prm[0, 5] = 36  # Proton
     prm[1, 5] = 35  # Neutron
+    # Spin-orbit radius R_SO [fm]
     prm[0, 6] = 1.32  # Proton
     prm[1, 6] = 1.31  # Neutron
+    # Spin-orbit surface diffuseness (same as a) [fm]
     prm[:, 7] = 0.7
+    # Coulomb radius (same as R_0) [fm]
     prm[0, 8] = 1.275  # Proton
     prm[1, 8] = 1.347  # Neutron
+    
+    return prm
 
-    # ### TESTING O16 SEMINOLE WITH DIFFERENT V0
-    # prm[:, 0] = 40.0
-    # prm[:,1] = 3.175 / (16 ** (1/3))
-    # # Central surface diffuseness a
-    # prm[:,2] = 0.644174
-    # # Wine-Bottle: kwb
-    # prm[:,3] = 0.0
-    # # Wine-Bottle: awb
-    # prm[:,4] = 1.0
-    # # Spin-orbit strength \lambda
-    # prm[:,5] = 33.0985
-    # # Spin-orbit R_0
-    # prm[:,6] = 3.02255 / (16 ** (1/3))
-    # # Spin-orbit surface diffuseness a
-    # prm[:,7] = 0.644174
-    # # Coulomb R_0
-    # prm[:,8] = 3.175 / (16 ** (1/3))
+
+def set_test_parameters():
+    """Use this to test different Woods-Saxon parametrizations."""
+    
+    prm = np.zeros(shape=(2, 9), order='F')
+
+    ### O16 with smaller strength than Seminole ###
+    prm[:, 0] = 40.0
+    prm[:, 1] = 3.175 / (16 ** (1/3))
+    prm[:, 2] = 0.644174
+    prm[:, 3] = 0.0
+    prm[:, 4] = 1.0
+    prm[:, 5] = 33.0985
+    prm[:, 6] = 3.02255 / (16 ** (1/3))
+    prm[:, 7] = 0.644174
+    prm[:, 8] = 3.175 / (16 ** (1/3))
 
     return prm
 
@@ -248,7 +237,7 @@ def get_orbital_file_name(sp_state):
     return file_name
 
 
-def main(nucleus_name, Z, N, rmax=40, ntab=2000):
+def main(nucleus_name, Z, N, rmax=40, ntab=2000, parametrization='Seminole'):
     """Run Woods-Saxon code to generate orbital files."""
         
     # Total number of nucleons
@@ -267,7 +256,12 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
     dens = True
     
     # Get the Woods-Saxon parameters for the input nucleus
-    prm = set_ws_parameters(nucleus_name, A)
+    if parametrization == 'Seminole':
+        prm = set_seminole_parameters(nucleus_name, A)
+    elif parametrization == 'Universal':
+        prm = set_universal_parameters()
+    elif parametrization == 'Test':
+        prm = set_test_parameters()
   
     # Print summary, potentials, and densities
     prnt = True
@@ -278,19 +272,17 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
        dens)
 
     # Woods-Saxon directory
-    # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
+    # directory = f"../data/woods_saxon/{nucleus_name}/"
     ### TESTING
-    # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
-    # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
-    woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
+    directory = f"../data/woods_saxon/{parametrization}/{nucleus_name}/"
     
     # Move output files to relevant directory
-    shutil.move("ws_log", woods_saxon_directory + "ws_log")
-    shutil.move("ws_pot", woods_saxon_directory + "ws_pot")
-    shutil.move("ws_rho", woods_saxon_directory + "ws_rho")
+    shutil.move("ws_log", directory + "ws_log")
+    shutil.move("ws_pot", directory + "ws_pot")
+    shutil.move("ws_rho", directory + "ws_rho")
                 
     # Get all s.p. states in order of lowest energy first
-    sp_states, _ = order_sp_states(woods_saxon_directory, Z, N)
+    sp_states, _ = order_sp_states(directory, Z, N)
 
     # Move orbital files to Woods-Saxon directory
     for sp_state in sp_states:
@@ -299,22 +291,21 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
         if sp_state.m_j == sp_state.j:
                 
             file_name = get_orbital_file_name(sp_state)
-            shutil.move(file_name, woods_saxon_directory + file_name)
+            shutil.move(file_name, directory + file_name)
     
     
     
 if __name__ == '__main__':
     
     # nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'Be9', 4, 5
     # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     nucleus_name, Z, N = 'Ca40', 20, 20
-    # nucleus_name, Z, N = 'Ca48', 20, 28
-    # nucleus_name, Z, N = 'Fe54', 26, 28
-    # nucleus_name, Z, N = 'Fe56', 26, 30
-    # nucleus_name, Z, N = 'Sn118', 50, 68
-    # nucleus_name, Z, N = 'Pb208', 82, 126
+    
+    # Woods-Saxon parametrization
+    # prm = 'Seminole'
+    prm = 'Universal'
+    # prm = 'Test'
     
     # Generate orbital files
-    main(nucleus_name, Z, N)
+    main(nucleus_name, Z, N, parametrization=prm)
