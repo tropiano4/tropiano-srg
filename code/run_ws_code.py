@@ -64,63 +64,63 @@ def set_ws_parameters(nucleus_name, A):
 
     prm = np.zeros(shape=(2, 9), order='F')
     
-    # These parameters are the same for every nucleus
-    a = 0.644174
-    kwb = 0.0
-    awb = 1.0
-    prm[:, 2] = a
-    prm[:, 3] = kwb
-    prm[:, 4] = awb
-    prm[:, 7] = a
+    # # These parameters are the same for every nucleus
+    # a = 0.644174
+    # kwb = 0.0
+    # awb = 1.0
+    # prm[:, 2] = a
+    # prm[:, 3] = kwb
+    # prm[:, 4] = awb
+    # prm[:, 7] = a
     
-    # Seminole parametrization
-    if nucleus_name == 'He4':
-        prm[:, 0] = 76.8412
-        prm[:, 1] = 2.00013 / (A ** (1/3))
-        prm[0, 5] = 51.8575
-        prm[1, 5] = 51.7507
-        prm[:, 6] = 1.90409 / (A ** (1/3))
-        prm[:, 8] = 2.00013 / (A ** (1/3))
-    elif nucleus_name == 'Be9':
-        prm[:, 0] = 66.6397
-    elif nucleus_name == 'C12':
-        prm[:, 0] = 60.1478
-        prm[:, 1] = 2.88468 / (A ** (1/3))
-        prm[0, 5] = 34.6305
-        prm[1, 5] = 34.5432
-        prm[:, 6] = 2.74617 / (A ** (1/3))
-        prm[:, 8] = 2.88468 / (A ** (1/3))
-    elif nucleus_name == 'O16':
-        prm[:, 0] = 58.0611
-        prm[:, 1] = 3.175 / (A ** (1/3))
-        prm[0, 5] = 33.0985
-        prm[1, 5] = 33.0131
-        prm[:, 6] = 3.02255 / (A ** (1/3))
-        prm[:, 8] = 3.175 / (A ** (1/3))
-    elif nucleus_name == 'Ca40':
-        prm[:, 0] = 54.3051
-        prm[:, 1] = 4.30914 / (A ** (1/3))
-        prm[0, 5] = 30.5847
-        prm[1, 5] = 30.5027
-        prm[:, 6] = 4.10223 / (A ** (1/3))
-        prm[:, 8] = 4.30914 / (A ** (1/3))
-    elif nucleus_name == 'Ca48':
-        prm[0, 0] = 59.4522  # Proton
-        prm[1, 0] = 46.9322  # Neutron
-    elif nucleus_name == 'Fe54':
-        prm[0, 0] = 54.8925  # Proton
-        prm[1, 0] = 51.1828  # Neutron
-    elif nucleus_name == 'Fe56':
-        prm[0, 0] = 55.9744  # Proton
-        prm[1, 0] = 50.0125  # Neutron
-    elif nucleus_name == 'Sn118':
-        prm[0, 0] = 57.7428  # Proton
-        prm[1, 0] = 46.9911  # Neutron
-    elif nucleus_name == 'Pb208':
-        prm[0, 0] = 59.3452  # Proton
-        prm[1, 0] = 44.899  # Neutron
-    else:
-        raise RuntimeError("Don't have this nucleus yet.")
+    # # Seminole parametrization
+    # if nucleus_name == 'He4':
+    #     prm[:, 0] = 76.8412
+    #     prm[:, 1] = 2.00013 / (A ** (1/3))
+    #     prm[0, 5] = 51.8575
+    #     prm[1, 5] = 51.7507
+    #     prm[:, 6] = 1.90409 / (A ** (1/3))
+    #     prm[:, 8] = 2.00013 / (A ** (1/3))
+    # elif nucleus_name == 'Be9':
+    #     prm[:, 0] = 66.6397
+    # elif nucleus_name == 'C12':
+    #     prm[:, 0] = 60.1478
+    #     prm[:, 1] = 2.88468 / (A ** (1/3))
+    #     prm[0, 5] = 34.6305
+    #     prm[1, 5] = 34.5432
+    #     prm[:, 6] = 2.74617 / (A ** (1/3))
+    #     prm[:, 8] = 2.88468 / (A ** (1/3))
+    # elif nucleus_name == 'O16':
+    #     prm[:, 0] = 58.0611
+    #     prm[:, 1] = 3.175 / (A ** (1/3))
+    #     prm[0, 5] = 33.0985
+    #     prm[1, 5] = 33.0131
+    #     prm[:, 6] = 3.02255 / (A ** (1/3))
+    #     prm[:, 8] = 3.175 / (A ** (1/3))
+    # elif nucleus_name == 'Ca40':
+    #     prm[:, 0] = 54.3051
+    #     prm[:, 1] = 4.30914 / (A ** (1/3))
+    #     prm[0, 5] = 30.5847
+    #     prm[1, 5] = 30.5027
+    #     prm[:, 6] = 4.10223 / (A ** (1/3))
+    #     prm[:, 8] = 4.30914 / (A ** (1/3))
+    # elif nucleus_name == 'Ca48':
+    #     prm[0, 0] = 59.4522  # Proton
+    #     prm[1, 0] = 46.9322  # Neutron
+    # elif nucleus_name == 'Fe54':
+    #     prm[0, 0] = 54.8925  # Proton
+    #     prm[1, 0] = 51.1828  # Neutron
+    # elif nucleus_name == 'Fe56':
+    #     prm[0, 0] = 55.9744  # Proton
+    #     prm[1, 0] = 50.0125  # Neutron
+    # elif nucleus_name == 'Sn118':
+    #     prm[0, 0] = 57.7428  # Proton
+    #     prm[1, 0] = 46.9911  # Neutron
+    # elif nucleus_name == 'Pb208':
+    #     prm[0, 0] = 59.3452  # Proton
+    #     prm[1, 0] = 44.899  # Neutron
+    # else:
+    #     raise RuntimeError("Don't have this nucleus yet.")
     
     # # Other parameters of the Woods-Saxon
     # # Central R_0
@@ -146,20 +146,20 @@ def set_ws_parameters(nucleus_name, A):
     # # Coulomb R_0
     # prm[:,8] = 1.275
     
-    # ### TESTING UNIVERSAL PARAMETRIZATION
-    # prm[:, 0] = 49.6
-    # prm[0, 1] = 1.275  # Proton
-    # prm[1, 1] = 1.347  # Neutron
-    # prm[:, 2] = 0.7
-    # prm[:, 3] = 0.0
-    # prm[:, 4] = 1.0
-    # prm[0, 5] = 36  # Proton
-    # prm[1, 5] = 35  # Neutron
-    # prm[0, 6] = 1.32  # Proton
-    # prm[1, 6] = 1.31  # Neutron
-    # prm[:, 7] = 0.7
-    # prm[0, 8] = 1.275  # Proton
-    # prm[1, 8] = 1.347  # Neutron
+    ### TESTING UNIVERSAL PARAMETRIZATION
+    prm[:, 0] = 49.6
+    prm[0, 1] = 1.275  # Proton
+    prm[1, 1] = 1.347  # Neutron
+    prm[:, 2] = 0.7
+    prm[:, 3] = 0.0
+    prm[:, 4] = 1.0
+    prm[0, 5] = 36  # Proton
+    prm[1, 5] = 35  # Neutron
+    prm[0, 6] = 1.32  # Proton
+    prm[1, 6] = 1.31  # Neutron
+    prm[:, 7] = 0.7
+    prm[0, 8] = 1.275  # Proton
+    prm[1, 8] = 1.347  # Neutron
 
     # ### TESTING O16 SEMINOLE WITH DIFFERENT V0
     # prm[:, 0] = 40.0
@@ -281,8 +281,8 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000):
     # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
     ### TESTING
     # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
-    woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
-    # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
+    # woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
+    woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
     
     # Move output files to relevant directory
     shutil.move("ws_log", woods_saxon_directory + "ws_log")

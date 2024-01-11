@@ -142,8 +142,8 @@ class WoodsSaxon:
         ### TESTING
         if test:
             # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_test/"
-            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
-            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
+            # self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_seminole/"
+            self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}_universal/"
         else:
             self.woods_saxon_directory = f"../data/woods_saxon/{nucleus_name}/"
         self.cg_table = cg_table
@@ -1454,8 +1454,8 @@ def save_momentum_distribution(
         
     ### TESTING
     # file_name += "_test"
-    file_name += "_seminole"
-    # file_name += "_universal"
+    # file_name += "_seminole"
+    file_name += "_universal"
     
     np.savetxt(directory + file_name + '.txt', data, header=hdr)
 
