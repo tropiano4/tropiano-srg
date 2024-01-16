@@ -1365,7 +1365,8 @@ def compute_normalization(q_array, q_weights, n_array):
 def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
         ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
-        kvnn_hard=None, lambda_m=None, parametrization='Match', save=False
+        kvnn_hard=None, lambda_m=None, parametrization='Match', ipm=False,
+        save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
@@ -1378,8 +1379,6 @@ def compute_momentum_distribution(
     ### TESTING
     woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
                              parametrization=parametrization)
-    # Get pairs of occupied states
-    occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
 
     # Set points in q
     q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
@@ -1387,23 +1386,37 @@ def compute_momentum_distribution(
     # Compute the I term
     I_array = compute_I_term(q_array, tau, woods_saxon)
     
-    # Initialize \delta U matrix element class
-    delta_U_matrix_element = DeltaUMatrixElement(
-        cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels, kvnn_hard,
-        lambda_m
-    )
+    # IPM only?
+    if ipm:
+        
+        delta_U_array = np.zeros_like(q_array)
+        delta_U_errors = np.zeros_like(q_array)
+        delta_U2_array = np.zeros_like(q_array)
+        delta_U2_errors = np.zeros_like(q_array)
     
-    # Compute the \delta U + \delta U^\dagger term
-    delta_U_array, delta_U_errors = compute_delta_U_term(
-        q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
-        neval
-    )
+    # Full distribution
+    else:
+        
+        # Get pairs of occupied states
+        occupied_state_pairs = set_occupied_state_pairs(woods_saxon)
     
-    # Compute the \delta U \delta U^\dagger term
-    delta_U2_array, delta_U2_errors = compute_delta_U2_term(
-        q_array, tau, woods_saxon, delta_U_matrix_element, occupied_state_pairs,
-        neval
-    )
+        # Initialize \delta U matrix element class
+        delta_U_matrix_element = DeltaUMatrixElement(
+            cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels,
+            kvnn_hard, lambda_m
+        )
+    
+        # Compute the \delta U + \delta U^\dagger term
+        delta_U_array, delta_U_errors = compute_delta_U_term(
+            q_array, tau, woods_saxon, delta_U_matrix_element,
+            occupied_state_pairs, neval
+        )
+    
+        # Compute the \delta U \delta U^\dagger term
+        delta_U2_array, delta_U2_errors = compute_delta_U2_term(
+            q_array, tau, woods_saxon, delta_U_matrix_element,
+            occupied_state_pairs, neval
+        )
     
     # Combine each term for the total momentum distribution [fm^3]
     n_array = I_array + delta_U_array + delta_U2_array
@@ -1452,12 +1465,12 @@ def save_momentum_distribution(
         file_name = replace_periods(
             f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
             f"_{lamb}_kvnn_hard_{kvnn_hard}_lambda_m_{lambda_m}"
-            "_{parametrization}"
+            f"_{parametrization}"
         )
     else:
         file_name = replace_periods(
             f"{nucleus_name}_{nucleon}_momentum_distribution_kvnn_{kvnn}_lamb"
-            "_{lamb}_{parametrization}"
+            f"_{lamb}_{parametrization}"
         )
     
     np.savetxt(directory + file_name + '.txt', data, header=hdr)
@@ -1540,9 +1553,9 @@ if __name__ == '__main__':
     # lambda_m = 4.0
     
     # Woods-Saxon parametrization TESTING
-    prm = 'Seminole'
+    # prm = 'Seminole'
     # prm = 'Universal'
-    # prm = 'Match'
+    prm = 'Match'
 
     # Compute and save the momentum distribution TESTING
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
