@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: January 11, 2024
+Last update: January 16, 2024
 
 """
 
@@ -152,23 +152,55 @@ def set_universal_parameters():
     return prm
 
 
-def set_match_parameters(nucleus_name):
+def set_match_parameters(nucleus_name, A):
     """Use this to function to match to VMC and CVMC momentum distributions by
     tuning the Woods-Saxon central potential strength and central radius.
     """
     
     prm = np.zeros(shape=(2, 9), order='F')
 
-    ### O16 with smaller strength than Seminole ###
-    prm[:, 0] = 40.0
-    prm[:, 1] = 3.175 / (16 ** (1/3))
-    prm[:, 2] = 0.644174
+    # Matching to VMC with AV18 + UX for A < 16
+    if A < 16:
+        
+        # Central potential strength V_0 [MeV] (from Seminole)
+        if nucleus_name == 'He4':
+            prm[:, 0] = 76.8412
+        elif nucleus_name == 'C12':
+            prm[:, 0] = 60.1478
+            
+        # Central radius R_0 [fm] (from Universal)
+        prm[0, 1] = 1.275  # Proton
+        prm[1, 1] = 1.347  # Neutron
+        
+    # Matching to CVMC with AV18 + UIX for O16 and up
+    else:
+        
+        # Central potential strength V_0 [MeV]
+        prm[:, 0] = 52.0
+        
+        # Central radius R_0 [fm]
+        prm[0, 1] = 1.55  # Proton
+        # Neutron radius is scaled up by same amount as Universal
+        prm[1, 1] = 1.55 * 1.0564705882352943  # Neutron
+    
+    # These parameters are the same as the Universal parametrization
+    # Central surface diffuseness a [fm]
+    prm[:, 2] = 0.7
+    # Wine-Bottle kwb (set to 0 for no Wine-Bottle potential)
     prm[:, 3] = 0.0
+    # Wine-Bottle awb
     prm[:, 4] = 1.0
-    prm[:, 5] = 33.0985
-    prm[:, 6] = 3.02255 / (16 ** (1/3))
-    prm[:, 7] = 0.644174
-    prm[:, 8] = 3.175 / (16 ** (1/3))
+    # Spin-orbit potential strength \lambda [MeV]
+    prm[0, 5] = 36  # Proton
+    prm[1, 5] = 35  # Neutron
+    # Spin-orbit radius R_SO [fm]
+    prm[0, 6] = 1.32  # Proton
+    prm[1, 6] = 1.31  # Neutron
+    # Spin-orbit surface diffuseness (same as a) [fm]
+    prm[:, 7] = 0.7
+    # Coulomb radius (same as R_0) [fm]
+    prm[0, 8] = prm[0, 1]  # Proton
+    prm[1, 8] = prm[1, 1]  # Neutron
 
     return prm
 
@@ -263,7 +295,7 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000, parametrization='Seminole'):
     elif parametrization == 'Universal':
         prm = set_universal_parameters()
     elif parametrization == 'Match':
-        prm = set_match_parameters(nucleus_name)
+        prm = set_match_parameters(nucleus_name, A)
   
     # Print summary, potentials, and densities
     prnt = True
@@ -301,13 +333,13 @@ if __name__ == '__main__':
     
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    nucleus_name, Z, N = 'O16', 8, 8
-    # nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'Ca40', 20, 20
     
     # Woods-Saxon parametrization
-    # prm = 'Seminole'
+    prm = 'Seminole'
     # prm = 'Universal'
-    prm = 'Match'
+    # prm = 'Match'
     
     # Generate orbital files
     main(nucleus_name, Z, N, parametrization=prm)
