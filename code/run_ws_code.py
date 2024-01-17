@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: January 16, 2024
+Last update: January 17, 2024
 
 """
 
@@ -73,7 +73,7 @@ def set_seminole_parameters(nucleus_name, A):
     prm[:, 4] = awb
     prm[:, 7] = a
     
-    # Seminole parametrization
+    # Nucleus-dependent parameters
     if nucleus_name == 'He4':
         prm[:, 0] = 76.8412
         prm[:, 1] = 2.00013 / (A ** (1/3))
@@ -306,8 +306,6 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000, parametrization='Seminole'):
        dens)
 
     # Woods-Saxon directory
-    # directory = f"../data/woods_saxon/{nucleus_name}/"
-    ### TESTING
     directory = f"../data/woods_saxon/{parametrization}/{nucleus_name}/"
     
     # Move output files to relevant directory
