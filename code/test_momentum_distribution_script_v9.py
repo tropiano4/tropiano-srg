@@ -1554,8 +1554,8 @@ if __name__ == '__main__':
     
     # Woods-Saxon parametrization TESTING
     # prm = 'Seminole'
-    # prm = 'Universal'
-    prm = 'Match'
+    prm = 'Universal'
+    # prm = 'Match'
 
     # Compute and save the momentum distribution TESTING
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
