@@ -1515,8 +1515,8 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    nucleus_name, Z, N = 'O16', 8, 8
-    # nucleus_name, Z, N = 'Ca40', 20, 20
+    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
@@ -1540,8 +1540,8 @@ if __name__ == '__main__':
     
     # neval = 5e4  # 4He
     # neval = 7.5e4  # 12C
-    neval = 1e5  # 16O
-    # neval = 5e5  # 40Ca and 48Ca
+    # neval = 1e5  # 16O
+    neval = 5e5  # 40Ca and 48Ca
     
     # Inverse-SRG evolution?
     kvnn_hard = None
@@ -1554,8 +1554,8 @@ if __name__ == '__main__':
     
     # Woods-Saxon parametrization TESTING
     # prm = 'Seminole'
-    prm = 'Universal'
-    # prm = 'Match'
+    # prm = 'Universal'
+    prm = 'Match'
 
     # Compute and save the momentum distribution TESTING
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
