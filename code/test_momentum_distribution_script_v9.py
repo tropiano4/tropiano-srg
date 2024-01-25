@@ -1533,9 +1533,9 @@ if __name__ == '__main__':
     # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
-    lamb = 1.35
+    # lamb = 1.35
     # lamb = 1.5
-    # lamb = 2.0
+    lamb = 2.0
     # lamb = 2.5
     
     # neval = 5e4  # 4He
