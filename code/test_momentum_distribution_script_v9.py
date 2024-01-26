@@ -1549,8 +1549,8 @@ if __name__ == '__main__':
     kvnn_hard = 6
     # lambda_m = 5.5
     # lambda_m = 5.0
-    lambda_m = 4.5
-    # lambda_m = 4.0
+    # lambda_m = 4.5
+    lambda_m = 4.0
     
     # Woods-Saxon parametrization TESTING
     # prm = 'Seminole'
