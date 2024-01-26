@@ -1513,8 +1513,8 @@ def load_momentum_distribution(
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
@@ -1538,8 +1538,8 @@ if __name__ == '__main__':
     # lamb = 2.0
     # lamb = 2.5
     
-    neval = 5e4  # 4He
-    # neval = 7.5e4  # 12C
+    # neval = 5e4  # 4He
+    neval = 7.5e4  # 12C
     # neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
     
