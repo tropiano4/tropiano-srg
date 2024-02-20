@@ -3,12 +3,12 @@
 """
 File: figures.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: May 3, 2019
 
 Useful functions for plotting figures with matplotlib and adding labels.
 
-Last update: July 20, 2022
+Last update: November 29, 2022
 
 """
 
@@ -19,7 +19,9 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d
 
 # Imports from A.T. codes
-from .tools import coupled_channel, convert_number_to_string
+from .tools import (
+    coupled_channel, convert_l_to_string, convert_number_to_string
+)
 
 
 def set_rc_parameters():
@@ -32,8 +34,8 @@ def set_rc_parameters():
       Ghostscript>9.0. Will additionally cause issues if you don't have 
       add-on things (e.g., "cm-super: CM-Super family of fonts"). I got
       around this by downloading TeX Live.
-    * I've also commented out some of the axes and title fontsizes to
-      customize on a plot-to-plot basis.
+    * I've also commented out some axes and title fontsizes to customize on a
+      plot-to-plot basis.
 
     """
 
@@ -46,7 +48,7 @@ def set_rc_parameters():
     # Set LaTeX fonts (this will give an error if you don't have LaTeX)
     mpl.rc('text', usetex=True)
     mpl.rcParams['font.size'] = fontsize
-    mpl.rcParams['text.usetex'  ] = True
+    mpl.rcParams['text.usetex'] = True
     mpl.rcParams['font.family'] = 'serif'
 
     # Settings for axes
@@ -64,14 +66,14 @@ def set_rc_parameters():
     mpl.rcParams['xtick.color'] = black
     mpl.rcParams['ytick.color'] = black
     # Make the ticks thin to not be visible at the limits of the plot
-    mpl.rcParams['xtick.major.width'] = mpl.rcParams['axes.linewidth']*0.95
-    mpl.rcParams['ytick.major.width'] = mpl.rcParams['axes.linewidth']*0.95
+    mpl.rcParams['xtick.major.width'] = mpl.rcParams['axes.linewidth'] * 0.95
+    mpl.rcParams['ytick.major.width'] = mpl.rcParams['axes.linewidth'] * 0.95
     # The minor ticks are little too small, make them both bigger.
     mpl.rcParams['xtick.minor.size'] = 2.4  # Default 2.0
     mpl.rcParams['ytick.minor.size'] = 2.4
     mpl.rcParams['xtick.major.size'] = 3.9  # Default 3.5
     mpl.rcParams['ytick.major.size'] = 3.9
-    # Puts ticks on top and right axes as well
+    # Put ticks on top and right axes as well
     mpl.rcParams['xtick.top'] = True
     mpl.rcParams['ytick.right'] = True
 
@@ -92,7 +94,7 @@ def set_rc_parameters():
     #  mpl.rcParams['legend.title_fontsize'] = fontsize
     #  mpl.rcParams['legend.fontsize'] = fontsize
     # Inherits from axes.edgecolor, to match
-    mpl.rcParams['legend.edgecolor'] = 'inherit'  
+    mpl.rcParams['legend.edgecolor'] = 'inherit'
     # Set facecolor with its own alpha, so edgecolor is unaffected
     mpl.rcParams['legend.fancybox'] = True
     mpl.rcParams['legend.facecolor'] = (1, 1, 1, 0.6)
@@ -103,9 +105,10 @@ def set_rc_parameters():
     # This is for legend edgewidth, since it does not have its own option
     mpl.rcParams['patch.linewidth'] = 0.8
     mpl.rcParams['hatch.linewidth'] = 0.5
-    
+
     # Settings for saving figure
     mpl.rc('savefig', bbox='tight', dpi=400)
+
 
 def interpolate_matrix(
         x_array, y_array, M_array, x_max, y_max, x_tot=500, y_tot=500):
@@ -149,9 +152,10 @@ def interpolate_matrix(
     y_array_dense = np.linspace(y_array[0], y_max, y_tot)
 
     # Dense matrix
-    M_array_dense = M_func(x_array_dense, y_array_dense) 
+    M_array_dense = M_func(x_array_dense, y_array_dense)
 
     return x_array_dense, y_array_dense, M_array_dense
+
 
 def interpolate_vector(x_array, v_array, x_max, x_tot=500, order='linear'):
     """
@@ -186,9 +190,10 @@ def interpolate_vector(x_array, v_array, x_max, x_tot=500, order='linear'):
     x_array_dense = np.linspace(x_array[0], x_max, x_tot)
 
     # Dense vector
-    v_array_dense = v_func(x_array_dense) 
+    v_array_dense = v_func(x_array_dense)
 
     return x_array_dense, v_array_dense
+
 
 def line_styles(curve_number):
     """
@@ -216,24 +221,25 @@ def line_styles(curve_number):
     """
 
     # Note, the last two are 'densely dashed' and 'densely dashdotted'
-    line_styles = (
-        'solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1) ),
-        (0, (3, 1, 1, 1) )
+    styles = (
+        'solid', 'dashdot', 'dashed', 'dotted', (0, (5, 1)),
+        (0, (3, 1, 1, 1))
     )
 
     try:
-    
-        return line_styles[curve_number]
+
+        return styles[curve_number]
 
     except IndexError:
-    
+
         error_message = ("Curve number is too high to match with default "
                          "line style. Manually assign styles to each "
                          "curve.")
         print(error_message)
-    
+
         return 'solid'
-    
+
+
 def tab10_colors(curve_number):
     """
     Default curve colors for plotting figures with many curves. Colors are
@@ -251,10 +257,11 @@ def tab10_colors(curve_number):
         The color argument to be used in plotting functions.
 
     """
-    
+
     cmap = plt.get_cmap("tab10")
-    
+
     return cmap(curve_number)
+
 
 def xkcd_colors(curve_number):
     """
@@ -291,17 +298,18 @@ def xkcd_colors(curve_number):
     )
 
     try:
-    
+
         return colors[curve_number]
 
     except IndexError:
-    
+
         error_message = ("Curve number is too high to match with default "
                          "color. Manually assign colors to each curve.")
         print(error_message)
-    
+
         return 'xkcd:black'
-    
+
+
 def label_channel(channel, label_coupled_channel=True):
     """
     Converts a channel string argument to a label.
@@ -320,16 +328,16 @@ def label_channel(channel, label_coupled_channel=True):
         Label for the channel.
         
     """
-    
+
     # Get S, L, and J as strings where L is given by 'S', 'P', etc.
     S = channel[0]
     L = channel[1]
     J = channel[2]
-    
+
     # Make label with super- and sub-scripts
     # Label coupled channel?
     if label_coupled_channel and coupled_channel(channel):
-        
+
         # Get L + 2 value
         if L == 'S':
             L2 = 'D'
@@ -353,15 +361,17 @@ def label_channel(channel, label_coupled_channel=True):
             L2 = 'O'
         elif L == 'N':
             L2 = 'Q'
-            
-        label = r"$^{%s}{\rm %s}_{%s}-^{%s}{\rm %s}_{%s}$" % (S, L, J,
-                                                              S, L2, J)
-        
+        else:
+            raise RuntimeError("Orbital angular momentum is too high.")
+
+        label = fr"$^{{{S}}}{{\rm {L}}}_{{{J}}}-^{{{S}}}{{\rm {L2}}}_{{{J}}}$"
+
     else:
-        
-        label = r"$^{%s}{\rm %s}_{%s}$" % (S, L, J)
-    
+
+        label = fr"$^{{{S}}}{{\rm {L}}}_{{{J}}}$"
+
     return label
+
 
 def label_generator(generator, lambda_bd=None):
     """
@@ -384,25 +394,29 @@ def label_generator(generator, lambda_bd=None):
 
     # Block-diagonal
     if generator == 'Block-diag':
-        
+
         # In the case, lambda_bd is not entered as an argument, the function
         # returns only G = H_{BD}
-        if lambda_bd == None:
+        if lambda_bd is None:
             label = r"$G=H_{\rm{BD}}$"
-            
+
         # Otherwise, present with lambda_bd value
         else:
             lambda_bd_str = convert_number_to_string(lambda_bd)
             label = (r"$G=H_{\rm{BD}}$" + f" ({lambda_bd_str} fm" + r"$^{-1}$"
                      + ")")
-            
+
     elif generator == 'Wegner':
         label = r"$G=H_{\rm{D}}$"
-        
+
     elif generator == 'T':
         label = r"$G=T_{\rm{rel}}$"
 
+    else:
+        raise RuntimeError("Not a valid generator name.")
+
     return label
+
 
 def label_kvnn(kvnn, full_label=True):
     """
@@ -420,7 +434,7 @@ def label_kvnn(kvnn, full_label=True):
         
     Returns
     -------
-    label : str
+    output : str
         Label for the potential.
         
     Notes
@@ -432,95 +446,97 @@ def label_kvnn(kvnn, full_label=True):
 
     # Paris
     if kvnn == 1:
-        label = "Paris"
+        return "Paris"
 
     # Bonn
     elif kvnn == 2:
-        label = "Bonn"
+        return "Bonn"
 
     # Reid93 potential
     elif kvnn == 3:
-        label = "Reid93"
+        return "Reid93"
 
     # Nijmegen I potential
     elif kvnn == 4:
-        label = "Nijmegen I"
+        return "Nijmegen I"
 
     # Nijmegen II potential
     elif kvnn == 5:
-        label = "Nijmegen II"
+        return "Nijmegen II"
 
     # Argonne v18
     elif kvnn == 6:
-        label = "AV18"
+        return "AV18"
 
     # CD-Bonn
     elif kvnn == 7:
-        label = "CD-Bonn"
-        
+        return "CD-Bonn"
+
     # Entem/Machleidt N3LO (500 MeV cutoff)   
     elif kvnn == 10:
         if full_label:
-            label = "EM N" + r"$^3$" + "LO 500 MeV"
+            return "EM N" + r"$^3$" + "LO 500 MeV"
         else:
-            label = "EM N" + r"$^3$" + "LO"
-        
+            return "EM N" + r"$^3$" + "LO"
+
     # EMN N4LO (450, 500, 550 MeV cutoffs)
     elif kvnn in [74, 79, 84]:
         if full_label:
             if kvnn == 74:
-                label = "EMN N" + r"$^4$" + "LO 450 MeV"
+                return "EMN N" + r"$^4$" + "LO 450 MeV"
             elif kvnn == 79:
-                label = "EMN N" + r"$^4$" + "LO 500 MeV"
+                return "EMN N" + r"$^4$" + "LO 500 MeV"
             elif kvnn == 84:
-                label = "EMN N" + r"$^4$" + "LO 550 MeV"
+                return "EMN N" + r"$^4$" + "LO 550 MeV"
         else:
-            label = "EMN N" + r"$^4$" + "LO"
-        
+            return "EMN N" + r"$^4$" + "LO"
+
     # SMS N3LO (400, 450, 500 MeV cutoffs)
     elif kvnn in [105, 106, 107]:
         if full_label:
             if kvnn == 105:
-                label = "SMS N" + r"$^3$" + "LO 400 MeV"
+                return "SMS N" + r"$^3$" + "LO 400 MeV"
             elif kvnn == 106:
-                label = "SMS N" + r"$^3$" + "LO 450 MeV"
+                return "SMS N" + r"$^3$" + "LO 450 MeV"
             elif kvnn == 107:
-                label = "SMS N" + r"$^3$" + "LO 500 MeV"
+                return "SMS N" + r"$^3$" + "LO 500 MeV"
         else:
-            label = "SMS N" + r"$^3$" + "LO"
+            return "SMS N" + r"$^3$" + "LO"
     # SMS N4LO (400, 450, 500, 550 MeV cutoffs)
     elif kvnn in [110, 111, 112, 113]:
         if full_label:
             if kvnn == 110:
-                label = "SMS N" + r"$^4$" + "LO 400 MeV"
+                return "SMS N" + r"$^4$" + "LO 400 MeV"
             elif kvnn == 111:
-                label = "SMS N" + r"$^4$" + "LO 450 MeV"
+                return "SMS N" + r"$^4$" + "LO 450 MeV"
             elif kvnn == 112:
-                label = "SMS N" + r"$^4$" + "LO 500 MeV"
+                return "SMS N" + r"$^4$" + "LO 500 MeV"
             elif kvnn == 113:
-                label = "SMS N" + r"$^4$" + "LO 550 MeV"
+                return "SMS N" + r"$^4$" + "LO 550 MeV"
         else:
-            label = "SMS N" + r"$^4$" + "LO"
-        
+            return "SMS N" + r"$^4$" + "LO"
+
     # Gezerlis N2LO (1 and 1.2 fm cutoff)
     elif kvnn in [222, 224]:
         if full_label:
             if kvnn == 222:
-                label = "GT+ N" + r"$^2$" + "LO 1 fm"
+                return "GT+ N" + r"$^2$" + "LO 1 fm"
             elif kvnn == 224:
-                label = "GT+ N" + r"$^2$" + "LO 1.2 fm"
+                return "GT+ N" + r"$^2$" + "LO 1.2 fm"
         else:
-            label = "GT+ N" + r"$^2$" + "LO"
-        
+            return "GT+ N" + r"$^2$" + "LO"
+
     # Wendt LO non-local potentials
     elif kvnn == 900:  # Cutoff 4 fm^-1
-        label = r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
+        return r"$\Lambda = 4$" + " fm" + r"$^{-1}$"
     elif kvnn == 901:  # Cutoff 9 fm^-1
-        label = r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
+        return r"$\Lambda = 9$" + " fm" + r"$^{-1}$"
     elif kvnn == 902:  # Cutoff 20 fm^-1
-        label = r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
+        return r"$\Lambda = 20$" + " fm" + r"$^{-1}$"
 
-    return label
+    else:
+        raise RuntimeError("Not a valid kvnn number.")
+
 
 def label_lambda(lamb, generator='Wegner'):
     """
@@ -541,33 +557,33 @@ def label_lambda(lamb, generator='Wegner'):
         Label for the lambda.
         
     """
-    
+
     if lamb == np.inf:
-        
+
         # Label \Lambda_BD
         if generator == 'Block-diag':
             label = r"$\Lambda_{\rm{BD}}=\infty$" + " fm" + r"$^{-1}$"
 
-            
         # Label \lambda
         else:
             label = r"$\lambda=\infty$" + " fm" + r"$^{-1}$"
-            
+
     # Finite lamb
     else:
-        
+
         # Make \lambda or \Lambda_BD a string
         lamb_str = convert_number_to_string(lamb)
-        
+
         # Label \Lambda_BD
         if generator == 'Block-diag':
             label = r"$\Lambda_{\rm{BD}}=%s$" % lamb_str + " fm" + r"$^{-1}$"
-            
+
         # Label \lambda
         else:
             label = rf"$\lambda={lamb_str}$" + " fm" + r"$^{-1}$"
-            
+
     return label
+
 
 def label_nucleus(nucleus_name):
     """
@@ -585,27 +601,28 @@ def label_nucleus(nucleus_name):
         Label for nucleus.
 
     """
-    
+
     # Create mass number and element strings by looping over characters
     # of input nucleus string
     mass_number = ''
     element = ''
-    
+
     for char in nucleus_name:
-        
+
         # This gives a ValueError if char is a letter
         try:
-            
-            number = int(char) 
+
+            number = int(char)
             mass_number += str(number)
-        
+
         except ValueError:
-            
+
             element += char
-            
+
     nucleus_label = rf"$^{{{mass_number}}}$" + element
-            
+
     return nucleus_label
+
 
 def label_sp_state(sp_state):
     """
@@ -622,11 +639,39 @@ def label_sp_state(sp_state):
         String for figure label (e.g., "1s_{\frac{1}{2}}").
         
     """
-    
-    numerator = 2*int(sp_state[-3]) + 1
+
+    numerator = 2 * int(sp_state[-3]) + 1
     denominator = 2
-    
+
     return rf"${sp_state[:2]}_{{{numerator}/{denominator}}}$"
+
+
+def label_nlj_state(n, l, j):
+    """
+    Convert single-particle state to a label.
+    
+    Parameters
+    ----------
+    n : int
+        Principal quantum number n = 1, 2, 3, ...
+    l : int
+        Orbital angular momentum l = 0, 1, 2, ...
+    j : float
+        Total angular momentum j = 1/2, 3/2, 5/2, ...
+        
+    Returns
+    -------
+    output : str
+        String for figure label (e.g., "1s_{\frac{1}{2}}").
+        
+    """
+    
+    l_str = convert_l_to_string(l)  # E.g., 's', 'p', 'd', ...
+    numerator = 2*int(j) + 1
+    denominator = 2
+
+    return rf"${n}{l_str}_{{{numerator}/{denominator}}}$"
+
 
 def label_ticks(ticks):
     """
@@ -649,8 +694,7 @@ def label_ticks(ticks):
     generalization for log-spacing.
         
     """
-    
-    
+
     tick_labels = []
     # # This won't work for some reason
     # for tick in ticks:
@@ -658,11 +702,11 @@ def label_ticks(ticks):
 
     # Keep track of the maximum number of digits to be displayed i
     for tick in ticks:
-        
+
         i = 0
-        while abs(round(tick,i) - tick) > 1e-5:
+        while abs(round(tick, i) - tick) > 1e-5:
             i += 1
-            
+
         # If digits = 0, then display integers
         if i == 0:
             tick_labels.append("%d" % tick)
@@ -677,5 +721,5 @@ def label_ticks(ticks):
             tick_labels.append("%.4f" % tick)
         else:
             tick_labels.append("%.f" % tick)
-        
+
     return tick_labels

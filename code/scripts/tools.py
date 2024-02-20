@@ -3,12 +3,12 @@
 """
 File: tools.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2021
 
 This script contains several useful functions for general purposes.
 
-Last update: May 6, 2022
+Last update: February 8, 2023
 
 """
 
@@ -38,10 +38,10 @@ def build_coupled_channel_matrix(M11, M12, M21, M22):
         len(M11) = ntot, then len(M_full) = 2*ntot.
 
     """
-    
+
     # Build coupled-channel matrix
     M_full = np.vstack((np.hstack((M11, M12)), np.hstack((M21, M22))))
-    
+
     return M_full
 
 
@@ -66,19 +66,19 @@ def decompose_coupled_channel_matrix(M_full):
         Lower right block of full matrix (e.g., 3D1-3D1).
     
     """
-    
+
     # Full length
     Ntot = len(M_full)
-    
+
     # Sub-blocks will have exactly half the length of M_full
-    ntot = int(Ntot/2)
-    
+    ntot = int(Ntot / 2)
+
     # Get each sub-block
     M11 = M_full[:ntot, :ntot]
     M12 = M_full[:ntot, ntot:]
     M21 = M_full[ntot:, :ntot]
     M22 = M_full[ntot:, ntot:]
-    
+
     return M11, M12, M21, M22
 
 
@@ -97,10 +97,10 @@ def channel_L_value(channel):
         Total orbital angular momentum associated with partial wave channel.
 
     """
-        
+
     # This gives 'S', 'P', etc.
     channel_letter = channel[1]
-        
+
     if channel_letter == 'S':
         return 0
     elif channel_letter == 'P':
@@ -130,8 +130,45 @@ def channel_L_value(channel):
     else:
         print("Input channel is outside the range of this function.")
         return None
+
     
-    
+def convert_l_to_string(l):
+    """
+    Returns the spectroscopic notation of the orbital angular momentum value
+    l (e.g., l = 2 returns 'd').
+
+    Parameters
+    ----------
+    l : int
+        Orbital angular momentum of the single-particle (s.p.) state.
+
+    Returns
+    -------
+    output : str
+        Spectroscopic notation of s.p. state orbital angular momentum.
+
+    """
+
+    if l == 0:
+        return 's'
+    elif l == 1:
+        return 'p'
+    elif l == 2:
+        return 'd'
+    elif l == 3:
+        return 'f'
+    elif l == 4:
+        return 'g'
+    elif l == 5:
+        return 'h'
+    elif l == 6:
+        return 'i'
+    else:
+        raise RuntimeError(
+            "Input l value is outside the range of this function."
+        )
+
+        
 def coupled_channel(channel):
     """
     Boolean value on whether the given channel is a coupled-channel.
@@ -147,15 +184,16 @@ def coupled_channel(channel):
         True if the channel is coupled channel and false otherwise.
         
     """
-    
+
     # List of coupled channels
     coupled_channels = (
-        '3S1', '3P2', '3D3', '3F4', '3G5', '3H6', '3I7', '3K8', '3L9', '3M10',
-        '3N11', '3O12', '3Q13'
+        '3S1', '3D1', '3P2', '3F2', '3D3', '3G3', '3F4', '3H4', '3G5', '3I5',
+        '3H6', '3K6', '3I7', '3L7', '3K8', '3M8', '3L9', '3N9', '3M10', '3O10',
+        '3N11', '3Q11'
     )
 
     boolean_value = channel in coupled_channels
-    
+
     return boolean_value
 
 
@@ -182,13 +220,13 @@ def convert_number_to_string(number):
         return str(int(number))
 
     else:
-    
-        # Loop over i until the rounded number matches the input number
+
+        # Loop over i until the rounded number matches the input number,
         # then return the string of the rounded number
         i = 0
         while round(number, i) != number:
             i += 1
-        
+
         return str(round(number, i))
 
 
@@ -212,8 +250,8 @@ def find_index(x, x_array):
         Index of nearest x value in x_array.
         
     """
-    
-    return np.fabs(x_array-x).argmin()
+
+    return np.fabs(x_array - x).argmin()
 
 
 def replace_periods(file_name):
@@ -235,18 +273,17 @@ def replace_periods(file_name):
         New file name replacing periods with 'p'.
         
     """
-    
+
     # Initialize new file name
     new_file_name = ''
-    
+
     # Loop over each character in the original file name and append to the new
     # file name replacing periods with 'p'
     for letter in file_name:
-        
+
         if letter == '.':
-            
             letter = 'p'
-            
+
         new_file_name += letter
-        
+
     return new_file_name
