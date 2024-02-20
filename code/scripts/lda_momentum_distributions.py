@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-File: momentum_distributions.py
+File: lda_momentum_distributions.py
 
-Author: A. J. Tropiano (tropiano.4@osu.edu)
+Author: A. J. Tropiano (atropiano@anl.gov)
 Date: March 17, 2022
 
 Initializes momentum distribution codes. Momentum distributions are computed
-using sub-classes from snmd.py, pmd.py, and dmd.py, and SRG-transformed
+using subclasses from snmd.py, pmd.py, and dmd.py, and SRG-transformed
 potentials from potentials.py. Momentum distribution data is stored in
 data/momentum_distributions. These codes also rely on nucleonic densities
 taken from external codes or data.
@@ -15,12 +15,12 @@ taken from external codes or data.
 Warning: High momentum matrix elements of 3P2-3F2 and 3D3-3G3 channels are
 screwed up even with kmax=30 fm^-1 mesh. Ignore these channels for now!
 
-Last update: July 28, 2022
+Last update: March 29, 2023
 
 """
 
-# To-do: Further reduce load methods into smaller methods.
-# To-do: Make save functions automatically create /nucleus_name sub-directories
+# Todo: Further reduce load methods into smaller methods.
+# Todo: Make save functions automatically create /nucleus_name subdirectories.
 
 # Python imports
 import numpy as np
@@ -31,7 +31,7 @@ from .integration import (
     unattach_weights_from_matrix, unattach_weights_from_vector
 )
 from .potentials import Potential
-from .srg import get_transformation
+from .srg import compute_srg_transformation
 from .tools import channel_L_value, coupled_channel, replace_periods
 from .wave_function import wave_function
 
@@ -105,7 +105,7 @@ class MomentumDistribution:
                               self.ntot)
 
         # Standard initial Hamiltonian
-        if lambda_initial == None:
+        if lambda_initial is None:
             H_initial = potential.load_hamiltonian()
 
         # Forward-SRG-evolved Hamiltonian as starting point
@@ -118,7 +118,7 @@ class MomentumDistribution:
                                                        lambda_initial)
 
         # Backwards-SRG-evolved Hamiltonian as starting point
-        if kvnn_inv != None:
+        if kvnn_inv is not None:
             potential_hard = Potential(kvnn_inv, channel, self.kmax, self.kmid,
                                        self.ntot)
             H_hard_initial = potential_hard.load_hamiltonian()
@@ -129,7 +129,7 @@ class MomentumDistribution:
                 H_hard_evolved = potential_hard.load_hamiltonian(
                     'srg', generator, lambda_m)
             # Get SRG transformation for inverse transformation
-            U_hard = get_transformation(H_hard_initial, H_hard_evolved)
+            U_hard = compute_srg_transformation(H_hard_initial, H_hard_evolved)
             # Do inverse transformation on initial Hamiltonian
             H_initial = U_hard.T @ H_initial @ U_hard
 
@@ -141,7 +141,7 @@ class MomentumDistribution:
             H_evolved = potential.load_hamiltonian('srg', generator, lamb)
 
         return H_initial, H_evolved
-    
+
     def get_deltaU_matrix_element(self, channel, delta_U_matrix):
         """
         Manipulates the \delta U(k,k') to return contributions up to the
@@ -162,27 +162,29 @@ class MomentumDistribution:
             \delta U \delta U^{\dagger} matrix [fm^6].
         
         """
-        
+
         # This case corresponds to coupled-channel partial waves
         if coupled_channel(channel):
-            
+
             # First L of coupled-channel
             deltaU = delta_U_matrix[:self.ntot, :self.ntot]
-            deltaU_squared = (delta_U_matrix[:self.ntot, :self.ntot]**2
-                              + delta_U_matrix[:self.ntot, self.ntot:]**2)
+            deltaU_squared = (delta_U_matrix[:self.ntot, :self.ntot] ** 2
+                              + delta_U_matrix[:self.ntot, self.ntot:] ** 2)
 
             # Decide whether to add second L based on highest allowed L value
             # (e.g., include the 3D1-3D1 part of the coupled 3S1-3D1 channel
             # if we input D-waves in channels)
             if channel_L_value(channel) + 2 <= self.highest_L:
                 deltaU += delta_U_matrix[self.ntot:, self.ntot:]
-                deltaU_squared += (delta_U_matrix[self.ntot:, :self.ntot]**2
-                                   + delta_U_matrix[self.ntot:, self.ntot:]**2)
+                deltaU_squared += (
+                    delta_U_matrix[self.ntot:, :self.ntot] ** 2
+                    + delta_U_matrix[self.ntot:, self.ntot:] ** 2
+                )
 
         else:
 
             deltaU = delta_U_matrix
-            deltaU_squared = delta_U_matrix**2
+            deltaU_squared = delta_U_matrix ** 2
 
         return deltaU, deltaU_squared
 
@@ -223,7 +225,7 @@ class MomentumDistribution:
         to \Lambda_BD.
         
         """
-        
+
         # Save highest allowed L based on input channels
         highest_L = 0
         for channel in channels:
@@ -234,7 +236,7 @@ class MomentumDistribution:
 
         # Allowed channels for pp (and nn) up through the D-waves
         pp_channels = ('1S0', '3P0', '3P1', '3P2', '1D2')
-        
+
         # Get momentum mesh (channel argument doesn't matter here)
         k_array, k_weights = Potential(
             self.kvnn, '1S0', self.kmax, self.kmid, self.ntot).load_mesh()
@@ -254,35 +256,35 @@ class MomentumDistribution:
                 channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
             # Get SRG transformation U(k, k') [unitless]
-            U_matrix_unitless = get_transformation(H_initial, H_evolved)
-            
+            U_matrix_unitless = compute_srg_transformation(H_initial, H_evolved)
+
             # Coupled-channel?
             cc_bool = coupled_channel(channel)
 
             # Isolate 2-body term and convert to fm^3
             if cc_bool:
-                I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
+                I_matrix_unitless = np.eye(2 * self.ntot, 2 * self.ntot)
             else:
                 I_matrix_unitless = np.eye(self.ntot, self.ntot)
             delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
             delta_U_matrix = unattach_weights_from_matrix(
                 k_array, k_weights, delta_U_matrix_unitless, cc_bool)  # fm^3
-            
+
             # 2J+1 factor
             J = int(channel[-1])
-            
-            # Get matrix elements up to highest input partial wave channel
+
+            # Get matrix elements up to the highest input partial wave channel
             deltaU, deltaU2 = self.get_deltaU_matrix_element(channel,
                                                              delta_U_matrix)
-            
+
             # Isospin CG's=1/\sqrt(2) for pn
-            deltaU_pn += (2*J+1)/2 * deltaU
-            deltaU2_pn += (2*J+1)/2 * deltaU2
-            
+            deltaU_pn += (2 * J + 1) / 2 * deltaU
+            deltaU2_pn += (2 * J + 1) / 2 * deltaU2
+
             # Isospin CG's=1 for pp
             if channel in pp_channels:
-                deltaU_pp += (2*J+1) * deltaU
-                deltaU2_pp += (2*J+1) * deltaU2
+                deltaU_pp += (2 * J + 1) * deltaU
+                deltaU2_pp += (2 * J + 1) * deltaU2
 
         # Interpolate pp and pn \delta U(k,k)
         self.deltaU_pp_func = interp1d(
@@ -297,7 +299,7 @@ class MomentumDistribution:
                                                    deltaU2_pp, kx=1, ky=1)
         self.deltaU2_pn_func = RectBivariateSpline(k_array, k_array,
                                                    deltaU2_pn, kx=1, ky=1)
-        
+
     def save_deuteron_deltaU_funcs(
             self, generator, lamb, lambda_initial=None, kvnn_inv=None,
             lambda_m=None):
@@ -333,14 +335,14 @@ class MomentumDistribution:
         to \Lambda_BD.
         
         """
-        
+
         # Channel is 3S1-3D1 for deuteron
         channel = '3S1'
 
         # Get momentum mesh (channel argument doesn't matter here)
         k_array, k_weights = Potential(
             self.kvnn, channel, self.kmax, self.kmid, self.ntot).load_mesh()
-        
+
         # Set mesh as instance attribute
         self.k_array, self.k_weights = k_array, k_weights
 
@@ -349,27 +351,27 @@ class MomentumDistribution:
             channel, generator, lamb, lambda_initial, kvnn_inv, lambda_m)
 
         # Get SRG transformation U(k, k') [unitless]
-        U_matrix_unitless = get_transformation(H_initial, H_evolved)
-        
+        U_matrix_unitless = compute_srg_transformation(H_initial, H_evolved)
+
         # Need the deuteron wave function to get kF values for calculation
         psi_k_unitless = wave_function(H_initial, U_matrix=U_matrix_unitless)
         self.psi_k = unattach_weights_from_vector(
             k_array, k_weights, psi_k_unitless, coupled_channel=True)  # fm^3/2
 
         # Isolate 2-body term and convert to fm^3
-        I_matrix_unitless = np.eye(2*self.ntot, 2*self.ntot)
+        I_matrix_unitless = np.eye(2 * self.ntot, 2 * self.ntot)
         delta_U_matrix_unitless = U_matrix_unitless - I_matrix_unitless
         delta_U_matrix = unattach_weights_from_matrix(
             k_array, k_weights, delta_U_matrix_unitless, coupled_channel=True)
 
         # Get matrix elements for full 3S1-3D1 partial wave channel including
         # the isospin CG = 1/\sqrt(2)
-        deltaU = 1/2 * (delta_U_matrix[:self.ntot, :self.ntot]
-                        + delta_U_matrix[self.ntot:, self.ntot:])
-        deltaU_squared = 1/2 * (delta_U_matrix[:self.ntot, :self.ntot]**2
-                                + delta_U_matrix[:self.ntot, self.ntot:]**2
-                                + delta_U_matrix[self.ntot:, :self.ntot]**2
-                                + delta_U_matrix[self.ntot:, self.ntot:]**2)
+        deltaU = 1 / 2 * (delta_U_matrix[:self.ntot, :self.ntot]
+                          + delta_U_matrix[self.ntot:, self.ntot:])
+        deltaU_squared = 1 / 2 * (delta_U_matrix[:self.ntot, :self.ntot] ** 2
+                                  + delta_U_matrix[:self.ntot, self.ntot:] ** 2
+                                  + delta_U_matrix[self.ntot:, :self.ntot] ** 2
+                                  + delta_U_matrix[self.ntot:, self.ntot:] ** 2)
 
         # Interpolate \delta U(k,k)
         self.deltaU_func = interp1d(
@@ -379,7 +381,7 @@ class MomentumDistribution:
         # Interpolate \delta U^2(k,k') 
         self.deltaU2_func = RectBivariateSpline(k_array, k_array,
                                                 deltaU_squared, kx=1, ky=1)
-        
+
     def get_single_nucleon_momentum_distribution(
             self, nucleon, nucleus_name, density, channels, generator, lamb,
             lambda_initial=None, kvnn_inv=None, lambda_m=None,
@@ -431,34 +433,34 @@ class MomentumDistribution:
             momentum values has units [fm^-1].
 
         """
-        
+
         # Directory for distributions data
         data_directory = f'../data/momentum_distributions/{nucleus_name}/'
-        
+
         # Get file name
         file_name = (f'n_{nucleon}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
-        
+
         for channel in channels:
             file_name += f'_{channel}'
-        
+
         file_name += f'_{generator}'
         if generator == 'Block-diag':
             file_name += f'_LambdaBD_{lamb}'
         else:
             file_name += f'_lambda_{lamb}'
-        
-        if lambda_initial != None:
+
+        if lambda_initial is not None:
             file_name += f'_lambda_initial_{lambda_initial}'
-            
-        if kvnn_inv != None:
+
+        if kvnn_inv is not None:
             file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
-        
+
         file_name = replace_periods(file_name) + '.dat'
-        
+
         # Load data which includes all contributions to n_\lambda(q)
         data = np.loadtxt(data_directory + file_name)
-        
+
         # Momentum values and total distribution (1-D arrays)
         q_array = data[:, 0]
         n_total_array = data[:, 1]
@@ -468,15 +470,15 @@ class MomentumDistribution:
             n_I_array = data[:, 2]  # 1 term
             n_delU_array = data[:, 3]  # \delta U term
             n_delU2_array = data[:, 4]  # \delta U^2 term
-        
+
         # Interpolate (UnivariateSpline is for smoothing whereas interp1d
         # gives closer value to the actual calculation)
         if interpolate:
-            
+
             # Total distribution (function)
             n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
                                     kind='linear', fill_value='extrapolate')
-            
+
             # Isolated contributions too (functions)
             if contributions:
                 n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
@@ -487,7 +489,7 @@ class MomentumDistribution:
                 n_delU2_func = interp1d(
                     q_array, n_delU2_array, bounds_error=False, kind='linear',
                     fill_value='extrapolate')
-        
+
         # Return all contributions as functions
         if contributions and interpolate:
             return n_total_func, n_I_func, n_delU_func, n_delU2_func
@@ -555,37 +557,37 @@ class MomentumDistribution:
             momentum values has units [fm^-1].
 
         """
-        
+
         # Directory for distributions data
         data_directory = f'../data/momentum_distributions/{nucleus_name}/'
-        
+
         # Get file name
         file_name = (f'n_{pair}_{density}_kvnn_{self.kvnn}_kmax_{self.kmax}'
                      f'_kmid_{self.kmid}_ntot_{self.ntot}')
-        
+
         for channel in channels:
             file_name += f'_{channel}'
-        
+
         file_name += f'_{generator}'
         if generator == 'Block-diag':
             file_name += f'_LambdaBD_{lamb}'
         else:
             file_name += f'_lambda_{lamb}'
-       
-        if lambda_initial != None:
+
+        if lambda_initial is not None:
             file_name += f'_lambda_initial_{lambda_initial}'
-           
-        if kvnn_inv != None:
+
+        if kvnn_inv is not None:
             file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
-            
+
         # Split into cases on whether Q = 0
         if Q_equals_zero:
-            
+
             file_name = replace_periods(file_name + '_Q0') + '.dat'
-            
+
             # Load data which includes all contributions to n_\lambda(q,Q=0)
             data = np.loadtxt(data_directory + file_name)
-        
+
             # Momentum values and total distribution (1-D arrays)
             q_array = data[:, 0]
             n_total_array = data[:, 1]
@@ -595,16 +597,16 @@ class MomentumDistribution:
                 n_I_array = data[:, 2]  # 1 term
                 n_delU_array = data[:, 3]  # \delta U term
                 n_delU2_array = data[:, 4]  # \delta U^2 term
-        
+
             # Interpolate (UnivariateSpline is for smoothing whereas interp1d
             # gives closer value to the actual calculation)
             if interpolate:
-            
+
                 # Total distribution (function)
                 n_total_func = interp1d(
                     q_array, n_total_array, bounds_error=False, kind='linear',
                     fill_value='extrapolate')
-            
+
                 # Isolated contributions too (functions)
                 if contributions:
                     n_I_func = interp1d(
@@ -616,7 +618,7 @@ class MomentumDistribution:
                     n_delU2_func = interp1d(
                         q_array, n_delU2_array, bounds_error=False,
                         kind='linear', fill_value='extrapolate')
-        
+
             # Return all contributions as functions
             if contributions and interpolate:
                 return n_total_func, n_I_func, n_delU_func, n_delU2_func
@@ -630,15 +632,15 @@ class MomentumDistribution:
             # Return the total momentum distribution as an array of the data
             else:
                 return q_array, n_total_array
-        
+
         # Q > 0
         else:
-            
+
             file_name = replace_periods(file_name) + '.dat'
-            
+
             # Load data which includes all contributions to n_\lambda(q,Q)
             data = np.loadtxt(data_directory + file_name)
-            
+
             # Get C.o.M. and relative momentum values
             q_array = np.unique(data[:, 0])
             Q_array = np.unique(data[:, 1])
@@ -646,7 +648,7 @@ class MomentumDistribution:
 
             # Total distribution (2-D array)
             n_total_array = np.reshape(data[:, 2], (ntot_q, ntot_Q))
-            
+
             # Get isolated contributions too (2-D arrays)
             if contributions:
                 # I term
@@ -659,7 +661,7 @@ class MomentumDistribution:
             if interpolate:
                 n_total_func = RectBivariateSpline(q_array, Q_array,
                                                    n_total_array, kx=1, ky=1)
-            
+
                 # Isolated contributions too (functions)
                 if contributions:
                     n_I_func = RectBivariateSpline(q_array, Q_array,
@@ -668,7 +670,7 @@ class MomentumDistribution:
                                                       n_delU_array, kx=1, ky=1)
                     n_delU2_func = RectBivariateSpline(
                         q_array, Q_array, n_delU2_array, kx=1, ky=1)
-        
+
             # Return all contributions as functions
             if contributions and interpolate:
                 return n_total_func, n_I_func, n_delU_func, n_delU2_func
@@ -682,7 +684,7 @@ class MomentumDistribution:
             # Return the total momentum distribution as an array of the data
             else:
                 return q_array, Q_array, n_total_array
-    
+
     def get_deuteron_momentum_distribution(
             self, generator, lamb, lambda_initial=None, kvnn_inv=None,
             lambda_m=None, contributions=False, interpolate=False):
@@ -725,30 +727,30 @@ class MomentumDistribution:
             momentum values has units [fm^-1].
 
         """
-        
+
         # Directory for distributions data
         data_directory = '../data/momentum_distributions/H2/'
-        
+
         # Get file name
         file_name = (f'n_kvnn_{self.kvnn}_kmax_{self.kmax}_kmid_{self.kmid}'
                      f'_ntot_{self.ntot}_{generator}')
-        
+
         if generator == 'Block-diag':
             file_name += f'_LambdaBD_{lamb}'
         else:
             file_name += f'_lambda_{lamb}'
-        
-        if lambda_initial != None:
+
+        if lambda_initial is not None:
             file_name += f'_lambda_initial_{lambda_initial}'
-            
-        if kvnn_inv != None:
+
+        if kvnn_inv is not None:
             file_name += f'_kvnn_inv_{kvnn_inv}_lamb_m_{lambda_m}'
-        
+
         file_name = replace_periods(file_name) + '.dat'
-        
+
         # Load data which includes all contributions to n_\lambda(q)
         data = np.loadtxt(data_directory + file_name)
-        
+
         # Momentum values and total distribution (1-D arrays)
         q_array = data[:, 0]
         n_total_array = data[:, 1]
@@ -758,15 +760,15 @@ class MomentumDistribution:
             n_I_array = data[:, 2]  # 1 term
             n_delU_array = data[:, 3]  # \delta U term
             n_delU2_array = data[:, 4]  # \delta U^2 term
-        
+
         # Interpolate (UnivariateSpline is for smoothing whereas interp1d
         # gives closer value to the actual calculation)
         if interpolate:
-            
+
             # Total distribution (function)
             n_total_func = interp1d(q_array, n_total_array, bounds_error=False,
                                     kind='linear', fill_value='extrapolate')
-            
+
             # Isolated contributions too (functions)
             if contributions:
                 n_I_func = interp1d(q_array, n_I_array, bounds_error=False,
@@ -777,7 +779,7 @@ class MomentumDistribution:
                 n_delU2_func = interp1d(
                     q_array, n_delU2_array, bounds_error=False, kind='linear',
                     fill_value='extrapolate')
-        
+
         # Return all contributions as functions
         if contributions and interpolate:
             return n_total_func, n_I_func, n_delU_func, n_delU2_func
