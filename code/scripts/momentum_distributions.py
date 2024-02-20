@@ -137,7 +137,7 @@ class WoodsSaxon:
         
         # Set instance attributes
         self.woods_saxon_directory = (
-            f"../../data/woods_saxon/{parametrization}/{nucleus_name}/"
+            f"../data/woods_saxon/{parametrization}/{nucleus_name}/"
         )
         self.cg_table = cg_table
         self.A = int(Z + N)
@@ -1446,7 +1446,7 @@ def save_momentum_distribution(
     hdr = ("q, q weight, n(q), n(q) error, I, \delta U + \delta U^\dagger,"
            " \delta U + \delta U^\dagger error, \delta U^2, \delta U^2 error\n")
     
-    directory = f"../../data/momentum_distributions/{nucleus_name}/"
+    directory = f"../data/momentum_distributions/{nucleus_name}/"
 
     if kvnn_hard is not None:
         file_name = replace_periods(
@@ -1471,7 +1471,7 @@ def load_momentum_distribution(
     contributions.
     """
     
-    directory = f"../../data/momentum_distributions/{nucleus_name}/"
+    directory = f"../data/momentum_distributions/{nucleus_name}/"
 
     if kvnn_hard is not None:
         file_name = replace_periods(
