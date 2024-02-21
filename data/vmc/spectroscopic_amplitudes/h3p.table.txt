@@ -1,16 +1,16 @@
-4He(0+;0) -> 3H(1/2+;1/2)+p -- AV18+UX -- 24-Jun-15
+# 4He(0+;0) -> 3H(1/2+;1/2)+p -- AV18+UX -- 24-Jun-15
 
-VMC 500k samples
+# VMC 500k samples
 
-R = r-space grid in fm
-H3P1  = s1/2 spectroscopic amplitude in fm-(3/2)
-DH3P1 = s1/2 Monte Carlo error bar (1 sigma)
+# R = r-space grid in fm
+# H3P1  = s1/2 spectroscopic amplitude in fm-(3/2)
+# DH3P1 = s1/2 Monte Carlo error bar (1 sigma)
 
-Spectroscopic factor
-TOTINT(H3P1**2*R**2:R) =  1.621 (3)
+# Spectroscopic factor
+# TOTINT(H3P1**2*R**2:R) =  1.621 (3)
  
-   R      H3P1      DH3P1
- *****  ********  ********
+#   R      H3P1      DH3P1
+# *****  ********  ********
    .05   .7822     .0472
    .15   .7922     .01862
    .25   .8027     .01129
