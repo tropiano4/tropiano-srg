@@ -1160,7 +1160,7 @@ def load_overlap(
             f"_{parametrization}"
         )
     
-    data = np.loadtxt(file_name + '.txt')
+    data = np.loadtxt(file_name + '.txt', dtype=np.complex_)
     
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -1192,7 +1192,8 @@ if __name__ == '__main__':
     # SRG \lambda value
     lamb = 1.5
     
-    neval = 1e3
+    # neval = 1e3
+    neval = 5e3
     
     # Inverse-SRG evolution?
     kvnn_hard = None
