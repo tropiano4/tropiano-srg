@@ -10,27 +10,28 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: February 20, 2024
+Last update: February 23, 2024
 
 """
 
 # Python imports
 from numba import njit
 import numpy as np
-from numpy.linalg import norm
 from scipy.interpolate import InterpolatedUnivariateSpline, RectBivariateSpline
 from scipy.special import sph_harm, spherical_jn
 from sympy.physics.quantum.cg import CG
-import vegas
 
 # Imports from scripts
-from scripts.integration import momentum_mesh, unattach_weights_from_matrix
+from scripts.integration import (
+    gaussian_quadrature_mesh, momentum_mesh, unattach_weights_from_matrix
+)
 from scripts.potentials import Potential
 from scripts.srg import compute_srg_transformation, load_srg_transformation
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 
 
 #### TODO: Update sum over m_j
+#### TODO: Use JAX instead of NumPy?
 
 
 class SingleParticleState:
@@ -700,25 +701,19 @@ class DeltaUMatrixElement:
                 spin_triplet_channels.append(channel)         
         
         return spin_triplet_channels
-    
 
-# Trying to sum over quantum numbers without sampling
-# TODO: Complex contribution could screw up vegas strategy.
-# Split into real and imaginary parts somehow?
-# TODO: Try batch mode in vegas?
-# TODO: Sample angles of q! Careful, d\Omega_q is outside |A(q)|^2!
-class DeltaUDaggerIntegrand:
+
+class DeltaUDagger:
     """Evaluates the \delta U^\dagger term."""
     
     
     def __init__(
-            self, alpha, q, woods_saxon, delta_U_matrix_element,
+            self, alpha, woods_saxon, delta_U_matrix_element,
             spin_configurations, isospin_configurations
     ):
         
         # Set momenta and isospin as instance attributes
         self.alpha = alpha
-        self.q = q
         self.spin_configurations = spin_configurations
         self.isospin_configurations = isospin_configurations
         
@@ -726,55 +721,77 @@ class DeltaUDaggerIntegrand:
         # attributes
         self.woods_saxon = woods_saxon
         self.delta_U_matrix_element = delta_U_matrix_element
-    
-    def evaluate(self, x_array):
-        """Returns the real part of the integrand."""
-
-        # Choose z-axis to be along q_vector
-        q_vector = np.array([0, 0, self.q])
         
-        # Relative momenta k
-        k, theta_k, phi_k = x_array[0:3]
-        k_vector = build_vector(k, theta_k, phi_k)
+        # Set momenta and angles
+        kmax, ktot = 10.0, 100
+        k_array, k_weights = gaussian_quadrature_mesh(kmax, ktot)
+        Kmax, Ktot = 5.0, 50
+        K_array, K_weights = gaussian_quadrature_mesh(Kmax, Ktot)
+        theta_array, theta_weights = gaussian_quadrature_mesh(np.pi, 11)
+        phi_array, phi_weights = gaussian_quadrature_mesh(2*np.pi, 15)
         
-        # C.o.M. momenta K
-        K, theta_K, phi_K = x_array[3:6]
-        K_vector = build_vector(K, theta_K, phi_K)
-
+        # Create meshgrids
+        (self.k_grid, self.thetak_grid, self.phik_grid, self.K_grid,
+         self.thetaK_grid, self.phiK_grid) = np.meshgrid(
+             k_array, theta_array, phi_array, K_array, theta_array, phi_array,
+             indexing='ij'
+        )
+        (self.dk_grid, self.dthetak_grid, self.dphik_grid, self.dK_grid,
+         self.dthetaK_grid, self.dphiK_grid) = np.meshgrid(
+            k_weights, theta_weights, phi_weights, K_weights, theta_weights,
+            phi_weights, indexing='ij'
+        )
+             
+        # Jacobian determinant
+        self.jacobian = (
+            self.k_grid ** 2 * self.dk_grid * np.sin(self.thetak_grid)
+            * self.dthetak_grid * self.dphik_grid * self.K_grid ** 2
+            * self.dK_grid * np.sin(self.thetaK_grid) * self.dthetaK_grid
+            * self.dphiK_grid
+        )
+             
+        
+    def __call__(self, q):
+        """Integrate over K and k, and sum over quantum numbers."""
+        
         # Calculate vector q - K/2
-        qK_vector = q_vector - K_vector/2
-        qK, theta_qK, phi_qK = get_vector_components(qK_vector)
-        
-        # Calculate vector k_1 = K/2 + k
-        k1_vector = K_vector/2 + k_vector
-        k1, theta_k1, phi_k1 = get_vector_components(k1_vector)
-        
-        # Calculate vector k_2 = K/2 - k
-        k2_vector = K_vector/2 - k_vector
-        k2, theta_k2, phi_k2 = get_vector_components(k2_vector)
+        qK, theta_qK, phi_qK = get_vector_components(
+            q, 0.0, 0.0, -self.K_grid/2, self.thetaK_grid, self.phiK_grid
+        )
         
         # Calculate vector K - q
-        Kq_vector = K_vector - q_vector
-        Kq, theta_Kq, phi_Kq = get_vector_components(Kq_vector)
+        Kq, theta_Kq, phi_Kq = get_vector_components(
+            self.K_grid, self.thetaK_grid, self.phiK_grid, -q, 0.0, 0.0
+        )
         
-        # Calculate the Jacobian determinant
-        jacobian = k ** 2 * np.sin(theta_k) * K ** 2 * np.sin(theta_K)
+        # Calculate vector k_1 = K/2 + k
+        k1, theta_k1, phi_k1 = get_vector_components(
+            self.K_grid/2, self.thetaK_grid, self.phiK_grid, self.k_grid,
+            self.thetak_grid, self.phik_grid
+        )
+        
+        # Calculate vector k_2 = K/2 - k
+        k2, theta_k2, phi_k2 = get_vector_components(
+            self.K_grid/2, self.thetaK_grid, self.phiK_grid, -self.k_grid,
+            self.thetak_grid, self.phik_grid
+        )
         
         # Sum over spin projections
-        integrand = 0+0j
+        integrand = np.zeros_like(self.k_grid, dtype=complex)
         for spin_projections in self.spin_configurations:
-            
+                    
             sigma, sigmap, sigma_1, sigma_2 = spin_projections
-            
+                    
             # Sum over isospin projections
             for isospin_projections in self.isospin_configurations:
-                
+                        
                 tau, taup, tau_1, tau_2 = isospin_projections
                 
                 # Plane-wave matrix elements of \delta U^\dagger
                 delta_U_dag_plane_wave = self.delta_U_matrix_element(
-                    qK, theta_qK, phi_qK, k, theta_k, phi_k, sigma, sigmap,
-                    sigma_1, sigma_2, tau, taup, tau_1, tau_2, hc=True
+                    qK, theta_qK, phi_qK, self.k_grid, self.thetak_grid,
+                    self.phik_grid, sigma, sigmap, sigma_1, sigma_2, tau, taup,
+                    tau_1, tau_2, hc=True
                 )
                 
                 # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
@@ -784,10 +801,10 @@ class DeltaUDaggerIntegrand:
                 # \psi_\alpha(K/2-k; \sigma_2, \tau_2)
                 psi_alpha_2 = self.woods_saxon.psi(self.alpha, k2, theta_k2,
                                                    phi_k2, sigma_2, tau_2)
-                
+                        
                 # Sum over occupied states
                 for beta in self.woods_saxon.occupied_states:
-
+                    
                     # \psi_\beta(K-q; \sigma', \tau')
                     psi_beta_Kq = self.woods_saxon.psi(beta, Kq, theta_Kq,
                                                        phi_Kq, sigmap, taup)
@@ -802,19 +819,13 @@ class DeltaUDaggerIntegrand:
 
                     # Add together for full integrand
                     integrand += 1/2 * (
-                        jacobian * delta_U_dag_plane_wave * np.conj(psi_beta_Kq)
+                        delta_U_dag_plane_wave * np.conj(psi_beta_Kq)
                         * (psi_beta_2 * psi_alpha_1 - psi_beta_1 * psi_alpha_2)
                     )
+          
+        # Integrate over K and k
+        return np.sum(self.jacobian * integrand)
 
-        return integrand
-    
-    def real_part(self, x_array):
-        
-        return self.evaluate(x_array).real
-    
-    def imag_part(self, x_array):
-        
-        return self.evaluate(x_array).imag
 
 @njit
 def kronecker_delta(x, y):
@@ -865,59 +876,32 @@ def compute_clebsch_gordan_table(j_max):
 
 
 @njit
-def build_vector(k, theta, phi):
-    """
-    Build a vector from input spherical coordinates.
+def get_vector_components(x, theta_x, phi_x, y, theta_y, phi_y):
+    """Output the spherical components of a vector v = x + y."""
+    
+    # Components of x vector
+    x_x = x * np.sin(theta_x) * np.cos(phi_x)
+    x_y = x * np.sin(theta_x) * np.sin(phi_x)
+    x_z = x * np.cos(theta_x)
+    
+    # Components of y vector
+    y_x = y * np.sin(theta_y) * np.cos(phi_y)
+    y_y = y * np.sin(theta_y) * np.sin(phi_y)
+    y_z = y * np.cos(theta_y)
+    
+    # Dot product of x and y
+    xy = x_x * y_x + x_y * y_y + x_z * y_z
+    
+    # Vector norm
+    z = np.sqrt(x ** 2 + y ** 2 + 2 * xy)
+    
+    # Polar angle
+    theta_z = np.arccos((x_z + y_z) / z)
+    
+    # Azimuthal angle
+    phi_z = np.arctan2(x_y + y_y, x_x + y_x)
 
-    Parameters
-    ----------
-    k : float
-        Magnitude of the vector.
-    theta : float
-        Polar angle of the vector in the range [0, \pi].
-    phi : float
-        Azimuthal angle of the vector in the range [0, 2\pi].
-
-    Returns
-    -------
-    k_vector : 1-D ndarray
-        Output vector with shape (3,1).
-
-    """
-
-    k_vector = np.array([k * np.sin(theta) * np.cos(phi),
-                         k * np.sin(theta) * np.sin(phi),
-                         k * np.cos(theta)])
-
-    return k_vector
-
-
-@njit
-def get_vector_components(k_vector):
-    """
-    Get the spherical coordinates from an input vector.
-
-    Parameters
-    ----------
-    k_vector : 1-D ndarray
-        Input vector with shape (3,1).
-
-    Returns
-    -------
-    k : float
-        Magnitude of the vector.
-    theta : float
-        Polar angle of the vector in the range [0, \pi].
-    phi : float
-        Azimuthal angle of the vector in the range [0, 2\pi].
-
-    """
-
-    k = norm(k_vector)
-    theta = np.arccos(k_vector[2]/k)
-    phi = np.arctan2(k_vector[1], k_vector[0])
-
-    return k, theta, phi
+    return z, theta_z, phi_z
 
 
 def set_spin_configurations():
@@ -986,52 +970,23 @@ def compute_delta_U_dagger_term(
     # Get sets of four isospin projection configurations
     # (tau, \tau', \tau_1, \tau_2)
     isospin_configurations = set_isospin_configurations()
-
-    # Relative momenta from 0 to 10 fm^-1
-    k_limits = [0, 10]
-    # C.o.M. momenta up to 3 fm^-1
-    K_limits = [0, 3]
-    # Polar angle from 0 to \pi
-    theta_limits = [0, np.pi]
-    # Azimuthal angle from 0 to 2\pi
-    phi_limits = [0, 2*np.pi]
-
-    # Set-up integrator with multiple processors
-    integ = vegas.Integrator([
-        k_limits, theta_limits, phi_limits,
-        K_limits, theta_limits, phi_limits,
-    ], nproc=8)
+    
+    # Initialize \delta U^\dagger term
+    delUdag = DeltaUDagger(
+        alpha, woods_saxon, delta_U_matrix_element, spin_configurations,
+        isospin_configurations
+    )
 
     # Evaluate the \delta U^\dagger term for each q
     delta_U_array = np.zeros_like(q_array, dtype=complex)
-    delta_U_errors = np.zeros_like(q_array)
     for i, q in enumerate(q_array):
-        
-        integrand = DeltaUDaggerIntegrand(
-            alpha, q, woods_saxon, delta_U_matrix_element, spin_configurations,
-            isospin_configurations
-        )
 
-        # Real part
-        # Train the integrator
-        integ(integrand.real_part, nitn=5, neval=neval)
-        # Final result
-        result_real = integ(integrand.real_part, nitn=10, neval=neval)
-        
-        # Imaginary part
-        # Train the integrator
-        integ(integrand.imag_part, nitn=5, neval=neval)
-        # Final result
-        result_imag = integ(integrand.imag_part, nitn=10, neval=neval)
-        
-        delta_U_array[i] = result_real.mean + 1j * result_imag.mean
-        delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
-                                    + result_imag.sdev ** 2)
+        delta_U_array[i] = delUdag(q)
         
         percent = (i+1)/len(q_array)*100
         print(f"{percent:.2f} percent done with \delta U^\dagger.")
 
-    return delta_U_array, delta_U_errors
+    return delta_U_array
 
 
 def compute_overlap(
@@ -1060,7 +1015,6 @@ def compute_overlap(
     if ipm:
         
         delta_U_array = np.zeros_like(q_array, dtype=complex)
-        delta_U_errors = np.zeros_like(q_array)
     
     # Full overlap
     else:
@@ -1072,7 +1026,7 @@ def compute_overlap(
         )
         
         # Compute the \delta U^\dagger term
-        delta_U_array, delta_U_errors = compute_delta_U_dagger_term(
+        delta_U_array = compute_delta_U_dagger_term(
             alpha, q_array, woods_saxon, delta_U_matrix_element, neval
         )
     
@@ -1086,13 +1040,9 @@ def compute_overlap(
     
     # Option to save the momentum distribution as a .txt file
     if save:
-        save_overlap(
-            nucleus_name, alpha, kvnn, lamb, q_array, q_weights, overlap_array,
-            I_array, delta_U_array, delta_U_errors, kvnn_hard, lambda_m,
-            parametrization
-        )
+        pass
     
-    return q_array, q_weights, overlap_array, delta_U_errors
+    return q_array, q_weights, overlap_array
 
 
 def compute_normalization(q_array, q_weights, overlap_array):
@@ -1110,30 +1060,7 @@ def save_overlap(
 ):
     """Save the overlap along with the isolated contributions."""
     
-    data = np.vstack((q_array, q_weights, overlap_array, I_array, delta_U_array,
-                      delta_U_errors)).T
-                
-    hdr = ("q, q weight, overlap, I, \delta U^\dagger, error\n")
-    
-    # Proton
-    if alpha.m_t == 1/2:
-        alpha_str = "proton_"
-    elif alpha.m_t == -1/2:
-        alpha_str = "neutron_"
-    alpha_str += f"n{int(alpha.n-1)}_l{int(alpha.l)}_j{int(2*alpha.j)}"
-
-    if kvnn_hard is not None:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}_kvnn"
-            f"_hard_{kvnn_hard}_lambda_m_{lambda_m}_{parametrization}"
-        )
-    else:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}"
-            f"_{parametrization}"
-        )
-    
-    np.savetxt(file_name + '.txt', data, header=hdr)
+    return None
     
     
 def load_overlap(
@@ -1142,46 +1069,18 @@ def load_overlap(
 ):
     """Load and return the overlap along with the isolated contributions."""
 
-    # Proton
-    if alpha.m_t == 1/2:
-        alpha_str = "proton_"
-    elif alpha.m_t == -1/2:
-        alpha_str = "neutron_"
-    alpha_str += f"n{int(alpha.n-1)}_l{int(alpha.l)}_j{int(2*alpha.j)}"
-
-    if kvnn_hard is not None:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}_kvnn"
-            f"_hard_{kvnn_hard}_lambda_m_{lambda_m}_{parametrization}"
-        )
-    else:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}"
-            f"_{parametrization}"
-        )
-    
-    data = np.loadtxt(file_name + '.txt', dtype=np.complex_)
-    
-    q_array = data[:, 0]
-    q_weights = data[:, 1]
-    overlap_array = data[:, 2]
-    I_array = data[:, 3]
-    delta_U_array = data[:, 4]
-    delta_U_errors = data[:, 5]
-
-    return (q_array, q_weights, overlap_array, I_array, delta_U_array,
-            delta_U_errors)
+    return None
 
 
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'C12', 6, 6
     
     # Quantum state
-    # alpha = SingleParticleState(1, 0, 1/2, 1/2, 1/2)  # 1s_{1/2}
-    alpha = SingleParticleState(1, 1, 3/2, 1/2, 1/2)  # 1p_{3/2}
+    alpha = SingleParticleState(1, 0, 1/2, 1/2, 1/2)  # 1s_{1/2}
+    # alpha = SingleParticleState(1, 1, 3/2, 1/2, 1/2)  # 1p_{3/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1191,10 +1090,7 @@ if __name__ == '__main__':
     
     # SRG \lambda value
     lamb = 1.5
-    
-    # neval = 1e3
-    neval = 5e3
-    
+
     # Inverse-SRG evolution?
     kvnn_hard = None
     lambda_m = None
@@ -1205,15 +1101,15 @@ if __name__ == '__main__':
     prm = 'match'
 
     # Compute and save the overlap
-    q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
-        nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
-        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-        print_normalization=True, save=True
+    q_array, q_weights, overlap_array = compute_overlap(
+        nucleus_name, Z, N, alpha, kvnn, lamb, channels, kvnn_hard=kvnn_hard,
+        lambda_m=lambda_m, parametrization=prm, print_normalization=True,
+        save=True
     )
     
     # # Testing IPM only
-    # q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
-    #     nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
-    #     kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-    #     print_normalization=True, ipm=True, save=False
+    # q_array, q_weights, overlap_array = compute_overlap(
+    #     nucleus_name, Z, N, alpha, kvnn, lamb, channels,  kvnn_hard=kvnn_hard,
+    #     lambda_m=lambda_m, parametrization=prm, print_normalization=True,
+    #     ipm=True, save=False
     # )
