@@ -1100,7 +1100,7 @@ def compute_normalization(q_array, q_weights, overlap_array):
 
     return 4 * np.pi * np.sum(
         q_weights * q_array ** 2 * np.abs(overlap_array) ** 2
-    )
+    ).real
 
 
 def save_overlap(
