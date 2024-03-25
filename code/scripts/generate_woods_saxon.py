@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: February 16, 2024
+Last update: March 25, 2024
 
 """
 
@@ -74,13 +74,29 @@ def set_seminole_parameters(nucleus_name, A):
     prm[:, 7] = a
     
     # Nucleus-dependent parameters
-    if nucleus_name == 'He4':
+    if nucleus_name == 'H3':
+        prm[0, 0] = 96.3168
+        prm[1, 0] = 51.8011
+        prm[:, 1] = 1.81723 / (A ** (1/3))
+        prm[0, 5] = 65.7116
+        prm[1, 5] = 65.5914
+        prm[:, 6] = 1.72998 / (A ** (1/3))
+        prm[:, 8] = 1.81723 / (A ** (1/3))
+    elif nucleus_name == 'He4':
         prm[:, 0] = 76.8412
         prm[:, 1] = 2.00013 / (A ** (1/3))
         prm[0, 5] = 51.8575
         prm[1, 5] = 51.7507
         prm[:, 6] = 1.90409 / (A ** (1/3))
         prm[:, 8] = 2.00013 / (A ** (1/3))
+    elif nucleus_name == 'B11':
+        prm[0, 0] = 63.9418
+        prm[1, 0] = 51.8011
+        prm[:, 1] = 2.80221 / (A ** (1/3))
+        prm[0, 5] = 35.214
+        prm[1, 5] = 35.126
+        prm[:, 6] = 2.66766 / (A ** (1/3))
+        prm[:, 8] = 2.80221 / (A ** (1/3))
     elif nucleus_name == 'C12':
         prm[:, 0] = 60.1478
         prm[:, 1] = 2.88468 / (A ** (1/3))
@@ -312,20 +328,3 @@ def main(nucleus_name, Z, N, rmax=40, ntab=2000, parametrization='seminole'):
                 
             file_name = get_orbital_file_name(sp_state)
             shutil.move(file_name, directory + file_name)
-    
-    
-    
-if __name__ == '__main__':
-    
-    # nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ca40', 20, 20
-    
-    # Woods-Saxon parametrization
-    prm = 'seminole'
-    # prm = 'universal'
-    # prm = 'match'
-    
-    # Generate orbital files
-    main(nucleus_name, Z, N, parametrization=prm)
