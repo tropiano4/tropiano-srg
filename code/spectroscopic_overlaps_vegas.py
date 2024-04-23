@@ -10,17 +10,18 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: February 20, 2024
+Last update: April 23, 2024
 
 """
 
 # Python imports
 from numba import njit
 import numpy as np
-from numpy.linalg import norm
+import numpy.linalg as la
 from scipy.interpolate import InterpolatedUnivariateSpline, RectBivariateSpline
 from scipy.special import sph_harm, spherical_jn
 from sympy.physics.quantum.cg import CG
+import time
 import vegas
 
 # Imports from scripts
@@ -28,9 +29,6 @@ from scripts.integration import momentum_mesh, unattach_weights_from_matrix
 from scripts.potentials import Potential
 from scripts.srg import compute_srg_transformation, load_srg_transformation
 from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
-
-
-#### TODO: Update sum over m_j
 
 
 class SingleParticleState:
@@ -117,7 +115,7 @@ class WoodsSaxon:
     """
     
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120, parametrization='match'):
+                 kmax=10.0, kmid=2.0, ntot=120, parametrization='seminole'):
         
         # Set instance attributes
         self.woods_saxon_directory = (
@@ -350,8 +348,6 @@ class WoodsSaxon:
         
         else:
             
-            # return 0+0j
-            ### TESTING
             return np.zeros_like(theta, dtype=complex)
         
     
@@ -702,44 +698,60 @@ class DeltaUMatrixElement:
         return spin_triplet_channels
     
 
-# Trying to sum over quantum numbers without sampling
-# TODO: Complex contribution could screw up vegas strategy.
-# Split into real and imaginary parts somehow?
-# TODO: Try batch mode in vegas?
-# TODO: Sample angles of q! Careful, d\Omega_q is outside |A(q)|^2!
 class DeltaUDaggerIntegrand:
-    """Evaluates the \delta U^\dagger term."""
-    
+    """Evaluate the integrand of the \delta U^\dagger term at several
+    integration points.
+    """
     
     def __init__(
-            self, alpha, q, woods_saxon, delta_U_matrix_element,
-            spin_configurations, isospin_configurations
+            self, q, alpha, psi_states, overlap_matrix_inv, overlap_matrix_det,
+            spin_configurations, isospin_configurations, delta_U_matrix_element,
+            ws_psi, ws_phi
     ):
+        """Set class attributes for evaluation of integrand."""
         
-        # Set momenta and isospin as instance attributes
-        self.alpha = alpha
         self.q = q
+        self.alpha = alpha
+        self.psi_states = psi_states
+        self.overlap_matrix_inv = overlap_matrix_inv
+        self.overlap_matrix_det = overlap_matrix_det
         self.spin_configurations = spin_configurations
         self.isospin_configurations = isospin_configurations
-        
-        # Set Woods-Saxon and \delta U matrix element classes as instance
-        # attributes
-        self.woods_saxon = woods_saxon
         self.delta_U_matrix_element = delta_U_matrix_element
+        self.ws_psi = ws_psi
+        self.ws_phi = ws_phi
+    
+    def alpha_index(self, alpha):
+        """Obtain the index of the s.p. state \alpha within the list containing
+        occupied states of < \Psi |.
+        """
+        
+        index = 0
+        for j, sp_state in enumerate(self.psi_states):
+            if sp_state == alpha:
+                index = j
+                break
+                
+        return index
     
     def evaluate(self, x_array):
-        """Returns the real part of the integrand."""
+        """Evaluates the integrand of the \delta U^\dagger term."""
 
-        # Choose z-axis to be along q_vector
-        q_vector = np.array([0, 0, self.q])
-        
         # Relative momenta k
-        k, theta_k, phi_k = x_array[0:3]
+        k = x_array[:, 0]
+        theta_k = x_array[:, 1]
+        phi_k = x_array[:, 2]
         k_vector = build_vector(k, theta_k, phi_k)
         
         # C.o.M. momenta K
-        K, theta_K, phi_K = x_array[3:6]
+        K = x_array[:, 3]
+        theta_K = x_array[:, 4]
+        phi_K = x_array[:, 5]
         K_vector = build_vector(K, theta_K, phi_K)
+        
+        # Choose z-axis to be along q_vector
+        q_vector = np.zeros_like(k_vector)
+        q_vector[-1, :] = self.q
 
         # Calculate vector q - K/2
         qK_vector = q_vector - K_vector/2
@@ -760,6 +772,13 @@ class DeltaUDaggerIntegrand:
         # Calculate the Jacobian determinant
         jacobian = k ** 2 * np.sin(theta_k) * K ** 2 * np.sin(theta_K)
         
+        # Index of \alpha in occupied states of < \Psi_0^A(\lambda) |
+        jalpha = self.alpha_index(self.alpha)
+        
+        # Overlap matrix M_{\beta, \alpha} (will be used for \beta \alpha and
+        # \beta' \alpha)
+        M_ba = self.overlap_matrix_inv[jalpha, jalpha]
+        
         # Sum over spin projections
         integrand = 0+0j
         for spin_projections in self.spin_configurations:
@@ -772,49 +791,436 @@ class DeltaUDaggerIntegrand:
                 tau, taup, tau_1, tau_2 = isospin_projections
                 
                 # Plane-wave matrix elements of \delta U^\dagger
-                delta_U_dag_plane_wave = self.delta_U_matrix_element(
+                delta_U_dag = self.delta_U_matrix_element(
                     qK, theta_qK, phi_qK, k, theta_k, phi_k, sigma, sigmap,
                     sigma_1, sigma_2, tau, taup, tau_1, tau_2, hc=True
                 )
                 
-                # \psi_\alpha(K/2+k; \sigma_1, \tau_1)
-                psi_alpha_1 = self.woods_saxon.psi(self.alpha, k1, theta_k1,
-                                                   phi_k1, sigma_1, tau_1)
+                # \psi_\beta(K/2+k; \sigma_1, \tau_1)
+                psi_beta_1 = self.ws_phi.psi(self.alpha, k1, theta_k1, phi_k1,
+                                             sigma_1, tau_1)
                 
-                # \psi_\alpha(K/2-k; \sigma_2, \tau_2)
-                psi_alpha_2 = self.woods_saxon.psi(self.alpha, k2, theta_k2,
-                                                   phi_k2, sigma_2, tau_2)
+                # \psi_\beta(K/2-k; \sigma_2, \tau_2)
+                psi_beta_2 = self.ws_phi.psi(self.alpha, k2, theta_k2, phi_k2,
+                                             sigma_2, tau_2)
                 
-                # Sum over occupied states
-                for beta in self.woods_saxon.occupied_states:
+                # Sum over occupied states \alpha'
+                for alphap in self.ws_psi.occupied_states:
+                    
+                    # Index of \alpha'
+                    jalphap = self.alpha_index(alphap)
+                    
+                    # Overlap matrix M_{\beta, \alpha'} (will be used for
+                    # \beta' \alpha' and \beta \alpha')
+                    M_bap = self.overlap_matrix_inv[jalphap, jalphap]
+                    
+                    # \psi_\alpha'(K-q; \sigma', \tau')
+                    psi_alphap = self.ws_psi.psi(alphap, Kq, theta_Kq, phi_Kq,
+                                                 sigmap, taup)
 
-                    # \psi_\beta(K-q; \sigma', \tau')
-                    psi_beta_Kq = self.woods_saxon.psi(beta, Kq, theta_Kq,
-                                                       phi_Kq, sigmap, taup)
-
-                    # \psi_\beta(K/2-k; \sigma_2, \tau_2)
-                    psi_beta_2 = self.woods_saxon.psi(beta, k2, theta_k2,
-                                                      phi_k2, sigma_2, tau_2)
-
-                    # \psi_\beta(K/2+k; \sigma_1, \tau_1)
-                    psi_beta_1 = self.woods_saxon.psi(beta, k1, theta_k1,
-                                                      phi_k1, sigma_1, tau_1)
-
+                    # \psi_\beta'(K/2-k; \sigma_2, \tau_2)
+                    psi_betap_2 = self.ws_phi.psi(alphap, k2, theta_k2, phi_k2,
+                                                  sigma_2, tau_2)
+                    
+                    # \psi_\beta'(K/2+k; \sigma_1, \tau_1)
+                    psi_betap_1 = self.ws_phi.psi(alphap, k1, theta_k1, phi_k1,
+                                                  sigma_1, tau_1)
+                    
                     # Add together for full integrand
                     integrand += 1/2 * (
-                        jacobian * delta_U_dag_plane_wave * np.conj(psi_beta_Kq)
-                        * (psi_beta_2 * psi_alpha_1 - psi_beta_1 * psi_alpha_2)
+                        self.overlap_matrix_det ** 2 * jacobian * delta_U_dag
+                        * psi_alphap * M_ba * M_bap * (
+                            np.conj(psi_beta_1) * np.conj(psi_betap_2)
+                            - np.conj(psi_beta_2) * np.conj(psi_betap_1)
+                        )
                     )
 
         return integrand
+
+
+@vegas.batchintegrand
+class Real(DeltaUDaggerIntegrand):
+    """Real part of the \delta U^\dagger integrand."""
     
-    def real_part(self, x_array):
+    def __init__(
+            self, q, alpha, psi_states, overlap_matrix_inv, overlap_matrix_det,
+            spin_configurations, isospin_configurations, delta_U_matrix_element,
+            ws_psi, ws_phi
+    ):
+        """Inherit the attributes and methods of DeltaUDaggerIntegrand."""
+        
+        super().__init__(
+            q, alpha, psi_states, overlap_matrix_inv, overlap_matrix_det,
+            spin_configurations, isospin_configurations, delta_U_matrix_element,
+            ws_psi, ws_phi
+        )
+        
+    def __call__(self, x_array):
+        """Take real part of the integrand."""
         
         return self.evaluate(x_array).real
     
-    def imag_part(self, x_array):
+    
+@vegas.batchintegrand
+class Imag(DeltaUDaggerIntegrand):
+    """Imaginary part of the \delta U^\dagger integrand."""
+    
+    def __init__(
+            self, q, alpha, psi_states, overlap_matrix_inv, overlap_matrix_det,
+            spin_configurations, isospin_configurations, delta_U_matrix_element,
+            ws_psi, ws_phi
+    ):
+        """Inherit the attributes and methods of DeltaUDaggerIntegrand."""
+        
+        super().__init__(
+            q, alpha, psi_states, overlap_matrix_inv, overlap_matrix_det,
+            spin_configurations, isospin_configurations, delta_U_matrix_element,
+            ws_psi, ws_phi
+        )
+        
+    def __call__(self, x_array):
+        """Take imaginary part of the integrand."""
         
         return self.evaluate(x_array).imag
+    
+
+# TODO: Make option to do C11 instead of B11 based on input m_t
+# TODO: Add real and complex capability to integrand
+class SpectroscopicOverlap:
+    """Compute the spectroscopic overlap between two nuclei."""
+    
+    def __init__(
+            self, nucleus_name, Z, N, kvnn, lamb, channels, jmax=4,
+            ws_prm='seminole', kmax=15.0, kmid=3.0, ntot=120,
+            generator='Wegner', neval=1e3
+    ):
+        
+        # Class attributes
+        # ...
+        self.neval = neval
+        
+        # Set table of Clebsch-Gordan coefficients
+        cg_table = compute_clebsch_gordan_table(jmax)
+        
+        # Woods-Saxon for | \Phi_0^A(\lambda) >
+        ws_phi = WoodsSaxon('He4', Z, N, cg_table, parametrization=ws_prm)
+        A = Z + N
+        # Woods-Saxon for | \Psi_0^A(\lambda) >
+        if A == 4:
+            ws_psi = WoodsSaxon('H3', Z-1, N, cg_table, parametrization=ws_prm)
+        elif A == 12:
+            ws_psi = WoodsSaxon('B11', Z-1, N, cg_table, parametrization=ws_prm)
+        
+        # Occupied states of | \Phi_0^A(\lambda) >
+        self.phi_states = ws_phi.occupied_states
+        
+        # Occupied states of < \Psi_0^A(\lambda) |
+        self.psi_states = []
+        i, iZ, iN = 0, 0, 0
+        while iZ + iN < A:
+            sp_state = ws_psi.sp_states[i]
+            if sp_state.m_t == 1/2 and iZ < Z:
+                self.psi_states.append(sp_state)
+                iZ += 1
+            elif sp_state.m_t == -1/2 and iN < N:
+                self.psi_states.append(sp_state)
+                iN += 1
+            i += 1
+
+        # Set Woods-Saxon attributes
+        self.dr = ws_phi.dr
+        self.ws_phi = ws_phi
+        self.ws_psi = ws_psi
+        
+        # Compute overlap matrix
+        self.overlap_matrix = np.zeros((A, A))
+        for i, phi in enumerate(self.phi_states):
+            for j, psi in enumerate(self.psi_states):
+                self.overlap_matrix[i, j] = self.M_ij(phi, psi)
+                
+        # Inverse of overlap matrix
+        self.overlap_matrix_inv = la.inv(self.overlap_matrix)
+        
+        # Determinant of overlap matrix
+        self.overlap_matrix_det = la.det(self.overlap_matrix)
+        
+        # Initialize \delta U matrix element class
+        if lamb == np.inf:
+            
+            self.flag = False
+            
+        else:
+
+            self.flag = True
+            self.delta_U_matrix_element = DeltaUMatrixElement(
+                cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels
+            )
+    
+    def M_ij(self, phi, psi):
+        """Compute the overlap between two s.p. states \phi and \psi."""
+        
+        # Orthogonality of isospinors and vector spherical harmonics
+        cond = (phi.l == psi.l and phi.j == psi.j and phi.m_j == psi.m_j
+                and phi.m_t == psi.m_t)
+        
+        if cond:
+
+            _, u_phi = self.ws_phi.get_wf_rspace(phi)
+            _, u_psi = self.ws_psi.get_wf_rspace(psi)
+            
+            # Overlap is \int_0^\infty dr u_\phi(r) * u_\psi(r)
+            return self.dr * np.sum(u_phi * u_psi)
+        
+        else:
+            
+            return 0
+        
+    def alpha_index(self, alpha):
+        """Obtain the index of the s.p. state \alpha within the list containing
+        occupied states of < \Psi |.
+        """
+        
+        index = 0
+        for j, sp_state in enumerate(self.psi_states):
+            if sp_state == alpha:
+                index = j
+                break
+                
+        return index
+    
+    def compute_I(self, q_array, alpha, sigma, tau):
+        """Compute the I term in the overlap A(q;\sigma,\tau).
+        """
+        
+        # Angles are set to 0 since q_vector = q * \hat{z}
+        theta_array = np.zeros_like(q_array)
+        phi_array = np.zeros_like(q_array)
+
+        # Index of \alpha in occupied states of < \Psi_0^A(\lambda) |
+        jalpha = self.alpha_index(alpha)
+
+        # \beta must have same quantum numbers as \alpha
+        ibeta, beta = jalpha, alpha
+            
+        # Single-particle wave function in momentum space
+        phi_dagger_array = np.conj(
+            self.ws_phi.psi(beta, q_array, theta_array, phi_array, sigma, tau)
+        )
+        
+        # I term
+        I_array = (self.overlap_matrix_det * phi_dagger_array
+                   * self.overlap_matrix_inv[ibeta, jalpha])
+        
+        # Print information
+        print("I term completed.")
+
+        return I_array
+    
+    def compute_delta_U_dagger(self, q_array, alpha, sigma, tau, neval):
+        """Compute the \delta U^\dagger term."""
+    
+        # Get sets of four spin projection configurations
+        # (\sigma, \sigma', \sigma_1, \sigma_2)
+        spin_configurations = set_spin_configurations(sigma)
+    
+        # Get sets of four isospin projection configurations
+        # (tau, \tau', \tau_1, \tau_2)
+        isospin_configurations = set_isospin_configurations(tau)
+
+        # Relative momenta from 0 to 10 fm^-1
+        k_limits = [0, 10]
+        # C.o.M. momenta up to 3 fm^-1
+        K_limits = [0, 3]
+        # Polar angle from 0 to \pi
+        theta_limits = [0, np.pi]
+        # Azimuthal angle from 0 to 2\pi
+        phi_limits = [0, 2*np.pi]
+
+        # Evaluate the real part of \delta U^\dagger term for each q
+        delta_U_real_array = np.zeros_like(q_array)
+        delta_U_real_errors = np.zeros_like(q_array)
+
+        # Set-up integrator with multiple processors
+        integ_real = vegas.Integrator([
+            k_limits, theta_limits, phi_limits,
+            K_limits, theta_limits, phi_limits,
+        ], nproc=8)
+
+        t0 = time.time()
+        for i, q in enumerate(q_array):
+        
+            # Initialize integrand given particular q and alpha
+            integrand_real = Real(
+                q, alpha, self.psi_states, self.overlap_matrix_inv,
+                self.overlap_matrix_det, spin_configurations,
+                isospin_configurations, self.delta_U_matrix_element,
+                self.ws_psi, self.ws_phi
+            )
+
+            # Train the integrator
+            integ_real(integrand_real, nitn=5, neval=neval)
+            
+            # Final result
+            result = integ_real(integrand_real, nitn=10, neval=neval)
+        
+            delta_U_real_array[i] = result.mean
+            delta_U_real_errors[i] = result.sdev
+        
+            # percent = (i+1)/(2*len(q_array))*100
+            # print(f"{percent:.2f} percent done with \delta U^\dagger.")
+            
+        # Print information
+        t1 = time.time()
+        mins = (t1-t0)/60
+        print("Real part of \delta U^\dagger term completed after "
+              f"{mins:.2f} minutes.")
+
+        # Evaluate the imaginary part of \delta U^\dagger term for each q
+        delta_U_imag_array = np.zeros_like(q_array)
+        delta_U_imag_errors = np.zeros_like(q_array)
+
+        # Set-up integrator with multiple processors
+        integ_imag = vegas.Integrator([
+            k_limits, theta_limits, phi_limits,
+            K_limits, theta_limits, phi_limits,
+        ], nproc=8)
+
+        t0 = time.time()
+        for i, q in enumerate(q_array):
+        
+            # Initialize integrand given particular q and alpha
+            integrand_imag = Imag(
+                q, alpha, self.psi_states, self.overlap_matrix_inv,
+                self.overlap_matrix_det, spin_configurations,
+                isospin_configurations, self.delta_U_matrix_element,
+                self.ws_psi, self.ws_phi
+            )
+
+            # Train the integrator
+            integ_imag(integrand_imag, nitn=5, neval=neval)
+            
+            # Final result
+            result = integ_imag(integrand_imag, nitn=10, neval=neval)
+        
+            delta_U_imag_array[i] = result.mean
+            delta_U_imag_errors[i] = result.sdev
+        
+            # percent = (i+1)/(2*len(q_array))*100 + 50
+            # print(f"{percent:.2f} percent done with \delta U^\dagger.")
+        
+        # Print information
+        t1 = time.time()
+        mins = (t1-t0)/60
+        print("Imaginary part of \delta U^\dagger term completed after "
+              f"{mins:.2f} minutes.")
+
+        delta_U_array = delta_U_real_array + 1j * delta_U_imag_array
+        delta_U_errors = np.sqrt(delta_U_real_errors ** 2
+                                 + delta_U_imag_errors ** 2)
+
+        return delta_U_array, delta_U_errors
+    
+    def compute_overlap(self, q_array, n, l, j, m_t, sigma, tau):
+        """Compute the spectroscopic overlap fixing the z-axis along q_vector
+        and averaging over m_j.
+        """
+        
+        overlap_mj_array = np.zeros_like(q_array)
+        error_mj_array = np.zeros_like(q_array)
+        ipm_mj_array = np.zeros_like(q_array)
+        
+        # Average over m_j_\alpha
+        m_j_array = np.arange(-j, j + 1, 1)
+        for m_j in m_j_array:
+            
+            # Print information
+            print(f"\nStarting m_j = {m_j}.")
+            
+            # Woods-Saxon orbital \alpha with m_j specified
+            alpha = SingleParticleState(n, l, j, m_j, m_t)
+        
+            # Get contribution from I term
+            I_term = self.compute_I(q_array, alpha, sigma, tau)
+            
+            # Evolve operator?
+            if self.flag:
+                
+                # Get contribution from \delta U^\dagger term
+                delta_U_dagger_term, errors = self.compute_delta_U_dagger(
+                    q_array, alpha, sigma, tau, self.neval
+                )
+            
+            # No operator evolution
+            else:
+                
+                delta_U_dagger_term = np.zeros_like(I_term, dtype=complex)
+                errors = np.zeros_like(q_array)
+            
+            # Sum up contributions for each m_j
+            overlap_mj_array += np.abs(I_term + delta_U_dagger_term) ** 2
+            error_mj_array += errors ** 2
+            ipm_mj_array += np.abs(I_term) ** 2
+            
+            # Print information
+            print(f"Completed m_j = {m_j}.")
+            
+        # Take square root and divide by 2j+1
+        overlap_array = np.sqrt(overlap_mj_array / (2*j+1))
+        ipm_array = np.sqrt(ipm_mj_array / (2*j+1))
+            
+        # Take square root of errors
+        error_array = np.sqrt(error_mj_array)
+            
+        return overlap_array, error_array, ipm_array
+
+    def spectroscopic_factor(self, j, q_array, q_weights, overlap_array):
+        """Compute the spectroscopic factor associated with the overlap."""
+        
+        # Factor of 2 for \sigma = +1/2 or -1/2
+        factor = np.sqrt(2 * 4*np.pi * (2*j+1) * (2*np.pi) ** 3)
+        
+        # Give overlap the same normalization as VMC overlaps
+        overlap_array *= factor
+
+        return (np.sum(q_weights * q_array ** 2 * np.abs(overlap_array) ** 2)
+                / (2*np.pi) ** 3 )
+    
+    def save(
+            self, filename, j, q_array, q_weights, overlap_array, error_array,
+            ipm_array
+    ):
+        """Convert A(q;\sigma,\tau) to have the same normalization as VMC
+        overlaps and save.
+        """
+        
+        # Factor of 2 for \sigma = +1/2 or -1/2
+        factor = np.sqrt(2 * 4*np.pi * (2*j+1) * (2*np.pi) ** 3)
+        
+        # Give overlap the same normalization as VMC overlaps
+        overlap_array *= factor
+        error_array *= factor
+        ipm_array *= factor
+        
+        data = np.vstack((q_array, q_weights, overlap_array, error_array,
+                          ipm_array)).T
+                    
+        hdr = ("q, q weight, overlap, error, I term\n")
+        
+        np.savetxt(filename + '.txt', data, header=hdr)
+        
+    def load(self, filename):
+        """Load overlap and its error."""
+        
+        data = np.loadtxt(filename + '.txt')
+        
+        q_array = data[:, 0]
+        q_weights = data[:, 1]
+        overlap_array = data[:, 2]
+        error_array = data[:, 3]
+        ipm_array = data[:, 4]
+        
+        return q_array, q_weights, overlap_array, error_array, ipm_array
+    
 
 @njit
 def kronecker_delta(x, y):
@@ -864,7 +1270,6 @@ def compute_clebsch_gordan_table(j_max):
     return cg_table
 
 
-@njit
 def build_vector(k, theta, phi):
     """
     Build a vector from input spherical coordinates.
@@ -892,7 +1297,6 @@ def build_vector(k, theta, phi):
     return k_vector
 
 
-@njit
 def get_vector_components(k_vector):
     """
     Get the spherical coordinates from an input vector.
@@ -913,264 +1317,40 @@ def get_vector_components(k_vector):
 
     """
 
-    k = norm(k_vector)
+    # Must specify axis=0 for vegas batchmode
+    k = la.norm(k_vector, axis=0)
     theta = np.arccos(k_vector[2]/k)
     phi = np.arctan2(k_vector[1], k_vector[0])
 
     return k, theta, phi
 
 
-def set_spin_configurations():
+def set_spin_configurations(sigma):
     """Spin projection configurations for \delta U^\dagger term."""
     
     spin_projections = [1/2, -1/2]
     spin_configurations = []
-    for spin_1 in spin_projections:
-        for spin_2 in spin_projections:
-            for spin_3 in spin_projections:
-                for spin_4 in spin_projections:
-                    spin_configurations.append((spin_1, spin_2, spin_3, spin_4))
+    for sigmap in spin_projections:
+        for sigma_1 in spin_projections:
+            for sigma_2 in spin_projections:
+                spin_configurations.append((sigma, sigmap, sigma_1, sigma_2))
                         
     return spin_configurations
 
 
-def set_isospin_configurations():
+def set_isospin_configurations(tau):
     """Isospin projection configurations for \delta U^\dagger term."""
     
     isospin_projections = [1/2, -1/2]
     isospin_configurations = []
-    for tau in isospin_projections:
-        for taup in isospin_projections:
-            for tau_1 in isospin_projections:
-                for tau_2 in isospin_projections:
-                    # Check that M_T is conserved
-                    if tau + taup == tau_1 + tau_2:
-                        isospin_configurations.append((tau, taup, tau_1, tau_2))
+    for taup in isospin_projections:
+        for tau_1 in isospin_projections:
+            for tau_2 in isospin_projections:
+                # Check that M_T is conserved
+                if tau + taup == tau_1 + tau_2:
+                    isospin_configurations.append((tau, taup, tau_1, tau_2))
     
     return isospin_configurations
-
-
-def compute_I_term(alpha, q_array, woods_saxon):
-    """Compute the I term."""
-        
-    I_array = np.zeros_like(q_array, dtype=complex)
-    theta_array = np.zeros_like(q_array)
-    phi_array = np.zeros_like(q_array)
-        
-    # Loop over spin projections
-    for sigma in np.array([1/2, -1/2]):
-        
-        # Loop over isospin projections
-        for tau in np.array([1/2, -1/2]):
-
-            # Single-particle wave function with z-axis along q_vector
-            psi_alpha_array = woods_saxon.psi(alpha, q_array, theta_array,
-                                              phi_array, sigma, tau)
-            
-            I_array += psi_alpha_array
-
-    print("Done with I term.")
-                    
-    return I_array
-
-
-def compute_delta_U_dagger_term(
-        alpha, q_array, woods_saxon, delta_U_matrix_element, neval
-):
-    """Compute the \delta U^\dagger term."""
-    
-    # Get sets of four spin projection configurations
-    # (\sigma, \sigma', \sigma_1, \sigma_2)
-    spin_configurations = set_spin_configurations()
-    
-    # Get sets of four isospin projection configurations
-    # (tau, \tau', \tau_1, \tau_2)
-    isospin_configurations = set_isospin_configurations()
-
-    # Relative momenta from 0 to 10 fm^-1
-    k_limits = [0, 10]
-    # C.o.M. momenta up to 3 fm^-1
-    K_limits = [0, 3]
-    # Polar angle from 0 to \pi
-    theta_limits = [0, np.pi]
-    # Azimuthal angle from 0 to 2\pi
-    phi_limits = [0, 2*np.pi]
-
-    # Set-up integrator with multiple processors
-    integ = vegas.Integrator([
-        k_limits, theta_limits, phi_limits,
-        K_limits, theta_limits, phi_limits,
-    ], nproc=8)
-
-    # Evaluate the \delta U^\dagger term for each q
-    delta_U_array = np.zeros_like(q_array, dtype=complex)
-    delta_U_errors = np.zeros_like(q_array)
-    for i, q in enumerate(q_array):
-        
-        integrand = DeltaUDaggerIntegrand(
-            alpha, q, woods_saxon, delta_U_matrix_element, spin_configurations,
-            isospin_configurations
-        )
-
-        # Real part
-        # Train the integrator
-        integ(integrand.real_part, nitn=5, neval=neval)
-        # Final result
-        result_real = integ(integrand.real_part, nitn=10, neval=neval)
-        
-        # Imaginary part
-        # Train the integrator
-        integ(integrand.imag_part, nitn=5, neval=neval)
-        # Final result
-        result_imag = integ(integrand.imag_part, nitn=10, neval=neval)
-        
-        delta_U_array[i] = result_real.mean + 1j * result_imag.mean
-        delta_U_errors[i] = np.sqrt(result_real.sdev ** 2
-                                    + result_imag.sdev ** 2)
-        
-        percent = (i+1)/len(q_array)*100
-        print(f"{percent:.2f} percent done with \delta U^\dagger.")
-
-    return delta_U_array, delta_U_errors
-
-
-def compute_overlap(
-        nucleus_name, Z, N, alpha, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
-        ntot=120, generator='Wegner', neval=1e4, print_normalization=False,
-        kvnn_hard=None, lambda_m=None, parametrization='match', ipm=False,
-        save=False
-):
-    """Compute the spectroscopic overlap."""
-    
-    # Set table of Clebsch-Gordan coefficients
-    jmax = 4  # This should cover nuclei as heavy as Ca48
-    cg_table = compute_clebsch_gordan_table(jmax)
-    
-    # Set single-particle basis
-    woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
-                             parametrization=parametrization)
-
-    # Set points in q
-    q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
-    
-    # Compute the I term
-    I_array = compute_I_term(alpha, q_array, woods_saxon)
-
-    # IPM only
-    if ipm:
-        
-        delta_U_array = np.zeros_like(q_array, dtype=complex)
-        delta_U_errors = np.zeros_like(q_array)
-    
-    # Full overlap
-    else:
-        
-        # Initialize \delta U matrix element class
-        delta_U_matrix_element = DeltaUMatrixElement(
-            cg_table, kvnn, kmax, kmid, ntot, generator, lamb, channels,
-            kvnn_hard, lambda_m
-        )
-        
-        # Compute the \delta U^\dagger term
-        delta_U_array, delta_U_errors = compute_delta_U_dagger_term(
-            alpha, q_array, woods_saxon, delta_U_matrix_element, neval
-        )
-    
-    # Combine both terms for the total overlap [fm^3/2]
-    overlap_array = I_array + delta_U_array
-
-    # Option to print normalization of the total momentum distribution
-    if print_normalization:
-        normalization = compute_normalization(q_array, q_weights, overlap_array)
-        print(f"Normalization = {normalization:.5f}.")
-    
-    # Option to save the momentum distribution as a .txt file
-    if save:
-        save_overlap(
-            nucleus_name, alpha, kvnn, lamb, q_array, q_weights, overlap_array,
-            I_array, delta_U_array, delta_U_errors, kvnn_hard, lambda_m,
-            parametrization
-        )
-    
-    return q_array, q_weights, overlap_array, delta_U_errors
-
-
-def compute_normalization(q_array, q_weights, overlap_array):
-    """Compute the normalization of the overlap."""
-
-    return 4 * np.pi * np.sum(
-        q_weights * q_array ** 2 * np.abs(overlap_array) ** 2
-    ).real
-
-
-def save_overlap(
-        nucleus_name, alpha, kvnn, lamb, q_array, q_weights, overlap_array,
-        I_array, delta_U_array, delta_U_errors, kvnn_hard=None, lambda_m=None,
-        parametrization='match'
-):
-    """Save the overlap along with the isolated contributions."""
-    
-    data = np.vstack((q_array, q_weights, overlap_array, I_array, delta_U_array,
-                      delta_U_errors)).T
-                
-    hdr = ("q, q weight, overlap, I, \delta U^\dagger, error\n")
-    
-    # Proton
-    if alpha.m_t == 1/2:
-        alpha_str = "proton_"
-    elif alpha.m_t == -1/2:
-        alpha_str = "neutron_"
-    alpha_str += f"n{int(alpha.n-1)}_l{int(alpha.l)}_j{int(2*alpha.j)}"
-
-    if kvnn_hard is not None:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}_kvnn"
-            f"_hard_{kvnn_hard}_lambda_m_{lambda_m}_{parametrization}"
-        )
-    else:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}"
-            f"_{parametrization}"
-        )
-    
-    np.savetxt(file_name + '.txt', data, header=hdr)
-    
-    
-def load_overlap(
-        nucleus_name, alpha, kvnn, lamb, kvnn_hard=None, lambda_m=None,
-        parametrization='match'
-):
-    """Load and return the overlap along with the isolated contributions."""
-
-    # Proton
-    if alpha.m_t == 1/2:
-        alpha_str = "proton_"
-    elif alpha.m_t == -1/2:
-        alpha_str = "neutron_"
-    alpha_str += f"n{int(alpha.n-1)}_l{int(alpha.l)}_j{int(2*alpha.j)}"
-
-    if kvnn_hard is not None:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}_kvnn"
-            f"_hard_{kvnn_hard}_lambda_m_{lambda_m}_{parametrization}"
-        )
-    else:
-        file_name = replace_periods(
-            f"{nucleus_name}_{alpha_str}_overlap_kvnn_{kvnn}_lamb_{lamb}"
-            f"_{parametrization}"
-        )
-    
-    data = np.loadtxt(file_name + '.txt', dtype=np.complex_)
-    
-    q_array = data[:, 0]
-    q_weights = data[:, 1]
-    overlap_array = data[:, 2]
-    I_array = data[:, 3]
-    delta_U_array = data[:, 4]
-    delta_U_errors = data[:, 5]
-
-    return (q_array, q_weights, overlap_array, I_array, delta_U_array,
-            delta_U_errors)
 
 
 if __name__ == '__main__':
@@ -1178,10 +1358,6 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     nucleus_name, Z, N = 'C12', 6, 6
-    
-    # Quantum state
-    # alpha = SingleParticleState(1, 0, 1/2, 1/2, 1/2)  # 1s_{1/2}
-    alpha = SingleParticleState(1, 1, 3/2, 1/2, 1/2)  # 1p_{3/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1191,29 +1367,31 @@ if __name__ == '__main__':
     
     # SRG \lambda value
     lamb = 1.5
+    # lamb = np.inf
     
-    # neval = 1e3
-    neval = 5e3
+    # Number of evaluations for vegas
+    neval = 1e3
+    # neval = 5e3
     
-    # Inverse-SRG evolution?
-    kvnn_hard = None
-    lambda_m = None
+    # Initialize overlap class
+    so = SpectroscopicOverlap(nucleus_name, Z, N, kvnn, lamb, channels,
+                              neval=neval)
     
-    # Woods-Saxon parametrization
-    # prm = 'seminole'
-    # prm = 'universal'
-    prm = 'match'
-
-    # Compute and save the overlap
-    q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
-        nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
-        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-        print_normalization=True, save=True
-    )
+    # Quantum state
+    # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
+    n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
     
-    # # Testing IPM only
-    # q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
-    #     nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
-    #     kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-    #     print_normalization=True, ipm=True, save=False
-    # )
+    # Compute overlap
+    q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
+    overlap_array, error_array, ipm_array = so.compute_overlap(q_array, n, l, j,
+                                                               m_t, 1/2, 1/2)
+    
+    # Save overlap
+    if m_t == 1/2:
+        nucleon = 'proton'
+    elif m_t == -1/2:
+        nucleon = 'neutron'
+    filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
+                                f"_overlap_kvnn_{kvnn}_lamb_{lamb}") + '.txt')
+    so.save(filename, j, q_array, q_weights, overlap_array, error_array,
+            ipm_array)
