@@ -10,7 +10,7 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: April 23, 2024
+Last update: April 24, 2024
 
 """
 
@@ -903,7 +903,8 @@ class SpectroscopicOverlap:
         cg_table = compute_clebsch_gordan_table(jmax)
         
         # Woods-Saxon for | \Phi_0^A(\lambda) >
-        ws_phi = WoodsSaxon('He4', Z, N, cg_table, parametrization=ws_prm)
+        ws_phi = WoodsSaxon(nucleus_name, Z, N, cg_table,
+                            parametrization=ws_prm)
         A = Z + N
         # Woods-Saxon for | \Psi_0^A(\lambda) >
         if A == 4:
@@ -1133,9 +1134,6 @@ class SpectroscopicOverlap:
         m_j_array = np.arange(-j, j + 1, 1)
         for m_j in m_j_array:
             
-            # Print information
-            print(f"\nStarting m_j = {m_j}.")
-            
             # Woods-Saxon orbital \alpha with m_j specified
             alpha = SingleParticleState(n, l, j, m_j, m_t)
         
@@ -1145,10 +1143,16 @@ class SpectroscopicOverlap:
             # Evolve operator?
             if self.flag:
                 
+                # Print information
+                print(f"\nStarting m_j = {m_j}.")
+                
                 # Get contribution from \delta U^\dagger term
                 delta_U_dagger_term, errors = self.compute_delta_U_dagger(
                     q_array, alpha, sigma, tau, self.neval
                 )
+                
+                # Print information
+                print(f"Completed m_j = {m_j}.")
             
             # No operator evolution
             else:
@@ -1161,15 +1165,12 @@ class SpectroscopicOverlap:
             error_mj_array += errors ** 2
             ipm_mj_array += np.abs(I_term) ** 2
             
-            # Print information
-            print(f"Completed m_j = {m_j}.")
-            
         # Take square root and divide by 2j+1
         overlap_array = np.sqrt(overlap_mj_array / (2*j+1))
         ipm_array = np.sqrt(ipm_mj_array / (2*j+1))
             
         # Take square root of errors
-        error_array = np.sqrt(error_mj_array)
+        error_array = np.sqrt(error_mj_array / (2*j+1))
             
         return overlap_array, error_array, ipm_array
 
@@ -1384,7 +1385,7 @@ if __name__ == '__main__':
     # Compute overlap
     q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
     overlap_array, error_array, ipm_array = so.compute_overlap(q_array, n, l, j,
-                                                               m_t, 1/2, 1/2)
+                                                                m_t, 1/2, 1/2)
     
     # Save overlap
     if m_t == 1/2:
