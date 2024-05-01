@@ -1,16 +1,16 @@
-12C(0+;0) -> 11B(3/2-;1/2)+p -- AV18+UX -- 17-Mar-21
+# 12C(0+;0) -> 11B(3/2-;1/2)+p -- AV18+UX -- 17-Mar-21
 
-VMC 20k samples
+# VMC 20k samples
 
-R = r-space grid in fm
-B11P3_03  = p3/2 spectroscopic amplitude in fm-(3/2)
-DB11P3_03 = p3/2 Monte Carlo error bar (1 sigma)
+# R = r-space grid in fm
+# B11P3_03  = p3/2 spectroscopic amplitude in fm-(3/2)
+# DB11P3_03 = p3/2 Monte Carlo error bar (1 sigma)
 
-Spectroscopic factor
-TOTINT(B11P3_03**2*R**2:R) =  2.363 (12)
+# Spectroscopic factor
+# TOTINT(B11P3_03**2*R**2:R) =  2.363 (12)
  
-   R     B11P3_03  DB11P3_03
- *****  *********  *********
+#   R     B11P3_03  DB11P3_03
+# *****  *********  *********
    .05   -.08813    .1287
    .15    .1329     .03369
    .25    .1132     .01864
