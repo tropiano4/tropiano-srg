@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: March 25, 2024
+Last update: May 2, 2024
 
 """
 
@@ -118,6 +118,21 @@ def set_seminole_parameters(nucleus_name, A):
         prm[1, 5] = 30.5027
         prm[:, 6] = 4.10223 / (A ** (1/3))
         prm[:, 8] = 4.30914 / (A ** (1/3))
+    elif nucleus_name == 'Co55':
+        prm[0, 0] = 54.2292
+        prm[1, 0] = 51.8011
+        prm[:, 1] = 4.79172 / (A ** (1/3))
+        prm[0, 5] = 30.1584
+        prm[1, 5] = 30.0769
+        prm[:, 6] = 4.56164 / (A ** (1/3))
+        prm[:, 8] = 4.79172 / (A ** (1/3))
+    elif nucleus_name == 'Ni56':
+        prm[:, 0] = 53.5897
+        prm[:, 1] = 4.82059 / (A ** (1/3))
+        prm[0, 5] = 30.1383
+        prm[1, 5] = 30.0569
+        prm[:, 6] = 4.58912 / (A ** (1/3))
+        prm[:, 8] = 4.82059 / (A ** (1/3))
     else:
         raise RuntimeError("Don't have this nucleus yet.")
         
