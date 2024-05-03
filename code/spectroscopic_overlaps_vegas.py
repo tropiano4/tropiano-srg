@@ -10,7 +10,7 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: April 30, 2024
+Last update: May 3, 2024
 
 """
 
@@ -911,6 +911,9 @@ class SpectroscopicOverlap:
             ws_psi = WoodsSaxon('H3', Z-1, N, cg_table, parametrization=ws_prm)
         elif A == 12:
             ws_psi = WoodsSaxon('B11', Z-1, N, cg_table, parametrization=ws_prm)
+        elif A == 56:
+            ws_psi = WoodsSaxon('Co55', Z-1, N, cg_table,
+                                parametrization=ws_prm)
         
         # Occupied states of | \Phi_0^A(\lambda) >
         self.phi_states = ws_phi.occupied_states
@@ -1356,22 +1359,24 @@ if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
+    # nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'Ni56', 28, 28
     
     # Quantum state
-    #n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
-    n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
+    # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
+    # n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
+    n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
-    kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
-    # lamb = 1.5
-    lamb = 3.0
+    lamb = 1.5
+    # lamb = 3.0
     # lamb = np.inf
     
     # Number of evaluations for vegas
