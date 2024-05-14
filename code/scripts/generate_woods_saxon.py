@@ -10,7 +10,7 @@ Run the Woods-Saxon Fortran code for some nucleus. See
 https://nucracker.volya.net or arXiv:0709.3525 [nucl-th]
 to set parameters of nuclei.
 
-Last update: May 2, 2024
+Last update: May 14, 2024
 
 """
 
@@ -104,6 +104,14 @@ def set_seminole_parameters(nucleus_name, A):
         prm[1, 5] = 34.5432
         prm[:, 6] = 2.74617 / (A ** (1/3))
         prm[:, 8] = 2.88468 / (A ** (1/3))
+    elif nucleus_name == 'N15':
+        prm[0, 0] = 60.7042
+        prm[1, 0] = 51.8011
+        prm[:, 1] = 3.10743 / (A ** (1/3))
+        prm[0, 5] = 33.3967
+        prm[1, 5] = 33.311
+        prm[:, 6] = 2.95822 / (A ** (1/3))
+        prm[:, 8] = 3.10743 / (A ** (1/3))
     elif nucleus_name == 'O16':
         prm[:, 0] = 58.0611
         prm[:, 1] = 3.175 / (A ** (1/3))
@@ -126,6 +134,22 @@ def set_seminole_parameters(nucleus_name, A):
         prm[1, 5] = 30.0769
         prm[:, 6] = 4.56164 / (A ** (1/3))
         prm[:, 8] = 4.79172 / (A ** (1/3))
+    elif nucleus_name == 'Cl39':
+        prm[0, 0] = 58.6497
+        prm[1, 0] = 48.3768
+        prm[:, 1] = 4.27293 / (A ** (1/3))
+        prm[0, 5] = 30.6252
+        prm[1, 5] = 30.5432
+        prm[:, 6] = 4.06776 / (A ** (1/3))
+        prm[:, 8] = 4.27293 / (A ** (1/3))
+    elif nucleus_name == 'Ar40':
+        prm[0, 0] = 57.6438
+        prm[1, 0] = 49.2971
+        prm[:, 1] = 4.30914 / (A ** (1/3))
+        prm[0, 5] = 30.5847
+        prm[1, 5] = 30.5027
+        prm[:, 6] = 4.10223 / (A ** (1/3))
+        prm[:, 8] = 4.30914 / (A ** (1/3))
     elif nucleus_name == 'Ni56':
         prm[:, 0] = 53.5897
         prm[:, 1] = 4.82059 / (A ** (1/3))
