@@ -10,7 +10,7 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: May 3, 2024
+Last update: May 14, 2024
 
 """
 
@@ -911,6 +911,11 @@ class SpectroscopicOverlap:
             ws_psi = WoodsSaxon('H3', Z-1, N, cg_table, parametrization=ws_prm)
         elif A == 12:
             ws_psi = WoodsSaxon('B11', Z-1, N, cg_table, parametrization=ws_prm)
+        elif A == 16:
+            ws_psi = WoodsSaxon('N15', Z-1, N, cg_table, parametrization=ws_prm)
+        elif A == 40:
+            ws_psi = WoodsSaxon('Cl39', Z-1, N, cg_table,
+                                parametrization=ws_prm)
         elif A == 56:
             ws_psi = WoodsSaxon('Co55', Z-1, N, cg_table,
                                 parametrization=ws_prm)
@@ -1360,12 +1365,16 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    nucleus_name, Z, N = 'Ni56', 28, 28
-    
+    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'Ar40', 18, 22
+    # nucleus_name, Z, N = 'Ni56', 28, 28
+
     # Quantum state
     # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
     # n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
-    n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
+    # n, l, j, m_t = 1, 1, 1/2, 1/2  # 1p_{1/2}
+    n, l, j, m_t = 2, 0, 1/2, 1/2  # 2s_{1/2}
+    # n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
