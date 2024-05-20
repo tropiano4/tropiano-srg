@@ -1365,25 +1365,25 @@ if __name__ == '__main__':
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ar40', 18, 22
-    nucleus_name, Z, N = 'Ni56', 28, 28
+    # nucleus_name, Z, N = 'Ni56', 28, 28
 
     # Quantum state
-    # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
+    n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
     # n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
     # n, l, j, m_t = 1, 1, 1/2, 1/2  # 1p_{1/2}
     # n, l, j, m_t = 2, 0, 1/2, 1/2  # 2s_{1/2}
-    n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
+    # n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
     # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
     # kvnn, kmax, kmid, ntot = 79, 15.0, 3.0, 120  # EMN N4LO 500 MeV
-    kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
+    # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
     lamb = 1.5
