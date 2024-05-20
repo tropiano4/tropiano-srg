@@ -10,7 +10,7 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: May 14, 2024
+Last update: May 20, 2024
 
 """
 
@@ -1217,18 +1217,18 @@ class SpectroscopicOverlap:
         
         np.savetxt(filename + '.txt', data, header=hdr)
         
-    def load(self, filename):
-        """Load overlap and its error."""
+def load(filename):
+    """Load overlap and its error."""
         
-        data = np.loadtxt(filename + '.txt')
+    data = np.loadtxt(filename + '.txt')
         
-        q_array = data[:, 0]
-        q_weights = data[:, 1]
-        overlap_array = data[:, 2]
-        error_array = data[:, 3]
-        ipm_array = data[:, 4]
+    q_array = data[:, 0]
+    q_weights = data[:, 1]
+    overlap_array = data[:, 2]
+    error_array = data[:, 3]
+    ipm_array = data[:, 4]
         
-        return q_array, q_weights, overlap_array, error_array, ipm_array
+    return q_array, q_weights, overlap_array, error_array, ipm_array
     
 
 @njit
@@ -1366,22 +1366,24 @@ if __name__ == '__main__':
     # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
-    nucleus_name, Z, N = 'Ar40', 18, 22
-    # nucleus_name, Z, N = 'Ni56', 28, 28
+    # nucleus_name, Z, N = 'Ar40', 18, 22
+    nucleus_name, Z, N = 'Ni56', 28, 28
 
     # Quantum state
     # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
     # n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
     # n, l, j, m_t = 1, 1, 1/2, 1/2  # 1p_{1/2}
-    n, l, j, m_t = 2, 0, 1/2, 1/2  # 2s_{1/2}
-    # n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
+    # n, l, j, m_t = 2, 0, 1/2, 1/2  # 2s_{1/2}
+    n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
     
     # NN potential and momentum mesh
-    kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
-    # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
+    # kvnn, kmax, kmid, ntot = 6, 15.0, 3.0, 120  # AV18
+    # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120  # CD-Bonn
+    # kvnn, kmax, kmid, ntot = 79, 15.0, 3.0, 120  # EMN N4LO 500 MeV
+    kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
     lamb = 1.5
