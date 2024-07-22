@@ -157,6 +157,14 @@ def set_seminole_parameters(nucleus_name, A):
         prm[1, 5] = 30.0569
         prm[:, 6] = 4.58912 / (A ** (1/3))
         prm[:, 8] = 4.82059 / (A ** (1/3))
+    elif nucleus_name == 'Au197':
+        prm[0, 0] = 58.9191
+        prm[1, 0] = 45.361
+        prm[:, 1] = 7.3315 / (A ** (1/3))
+        prm[0, 5] = 29.3635
+        prm[1, 5] = 29.2831
+        prm[:, 6] = 6.97947 / (A ** (1/3))
+        prm[:, 8] = 7.3315 / (A ** (1/3))
     else:
         raise RuntimeError("Don't have this nucleus yet.")
         
@@ -208,6 +216,14 @@ def set_match_parameters(nucleus_name, A):
         # Central potential strength V_0 [MeV] (from Seminole)
         if nucleus_name == 'He4':
             prm[:, 0] = 76.8412
+        elif nucleus_name == 'Be9':
+            prm[0, 0] = 66.6397
+            prm[1, 0] = 51.8011
+        elif nucleus_name == 'B10':
+            prm[:, 0] = 61.8171
+        elif nucleus_name == 'B11':
+            prm[0, 0] = 63.9418
+            prm[1, 0] = 51.8011
         elif nucleus_name == 'C12':
             prm[:, 0] = 60.1478
             
