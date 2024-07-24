@@ -15,7 +15,7 @@ integrating over products of the matrix elements and s.p. wavefunctions \psi.
 The MC package vegas is used to integrate over vector momenta and quantum
 numbers.
 
-Last update: February 20, 2024
+Last update: July 24, 2024
 
 """
 
@@ -56,7 +56,7 @@ class SingleParticleState:
     """
     
     
-    def __init__(self, n, l, j, m_j, m_t):
+    def __init__(self, n, l, j, m_j, m_t, occ=1):
         
         # Check if m_j is valid
         if abs(m_j) > j:
@@ -71,6 +71,7 @@ class SingleParticleState:
         self.j = j
         self.m_j = m_j
         self.m_t = m_t
+        self.occ = occ
         
         if m_t == 1/2:
             self.nucleon = 'proton'
@@ -133,7 +134,8 @@ class WoodsSaxon:
     """
     
     def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120, parametrization='match'):
+                 kmax=10.0, kmid=2.0, ntot=120, parametrization='match'
+    ):
         
         # Set instance attributes
         self.woods_saxon_directory = (
@@ -159,7 +161,7 @@ class WoodsSaxon:
                 # Use n, l, j, m_t as the key
                 key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t)
                 self.sp_wfs[key] = data[:, 1]
-                
+
         # r_array and dr are the same for every s.p. state
         self.r_array = data[:, 0]
         self.dr = max(self.r_array) / len(self.r_array)
@@ -190,6 +192,8 @@ class WoodsSaxon:
         self.occupied_states = []  # Occupied single-particle states < E_F
         proton_count = 0
         neutron_count = 0
+        proton_flag = True
+        neutron_flag = True
         
         # File with details of the orbitals
         ws_file = self.woods_saxon_directory + "ws_log"
@@ -198,41 +202,66 @@ class WoodsSaxon:
         with open(ws_file, 'r') as f:
             for line in f:
                 unit = line.strip().split()
-                
+
                 # Protons
                 if len(unit) > 0 and unit[0] == '1':
 
                     j = int(unit[3])/2
+                    proton_count += 2*j+1
                     for m_j in np.arange(-j, j+1, 1):
+                        
                         sp_state = SingleParticleState(
                             int(unit[1])+1, int(unit[2]), j, m_j, 1/2
                         )  # n, l, j, m_j, m_t
-                    
                         self.sp_states.append(sp_state)
                     
-                        if proton_count < Z:
+                        if proton_count <= Z:
+                        
                             self.occupied_states.append(sp_state)
-                            # Add up filled proton states
-                            proton_count += 1
-                    
+                        
+                        elif proton_count > Z and proton_flag:
+                        
+                            unoccupied = proton_count - Z
+                            occupancy = 1 - unoccupied/(2*j+1)
+                            sp_state_partial = SingleParticleState(
+                                int(unit[1])+1, int(unit[2]), j, m_j, 1/2,
+                                occupancy
+                            )  # n, l, j, m_j, m_t
+                            self.occupied_states.append(sp_state_partial)
+                            
+                    if proton_count > Z:
+                        proton_flag = False
                 
                 # Neutrons
                 elif len(unit) > 0 and unit[0] == '2':
 
                     j = int(unit[3])/2
+                    neutron_count += 2*j+1
                     for m_j in np.arange(-j, j+1, 1):
+                        
                         sp_state = SingleParticleState(
                             int(unit[1])+1, int(unit[2]), j, m_j, -1/2
                         )  # n, l, j, m_j, m_t
-                    
                         self.sp_states.append(sp_state)
                     
-                        if neutron_count < N:
+                        if neutron_count <= N:
+
                             self.occupied_states.append(sp_state)
-                            # Add up filled neutron states
-                            neutron_count += 1
+                        
+                        elif neutron_count > N and neutron_flag:
 
+                            unoccupied = neutron_count - N
+                            occupancy = 1 - unoccupied/(2*j+1)
+                            sp_state_partial = SingleParticleState(
+                                int(unit[1])+1, int(unit[2]), j, m_j, -1/2,
+                                occupancy
+                            )  # n, l, j, m_j, m_t
+                            self.occupied_states.append(sp_state_partial)
+                            
+                    if neutron_count > N:
+                        neutron_flag = False
 
+                            
     def get_wf_rspace(self, sp_state, print_normalization=False):
         """Single-particle wave function in coordinate space."""
         
@@ -338,8 +367,11 @@ class WoodsSaxon:
     
         # Isospinor indexed by \tau \chi_{m_t}(\tau)
         chi_tau = kronecker_delta(tau, sp_state.m_t)
+        
+        # Partial occupancy?
+        factor = np.sqrt(sp_state.occ)
 
-        return phi_sp_wf * Y_jml * chi_tau
+        return factor * phi_sp_wf * Y_jml * chi_tau
     
 
     def spinor_spherical_harmonic(self, l, j, m_j, theta, phi, sigma):
@@ -1217,7 +1249,7 @@ def compute_I_term(q_array, tau, woods_saxon):
     I_array = np.zeros_like(q_array)
     theta_array = np.zeros_like(q_array)
     phi_array = np.zeros_like(q_array)
-        
+
     # Loop over spin projections
     for sigma in np.array([1/2, -1/2]):
             
@@ -1504,15 +1536,23 @@ def load_momentum_distribution(
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
+    # nucleus_name, Z, N = 'Ni56', 28, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
+    
+    nucleus_name, Z, N = 'Be9', 4, 5
+    # nucleus_name, Z, N = 'B10', 5, 5
+    # nucleus_name, Z, N = 'B11', 5, 6
+    # nucleus_name, Z, N = 'Au197', 79, 118
+    
     
     # Nucleon
     tau = 1/2
+    # tau = -1/2
     
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1529,10 +1569,11 @@ if __name__ == '__main__':
     # lamb = 2.0
     # lamb = 2.5
     
-    neval = 5e4  # 4He
-    # neval = 7.5e4  # 12C
+    # neval = 5e4  # 4He
+    neval = 7.5e4  # 12C
     # neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
+    # neval = 1e6  # 197Au
     
     # Inverse-SRG evolution?
     kvnn_hard = None
@@ -1544,9 +1585,9 @@ if __name__ == '__main__':
     # lambda_m = 4.0
     
     # Woods-Saxon parametrization
-    prm = 'seminole'
+    # prm = 'seminole'
     # prm = 'universal'
-    # prm = 'match'
+    prm = 'match'
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
