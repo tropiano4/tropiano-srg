@@ -1382,12 +1382,11 @@ def compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
         ntot=120, generator='Wegner', neval=5e4, print_normalization=False,
         kvnn_hard=None, lambda_m=None, parametrization='match', ipm=False,
-        save=False
+        jmax=4, save=False
 ):
     """Compute the single-nucleon momentum distribution."""
     
     # Set table of Clebsch-Gordan coefficients
-    jmax = 4  # This should cover nuclei as heavy as Ca48
     cg_table = compute_clebsch_gordan_table(jmax)
     
     # Set single-particle basis
@@ -1533,22 +1532,56 @@ def load_momentum_distribution(
             delta_U_errors, delta_U2_array, delta_U2_errors)
 
 
+def save_ipm_distribution(
+        nucleus_name, Z, N, jmax=4, parametrization='seminole'
+):
+    """Save the IPM momentum distribution."""
+    
+    # These arguments don't matter!
+    channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
+    kvnn = 6
+    lamb = 1.5
+    
+    # Compute momentum distributions
+    q_array, q_weights, n_p_array, _ = compute_momentum_distribution(
+        nucleus_name, Z, N, 1/2, kvnn, lamb, channels, jmax=jmax,
+        parametrization=parametrization, print_normalization=True,
+        ipm=True
+    )
+    q_array, q_weights, n_n_array, _ = compute_momentum_distribution(
+        nucleus_name, Z, N, -1/2, kvnn, lamb, channels, jmax=jmax,
+        parametrization=parametrization, print_normalization=True,
+        ipm=True
+    )
+
+    data = np.vstack((q_array, q_weights, n_p_array, n_n_array)).T
+                
+    hdr = ("q, q weight, n_p(q), n_n(q)\n")
+
+    file_name = f"{nucleus_name}_momentum_distribution"
+    
+    np.savetxt(file_name + '.txt', data, header=hdr)
+
+
 if __name__ == '__main__':
     
     # Nucleus
     # nucleus_name, Z, N = 'He4', 2, 2
-    # nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'C12', 6, 6
     # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ca40', 20, 20
     # nucleus_name, Z, N = 'Ca48', 20, 28
     # nucleus_name, Z, N = 'Ni56', 28, 28
     # nucleus_name, Z, N = 'Pb208', 82, 126
     
-    nucleus_name, Z, N = 'Be9', 4, 5
+    # nucleus_name, Z, N = 'Be9', 4, 5
     # nucleus_name, Z, N = 'B10', 5, 5
     # nucleus_name, Z, N = 'B11', 5, 6
     # nucleus_name, Z, N = 'Au197', 79, 118
     
+    # jmax for CG table
+    jmax = 4  # Should cover nuclei as heavy as Ca48
+    # jmax = 13/2  # Should cover nuclei as heavy as Au197
     
     # Nucleon
     tau = 1/2
@@ -1570,10 +1603,10 @@ if __name__ == '__main__':
     # lamb = 2.5
     
     # neval = 5e4  # 4He
-    neval = 7.5e4  # 12C
+    # neval = 7.5e4  # 12C
     # neval = 1e5  # 16O
     # neval = 5e5  # 40Ca and 48Ca
-    # neval = 1e6  # 197Au
+    neval = 1e6  # 197Au
     
     # Inverse-SRG evolution?
     kvnn_hard = None
@@ -1585,12 +1618,13 @@ if __name__ == '__main__':
     # lambda_m = 4.0
     
     # Woods-Saxon parametrization
-    # prm = 'seminole'
+    prm = 'seminole'
     # prm = 'universal'
-    prm = 'match'
+    # prm = 'match'
 
     # Compute and save the momentum distribution
     q_array, q_weights, n_array, n_errors = compute_momentum_distribution(
         nucleus_name, Z, N, tau, kvnn, lamb, channels, neval=neval,
-        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm, save=True
+        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm, jmax=jmax,
+        save=True
     )
