@@ -20,7 +20,7 @@
 # Kinetic energy
 # .5*(HC**2/MN)*4*PI*TOTINT(RHOKN*K**4:K)/(2*PI)**3 =  152.11
 # .5*(HC**2/MP)*4*PI*TOTINT(RHOKP*K**4:K)/(2*PI)**3 =  152.32
-                                                    =  304.43
+#                                                   =  304.43
 
 # Kinetic energy above K =  1.4 fm**-1
 # .5*(HC**2/MN)*4*PI*TOTINT(RHOKN(I)*K(I)**4:K(I))/(2*PI)**3 =  91.685
