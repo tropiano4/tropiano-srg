@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+r"""
 File: test_spectroscopic_overlaps.py
 
 Author: A. J. Tropiano (atropiano@anl.gov)
@@ -35,7 +35,7 @@ from scripts.tools import convert_l_to_string, coupled_channel, replace_periods
 
 
 class SingleParticleState:
-    """
+    r"""
     Single-particle state class. Packs together the following single-particle
     quantum numbers into one object.
     """
@@ -91,7 +91,7 @@ class SingleParticleState:
    
     
 class WoodsSaxon:
-    """
+    r"""
     Woods-Saxon orbitals class. Handles the radial wave functions associated
     with the Woods-Saxon potential from the subroutine in woodsaxon.f90. Outputs
     radial functions in coordinate and momentum space.
@@ -154,7 +154,7 @@ class WoodsSaxon:
         
         
     def get_orbital_file_name(self, sp_state):
-        """Returns the file name of the orbital."""
+        r"""Returns the file name of the orbital."""
             
         # Proton
         if sp_state.m_t == 1/2:
@@ -169,7 +169,7 @@ class WoodsSaxon:
         
         
     def order_sp_states(self, Z, N):
-        """Keep track of all s.p. states and occupied s.p. states"""
+        r"""Keep track of all s.p. states and occupied s.p. states"""
 
         self.sp_states = []  # All single-particle states
         self.occupied_states = []  # Occupied single-particle states < E_F
@@ -219,7 +219,7 @@ class WoodsSaxon:
 
 
     def get_wf_rspace(self, sp_state, print_normalization=False):
-        """Single-particle wave function in coordinate space."""
+        r"""Single-particle wave function in coordinate space."""
         
         # n, l, j, m_t
         key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t) 
@@ -235,7 +235,7 @@ class WoodsSaxon:
     
     
     def fourier_transformation(self, l, r_array, k_array):
-        """Fourier transformation matrix for given orbital angular momentum."""
+        r"""Fourier transformation matrix for given orbital angular momentum."""
         
         # r_array column vectors and k_array row vectors where both grids are
         # n x m matrices
@@ -254,7 +254,7 @@ class WoodsSaxon:
             self, sp_state, kmax, kmid, ntot, print_normalization=False,
             interpolate=False
     ):
-        """Single-particle wave function in momentum space."""
+        r"""Single-particle wave function in momentum space."""
     
         # Set momentum mesh with more points at low momentum
         k_array, k_weights = momentum_mesh(kmax, kmid, ntot)
@@ -291,7 +291,7 @@ class WoodsSaxon:
         
         
     def interpolate_wavefunctions(self, kmax, kmid, ntot):
-        """Create dictionary of \phi(k) interpolated functions where the key
+        r"""Create dictionary of \phi(k) interpolated functions where the key
         is the single-particle state.
         """
         
@@ -308,7 +308,7 @@ class WoodsSaxon:
             
     
     def psi(self, sp_state, k, theta, phi, sigma, tau):
-        """Single-particle wave function \psi_\alpha(k_vector; \sigma, \tau)."""
+        r"""S.p. wave function \psi_\alpha(k_vector; \sigma, \tau)."""
 
         # Calculate \phi_\alpha(k)
         key = (sp_state.n, sp_state.l, sp_state.j, sp_state.m_t)
@@ -328,7 +328,7 @@ class WoodsSaxon:
     
 
     def spinor_spherical_harmonic(self, l, j, m_j, theta, phi, sigma):
-        """Spinor spherical harmonic for a s.p. state described by the quantum
+        r"""Spinor spherical harmonic for a s.p. state described by the quantum
         numbers j, m_j, l, and s=1/2.
         """
         
@@ -357,7 +357,7 @@ class WoodsSaxon:
         
     
 class PartialWaveChannel:
-    """
+    r"""
     Partial wave channel class. Packs together the quantum numbers of a partial
     wave channel into one object.
     """
@@ -389,7 +389,7 @@ class PartialWaveChannel:
     
     
     def get_orbital_angular_momentum(self):
-        """Gets the total orbital angular momentum L and L'."""
+        r"""Gets the total orbital angular momentum L and L'."""
         
         if self.channel[1] == 'S':
             L = 0
@@ -434,7 +434,7 @@ class PartialWaveChannel:
     
     
     def get_angular_momentum(self):
-        """Total angular momentum J = 0, 1, 2, ..."""
+        r"""Total angular momentum J = 0, 1, 2, ..."""
         
         J = int(self.channel[2])
         
@@ -442,7 +442,7 @@ class PartialWaveChannel:
     
     
     def get_spin(self):
-        """Total spin S = 0 or 1."""
+        r"""Total spin S = 0 or 1."""
         
         S = int((int(self.channel[0])-1)/2)
         
@@ -450,7 +450,7 @@ class PartialWaveChannel:
     
     
     def get_isospin(self, L, S):
-        """Total isospin according to antisymmetry."""
+        r"""Total isospin according to antisymmetry."""
     
         # Make sure [1-(-1)^(L+S+T)] is not zero
         if (1 - (-1) ** (L+S)) == 0:
@@ -462,7 +462,7 @@ class PartialWaveChannel:
     
     
 class DeltaUMatrixElement:
-    """Computes the plane-wave matrix elements of \delta U or \delta U^\dagger.
+    r"""Computes the plane-wave matrix elements of \delta U or \delta U^\dagger.
     Allows for inverse-SRG transformations to match operators of different
     interactions.
     """
@@ -487,7 +487,7 @@ class DeltaUMatrixElement:
             self, k, theta_k, phi_k, kp, theta_kp, phi_kp, sigma_1, sigma_2,
             sigma_3, sigma_4, tau_1, tau_2, tau_3, tau_4, hc=False
     ):
-        """Sum over partial waves to evaluate \delta U matrix element in
+        r"""Sum over partial waves to evaluate \delta U matrix element in
         plane-wave basis.
         """
         
@@ -574,7 +574,7 @@ class DeltaUMatrixElement:
             self, channel, potential, generator, lamb, hc=False,
             potential_hard=None, lambda_m=None
     ):
-        """Interpolate \delta U(k, k') for the given channel."""
+        r"""Interpolate \delta U(k, k') for the given channel."""
 
         # Get momentum mesh
         kmax, kmid, ntot = potential.kmax, potential.kmid, potential.ntot
@@ -640,7 +640,7 @@ class DeltaUMatrixElement:
             self, kvnn, kmax, kmid, ntot, generator, lamb, kvnn_hard=None,
             lambda_m=None
     ):
-        """Get \delta U and \delta U^\dagger functions."""
+        r"""Get \delta U and \delta U^\dagger functions."""
         
         self.delU_functions = {}
         self.delUdag_functions = {}
@@ -680,7 +680,7 @@ class DeltaUMatrixElement:
             
             
     def get_singlet_channels(self):
-        """Set all S=0 partial wave channels."""
+        r"""Set all S=0 partial wave channels."""
         
         spin_singlet_channels = []
         for channel in self.channels:
@@ -692,7 +692,7 @@ class DeltaUMatrixElement:
                 
         
     def get_triplet_channels(self):
-        """Set all S=1 partial wave channels."""
+        r"""Set all S=1 partial wave channels."""
         
         spin_triplet_channels = []
         for channel in self.channels:
@@ -704,7 +704,7 @@ class DeltaUMatrixElement:
 
 
 class DeltaUDagger:
-    """Evaluates the \delta U^\dagger term."""
+    r"""Evaluates the \delta U^\dagger term."""
     
     
     def __init__(
@@ -752,7 +752,7 @@ class DeltaUDagger:
              
         
     def __call__(self, q):
-        """Integrate over K and k, and sum over quantum numbers."""
+        r"""Integrate over K and k, and sum over quantum numbers."""
         
         # Calculate vector q - K/2
         qK, theta_qK, phi_qK = get_vector_components(
@@ -829,13 +829,13 @@ class DeltaUDagger:
 
 @njit
 def kronecker_delta(x, y):
-    """Kronecker \delta function: \delta_{x,y}."""
+    r"""Kronecker \delta function: \delta_{x,y}."""
     
     return int(x == y)
 
 
 def compute_clebsch_gordan_table(j_max):
-    """
+    r"""
     Calculate Clebsch-Gordan coefficients for combinations of j and m_j up
     to j_max.
     
@@ -877,7 +877,7 @@ def compute_clebsch_gordan_table(j_max):
 
 @njit
 def get_vector_components(x, theta_x, phi_x, y, theta_y, phi_y):
-    """Output the spherical components of a vector v = x + y."""
+    r"""Output the spherical components of a vector v = x + y."""
     
     # Components of x vector
     x_x = x * np.sin(theta_x) * np.cos(phi_x)
@@ -905,7 +905,7 @@ def get_vector_components(x, theta_x, phi_x, y, theta_y, phi_y):
 
 
 def set_spin_configurations():
-    """Spin projection configurations for \delta U^\dagger term."""
+    r"""Spin projection configurations for \delta U^\dagger term."""
     
     spin_projections = [1/2, -1/2]
     spin_configurations = []
@@ -919,7 +919,7 @@ def set_spin_configurations():
 
 
 def set_isospin_configurations():
-    """Isospin projection configurations for \delta U^\dagger term."""
+    r"""Isospin projection configurations for \delta U^\dagger term."""
     
     isospin_projections = [1/2, -1/2]
     isospin_configurations = []
@@ -935,7 +935,7 @@ def set_isospin_configurations():
 
 
 def compute_I_term(alpha, q_array, woods_saxon):
-    """Compute the I term."""
+    r"""Compute the I term."""
         
     I_array = np.zeros_like(q_array, dtype=complex)
     theta_array = np.zeros_like(q_array)
@@ -961,7 +961,7 @@ def compute_I_term(alpha, q_array, woods_saxon):
 def compute_delta_U_dagger_term(
         alpha, q_array, woods_saxon, delta_U_matrix_element, neval
 ):
-    """Compute the \delta U^\dagger term."""
+    r"""Compute the \delta U^\dagger term."""
     
     # Get sets of four spin projection configurations
     # (\sigma, \sigma', \sigma_1, \sigma_2)
@@ -995,7 +995,7 @@ def compute_overlap(
         kvnn_hard=None, lambda_m=None, parametrization='match', ipm=False,
         save=False
 ):
-    """Compute the spectroscopic overlap."""
+    r"""Compute the spectroscopic overlap."""
     
     # Set table of Clebsch-Gordan coefficients
     jmax = 4  # This should cover nuclei as heavy as Ca48
@@ -1046,7 +1046,7 @@ def compute_overlap(
 
 
 def compute_normalization(q_array, q_weights, overlap_array):
-    """Compute the normalization of the overlap."""
+    r"""Compute the normalization of the overlap."""
 
     return 4 * np.pi * np.sum(
         q_weights * q_array ** 2 * np.abs(overlap_array) ** 2
@@ -1058,7 +1058,7 @@ def save_overlap(
         I_array, delta_U_array, delta_U_errors, kvnn_hard=None, lambda_m=None,
         parametrization='match'
 ):
-    """Save the overlap along with the isolated contributions."""
+    r"""Save the overlap along with the isolated contributions."""
     
     return None
     
@@ -1067,7 +1067,7 @@ def load_overlap(
         nucleus_name, alpha, kvnn, lamb, kvnn_hard=None, lambda_m=None,
         parametrization='match'
 ):
-    """Load and return the overlap along with the isolated contributions."""
+    r"""Load and return the overlap along with the isolated contributions."""
 
     return None
 
