@@ -116,8 +116,10 @@ class WoodsSaxon:
         
     """
     
-    def __init__(self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000,
-                 kmax=10.0, kmid=2.0, ntot=120, parametrization='seminole'):
+    def __init__(
+            self, nucleus_name, Z, N, cg_table, rmax=40, ntab=2000, kmax=10.0,
+            kmid=2.0, ntot=120, parametrization='seminole', ntau=2
+    ):
         
         # Set instance attributes
         self.woods_saxon_directory = (
@@ -125,6 +127,7 @@ class WoodsSaxon:
         )
         self.cg_table = cg_table
         self.A = int(Z + N)
+        self.ntau = ntau
 
         # Order single-particle states with lowest energy first
         self.order_sp_states(Z, N)
@@ -154,15 +157,23 @@ class WoodsSaxon:
         
     def get_orbital_file_name(self, sp_state):
         """Returns the file name of the orbital."""
+        
+        
+        if self.ntau == 2:
             
-        # Proton
-        if sp_state.m_t == 1/2:
-            file_name = (f"p.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                          f".j{int(2*sp_state.j)}.orb")
-        # Neutron
-        elif sp_state.m_t == -1/2:
-            file_name = (f"n.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
-                          f".j{int(2*sp_state.j)}.orb")
+            # Proton
+            if sp_state.m_t == 1/2:
+               file_name = (f"p.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
+                            f".j{int(2*sp_state.j)}.orb")
+            # Neutron
+            elif sp_state.m_t == -1/2:
+                file_name = (f"n.n{int(sp_state.n-1)}.l{int(sp_state.l)}"
+                             f".j{int(2*sp_state.j)}.orb")
+                
+        else:
+            
+            file_name = (f"n{int(sp_state.n-1)}.l{int(sp_state.l)}"
+                         f".j{int(2*sp_state.j)}.orb")
 
         return file_name
         
@@ -1033,8 +1044,8 @@ def compute_delta_U_dagger_term(
 def compute_overlap(
         nucleus_name, Z, N, alpha, kvnn, lamb, channels, kmax=15.0, kmid=3.0,
         ntot=120, generator='Wegner', neval=1e4, print_normalization=False,
-        kvnn_hard=None, lambda_m=None, parametrization='match', ipm=False,
-        save=False
+        kvnn_hard=None, lambda_m=None, parametrization='match', ntau=2,
+        ipm=False, save=False
 ):
     """Compute the spectroscopic overlap."""
     
@@ -1044,7 +1055,7 @@ def compute_overlap(
     
     # Set single-particle basis
     woods_saxon = WoodsSaxon(nucleus_name, Z, N, cg_table,
-                             parametrization=parametrization)
+                             parametrization=parametrization, ntau=ntau)
 
     # Set points in q
     q_array, q_weights = momentum_mesh(10.0, 2.0, 120)
@@ -1172,12 +1183,12 @@ def load_overlap(
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
-    nucleus_name, Z, N = 'C12', 6, 6
+    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'C12', 6, 6
     
     # Quantum state
-    # alpha = SingleParticleState(1, 0, 1/2, 1/2, 1/2)  # 1s_{1/2}
-    alpha = SingleParticleState(1, 1, 3/2, 1/2, 1/2)  # 1p_{3/2}
+    alpha = SingleParticleState(1, 0, 1/2, 1/2, 1/2)  # 1s_{1/2}
+    # alpha = SingleParticleState(1, 1, 3/2, 1/2, 1/2)  # 1p_{3/2}
 
     # Partial wave channels for expansion of plane-wave \delta U matrix elements
     channels = ('1S0', '3S1-3S1', '3S1-3D1', '3D1-3S1', '3D1-3D1')
@@ -1198,18 +1209,37 @@ if __name__ == '__main__':
     # Woods-Saxon parametrization
     # prm = 'seminole'
     # prm = 'universal'
-    prm = 'match'
-
-    # Compute and save the overlap
-    q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
-        nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
-        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-        print_normalization=True, save=True
-    )
+    # prm = 'match'
+    prm = 'afdmc'
     
-    # # Testing IPM only
+    # Protons and neutrons distinguished?
+    # ntau = 2
+    ntau = 1
+
+    # # Compute and save the overlap
     # q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
     #     nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
     #     kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm,
-    #     print_normalization=True, ipm=True, save=False
+    #     print_normalization=True, save=True
     # )
+    
+    # Testing IPM only
+    q_array, q_weights, overlap_array, delta_U_errors = compute_overlap(
+        nucleus_name, Z, N, alpha, kvnn, lamb, channels, neval=neval,
+        kvnn_hard=kvnn_hard, lambda_m=lambda_m, parametrization=prm, ntau=ntau,
+        print_normalization=True, ipm=True, save=False
+    )
+    
+    # Save for NS and AL
+    # Not sure why it's complex - take real part
+    overlap_array = np.real(overlap_array)
+    data = np.vstack((q_array, q_weights, overlap_array)).T
+    hdr = ("q, q weight, overlap\n")
+    # Proton
+    if alpha.m_t == 1/2:
+        alpha_str = "proton_"
+    elif alpha.m_t == -1/2:
+        alpha_str = "neutron_"
+    alpha_str += f"n{int(alpha.n-1)}_l{int(alpha.l)}_j{int(2*alpha.j)}"
+    file_name = f"{nucleus_name}_{alpha_str}_overlap_{prm}"
+    np.savetxt(file_name + '.txt', data, header=hdr)

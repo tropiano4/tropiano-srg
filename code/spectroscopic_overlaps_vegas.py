@@ -1215,12 +1215,16 @@ class SpectroscopicOverlap:
                     
         hdr = ("q, q weight, overlap, error, I term\n")
         
-        np.savetxt(filename + '.txt', data, header=hdr)
+        directory = "../data/spectroscopic_overlaps/"
+        
+        np.savetxt(directory + filename + '.txt', data, header=hdr)
         
 def load(filename):
     r"""Load overlap and its error."""
+    
+    directory = "../data/spectroscopic_overlaps/"
         
-    data = np.loadtxt(filename + '.txt')
+    data = np.loadtxt(directory + filename + '.txt')
         
     q_array = data[:, 0]
     q_weights = data[:, 1]
@@ -1363,9 +1367,9 @@ def set_isospin_configurations(tau):
 if __name__ == '__main__':
     
     # Nucleus
-    # nucleus_name, Z, N = 'He4', 2, 2
+    nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    nucleus_name, Z, N = 'O16', 8, 8
+    # nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ar40', 18, 22
     # nucleus_name, Z, N = 'Ni56', 28, 28
 
@@ -1386,9 +1390,9 @@ if __name__ == '__main__':
     # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
-    lamb = 1.5
+    # lamb = 1.5
     # lamb = 3.0
-    # lamb = np.inf
+    lamb = np.inf
     
     # Number of evaluations for vegas
     neval = 1e3
@@ -1409,6 +1413,6 @@ if __name__ == '__main__':
     elif m_t == -1/2:
         nucleon = 'neutron'
     filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
-                                f"_overlap_kvnn_{kvnn}_lamb_{lamb}") + '.txt')
+                                f"_overlap_kvnn_{kvnn}_lamb_{lamb}"))
     so.save(filename, j, q_array, q_weights, overlap_array, error_array,
             ipm_array)
