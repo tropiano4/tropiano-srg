@@ -123,8 +123,6 @@ class ClebschGordan:
         # Mapping from m_j to indices
         im1, im2, im3 = m_1 + self.j_max, m_2 + self.j_max, m_3 + self.j_max
 
-        # return self.cg_array[ij1, im1, ij2, im2, ij3, im3]
-        
         # Make sure quantum numbers make sense
         cond = self.is_physical(j_1, m_1, j_2, m_2, j_3, m_3)
         return jnp.where(cond, self.cg_array[ij1, im1, ij2, im2, ij3, im3], 0)
