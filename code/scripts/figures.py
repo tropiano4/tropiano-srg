@@ -558,7 +558,8 @@ def label_lambda(lamb, generator='Wegner'):
         
     """
 
-    if lamb == np.inf:
+    # \lambda = \infty
+    if lamb > 1000.0:
 
         # Label \Lambda_BD
         if generator == 'Block-diag':
