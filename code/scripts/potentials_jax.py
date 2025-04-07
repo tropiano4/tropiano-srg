@@ -8,7 +8,7 @@ Date: March 12, 2025
 
 Class for handling NN potentials using JAX arrays.
 
-Last update: March 12, 2025
+Last update: April 4, 2025
 
 """
 
@@ -65,19 +65,14 @@ class Potential:
         
         # Set unevolved and evolved Hamiltonians in big JAX arrays
         # distinguishing uncoupled- or coupled-channel
-        if lamb != jnp.inf:
-            
-            # Un-evolved Hamiltonians
-            (
-                self.uncoupled_hamiltonians_unevolved, 
-                self.coupled_hamiltonians_unevolved
-            ) = self.get_hamiltonians(jnp.inf, L_max)
-            
-            # Evolved Hamiltonians
-            (
-                self.uncoupled_hamiltonians_evolved, 
-                self.coupled_hamiltonians_evolved
-            ) = self.get_hamiltonians(lamb, L_max)
+        (
+            self.uncoupled_hamiltonians_unevolved,
+            self.coupled_hamiltonians_unevolved
+        ) = self.get_hamiltonians(jnp.inf, L_max)
+        (
+            self.uncoupled_hamiltonians_evolved, 
+            self.coupled_hamiltonians_evolved
+        ) = self.get_hamiltonians(lamb, L_max)
         
     def get_momentum_mesh(self):
         """Momentum mesh in units [fm^-1] as JAX arrays."""
@@ -181,7 +176,7 @@ class Potential:
             else:
                 lamb_str = str(round(lamb, 2))
             
-            filename = (f'vnn_{channel}_kvnn_{self.kvnn_str}_srg_Wegner'
+            filename = (f'vnn_{channel}_kvnn_{self.kvnn_str}_srg_T'
                         f'_lambda{lamb_str}.out')
 
         data = np.loadtxt(self.directory + filename)
@@ -272,9 +267,9 @@ class Potential:
         return factor_array
 
     @partial(jit, static_argnums=(0,))
-    def get_uncoupled_potential(self, L, S, J):
+    def get_uncoupled_potential(self, J, L, S):
         
-        # Map L, S, and J onto index (special case for 3P0)
+        # Map J, L, and S onto index (special case for 3P0)
         cond = jnp.logical_and(L == 1, jnp.logical_and(S == 1, J == 0))
         index = jnp.where(cond, 1, L + S + J)
         
@@ -291,9 +286,9 @@ class Potential:
         return self.coupled_potentials[index]
     
     @partial(jit, static_argnums=(0,))
-    def get_uncoupled_hamiltonian(self, L, S, J, lamb):
+    def get_uncoupled_hamiltonian(self, J, L, S, lamb):
         
-        # Map L, S, and J onto index (special case for 3P0)
+        # Map J, L, and S onto index (special case for 3P0)
         cond = jnp.logical_and(L == 1, jnp.logical_and(S == 1, J == 0))
         index = jnp.where(cond, 1, L + S + J)
         
@@ -320,13 +315,13 @@ class Potential:
         return H_matrix
     
     @partial(jit, static_argnums=(0,))
-    def is_coupled(self, L, J):
+    def is_coupled(self, J, L):
         """Boolean value on whether the channel is coupled or not."""
         
         return jnp.logical_and(J > 0, J != L)
     
     @partial(jit, static_argnums=(0,))
-    def channel_is_physical(self, L, Lp, S, J, T):
+    def channel_is_physical(self, J, L, Lp, S, T):
         """Check if the partial wave channel is physical."""
 
         # Make sure |L - S| <= J <= L + S and likewise with L'
