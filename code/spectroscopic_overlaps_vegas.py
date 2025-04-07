@@ -10,7 +10,7 @@ This script serves as a testbed for calculating spectroscopic overlaps using
 mean field approximations for initial and final states and applying SRG
 transformations to the operator.
 
-Last update: May 20, 2024
+Last update: March 26, 2025
 
 """
 
@@ -920,6 +920,9 @@ class SpectroscopicOverlap:
             ws_psi = WoodsSaxon('Co55', Z-1, N, cg_table,
                                 parametrization=ws_prm)
         
+        # ### TESTING SAME WS ON BOTH SIDES
+        # ws_psi = ws_phi
+        
         # Occupied states of | \Phi_0^A(\lambda) >
         self.phi_states = ws_phi.occupied_states
         
@@ -935,6 +938,8 @@ class SpectroscopicOverlap:
                 self.psi_states.append(sp_state)
                 iN += 1
             i += 1
+        # ### TESTING SAME WS ON BOTH SIDES
+        # self.psi_states = ws_psi.occupied_states
 
         # Set Woods-Saxon attributes
         self.dr = ws_phi.dr
@@ -1407,12 +1412,19 @@ if __name__ == '__main__':
     overlap_array, error_array, ipm_array = so.compute_overlap(q_array, n, l, j,
                                                                 m_t, 1/2, 1/2)
     
-    # Save overlap
-    if m_t == 1/2:
-        nucleon = 'proton'
-    elif m_t == -1/2:
-        nucleon = 'neutron'
-    filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
-                                f"_overlap_kvnn_{kvnn}_lamb_{lamb}"))
-    so.save(filename, j, q_array, q_weights, overlap_array, error_array,
-            ipm_array)
+    # # Save overlap
+    # if m_t == 1/2:
+    #     nucleon = 'proton'
+    # elif m_t == -1/2:
+    #     nucleon = 'neutron'
+    # filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
+    #                             f"_overlap_kvnn_{kvnn}_lamb_{lamb}"))
+    # so.save(filename, j, q_array, q_weights, overlap_array, error_array,
+    #         ipm_array)
+    
+    ### TESTING SAME WS ON BOTH SIDES
+    factor = (2 * np.pi)**3 / (4*np.pi) * 2
+    norm = 2 / np.pi * factor * np.sum(q_weights * q_array ** 2
+                                       * overlap_array ** 2)
+    print(norm)
+    
