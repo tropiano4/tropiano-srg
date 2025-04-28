@@ -144,11 +144,11 @@ class DeuteronElectrodisintegration:
         # TESTING
         elif option == 5:
             
-            f1 = F1(kvnn, kmax, kmid, ntot, lamb, L_max, sf, cg)
+            self.f1 = F1(kvnn, kmax, kmid, ntot, lamb, L_max, sf, cg)
             self.overlap = (
                 lambda pp, thetap, q, gep, gen, fL_quantum_numbers:
                     b4(pp, thetap, q, gep, gen, fL_quantum_numbers)
-                    + f1(pp, thetap, q, gep, gen, fL_quantum_numbers)
+                    + self.f1(pp, thetap, q, gep, gen, fL_quantum_numbers)
             )
 
     def fL_sum(self):
@@ -2958,23 +2958,19 @@ class F1:
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk4_grid
                          * self.k4_grid ** 2 * dk6_grid * self.k6_grid ** 2)
     
-    # Could restrict to physical partial wave channels of T-matrix
-    # Could restrict based on CG coefficients not involving m_S_f, m_J_d
-    # Could restict based on T_1 and L_1 factor
-    # Restriction on J sum
     def get_quantum_numbers(self, L_max):
-        """Repackage all quantum numbers into one big 1-D JAX array."""
+        """Repackage all quantum numbers into one big JAX array."""
         
         # Arrays for sums over quantum numbers
         T_1_array = jnp.array([0, 1])
         L_array = jnp.arange(0, L_max + 1, 1)
         m_s_array = jnp.array([-1, 0, 1])
-        J_1_array = jnp.arange(0, L_max + 2, 1)
         L_d_array = jnp.array([0, 2])
         
         quantum_numbers = []
         for T_1 in T_1_array:
             for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
                 for J_1 in J_1_array:
                     for L_2 in L_array:
                         for L_3 in L_array:
@@ -2982,11 +2978,40 @@ class F1:
                                 for L_4 in L_array:
                                     for L_d in L_d_array:
                                         
-                                        # Append combination to quantum numbers
-                                        quantum_numbers.append(
-                                            [T_1, L_1, J_1, L_2, L_3, m_s, L_4,
-                                             L_d]
+                                        # Check if the partial wave channels
+                                        # are physical
+                                        tmatrix_bool = (
+                                            self.tmatrix.channel_is_physical(
+                                                J_1, L_2, L_1, 1, T_1
+                                            )
                                         )
+                                        deltaU_23_bool = (
+                                            self.tmatrix.channel_is_physical(
+                                                J_1, L_2, L_3, 1, T_1
+                                            )
+                                        )
+                                        deltaU_d4_bool = (
+                                            self.tmatrix.channel_is_physical(
+                                                1, L_d, L_4, 1, 0
+                                            )
+                                        )
+                                        channel_bool = (
+                                            tmatrix_bool and deltaU_23_bool
+                                            and deltaU_d4_bool
+                                        )
+                                        
+                                        # Check if T_1 and L_1 factor is 0
+                                        if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                            lt_bool = False
+                                        else:
+                                            lt_bool = True
+                                        
+                                        # Append combination to quantum numbers
+                                        if channel_bool and lt_bool:
+                                            quantum_numbers.append(
+                                                [T_1, L_1, J_1, L_2, L_3, m_s,
+                                                 L_4, L_d]
+                                            )
                                         
         # Return quantum numbers as JAX array
         return jnp.asarray(quantum_numbers)
@@ -3041,7 +3066,7 @@ class F1:
         # Call T-matrix for given partial wave channel [fm]
         T_matrix = jnp.conj(self.tmatrix.compute(pp, J_1, L_2, L_1, 1, T_1))
 
-        # Half off-shell T-matrix with shape is (ntot_k, 1)
+        # Half off-shell T-matrix with shape (ntot_k, 1)
         ntot_k = self.tmatrix.ntot
         T_half_offshell_array = T_matrix[:ntot_k, ntot_k]
         
