@@ -265,7 +265,6 @@ class DeuteronElectrodisintegration:
         return f_L
     
     
-### TODO: Apply same changes as in F_1?
 class B4:
     """Class for calculating the overlap matrix element in the impulse
     approximation.
@@ -356,8 +355,7 @@ class B4:
                 
         return overlap
     
-    
-### TODO: Apply same changes as in F_1?
+
 class B3:
     """Class for calculating the overlap matrix element:
     < \phi | J_0 \delta U^\dagger | \psi_i(\lambda) >
@@ -380,29 +378,67 @@ class B3:
         # Initialize \delta U class
         self.deltaU = DeltaU(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
         self.m_s_array = jnp.array([-1, 0, 1])
         self.J_1_array = jnp.arange(0, L_max + 2, 1)
         self.L_d_array = jnp.array([0, 2])
-        
+
         # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
-        
-        # Meshgrids for integrations over \theta and k_3
+        ntot_theta = 21
+        theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
+
+        # Meshgrids and Jacobian for \theta and k_3
         self.theta_grid, self.k3_grid = jnp.meshgrid(
-            self.theta_array, self.dwf.k_array, indexing='ij'
+            theta_array, self.dwf.k_array, indexing='ij'
         )
         dtheta_grid, dk3_grid = jnp.meshgrid(
-            self.theta_weights, self.dwf.k_weights, indexing='ij'
+            theta_weights, self.dwf.k_weights, indexing='ij'
         )
-        
-        # Jacobian for integrations over \theta and k_3
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk3_grid
                          * self.k3_grid ** 2)
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for m_s in m_s_array:
+                        for L_2 in L_array:
+                            for L_d in L_d_array:
+                                        
+                                # Check if the partial wave channels are
+                                # physical
+                                deltaU_bool = self.deltaU.channel_is_physical(
+                                    1, L_d, L_2, 1, 0
+                                )
+
+                                # Check if T_1 and L_1 factor is 0
+                                if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                    lt_bool = False
+                                else:
+                                    lt_bool = True
+                                        
+                                # Append combination to quantum numbers
+                                if deltaU_bool and lt_bool:
+                                    quantum_numbers.append([T_1, L_1, J_1, m_s,
+                                                            L_2, L_d])
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
     
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
@@ -413,135 +449,43 @@ class B3:
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
         
-        # Vectorize overlap method over T_1
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, m_s, L_2, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
-
+        
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, L_1 = args
-
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
         cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                             m_J_d)
         
-        # Vectorize overlap method over m_s
-        args = pp, q, m_J_d, L_1, J_1
-        overlap_array = cg_L1_mSf * vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
-        
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and m_s.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, L_1, J_1 = args
-        
         # CG < J_1 m_J_d | L_1 m_J_d - m_s S = 1 m_s >
         cg_L1_ms = self.cg.get_coefficient(L_1, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, L_1, m_s
-        overlap_array = cg_L1_ms * vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, L_1, m_s = args
-        
         # CG < L_2 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
         cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, 1, m_J_d)
-        
-        # Vectorize overlap method over L_d
-        args = pp, q, m_J_d, L_1, m_s, L_2
-        overlap_array = cg_L2_ms * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, L_2, and L_d.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, L_1, m_s, L_2 = args
-        
-        # Fix orbital angular momentum projection
-        m_L = m_J_d - m_s
         
         # Dot product p'_vector \dot q_vector
         ppqx_grid = pp * q * jnp.cos(self.theta_grid)
@@ -552,8 +496,8 @@ class B3:
                          / ppq_minus_grid)
         
         # Legendre polynomials
-        P_L1_grid = self.sf.plm(jnp.cos(self.theta_grid), L_1, m_L)
-        P_L2_grid = self.sf.plm(cos_alphap_pp, L_2, m_L)
+        P_L1_grid = self.sf.plm(jnp.cos(self.theta_grid), L_1, m_J_d - m_s)
+        P_L2_grid = self.sf.plm(cos_alphap_pp, L_2, m_J_d - m_s)
         
         # Deuteron wave function [fm^3/2]
         psi_k3_grid = self.dwf.compute_wf(self.k3_grid, L_d)
@@ -567,10 +511,12 @@ class B3:
         integral = jnp.sum(self.jacobian * integrand)
 
         # Return overlap
-        return 2 * jnp.sqrt(2 / jnp.pi) * integral
+        return 2 * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L1_ms
+            * cg_L2_ms * integral
+        )
 
     
-### TODO: Apply same changes as in F_1?
 class B2:
     """Class for calculating the overlap matrix element:
     < \phi | \delta U J_0 | \psi_i(\lambda) >
@@ -593,29 +539,67 @@ class B2:
         # Initialize \delta U class
         self.deltaU = DeltaU(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
         self.m_s_array = jnp.array([-1, 0, 1])
         self.J_1_array = jnp.arange(0, L_max + 2, 1)
         self.L_d_array = jnp.array([0, 2])
-        
+
         # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
-        
-        # Meshgrids for integrations over \theta and k_2
+        ntot_theta = 21
+        theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
+
+        # Meshgrids and Jacobian for \theta and k_2
         self.theta_grid, self.k2_grid = jnp.meshgrid(
-            self.theta_array, self.dwf.k_array, indexing='ij'
+            theta_array, self.dwf.k_array, indexing='ij'
         )
         dtheta_grid, dk2_grid = jnp.meshgrid(
-            self.theta_weights, self.dwf.k_weights, indexing='ij'
+            theta_weights, self.dwf.k_weights, indexing='ij'
         )
-        
-        # Jacobian for integrations over \theta and k_2
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk2_grid
                          * self.k2_grid ** 2)
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for m_s in m_s_array:
+                        for L_2 in L_array:
+                            for L_d in L_d_array:
+                                        
+                                # Check if the partial wave channels are
+                                # physical
+                                deltaU_bool = self.deltaU.channel_is_physical(
+                                    J_1, L_1, L_2, 1, T_1
+                                )
+
+                                # Check if T_1 and L_1 factor is 0
+                                if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                    lt_bool = False
+                                else:
+                                    lt_bool = True
+                                        
+                                # Append combination to quantum numbers
+                                if deltaU_bool and lt_bool:
+                                    quantum_numbers.append([T_1, L_1, J_1, m_s,
+                                                            L_2, L_d])
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
     
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
@@ -626,20 +610,21 @@ class B2:
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
         
-        # Vectorize overlap method over T_1
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, m_s, L_2, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
@@ -647,114 +632,21 @@ class B2:
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-        
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, T_1, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, T_1, L_1 = args
-        
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
         cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                             m_J_d)
         
-        # Vectorize overlap method over m_s
-        args = pp, q, m_J_d, T_1, L_1, J_1
-        overlap_array = cg_L1_mSf * vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
-        
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and m_s.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1 = args
-        
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, T_1, L_1, J_1, m_s
-        overlap_array = vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1, m_s = args
-        
         # CG < J_1 m_J_d | L_2 m_J_d - m_s S = 1 m_s >
         cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Vectorize overlap method over L_d
-        args = pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2
-        overlap_array = cg_L2_ms * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, L_2, and L_d.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2 = args
-        
-        # Fix orbital angular momentum projection
-        m_L = m_J_d - m_s
-        
         # CG < L_d m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
-        cg_Ld_ms = self.cg.get_coefficient(L_d, m_L, 1, m_s, 1, m_J_d)
+        cg_Ld_ms = self.cg.get_coefficient(L_d, m_J_d - m_s, 1, m_s, 1, m_J_d)
         
         # Dot product k2_vector \dot q_vector
         k2qx_grid = self.k2_grid * q * jnp.cos(self.theta_grid)
@@ -765,8 +657,8 @@ class B2:
                          / k2q_minus_grid)
         
         # Legendre polynomials
-        P_L2_grid = self.sf.plm(jnp.cos(self.theta_grid), L_2, m_L)
-        P_Ld_grid = self.sf.plm(cos_alphap_k2, L_d, m_L)
+        P_L2_grid = self.sf.plm(jnp.cos(self.theta_grid), L_2, m_J_d - m_s)
+        P_Ld_grid = self.sf.plm(cos_alphap_k2, L_d, m_J_d - m_s)
         
         # Deuteron wave function [fm^3/2]
         psi_k2q_grid = self.dwf.compute_wf(k2q_minus_grid, L_d)
@@ -779,10 +671,12 @@ class B2:
         integral = jnp.sum(self.jacobian * integrand)
 
         # Return overlap
-        return 2 * jnp.sqrt(2 / jnp.pi) * cg_Ld_ms * integral
-    
+        return 2 * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L2_ms
+            * cg_Ld_ms * integral
+        )
 
-### TODO: Apply same changes as in F_1?
+
 class B1:
     """Class for calculating the overlap matrix element:
     < \phi | \delta U J_0 \delta U^\dagger | \psi_i(\lambda) >
@@ -805,30 +699,78 @@ class B1:
         # Initialize \delta U class
         self.deltaU = DeltaU(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
         self.m_s_array = jnp.array([-1, 0, 1])
         self.J_1_array = jnp.arange(0, L_max + 2, 1)
         self.L_d_array = jnp.array([0, 2])
-        
+
         # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
-        
-        # Meshgrids for integrations over \theta, k_2, and k_4
+        ntot_theta = 21
+        theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
+
+        # Meshgrids and Jacobian for \theta, k_2, and k_4
         self.theta_grid, self.k2_grid, self.k4_grid = jnp.meshgrid(
-            self.theta_array, self.dwf.k_array, self.dwf.k_array, indexing='ij'
+            theta_array, self.dwf.k_array, self.dwf.k_array, indexing='ij'
         )
         dtheta_grid, dk2_grid, dk4_grid = jnp.meshgrid(
-            self.theta_weights, self.dwf.k_weights, self.dwf.k_weights,
-            indexing='ij'
+            theta_weights, self.dwf.k_weights, self.dwf.k_weights, indexing='ij'
         )
-        
-        # Jacobian for integrations over \theta, k_2, and k_4
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk2_grid
                          * self.k2_grid ** 2 * dk4_grid * self.k4_grid ** 2)
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for m_s in m_s_array:
+                        for L_2 in L_array:
+                            for L_3 in L_array:
+                                for L_d in L_d_array:
+                                        
+                                    # Check if the partial wave channels are
+                                    # physical
+                                    deltaU_12_bool = (
+                                        self.deltaU.channel_is_physical(
+                                            J_1, L_1, L_2, 1, T_1
+                                        )
+                                    )
+                                    deltaU_d3_bool = (
+                                        self.deltaU.channel_is_physical(
+                                            1, L_d, L_3, 1, 0
+                                        )
+                                    )
+                                    channel_bool = (deltaU_12_bool
+                                                    and deltaU_d3_bool)
+                                        
+                                    # Check if T_1 and L_1 factor is 0
+                                    if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                        lt_bool = False
+                                    else:
+                                        lt_bool = True
+                                        
+                                    # Append combination to quantum numbers
+                                    if channel_bool and lt_bool:
+                                        quantum_numbers.append(
+                                            [T_1, L_1, J_1, m_s, L_2, L_3, L_d]
+                                        )
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
     
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
@@ -839,20 +781,21 @@ class B1:
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
         
-        # Vectorize overlap method over T_1
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, m_s, L_2, L_3, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
@@ -860,133 +803,22 @@ class B1:
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-        
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, T_1, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, T_1, L_1 = args
-        
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
         cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                             m_J_d)
         
-        # Vectorize overlap method over m_s
-        args = pp, q, m_J_d, T_1, L_1, J_1
-        overlap_array = cg_L1_mSf * vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
-        
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and m_s.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1 = args
-        
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, T_1, L_1, J_1, m_s
-        overlap_array = vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1, m_s = args
-        
         # CG < J_1 m_J_d | L_2 m_J_d - m_s S = 1 m_s >
         cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Vectorize overlap method over L_3
-        args = pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2
-        overlap_array = cg_L2_ms * vmap(
-            self.overlap_wrt_L3, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_3
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L3(self, L_3, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, L_2, and L_3.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2 = args
-        
         # CG < L_3 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
         cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, 1, m_J_d)
-        
-        # Vectorize overlap method over L_d
-        args = pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2, L_3
-        overlap_array = cg_L3_ms * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, m_s, L_2, L_3, and L_d.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1, m_s, L_2, L_3 = args
-        
-        # Fix orbital angular momentum projection
-        m_L = m_J_d - m_s
-        
+
         # Dot product k2_vector \dot q_vector
         k2qx_grid = self.k2_grid * q * jnp.cos(self.theta_grid)
         # Magnitude of momenta |k2_vector - q_vector / 2|
@@ -996,8 +828,8 @@ class B1:
                          / k2q_minus_grid)
         
         # Legendre polynomials
-        P_L2_grid = self.sf.plm(jnp.cos(self.theta_grid), L_2, m_L)
-        P_L3_grid = self.sf.plm(cos_alphap_k2, L_3, m_L)
+        P_L2_grid = self.sf.plm(jnp.cos(self.theta_grid), L_2, m_J_d - m_s)
+        P_L3_grid = self.sf.plm(cos_alphap_k2, L_3, m_J_d - m_s)
         
         # Deuteron wave function [fm^3/2]
         psi_k4_grid = self.dwf.compute_wf(self.k4_grid, L_d)
@@ -1016,9 +848,12 @@ class B1:
         integral = jnp.sum(self.jacobian * integrand)
 
         # Return overlap
-        return 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * integral
+        return 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L2_ms
+            * cg_L3_ms * integral
+        )
     
-    
+
 ### TODO: Apply same changes as in F_1?
 class A4:
     """Class for calculating the overlap matrix element:
@@ -2069,7 +1904,6 @@ class A1:
         return val_k5
     
     
-### TODO: Apply same changes as in F_1?
 class F4:
     """Class for calculating final state interactions of the overlap matrix
     element.
@@ -2095,6 +1929,9 @@ class F4:
         # Initialize T-matrix class
         self.tmatrix = TMatrix(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
@@ -2102,21 +1939,54 @@ class F4:
         self.J_1_array = jnp.arange(0, L_max + 2, 1)
         self.L_d_array = jnp.array([0, 2])
         
-        # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
-        
-        # Meshgrids for integrations over \theta and k_2
-        self.theta_grid, self.k2_grid = jnp.meshgrid(
-            self.theta_array, self.tmatrix.k_array, indexing='ij'
+        # Set cos(\theta) integration mesh and its Jacobian
+        ntot_theta = 21
+        self.theta_array, self.theta_weights = GaussQuadrature(ntot_theta)(
+            0, jnp.pi
         )
-        _, self.dk2_grid = jnp.meshgrid(self.theta_weights,
-                                        self.tmatrix.k_weights, indexing='ij')
+        self.jacobian = self.theta_weights * jnp.sin(self.theta_array)
         
-        # Jacobian for \theta
-        self.theta_jacobian = self.theta_weights * jnp.sin(self.theta_array)
+        # Set integration mesh for momenta
+        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for L_2 in L_array:
+                        for m_s in m_s_array:
+                            for L_d in L_d_array:
+                                        
+                                # Check if the partial wave channels are
+                                # physical
+                                tmatrix_bool = self.tmatrix.channel_is_physical(
+                                    J_1, L_2, L_1, 1, T_1
+                                )
 
+                                # Check if T_1 and L_1 factor is 0
+                                if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                    lt_bool = False
+                                else:
+                                    lt_bool = True
+                                        
+                                # Append combination to quantum numbers
+                                if tmatrix_bool and lt_bool:
+                                    quantum_numbers.append([T_1, L_1, J_1, L_2,
+                                                            m_s, L_d])
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
+    
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
         """Overlap matrix element [fm^3/2] for particular values of S_f, m_S_f,
@@ -2125,21 +1995,22 @@ class F4:
         
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
-
-        # Vectorize overlap method over T_1
+        
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, L_2, m_s, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
@@ -2147,188 +2018,107 @@ class F4:
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, T_1, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, T_1, L_1 = args
-        
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
-        cg_J1_L1 = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
+        cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                            m_J_d)
         
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, T_1, L_1, J_1
-        overlap_array = cg_J1_L1 * vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
+        # CG < J_1 m_J_d | L_2 m_J_d - m_s S=1 m_s >
+        cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1 = args
+        # CG < L_d m_J_d - m_s S=1 m_s | J=1 m_J_d >
+        cg_Ld_ms = self.cg.get_coefficient(L_d, m_J_d - m_s, 1, m_s, 1, m_J_d)
         
         # Call T-matrix for given partial wave channel [fm]
         T_matrix = jnp.conj(self.tmatrix.compute(pp, J_1, L_2, L_1, 1, T_1))
-
-        # Half off-shell T-matrix with shape is (ntot_k, 1)
+        
+        # Half off-shell T-matrix with shape (ntot_k, 1)
         ntot_k = self.tmatrix.ntot
         T_half_offshell_array = T_matrix[:ntot_k, ntot_k]
-        # Convert to grid (shape is (ntot_theta, ntot_k))
-        T_half_offshell_grid = jnp.tile(T_half_offshell_array,
-                                        (self.ntot_theta, 1))
         
         # On-shell T-matrix (scalar)
         T_onshell = T_matrix[ntot_k, ntot_k]
-    
-        # Vectorize overlap method over m_s
-        args = pp, q, T_half_offshell_grid, T_onshell, m_J_d, J_1, L_2
-        overlap_array = vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
-
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, and m_s.
-        """
         
-        # Unpack other arguments
-        pp, q, T_half_offshell_grid, T_onshell, m_J_d, J_1, L_2 = args
-
-        # CG < J_1 m_J_d | L_2 m_J_d - m_s S=1 m_s >
-        m_L_2 = m_J_d - m_s
-        cg_J1_L2 = self.cg.get_coefficient(L_2, m_L_2, 1, m_s, J_1, m_J_d)
-        
-        # Legendre polynomial for L_2
-        P_L_2_array = self.sf.plm(jnp.cos(self.theta_array), L_2, m_L_2)
-        
-        # Vectorize overlap method over L_d
-        args = pp, q, T_half_offshell_grid, T_onshell, P_L_2_array, m_J_d, m_s
-        overlap_array = cg_J1_L2 * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, m_s, and L_d.
-        """
-        
-        # Unpack other arguments
-        (pp, q, T_half_offshell_grid, T_onshell, P_L_2_array, m_J_d, m_s) = args
-        
-        # Fix orbital angular momentum projection
-        m_L = m_J_d - m_s
-
-        # Dot product k2_vector \dot q_vector
-        k2qx_grid = self.k2_grid * q * jnp.cos(self.theta_grid)
-        # Magnitude of momenta |k2_vector - q_vector / 2|
-        k2q_minus_grid = jnp.sqrt(self.k2_grid ** 2 + q ** 2 / 4 - k2qx_grid)
-        # Angle between the unit vector z^\hat and k2_vector - q_vector / 2
-        cos_alphap_k2 = ((self.k2_grid * jnp.cos(self.theta_grid) - q / 2)
-                         / k2q_minus_grid)
-
-        # Same stuff as above but for k_2 = p'
-        ppqx_array = pp * q * jnp.cos(self.theta_array)
-        ppq_minus_array = jnp.sqrt(pp ** 2 + q ** 2 / 4 - ppqx_array)
-        cos_alphap_pp = ((pp * jnp.cos(self.theta_array) - q / 2)
-                         / ppq_minus_array)
+        # k_2 momentum mesh
+        k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
-        greens_func_grid = 1 / (pp ** 2 - self.k2_grid ** 2)
-
-        # CG < L_d m_J_d - m_s S=1 m_s | J=1 m_J_d >
-        cg_Jd_Ld = self.cg.get_coefficient(L_d, m_L, 1, m_s, 1, m_J_d)
-
-        # Legendre polynomials for L_d
-        P_L_d_pp_array = self.sf.plm(cos_alphap_pp, L_d, m_L)
-        P_L_d_k2_grid = self.sf.plm(cos_alphap_k2, L_d, m_L)
-
-        # Deuteron wave function [fm^3/2]
-        psi_k2_grid = self.dwf.compute_wf(k2q_minus_grid, L_d)
-        psi_pp_array = self.dwf.compute_wf(ppq_minus_array, L_d)
+        greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
         
-        # Define functions f(k_2, \theta) [fm^1/2] where k_2 != p' and k_2 = p'
-        f_k2_grid = (self.k2_grid ** 2 * T_half_offshell_grid * P_L_d_k2_grid 
-                     * psi_k2_grid)
-        f_pp_array = pp ** 2 * T_onshell * P_L_d_pp_array * psi_pp_array
-            
-        # Integrate over k_2 for p' != k_2 term [fm^3/2]
-        integral_1 = jnp.sum(self.dk2_grid * f_k2_grid * greens_func_grid,
-                             axis=-1)
-            
-        # Integrate over k_2 for p' = k_2 term [fm]
-        integral_2 = jnp.sum(self.dk2_grid * greens_func_grid, axis=-1)
-            
-        # Integrate over \theta [fm^3/2]
+        # Repackage arguments with L_d
+        args = q, m_J_d, T_1, L_1, J_1, L_2, m_s, L_d
+
+        # Vectorize overlap method over k_2 and attach k_2 ** 2 factor
+        f_k2_array = (
+            k2_array ** 2 * greens_func_array * T_half_offshell_array
+            * self.vmap_overlap_wrt_k2(k2_array, args)
+        )
+        # Integrate over k_2
+        integral_f_k2 = jnp.sum(k2_weights * f_k2_array)
+        
+        # Evaluate part with k_2 = p'
+        f_pp = pp ** 2 * T_onshell * self.overlap_wrt_k2(pp, args)
         Lamb = self.tmatrix.Lamb
-        integrand_theta = P_L_2_array * (
-            integral_1 - f_pp_array * (
-                integral_2 - 1 / (2 * pp) * (
-                    jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
+        # \int_0^\Lamb dk_2 / (p'^2 - k_2^2)
+        integral_k2 = jnp.sum(k2_weights * greens_func_array)
+        
+        # Factor of 2 for < J_0 > = 2 < J_0^- > (Eq. 20 in More 2015)
+        overlap = 2 * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L2_ms 
+            * cg_Ld_ms * (
+                integral_f_k2 - f_pp * (
+                    integral_k2 - 1 / (2 * pp) * (
+                        jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
+                    )
                 )
             )
         )
-        integral_theta = jnp.sum(self.theta_jacobian * integrand_theta)
+        
+        return overlap
+    
+    @partial(jit, static_argnums=(0,))
+    def vmap_overlap_wrt_k2(self, k2_array, args):
+        """vmap of the method below w.r.t. k_2."""
+        
+        return vmap(self.overlap_wrt_k2, in_axes=(0, None))(k2_array, args)
+    
+    @partial(jit, static_argnums=(0,))
+    def overlap_wrt_k2(self, k_2, args):
+        """Overlap matrix element for particular values k_2."""
+        
+        # Unpack other arguments
+        q, m_J_d, T_1, L_1, J_1, L_2, m_s, L_d = args
+        
+        # Fix orbital angular momentum projection
+        m_L = m_J_d - m_s
+        
+        # Dot product k2_vector \dot q_vector
+        k2qx_array = k_2 * q * jnp.cos(self.theta_array)
+        # Magnitude of momenta |k2_vector - q_vector / 2|
+        k2q_minus_array = jnp.sqrt(k_2 ** 2 + q ** 2 / 4 - k2qx_array)
+        # Angle between the unit vector z^\hat and k2_vector - q_vector / 2
+        cos_alphap_k2 = ((k_2 * jnp.cos(self.theta_array) - q / 2)
+                         / k2q_minus_array)
 
-        # Compute overlap
-        overlap = jnp.sqrt(2 / jnp.pi) * cg_Jd_Ld * integral_theta
+        # Legendre polynomials
+        P_Ld_array = self.sf.plm(cos_alphap_k2, L_d, m_L)
+        P_L2_array = self.sf.plm(jnp.cos(self.theta_array), L_2, m_L)
+        
+        # Deuteron wave function [fm^3/2]
+        psi_k2_array = self.dwf.compute_wf(k2q_minus_array, L_d)
 
-        # Factor of 2 for < J_0 > = 2 < J_0^- > (Eq. 20 in More 2015)
-        return 2 * overlap
+        # Integrand over \theta
+        integrand = P_Ld_array * P_L2_array * psi_k2_array
+        
+        # Return integrand over k_2 by integrating over \theta
+        return jnp.sum(self.jacobian * integrand)
     
   
-### TODO: Apply same changes as in F_1?
 class F3:
     """Class for calculating the overlap matrix element:
     < \phi |
@@ -2356,6 +2146,9 @@ class F3:
         # Initialize \delta U class
         self.deltaU = DeltaU(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
@@ -2364,21 +2157,69 @@ class F3:
         self.L_d_array = jnp.array([0, 2])
 
         # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
+        ntot_theta = 21
+        theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
-        # Meshgrids for integrations over \theta, k_2, and k_5
+        # Set integration mesh for momenta
+        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
+        
+        # Meshgrids and Jacobian for \theta and k_5
         self.theta_grid, self.k5_grid = jnp.meshgrid(
-            self.theta_array, self.dwf.k_array, indexing='ij'
+            theta_array, self.dwf.k_array, indexing='ij'
         )
         dtheta_grid, dk5_grid = jnp.meshgrid(
-            self.theta_weights, self.dwf.k_weights, indexing='ij'
+            theta_weights, self.dwf.k_weights, indexing='ij'
         )
-        
-        # Jacobian for integrations over \theta and k_5
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk5_grid
                          * self.k5_grid ** 2)
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for L_2 in L_array:
+                        for m_s in m_s_array:
+                            for L_3 in L_array:
+                                for L_d in L_d_array:
+                                        
+                                    # Check if the partial wave channels are
+                                    # physical
+                                    tmatrix_bool = (
+                                        self.tmatrix.channel_is_physical(
+                                            J_1, L_2, L_1, 1, T_1
+                                        )
+                                    )
+                                    deltaU_bool = (
+                                        self.deltaU.channel_is_physical(
+                                            1, L_d, L_3, 1, 0
+                                        )
+                                    )
+                                    channel_bool = tmatrix_bool and deltaU_bool
+                                        
+                                    # Check if T_1 and L_1 factor is 0
+                                    if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                        lt_bool = False
+                                    else:
+                                        lt_bool = True
+                                        
+                                    # Append combination to quantum numbers
+                                    if channel_bool and lt_bool:
+                                        quantum_numbers.append(
+                                            [T_1, L_1, J_1, L_2, m_s, L_3, L_d]
+                                        )
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
     
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
@@ -2389,20 +2230,21 @@ class F3:
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
         
-        # Vectorize overlap method over T_1
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, L_2, m_s, L_3, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
@@ -2410,147 +2252,40 @@ class F3:
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-        
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, T_1, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, T_1, L_1 = args
-        
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
         cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                             m_J_d)
         
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, T_1, L_1, J_1
-        overlap_array = cg_L1_mSf * vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
+        # CG < J_1 m_J_d | L_2 m_J_d - m_s S = 1 m_s >
+        cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1 = args
+        # CG < L_3 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
+        cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, 1, m_J_d)
         
         # Call T-matrix for given partial wave channel [fm]
         T_matrix = jnp.conj(self.tmatrix.compute(pp, J_1, L_2, L_1, 1, T_1))
-
-        # Half off-shell T-matrix with shape is (ntot_k, 1)
+        
+        # Half off-shell T-matrix with shape (ntot_k, 1)
         ntot_k = self.tmatrix.ntot
         T_half_offshell_array = T_matrix[:ntot_k, ntot_k]
         
         # On-shell T-matrix (scalar)
         T_onshell = T_matrix[ntot_k, ntot_k]
-
-        # Vectorize overlap method over m_s
-        args = pp, q, T_half_offshell_array, T_onshell, m_J_d, J_1, L_2
-        overlap_array = vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
         
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, and m_s.
-        """
-        
-        # Unpack other arguments
-        pp, q, T_half_offshell_array, T_onshell, m_J_d, J_1, L_2 = args
-        
-        # CG < J_1 m_J_d | L_2 m_J_d - m_s S = 1 m_s >
-        cg_L2_ms = self.cg.get_coefficient(L_2, m_J_d - m_s, 1, m_s, J_1, m_J_d)
-
-        # Vectorize overlap method over L_3
-        args = pp, q, T_half_offshell_array, T_onshell, m_J_d, L_2, m_s
-        overlap_array = cg_L2_ms * vmap(
-            self.overlap_wrt_L3, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_3
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L3(self, L_3, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, m_s, and L_3.
-        """
-        
-        # Unpack other arguments
-        pp, q, T_half_offshell_array, T_onshell, m_J_d, L_2, m_s = args
-        
-        # CG < L_3 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
-        cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, 1, m_J_d)
-        
-        # Vectorize overlap method over L_d
-        args = pp, q, T_half_offshell_array, T_onshell, m_J_d, L_2, m_s, L_3
-        overlap_array = cg_L3_ms * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, m_s, L_3, and L_d.
-        """
-        
-        # Unpack other arguments
-        pp, q, T_half_offshell_array, T_onshell, m_J_d, L_2, m_s, L_3 = args
-        
+        # k_2 momentum mesh
         k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
         
         # Repackage arguments with L_d
-        args = q, m_J_d, L_2, m_s, L_3, L_d
+        args = q, m_J_d, T_1, L_1, J_1, L_2, m_s, L_3, L_d
 
         # Vectorize overlap method over k_2 and attach k_2 ** 2 factor
         f_k2_array = (
@@ -2566,12 +2301,19 @@ class F3:
         # \int_0^\Lamb dk_2 / (p'^2 - k_2^2)
         integral_k2 = jnp.sum(k2_weights * greens_func_array)
         
-        return (
-            integral_f_k2
-            - f_pp * (integral_k2 - 1 / (2 * pp) * (
-                jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
-            ))
+        # Overlap matrix element
+        overlap = 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L2_ms 
+            * cg_L3_ms * (
+                integral_f_k2 - f_pp * (
+                    integral_k2 - 1 / (2 * pp) * (
+                        jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
+                    )
+                )
+            )
         )
+        
+        return overlap
     
     @partial(jit, static_argnums=(0,))
     def vmap_overlap_wrt_k2(self, k2_array, args):
@@ -2581,12 +2323,10 @@ class F3:
     
     @partial(jit, static_argnums=(0,))
     def overlap_wrt_k2(self, k_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, m_s, L_3, L_d, and k_2.
-        """
+        """Overlap matrix element for particular values k_2."""
         
         # Unpack other arguments
-        q, m_J_d, L_2, m_s, L_3, L_d = args
+        q, m_J_d, T_1, L_1, J_1, L_2, m_s, L_3, L_d = args
         
         # Fix orbital angular momentum projection
         m_L = m_J_d - m_s
@@ -2598,7 +2338,7 @@ class F3:
         # Angle between the unit vector z^\hat and k2_vector - q_vector / 2
         cos_alphap_k2 = ((k_2 * jnp.cos(self.theta_grid) - q / 2)
                          / k2q_minus_grid)
-        
+
         # Legendre polynomials
         P_L2_grid = self.sf.plm(jnp.cos(self.theta_grid), L_2, m_L)
         P_L3_grid = self.sf.plm(cos_alphap_k2, L_3, m_L)
@@ -2609,16 +2349,13 @@ class F3:
         # \delta U_{J = 1, L_d, L_3, S = 1, T = 0}(k_5, |k_2 - q / 2|)
         delta_U_Ld_L3_grid = self.deltaU(self.k5_grid, k2q_minus_grid, 1, L_d,
                                          L_3, 1, 0)
-        
-        # Integrate over \theta and k_5
+
+        # Integrand over k_2, \theta, and k_4
         integrand = P_L2_grid * P_L3_grid * psi_k5_grid * delta_U_Ld_L3_grid
-        integral = jnp.sum(self.jacobian * integrand)
+        
+        # Return integrand over k_2 by integrating over \theta and k_5
+        return jnp.sum(self.jacobian * integrand)
 
-        # Return overlap
-        return 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * integral
-    
-
-### TODO: Apply same changes as in F_1?
 class F2:
     """Class for calculating the overlap matrix element:
     < \phi | T^\dagger(\lambda) G_0^\dagger \delta U J_0 | \psi_i(\lambda) >
@@ -2644,29 +2381,80 @@ class F2:
         # Initialize \delta U class
         self.deltaU = DeltaU(kvnn, kmax, kmid, ntot, lamb, L_max)
         
+        # Repackage nested sum over quantum numbers into one JAX array
+        self.quantum_numbers = self.get_quantum_numbers(L_max)
+        
         # Arrays for sums over quantum numbers
         self.T_1_array = jnp.array([0, 1])
         self.L_array = jnp.arange(0, L_max + 1, 1)
         self.m_s_array = jnp.array([-1, 0, 1])
         self.J_1_array = jnp.arange(0, L_max + 2, 1)
         self.L_d_array = jnp.array([0, 2])
-
-        # Set cos(\theta) integration mesh
-        self.ntot_theta = 21
-        gq = GaussQuadrature(self.ntot_theta)
-        self.theta_array, self.theta_weights = gq(0, jnp.pi)
         
-        # Meshgrids for integrations over \theta and k_4
+        # Set cos(\theta) integration mesh
+        ntot_theta = 21
+        theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
+        
+        # Set integration mesh for momenta
+        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
+        
+        # Meshgrids and Jacobian for \theta and k_4
         self.theta_grid, self.k4_grid = jnp.meshgrid(
-            self.theta_array, self.dwf.k_array, indexing='ij'
+            theta_array, self.dwf.k_array, indexing='ij'
         )
         dtheta_grid, dk4_grid = jnp.meshgrid(
-            self.theta_weights, self.dwf.k_weights, indexing='ij'
+            theta_weights, self.dwf.k_weights, indexing='ij'
         )
-        
-        # Jacobian for integrations over \theta and k_4
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk4_grid
                          * self.k4_grid ** 2)
+        
+    def get_quantum_numbers(self, L_max):
+        """Repackage all quantum numbers into one big JAX array."""
+        
+        # Arrays for sums over quantum numbers
+        T_1_array = jnp.array([0, 1])
+        L_array = jnp.arange(0, L_max + 1, 1)
+        m_s_array = jnp.array([-1, 0, 1])
+        L_d_array = jnp.array([0, 2])
+        
+        quantum_numbers = []
+        for T_1 in T_1_array:
+            for L_1 in L_array:
+                J_1_array = jnp.arange(jnp.abs(L_1 - 1), L_1 + 2, 1)
+                for J_1 in J_1_array:
+                    for L_2 in L_array:
+                        for L_3 in L_array:
+                            for m_s in m_s_array:
+                                for L_d in L_d_array:
+                                        
+                                    # Check if the partial wave channels are
+                                    # physical
+                                    tmatrix_bool = (
+                                        self.tmatrix.channel_is_physical(
+                                            J_1, L_2, L_1, 1, T_1
+                                        )
+                                    )
+                                    deltaU_bool = (
+                                        self.deltaU.channel_is_physical(
+                                            J_1, L_2, L_3, 1, T_1
+                                        )
+                                    )
+                                    channel_bool = tmatrix_bool and deltaU_bool
+                                        
+                                    # Check if T_1 and L_1 factor is 0
+                                    if 1 + (-1) ** T_1 * (-1) ** L_1 == 0:
+                                        lt_bool = False
+                                    else:
+                                        lt_bool = True
+                                        
+                                    # Append combination to quantum numbers
+                                    if channel_bool and lt_bool:
+                                        quantum_numbers.append(
+                                            [T_1, L_1, J_1, L_2, L_3, m_s, L_d]
+                                        )
+                                        
+        # Return quantum numbers as JAX array
+        return jnp.asarray(quantum_numbers)
     
     @partial(jit, static_argnums=(0,))
     def __call__(self, pp, thetap, q, gep, gen, fL_quantum_numbers):
@@ -2677,20 +2465,21 @@ class F2:
         # Unpack f_L quantum numbers (no dependence on S_f)
         m_S_f, m_J_d = fL_quantum_numbers
         
-        # Vectorize overlap method over T_1
+        # Vectorize overlap method over quantum numbers
         args = pp, thetap, q, gep, gen, m_S_f, m_J_d
         overlap_array = vmap(
-            self.overlap_wrt_T1, in_axes=(0, None)
-        )(self.T_1_array, args)
+            self.overlap_wrt_quantum_numbers, in_axes=(0, None)
+        )(self.quantum_numbers, args)
         
-        # Sum over T_1
+        # Sum over all quantum numbers
         return jnp.sum(overlap_array)
-    
+
     @partial(jit, static_argnums=(0,))
-    def overlap_wrt_T1(self, T_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        and T_1.
-        """
+    def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+        """Overlap matrix element for particular quantum numbers."""
+        
+        # Unpack quantum numbers
+        T_1, L_1, J_1, L_2, L_3, m_s, L_d = quantum_numbers
         
         # Unpack other arguments
         pp, thetap, q, gep, gen, m_S_f, m_J_d = args
@@ -2698,148 +2487,40 @@ class F2:
         # Form factor part
         form_factors = gep + (-1) ** T_1 * gen
         
-        # Vectorize overlap method over L_1
-        args = pp, thetap, q, m_S_f, m_J_d, T_1
-        overlap_array = form_factors * vmap(
-            self.overlap_wrt_L1, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L1(self, L_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, and L_1.
-        """
-        
-        # Unpack other arguments
-        pp, thetap, q, m_S_f, m_J_d, T_1 = args
-        
         # T_1 and L_1 factor
         factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
         
         # Spherical harmonic w.r.t. \theta'
         Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
         
-        # Vectorize overlap method over J_1
-        args = pp, q, m_S_f, m_J_d, T_1, L_1
-        overlap_array = factor_T1_L1 * Y_L_1 * vmap(
-            self.overlap_wrt_J1, in_axes=(0, None)
-        )(self.J_1_array, args)
-        
-        # Sum over J_1
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_J1(self, J_1, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, and J_1.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_S_f, m_J_d, T_1, L_1 = args
-        
         # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
         cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
                                             m_J_d)
         
-        # Vectorize overlap method over L_2
-        args = pp, q, m_J_d, T_1, L_1, J_1
-        overlap_array = cg_L1_mSf * vmap(
-            self.overlap_wrt_L2, in_axes=(0, None)
-        )(self.L_array, args)
+        # CG < J_1 m_J_d | L_3 m_J_d - m_s S = 1 m_s >
+        cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, J_1, m_J_d)
         
-        # Sum over L_2
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L2(self, L_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, and L_2.
-        """
-        
-        # Unpack other arguments
-        pp, q, m_J_d, T_1, L_1, J_1 = args
+        # CG < L_d m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
+        cg_Ld_ms = self.cg.get_coefficient(L_d, m_J_d - m_s, 1, m_s, 1, m_J_d)
         
         # Call T-matrix for given partial wave channel [fm]
         T_matrix = jnp.conj(self.tmatrix.compute(pp, J_1, L_2, L_1, 1, T_1))
 
-        # Half off-shell T-matrix with shape is (ntot_k, 1)
+        # Half off-shell T-matrix with shape (ntot_k, 1)
         ntot_k = self.tmatrix.ntot
         T_half_offshell_array = T_matrix[:ntot_k, ntot_k]
         
         # On-shell T-matrix (scalar)
         T_onshell = T_matrix[ntot_k, ntot_k]
         
-        # Vectorize overlap method over L_3
-        args = pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2
-        overlap_array = vmap(
-            self.overlap_wrt_L3, in_axes=(0, None)
-        )(self.L_array, args)
-        
-        # Sum over L_3
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_L3(self, L_3, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, and L_3.
-        """
-        
-        # Unpack other arguments
-        pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2 = args
-        
-        # Vectorize overlap method over m_s
-        args = (pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2,
-                L_3)
-        overlap_array = vmap(
-            self.overlap_wrt_ms, in_axes=(0, None)
-        )(self.m_s_array, args)
-        
-        # Sum over m_s
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_ms(self, m_s, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, L_3, and m_s.
-        """
-        
-        # Unpack other arguments
-        (pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2,
-         L_3) = args
-        
-        # CG < J_1 m_J_d | L_3 m_J_d - m_s S = 1 m_s >
-        cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, J_1, m_J_d)
-        
-        # Vectorize overlap method over L_d
-        args = (pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2,
-                L_3, m_s)
-        overlap_array = cg_L3_ms * vmap(
-            self.overlap_wrt_Ld, in_axes=(0, None)
-        )(self.L_d_array, args)
-        
-        # Sum over L_d
-        return jnp.sum(overlap_array)
-    
-    @partial(jit, static_argnums=(0,))
-    def overlap_wrt_Ld(self, L_d, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, L_3, m_s, and L_d.
-        """
-        
-        # Unpack other arguments
-        (pp, q, T_half_offshell_array, T_onshell, m_J_d, T_1, J_1, L_2, L_3,
-         m_s) = args
-        
+        # k_2 momentum mesh
         k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
         
         # Repackage arguments with L_d
-        args = q, m_J_d, T_1, J_1, L_2, L_3, m_s, L_d
+        args = q, m_J_d, T_1, L_1, J_1, L_2, L_3, m_s, L_d
 
         # Vectorize overlap method over k_2 and attach k_2 ** 2 factor
         f_k2_array = (
@@ -2855,12 +2536,19 @@ class F2:
         # \int_0^\Lamb dk_2 / (p'^2 - k_2^2)
         integral_k2 = jnp.sum(k2_weights * greens_func_array)
         
-        return (
-            integral_f_k2
-            - f_pp * (integral_k2 - 1 / (2 * pp) * (
-                jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
-            ))
+        # Overlap matrix element
+        overlap = 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L3_ms 
+            * cg_Ld_ms * (
+                integral_f_k2 - f_pp * (
+                    integral_k2 - 1 / (2 * pp) * (
+                        jnp.log((Lamb + pp) / (Lamb - pp)) + 1j * jnp.pi
+                    )
+                )
+            )
         )
+        
+        return overlap
     
     @partial(jit, static_argnums=(0,))
     def vmap_overlap_wrt_k2(self, k2_array, args):
@@ -2870,18 +2558,13 @@ class F2:
     
     @partial(jit, static_argnums=(0,))
     def overlap_wrt_k2(self, k_2, args):
-        """Overlap matrix element for particular values of S_f, m_S_f, m_J_d,
-        T_1, L_1, J_1, L_2, m_s, L_3, L_d, and k_2.
-        """
+        """Overlap matrix element for particular values k_2."""
         
         # Unpack other arguments
-        q, m_J_d, T_1, J_1, L_2, L_3, m_s, L_d = args
+        q, m_J_d, T_1, L_1, J_1, L_2, L_3, m_s, L_d = args
         
         # Fix orbital angular momentum projection
         m_L = m_J_d - m_s
-        
-        # CG < L_d m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
-        cg_Ld_ms = self.cg.get_coefficient(L_d, m_L, 1, m_s, 1, m_J_d)
         
         # Dot product k4_vector \dot q_vector
         k4qx_grid = self.k4_grid * q * jnp.cos(self.theta_grid)
@@ -2890,7 +2573,7 @@ class F2:
         # Angle between the unit vector z^\hat and k4_vector - q_vector / 2
         cos_alphap_k4 = ((self.k4_grid * jnp.cos(self.theta_grid) - q / 2)
                          / k4q_minus_grid)
-        
+
         # Legendre polynomials
         P_L3_grid = self.sf.plm(jnp.cos(self.theta_grid), L_3, m_L)
         P_Ld_grid = self.sf.plm(cos_alphap_k4, L_d, m_L)
@@ -2901,16 +2584,14 @@ class F2:
         # \delta U_{J_1, L_2, L_3, S = 1, T_1}(k_2, k_4)
         delta_U_L2_L3_grid = self.deltaU(k_2, self.k4_grid, J_1, L_2, L_3, 1,
                                          T_1)
-        
-        # Integrate over \theta and k_4
-        integrand = P_L3_grid * P_Ld_grid * psi_k4q_grid * delta_U_L2_L3_grid
-        integral = jnp.sum(self.jacobian * integrand)
 
-        # Return overlap
-        return 4 / jnp.pi * jnp.sqrt(2 / jnp.pi) * cg_Ld_ms * integral
+        # Integrand over k_2, \theta, and k_4
+        integrand = P_L3_grid * P_Ld_grid * psi_k4q_grid * delta_U_L2_L3_grid
+        
+        # Return integrand over k_2 by integrating over \theta and k_4
+        return jnp.sum(self.jacobian * integrand)
     
     
-### TODO: TESTING ONE VMAP FOR QUANTUM NUMBERS AND MESHGRIDS?
 class F1:
     """Class for calculating the overlap matrix element:
     < \phi |
@@ -2986,12 +2667,12 @@ class F1:
                                             )
                                         )
                                         deltaU_23_bool = (
-                                            self.tmatrix.channel_is_physical(
+                                            self.deltaU.channel_is_physical(
                                                 J_1, L_2, L_3, 1, T_1
                                             )
                                         )
                                         deltaU_d4_bool = (
-                                            self.tmatrix.channel_is_physical(
+                                            self.deltaU.channel_is_physical(
                                                 1, L_d, L_4, 1, 0
                                             )
                                         )

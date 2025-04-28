@@ -188,9 +188,9 @@ if __name__ == '__main__':
     # thetap = 15.0
     # write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
     
-    ### TESTING JUST B_4 + F_1
+    ### TESTING JUST B + F terms
     L_max = 2
     ded = DeuteronElectrodisintegration(kvnn, kmax, kmid, ntot, lamb=jnp.inf,
-                                        L_max=L_max, option=5)
+                                        L_max=L_max, option=4)
     f_L = ded.fL(10.0, 15.0, 2.0)
     print(f_L)
