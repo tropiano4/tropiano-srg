@@ -1,0 +1,25 @@
+name: tropiano_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - conda
+  - cython
+  - matplotlib
+  - numba
+  - numpy
+  - pandas
+  - python=3.9.13
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - seaborn
+  - sympy
+  - yaml
+  - pip
+  - pip:
+      - jax
+      - jaxlib
+      - pip
+      - vegas
+      - jaxinterp2d @ git+https://github.com/adam-coogan/jaxinterp2d.git@master
