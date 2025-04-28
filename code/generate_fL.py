@@ -7,7 +7,7 @@ Author: A. J. Tropiano (atropiano@anl.gov)
 Date: April 25, 2025
 
 Script for running the deuteron electrodisintegration longitudinal structure
-function codes.
+function code.
 
 Last update: April 25, 2025
 
@@ -29,11 +29,9 @@ from scripts.deuteron_electrodisintegration import DeuteronElectrodisintegration
 config.update("jax_enable_x64", True)
 
 
-def write_data_wrt_thetap(lamb, Ep, thetap_array, q, L_max=2):
+def write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, Ep, thetap_array, q,
+                          L_max=2):
     """Writes data for f_L at the given kinematics w.r.t. \theta'."""
-    
-    # AV18
-    kvnn, kmax, kmid, ntot = 6, 25.0, 4.0, 120
 
     # Initialize classes
     de_ia_unevolved = DeuteronElectrodisintegration(
@@ -91,11 +89,8 @@ def load_data_wrt_thetap(lamb, Ep, q, L_max=2):
             f_L_fsi_evolved)
     
     
-def write_data_wrt_Ep(lamb, Ep_array, thetap, L_max=2):
+def write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max=2):
     """Writes data for f_L at the given kinematics w.r.t. E'."""
-    
-    # AV18
-    kvnn, kmax, kmid, ntot = 6, 25.0, 4.0, 120
 
     # Initialize classes
     de_ia_unevolved = DeuteronElectrodisintegration(
@@ -169,6 +164,9 @@ def load_data_wrt_Ep(lamb, thetap, L_max=2):
 
 if __name__ == '__main__':
     
+    # Potential
+    kvnn, kmax, kmid, ntot = 6, 25.0, 4.0, 120
+    
     # # SRG \lambda [fm^-1]
     # lamb = 1.5
     # # lamb = 15.0
@@ -182,16 +180,17 @@ if __name__ == '__main__':
     # Ep_values = [100, 10, 30]
     # q_values = [jnp.sqrt(10), 2, 4]
     # for iEp, jq in zip(Ep_values, q_values):
-    #     write_data_wrt_thetap(lamb, iEp, thetap_array, jq, L_max)
+    #     write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, iEp, thetap_array,
+    #                           jq, L_max)
         
     # # Quasifree ridge where \omega = 0
     # Ep_array = np.linspace(10, 115, 100)
     # thetap = 15.0
-    # write_data_wrt_Ep(lamb, Ep_array, thetap, L_max)
+    # write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
     
     ### TESTING JUST B_4 + F_1
     L_max = 2
-    ded = DeuteronElectrodisintegration(6, 25.0, 4.0, 120, lamb=jnp.inf,
+    ded = DeuteronElectrodisintegration(kvnn, kmax, kmid, ntot, lamb=jnp.inf,
                                         L_max=L_max, option=5)
     f_L = ded.fL(10.0, 15.0, 2.0)
     print(f_L)
