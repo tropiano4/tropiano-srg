@@ -118,7 +118,7 @@ class DeuteronElectrodisintegration:
                     + f4(pp, thetap, q, gep, gen, fL_quantum_numbers)
             )
             
-        # Option 3: B + F
+        # Option 4: B + F
         elif option == 4:
             
             b3 = B3(kvnn, kmax, kmid, ntot, lamb, L_max, sf, cg)
