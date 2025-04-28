@@ -9,7 +9,7 @@ Date: April 25, 2025
 Script for running the deuteron electrodisintegration longitudinal structure
 function code.
 
-Last update: April 25, 2025
+Last update: April 28, 2025
 
 """
 
@@ -191,6 +191,6 @@ if __name__ == '__main__':
     ### TESTING JUST B + F terms
     L_max = 2
     ded = DeuteronElectrodisintegration(kvnn, kmax, kmid, ntot, lamb=jnp.inf,
-                                        L_max=L_max, option=4)
+                                        L_max=L_max, option=2)
     f_L = ded.fL(10.0, 15.0, 2.0)
     print(f_L)
