@@ -36,7 +36,6 @@ from .tmatrix_jax import TMatrix
 config.update("jax_enable_x64", True)
 
 
-# TODO: Get rid of option 5 when things are working
 # TODO: Try vmap over QFR again?
 class DeuteronElectrodisintegration:
     """Class that calculates the longitudinal structure function for deuteron
@@ -139,16 +138,6 @@ class DeuteronElectrodisintegration:
                     + f3(pp, thetap, q, gep, gen, fL_quantum_numbers)
                     + f2(pp, thetap, q, gep, gen, fL_quantum_numbers)
                     + f1(pp, thetap, q, gep, gen, fL_quantum_numbers)
-            )
-            
-        # TESTING
-        elif option == 5:
-            
-            self.f1 = F1(kvnn, kmax, kmid, ntot, lamb, L_max, sf, cg)
-            self.overlap = (
-                lambda pp, thetap, q, gep, gen, fL_quantum_numbers:
-                    b4(pp, thetap, q, gep, gen, fL_quantum_numbers)
-                    + self.f1(pp, thetap, q, gep, gen, fL_quantum_numbers)
             )
 
     def fL_sum(self):
