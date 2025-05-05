@@ -9,7 +9,7 @@ Date: April 25, 2025
 Script for running the deuteron electrodisintegration longitudinal structure
 function code.
 
-Last update: April 30, 2025
+Last update: May 5, 2025
 
 """
 
@@ -111,25 +111,25 @@ def write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max=2):
     f_L_ia_unevolved = de_ia_unevolved.fL_quasifree_ridge(Ep_array, thetap)
     t1 = time.time()
     mins = (t1 - t0) / 60
-    print(f"Done with IA + unevolved after {mins:.2f}.")
+    print(f"Done with IA + unevolved after {mins:.4f} minutes.")
     
     t0 = time.time()
     f_L_ia_evolved = de_ia_evolved.fL_quasifree_ridge(Ep_array, thetap)
     t1 = time.time()
     mins = (t1 - t0) / 60
-    print(f"Done with IA + evolved after {mins:.2f}.")
+    print(f"Done with IA + evolved after {mins:.4f} minutes.")
     
     t0 = time.time()
     f_L_fsi_unevolved = de_fsi_unevolved.fL_quasifree_ridge(Ep_array, thetap)
     t1 = time.time()
     mins = (t1 - t0) / 60
-    print(f"Done with FSI + unevolved after {mins:.2f}.")
+    print(f"Done with FSI + unevolved after {mins:.4f} minutes.")
     
     t0 = time.time()
     f_L_fsi_evolved = de_fsi_evolved.fL_quasifree_ridge(Ep_array, thetap)
     t1 = time.time()
     mins = (t1 - t0) / 60
-    print(f"Done with FSI + evolved after {mins:.2f}.")
+    print(f"Done with FSI + evolved after {mins:.4f} minutes.")
     
     # Save data
     directory = '../data/longitudinal_sf/'
