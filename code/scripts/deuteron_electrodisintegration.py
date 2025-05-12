@@ -1364,6 +1364,11 @@ class A2:
         )
 
 
+# TODO: This is the most memory intensive term!
+# Try the following:
+# 1. fori_loop over \theta
+# 2. New momentum meshes across the board: 80 points from 0 to 10 fm^-1.
+# 3. Both 1 and 2?
 class A1:
     """Class for calculating the overlap matrix element:
     < \phi | \delta U^\dagger \delta U J_0 \delta U^\dagger | \psi_i(\lambda) >
