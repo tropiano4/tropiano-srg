@@ -382,7 +382,10 @@ class B3:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta and k_3
         self.theta_grid, self.k3_grid = jnp.meshgrid(theta_array, k_array,
@@ -544,7 +547,10 @@ class B2:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta and k_2
         self.theta_grid, self.k2_grid = jnp.meshgrid(theta_array, k_array,
@@ -705,7 +711,10 @@ class B1:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta, k_2, and k_4
         self.theta_grid, self.k2_grid, self.k4_grid = jnp.meshgrid(
@@ -890,7 +899,10 @@ class A4:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta and k_2
         self.theta_grid, self.k2_grid = jnp.meshgrid(theta_array, k_array,
@@ -1052,7 +1064,10 @@ class A3:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta, k_2, and k_4
         self.theta_grid, self.k2_grid, self.k4_grid = jnp.meshgrid(
@@ -1232,7 +1247,10 @@ class A2:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta, k_2, and k_3
         self.theta_grid, self.k2_grid, self.k3_grid = jnp.meshgrid(
@@ -1378,7 +1396,7 @@ class A2:
 
 # TODO: This is the most memory intensive term!
 # Try the following:
-# 1. New momentum meshes across the board: 80 points from 0 to 10 fm^-1.
+# 1. New momentum meshes across the board: 60 points from 0 to 10 fm^-1.
 #    Make this an optional argument on DeuteronElectrodisintegration.
 # 2. fori_loop over \theta
 # 3. Both 1 and 2?
@@ -1420,7 +1438,10 @@ class A1:
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
         # Set momentum mesh
-        k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
         # Meshgrids and Jacobian for \theta, k_2, k_3, and k_5
         self.theta_grid, self.k2_grid, self.k3_grid, self.k5_grid = (
@@ -1622,10 +1643,7 @@ class F4:
             0, jnp.pi
         )
         self.jacobian = self.theta_weights * jnp.sin(self.theta_array)
-        
-        # Set integration mesh for momenta
-        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
-        
+
     def get_quantum_numbers(self, L_max):
         """Repackage all quantum numbers into one big JAX array."""
         
@@ -1722,7 +1740,7 @@ class F4:
         T_onshell = T_matrix[ntot_k, ntot_k]
         
         # k_2 momentum mesh
-        k2_array, k2_weights = self.k_array, self.k_weights
+        k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
@@ -1837,16 +1855,17 @@ class F3:
         ntot_theta = 21
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
-        # Set integration mesh for momenta
-        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
-        
+        # Set momentum mesh
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
+
         # Meshgrids and Jacobian for \theta and k_5
-        self.theta_grid, self.k5_grid = jnp.meshgrid(
-            theta_array, self.k_array, indexing='ij'
-        )
-        dtheta_grid, dk5_grid = jnp.meshgrid(
-            theta_weights, self.k_weights, indexing='ij'
-        )
+        self.theta_grid, self.k5_grid = jnp.meshgrid(theta_array, k_array,
+                                                     indexing='ij')
+        dtheta_grid, dk5_grid = jnp.meshgrid(theta_weights, k_weights,
+                                             indexing='ij')
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk5_grid
                          * self.k5_grid ** 2)
         
@@ -1956,7 +1975,7 @@ class F3:
         T_onshell = T_matrix[ntot_k, ntot_k]
         
         # k_2 momentum mesh
-        k2_array, k2_weights = self.k_array, self.k_weights
+        k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
@@ -2072,16 +2091,17 @@ class F2:
         ntot_theta = 21
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
-        # Set integration mesh for momenta
-        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
+        # Set momentum mesh
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
         
         # Meshgrids and Jacobian for \theta and k_4
-        self.theta_grid, self.k4_grid = jnp.meshgrid(
-            theta_array, self.k_array, indexing='ij'
-        )
-        dtheta_grid, dk4_grid = jnp.meshgrid(
-            theta_weights, self.k_weights, indexing='ij'
-        )
+        self.theta_grid, self.k4_grid = jnp.meshgrid(theta_array, k_array,
+                                                     indexing='ij')
+        dtheta_grid, dk4_grid = jnp.meshgrid(theta_weights, k_weights,
+                                             indexing='ij')
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk4_grid
                          * self.k4_grid ** 2)
         
@@ -2191,7 +2211,7 @@ class F2:
         T_onshell = T_matrix[ntot_k, ntot_k]
         
         # k_2 momentum mesh
-        k2_array, k2_weights = self.k_array, self.k_weights
+        k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
@@ -2303,15 +2323,18 @@ class F1:
         ntot_theta = 21
         theta_array, theta_weights = GaussQuadrature(ntot_theta)(0, jnp.pi)
         
-        # Set integration mesh for momenta
-        self.k_array, self.k_weights = self.dwf.k_array, self.dwf.k_weights
+        # Set momentum mesh
+        # k_array, k_weights = self.dwf.k_array, self.dwf.k_weights
+        ### TESTING SMALLER MOMENTUM MESH
+        ntot_k = 61
+        k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
         
         # Meshgrids and Jacobian for \theta, k_4, and k_6 integrations
         self.theta_grid, self.k4_grid, self.k6_grid = jnp.meshgrid(
-            theta_array, self.k_array, self.k_array, indexing='ij'
+            theta_array, k_array, k_array, indexing='ij'
         )
         dtheta_grid, dk4_grid, dk6_grid = jnp.meshgrid(
-            theta_weights, self.k_weights, self.k_weights, indexing='ij'
+            theta_weights, k_weights, k_weights, indexing='ij'
         )
         self.jacobian = (dtheta_grid * jnp.sin(self.theta_grid) * dk4_grid
                          * self.k4_grid ** 2 * dk6_grid * self.k6_grid ** 2)
@@ -2432,7 +2455,7 @@ class F1:
         T_onshell = T_matrix[ntot_k, ntot_k]
         
         # k_2 momentum mesh
-        k2_array, k2_weights = self.k_array, self.k_weights
+        k2_array, k2_weights = self.dwf.k_array, self.dwf.k_weights
         
         # Denominator of Green's function
         greens_func_array = 1 / (pp ** 2 - k2_array ** 2)
