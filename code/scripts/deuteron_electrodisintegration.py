@@ -1443,20 +1443,41 @@ class A1:
         ntot_k = 61
         k_array, k_weights = GaussQuadrature(ntot_k)(0, 10.0)
 
-        # Meshgrids and Jacobian for \theta, k_2, k_3, and k_5
-        self.theta_grid, self.k2_grid, self.k3_grid, self.k5_grid = (
+        # # Meshgrids and Jacobian for \theta, k_2, k_3, and k_5
+        # self.theta_grid, self.k2_grid, self.k3_grid, self.k5_grid = (
+        #     jnp.meshgrid(
+        #         theta_array, k_array, k_array, k_array, indexing='ij'
+        #     )
+        # )
+        # dtheta_grid, dk2_grid, dk3_grid, dk5_grid = jnp.meshgrid(
+        #     theta_weights, k_weights, k_weights, k_weights, indexing='ij'
+        # )
+        # self.jacobian = (
+        #     dtheta_grid * jnp.sin(self.theta_grid) * dk2_grid
+        #     * self.k2_grid ** 2 * dk3_grid * self.k3_grid ** 2 * dk5_grid
+        #     * self.k5_grid ** 2
+        # )
+        
+        ### TESTING fori_loop OVER THETA
+        # Set \theta and its weights as instance attributes
+        self.theta_array, self.theta_weights = theta_array, theta_weights
+        self.ntot_theta = ntot_theta
+        
+        # Meshgrids and Jacobian for k_2, k_3, and k_5
+        self.k2_grid, self.k3_grid, self.k5_grid = (
             jnp.meshgrid(
-                theta_array, k_array, k_array, k_array, indexing='ij'
+                k_array, k_array, k_array, indexing='ij'
             )
         )
-        dtheta_grid, dk2_grid, dk3_grid, dk5_grid = jnp.meshgrid(
-            theta_weights, k_weights, k_weights, k_weights, indexing='ij'
+        dk2_grid, dk3_grid, dk5_grid = jnp.meshgrid(
+            k_weights, k_weights, k_weights, indexing='ij'
         )
         self.jacobian = (
-            dtheta_grid * jnp.sin(self.theta_grid) * dk2_grid
-            * self.k2_grid ** 2 * dk3_grid * self.k3_grid ** 2 * dk5_grid
-            * self.k5_grid ** 2
+            dk2_grid * self.k2_grid ** 2 * dk3_grid * self.k3_grid ** 2
+            * dk5_grid * self.k5_grid ** 2
         )
+        
+        
         
     def get_quantum_numbers(self, L_max):
         """Repackage all quantum numbers into one big JAX array."""
@@ -1537,7 +1558,7 @@ class A1:
     @partial(jit, static_argnums=(0,))
     def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
         """Overlap matrix element for particular quantum numbers."""
-
+        
         # Unpack quantum numbers
         T_1, L_1, J_1, m_s, L_3, L_4, L_2, L_d = quantum_numbers
         
@@ -1563,16 +1584,41 @@ class A1:
         # CG < L_4 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
         cg_L4_ms = self.cg.get_coefficient(L_4, m_J_d - m_s, 1, m_s, 1, m_J_d)
         
+        # Integrate over \theta
+        init_val_theta = (0.0, pp, q, m_J_d, T_1, L_1, J_1, m_s, L_3, L_4, L_2,
+                          L_d)
+        val_theta = fori_loop(0, self.ntot_theta, self.overlap_wrt_theta,
+                              init_val_theta)
+        integral_theta = val_theta[0]
+        
+        # Return overlap
+        return 8 / jnp.pi ** 2 * jnp.sqrt(2 / jnp.pi) * (
+            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L3_ms
+            * cg_L4_ms * integral_theta
+        )
+    
+    @partial(jit, static_argnums=(0,))
+    def overlap_wrt_theta(self, i, val_theta):
+        """Overlap matrix element for particular \theta value."""
+
+        # Integration variable
+        theta = self.theta_array[i]
+        jacobian_theta = self.theta_weights[i] * jnp.sin(theta)
+        
+        # Unpack val
+        (integral_theta, pp, q, m_J_d, T_1, L_1, J_1, m_s, L_3, L_4, L_2,
+         L_d) = val_theta
+        
         # Dot product k3_vector \dot q_vector
-        k3qx_grid = self.k3_grid * q * jnp.cos(self.theta_grid)
+        k3qx_grid = self.k3_grid * q * jnp.cos(theta)
         # Magnitude of momenta |k3_vector - q_vector / 2|
         k3q_minus_grid = jnp.sqrt(self.k3_grid ** 2 + q ** 2 / 4 - k3qx_grid)
         # Angle between the unit vector z^\hat and k3_vector - q_vector / 2
-        cos_alphap_k3 = ((self.k3_grid * jnp.cos(self.theta_grid) - q / 2)
+        cos_alphap_k3 = ((self.k3_grid * jnp.cos(theta) - q / 2)
                          / k3q_minus_grid)
         
         # Legendre polynomials
-        P_L3_grid = self.sf.plm(jnp.cos(self.theta_grid), L_3, m_J_d - m_s)
+        P_L3_grid = self.sf.plm(jnp.cos(theta), L_3, m_J_d - m_s)
         P_L4_grid = self.sf.plm(cos_alphap_k3, L_4, m_J_d - m_s)
         
         # Deuteron wave function [fm^3/2]
@@ -1590,16 +1636,86 @@ class A1:
         delta_U_Ld_L4_grid = self.deltaU(self.k5_grid, k3q_minus_grid, 1, L_d,
                                          L_4, 1, 0)
         
-        # Integrate over \theta, k_2, k_3, and k_5
-        integrand = (P_L3_grid * P_L4_grid * psi_k5_grid * delta_U_L2_L1_grid
-                     * delta_U_L2_L3_grid * delta_U_Ld_L4_grid)
-        integral = jnp.sum(self.jacobian * integrand)
+        # Integrate over k_2, k_3, and k_5
+        integrand_k = (P_L3_grid * P_L4_grid * psi_k5_grid * delta_U_L2_L1_grid
+                       * delta_U_L2_L3_grid * delta_U_Ld_L4_grid)
+        integrand_theta = jnp.sum(self.jacobian * integrand_k)
         
-        # Return overlap
-        return 8 / jnp.pi ** 2 * jnp.sqrt(2 / jnp.pi) * (
-            form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L3_ms
-            * cg_L4_ms * integral
-        )
+        # Sum up contribution to compute integral over \theta
+        integral_theta += integrand_theta * jacobian_theta
+        
+        # Re-pack val and return
+        val_theta = (integral_theta, pp, q, m_J_d, T_1, L_1, J_1, m_s, L_3, L_4,
+                     L_2, L_d)
+        
+        return val_theta
+    
+    # @partial(jit, static_argnums=(0,))
+    # def overlap_wrt_quantum_numbers(self, quantum_numbers, args):
+    #     """Overlap matrix element for particular quantum numbers."""
+
+    #     # Unpack quantum numbers
+    #     T_1, L_1, J_1, m_s, L_3, L_4, L_2, L_d = quantum_numbers
+        
+    #     # Unpack other arguments
+    #     pp, thetap, q, gep, gen, m_S_f, m_J_d = args
+        
+    #     # Form factor part
+    #     form_factors = gep + (-1) ** T_1 * gen
+        
+    #     # T_1 and L_1 factor
+    #     factor_T1_L1 = 1 + (-1) ** T_1 * (-1) ** L_1
+        
+    #     # Spherical harmonic w.r.t. \theta'
+    #     Y_L_1 = self.sf.ylm(thetap, 0.0, L_1, m_J_d - m_S_f)
+        
+    #     # CG < L_1 m_J_d - m_S_f S = 1 m_S_f | J_1 m_J_d >
+    #     cg_L1_mSf = self.cg.get_coefficient(L_1, m_J_d - m_S_f, 1, m_S_f, J_1,
+    #                                         m_J_d)
+        
+    #     # CG < J_1 m_J_d | L_3 m_J_d - m_s S = 1 m_s >
+    #     cg_L3_ms = self.cg.get_coefficient(L_3, m_J_d - m_s, 1, m_s, J_1, m_J_d)
+        
+    #     # CG < L_4 m_J_d - m_s S = 1 m_s | J = 1 m_J_d >
+    #     cg_L4_ms = self.cg.get_coefficient(L_4, m_J_d - m_s, 1, m_s, 1, m_J_d)
+        
+    #     # Dot product k3_vector \dot q_vector
+    #     k3qx_grid = self.k3_grid * q * jnp.cos(self.theta_grid)
+    #     # Magnitude of momenta |k3_vector - q_vector / 2|
+    #     k3q_minus_grid = jnp.sqrt(self.k3_grid ** 2 + q ** 2 / 4 - k3qx_grid)
+    #     # Angle between the unit vector z^\hat and k3_vector - q_vector / 2
+    #     cos_alphap_k3 = ((self.k3_grid * jnp.cos(self.theta_grid) - q / 2)
+    #                      / k3q_minus_grid)
+        
+    #     # Legendre polynomials
+    #     P_L3_grid = self.sf.plm(jnp.cos(self.theta_grid), L_3, m_J_d - m_s)
+    #     P_L4_grid = self.sf.plm(cos_alphap_k3, L_4, m_J_d - m_s)
+        
+    #     # Deuteron wave function [fm^3/2]
+    #     psi_k5_grid = self.dwf.compute_wf(self.k5_grid, L_d)
+        
+    #     # \delta U_{J_1, L_2, L_1, S = 1, T_1}(k_2, p')
+    #     delta_U_L2_L1_grid = self.deltaU(self.k2_grid, pp, J_1, L_2, L_1, 1,
+    #                                      T_1)
+        
+    #     # \delta U_{J_1, L_2, L_3, S = 1, T_1}(k_2, k_3)
+    #     delta_U_L2_L3_grid = self.deltaU(self.k2_grid, self.k3_grid, J_1, L_2,
+    #                                      L_3, 1, T_1)
+        
+    #     # \delta U_{J = 1, L_d, L_4, S = 1, T = 0}(k_5, |k_3 - q / 2|)
+    #     delta_U_Ld_L4_grid = self.deltaU(self.k5_grid, k3q_minus_grid, 1, L_d,
+    #                                      L_4, 1, 0)
+        
+    #     # Integrate over \theta, k_2, k_3, and k_5
+    #     integrand = (P_L3_grid * P_L4_grid * psi_k5_grid * delta_U_L2_L1_grid
+    #                  * delta_U_L2_L3_grid * delta_U_Ld_L4_grid)
+    #     integral = jnp.sum(self.jacobian * integrand)
+        
+    #     # Return overlap
+    #     return 8 / jnp.pi ** 2 * jnp.sqrt(2 / jnp.pi) * (
+    #         form_factors * factor_T1_L1 * Y_L_1 * cg_L1_mSf * cg_L3_ms
+    #         * cg_L4_ms * integral
+    #     )
     
     
 class F4:
