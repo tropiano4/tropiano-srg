@@ -176,17 +176,17 @@ if __name__ == '__main__':
     L_max = 3
 
     # \theta values for fixed q and E'
-    thetap_array = jnp.linspace(0.01, 179.9, 100)
-    Ep_values = [100, 10, 30]
-    q_values = [jnp.sqrt(10), 2, 4]
-    for iEp, jq in zip(Ep_values, q_values):
-        write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, iEp, thetap_array,
-                              jq, L_max)
+    # thetap_array = jnp.linspace(0.01, 179.9, 100)
+    # Ep_values = [100, 10, 30]
+    # q_values = [jnp.sqrt(10), 2, 4]
+    # for iEp, jq in zip(Ep_values, q_values):
+    #     write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, iEp, thetap_array,
+    #                           jq, L_max)
         
-    # # Quasifree ridge where \omega = 0
-    # Ep_array = np.linspace(10, 115, 100)
-    # thetap = 15.0
-    # write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
+    # Quasifree ridge where \omega = 0
+    Ep_array = np.linspace(10, 115, 100)
+    thetap = 15.0
+    write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
     
     # ### TESTING JUST B + A terms
     # L_max = 2
