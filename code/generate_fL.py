@@ -9,7 +9,7 @@ Date: April 25, 2025
 Script for running the deuteron electrodisintegration longitudinal structure
 function code.
 
-Last update: May 5, 2025
+Last update: May 28, 2025
 
 """
 
@@ -58,7 +58,7 @@ def write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, Ep, thetap_array, q,
     print("Done with FSI + evolved.")
     
     # Save data
-    directory = '../data/longitudinal_sf/'
+    directory = f"../data/longitudinal_sf/kvnn_{kvnn:d}/"
     filename = f"fL_lamb{lamb:.1f}_Ep{Ep:d}_q{q:.2f}_Lmax{L_max:d}.txt"
     
     data = np.vstack((
@@ -70,11 +70,11 @@ def write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, Ep, thetap_array, q,
     np.savetxt(directory + filename, data, header=hdr)
     
     
-def load_data_wrt_thetap(lamb, Ep, q, L_max=2):
+def load_data_wrt_thetap(kvnn, lamb, Ep, q, L_max=2):
     """Load data for f_L at the given kinematics w.r.t. \theta'."""
     
     # Load data
-    directory = '../data/longitudinal_sf/'
+    directory = f"../data/longitudinal_sf/kvnn_{kvnn:d}/"
     filename = f"fL_lamb{lamb:.1f}_Ep{Ep:d}_q{q:.2f}_Lmax{L_max:d}.txt"
     
     data = np.loadtxt(directory + filename)
@@ -132,7 +132,7 @@ def write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max=2):
     print(f"Done with FSI + evolved after {mins:.4f} minutes.")
     
     # Save data
-    directory = '../data/longitudinal_sf/'
+    directory = f"../data/longitudinal_sf/kvnn_{kvnn:d}/"
     filename = f"fL_lamb{lamb:.1f}_qfr_thetap{thetap:.1f}_Lmax{L_max:d}.txt"
     
     data = np.vstack((
@@ -143,11 +143,11 @@ def write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max=2):
            " FSI + Unevolved [fm], FSI + Evolved [fm]\n")
     np.savetxt(directory + filename, data, header=hdr)
     
-def load_data_wrt_Ep(lamb, thetap, L_max=2):
+def load_data_wrt_Ep(kvnn, lamb, thetap, L_max=2):
     """Load data for f_L at the given kinematics w.r.t. E'."""
     
     # Load data
-    directory = '../data/longitudinal_sf/'
+    directory = f"../data/longitudinal_sf/kvnn_{kvnn:d}/"
     filename = f"fL_lamb{lamb:.1f}_qfr_thetap{thetap:.1f}_Lmax{L_max:d}.txt"
     
     data = np.loadtxt(directory + filename)
@@ -166,27 +166,28 @@ if __name__ == '__main__':
     
     # Potential
     kvnn, kmax, kmid, ntot = 6, 25.0, 4.0, 120
+    # kvnn, kmax, kmid, ntot = 7, 15.0, 3.0, 120
     
     # SRG \lambda [fm^-1]
     lamb = 1.5
     # lamb = 15.0
 
     # Truncation on sums involving total orbital angular momentum L
-    # L_max = 2
-    L_max = 3
+    L_max = 2
+    # L_max = 3
 
     # \theta values for fixed q and E'
-    # thetap_array = jnp.linspace(0.01, 179.9, 100)
-    # Ep_values = [100, 10, 30]
-    # q_values = [jnp.sqrt(10), 2, 4]
-    # for iEp, jq in zip(Ep_values, q_values):
-    #     write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, iEp, thetap_array,
-    #                           jq, L_max)
+    thetap_array = jnp.linspace(0.01, 179.9, 100)
+    Ep_values = [100, 10, 30]
+    q_values = [jnp.sqrt(10), 2, 4]
+    for iEp, jq in zip(Ep_values, q_values):
+        write_data_wrt_thetap(kvnn, kmax, kmid, ntot, lamb, iEp, thetap_array,
+                              jq, L_max)
         
-    # Quasifree ridge where \omega = 0
-    Ep_array = np.linspace(10, 115, 100)
-    thetap = 15.0
-    write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
+    # # Quasifree ridge where \omega = 0
+    # Ep_array = np.linspace(10, 115, 100)
+    # thetap = 15.0
+    # write_data_wrt_Ep(kvnn, kmax, kmid, ntot, lamb, Ep_array, thetap, L_max)
     
     # ### TESTING JUST B + A terms
     # L_max = 2
