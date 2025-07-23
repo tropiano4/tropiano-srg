@@ -1372,16 +1372,16 @@ def set_isospin_configurations(tau):
 if __name__ == '__main__':
     
     # Nucleus
-    nucleus_name, Z, N = 'He4', 2, 2
+    # nucleus_name, Z, N = 'He4', 2, 2
     # nucleus_name, Z, N = 'C12', 6, 6
-    # nucleus_name, Z, N = 'O16', 8, 8
+    nucleus_name, Z, N = 'O16', 8, 8
     # nucleus_name, Z, N = 'Ar40', 18, 22
     # nucleus_name, Z, N = 'Ni56', 28, 28
 
     # Quantum state
-    n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
+    # n, l, j, m_t = 1, 0, 1/2, 1/2  # 1s_{1/2}
     # n, l, j, m_t = 1, 1, 3/2, 1/2  # 1p_{3/2}
-    # n, l, j, m_t = 1, 1, 1/2, 1/2  # 1p_{1/2}
+    n, l, j, m_t = 1, 1, 1/2, 1/2  # 1p_{1/2}
     # n, l, j, m_t = 2, 0, 1/2, 1/2  # 2s_{1/2}
     # n, l, j, m_t = 1, 3, 7/2, 1/2  # 1f_{7/2}
 
@@ -1395,13 +1395,13 @@ if __name__ == '__main__':
     # kvnn, kmax, kmid, ntot = 113, 15.0, 3.0, 120  # SMS N4LO 550 MeV
     
     # SRG \lambda value
-    # lamb = 1.5
+    lamb = 1.5
     # lamb = 3.0
-    lamb = np.inf
+    # lamb = np.inf
     
     # Number of evaluations for vegas
-    neval = 1e3
-    # neval = 5e3
+    # neval = 1e3
+    neval = 5e3
     
     # Initialize overlap class
     so = SpectroscopicOverlap(nucleus_name, Z, N, kvnn, lamb, channels,
@@ -1412,19 +1412,19 @@ if __name__ == '__main__':
     overlap_array, error_array, ipm_array = so.compute_overlap(q_array, n, l, j,
                                                                 m_t, 1/2, 1/2)
     
-    # # Save overlap
-    # if m_t == 1/2:
-    #     nucleon = 'proton'
-    # elif m_t == -1/2:
-    #     nucleon = 'neutron'
-    # filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
-    #                             f"_overlap_kvnn_{kvnn}_lamb_{lamb}"))
-    # so.save(filename, j, q_array, q_weights, overlap_array, error_array,
-    #         ipm_array)
+    # Save overlap
+    if m_t == 1/2:
+        nucleon = 'proton'
+    elif m_t == -1/2:
+        nucleon = 'neutron'
+    filename = (replace_periods(f"{nucleus_name}_{nucleon}_n{n}_l{l}_j{2*j}"
+                                f"_overlap_kvnn_{kvnn}_lamb_{lamb}"))
+    so.save(filename, j, q_array, q_weights, overlap_array, error_array,
+            ipm_array)
     
-    ### TESTING SAME WS ON BOTH SIDES
-    factor = (2 * np.pi)**3 / (4*np.pi) * 2
-    norm = 2 / np.pi * factor * np.sum(q_weights * q_array ** 2
-                                       * overlap_array ** 2)
-    print(norm)
+    # ### TESTING SAME WS ON BOTH SIDES
+    # factor = (2 * np.pi)**3 / (4*np.pi) * 2
+    # norm = 2 / np.pi * factor * np.sum(q_weights * q_array ** 2
+    #                                    * overlap_array ** 2)
+    # print(norm)
     
